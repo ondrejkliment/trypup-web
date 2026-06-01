@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+<Base title="Blog — Trypup" description="Články o zodpovědné péči o psa, adopci a o tom, jak poznat, že jsi připravený.">
+  <section class="section wrap">
+    <h2 class="section-title">Blog</h2>
+    <p class="section-sub">Fakta a tipy o zodpovědné péči a adopci.</p>
+    <div class="posts" style="max-width:720px;margin:0 auto">
+      {posts.map((p) => (
+        <a class="post-row" href={`/blog/${p.id}/`}>
+          <h3>{p.data.title}</h3>
+          <div class="meta">{p.data.tag ? p.data.tag + ' · ' : ''}{p.data.date.toLocaleDateString('cs-CZ')}</div>
+          <p>{p.data.description}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>

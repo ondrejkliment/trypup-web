@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+).slice(0, 3);
+
+const features = [
+  { emoji: '🐾', title: 'GPS procházky', text: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdeš ven.' },
+  { emoji: '🦴', title: 'Denní péče', text: 'Krmení, hra, čištění, odpočinek. Statistiky reagují na to, jak se staráš.' },
+  { emoji: '🎓', title: 'Výcvik', text: '9 povelů s postupným odemykáním. Každé plemeno se učí jinak rychle.' },
+  { emoji: '💉', title: 'Zdraví & náklady', text: 'Očkovací kalendář a reálné měsíční i roční náklady na psa.' },
+  { emoji: '📚', title: 'Vzdělávání', text: 'Články o adopci, výběru útulku a otázkách, které si polož předem.' },
+  { emoji: '👨‍👩‍👧', title: 'Spoluvlastnictví', text: 'Sdílej péči s rodinou — každý vidí, co udělal ten druhý.' },
+];
+---
+<Base>
+  <section class="hero wrap">
+    <span class="badge">🐾 Pes na zkoušku</span>
+    <h1>Vyzkoušej si psa,<br />než je pozdě</h1>
+    <p class="lead">Trypup je virtuální pes, na kterém zjistíš, jestli máš čas a sílu na skutečného psa — <strong>dřív, než ho přivedeš domů</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#stahnout">Stáhnout appku</a>
+      <a class="btn btn-ghost" href="#jak-to-funguje">Jak to funguje</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big">Až <span>polovina psů</span> v útulcích tam skončí kvůli nepřipravenosti majitelů.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup ti dá šanci to zjistit před rozhodnutím — ne po něm.</p>
+    </div>
+  </section>
+
+  <section id="jak-to-funguje" class="section wrap">
+    <h2 class="section-title">Jak to funguje</h2>
+    <p class="section-sub">Tři kroky, jako kdyby ses staral doopravdy.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Vyber plemeno a pojmenuj psa.</strong> Dotazník ti doporučí, co k tobě sedí.</div></div>
+      <div class="step"><div class="num"></div><div><strong>Starej se každý den.</strong> Procházky, krmení, výcvik, veterina. Nic se nedá odbýt.</div></div>
+      <div class="step"><div class="num"></div><div><strong>Zjisti pravdu o sobě.</strong> Zvládneš rutinu i ve dnech, kdy se ti nechce? Pokud psa zanedbáš, odejde do útulku — bez následků pro živé zvíře.</div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Co appka umí</h2>
+    <p class="section-sub">Realistická simulace péče — od procházek po náklady.</p>
+    <div class="grid">
+      {features.map((f) => (
+        <div class="card">
+          <div class="emoji">{f.emoji}</div>
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {posts.length > 0 && (
+    <section class="section wrap">
+      <h2 class="section-title">Z blogu</h2>
+      <p class="section-sub">Fakta a tipy o zodpovědné péči a adopci.</p>
+      <div class="posts">
+        {posts.map((p) => (
+          <a class="post-row" href={`/blog/${p.id}/`}>
+            <h3>{p.data.title}</h3>
+            <div class="meta">{p.data.tag ? p.data.tag + ' · ' : ''}{p.data.date.toLocaleDateString('cs-CZ')}</div>
+            <p>{p.data.description}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section id="stahnout" class="section wrap center">
+    <h2 class="section-title">Vyzkoušej si psa · než je pozdě</h2>
+    <p class="section-sub">Appka brzy v App Store a Google Play. Zatím se mrkni, o co jde.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/o-aplikaci/">O aplikaci</a>
+      <a class="btn btn-ghost" href="/blog/">Číst blog</a>
+    </div>
+  </section>
+</Base>

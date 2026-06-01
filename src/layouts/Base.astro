@@ -1,0 +1,56 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = 'Trypup — Vyzkoušej si psa, než je pozdě',
+  description = 'Trypup je virtuální pes na zkoušku. Zjisti, jestli máš čas a sílu na skutečného psa — dřív, než ho přivedeš domů.',
+} = Astro.props;
+const year = 2026;
+---
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#FEF7ED" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/">🐾 Trypup</a>
+        <nav class="nav">
+          <a href="/#jak-to-funguje">Jak to funguje</a>
+          <a href="/o-aplikaci/">O aplikaci</a>
+          <a href="/blog/">Blog</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div>© {year} Trypup · Ondřej Kliment</div>
+        <div class="links">
+          <a href="/o-aplikaci/">O aplikaci</a>
+          <a href="/blog/">Blog</a>
+          <a href="/zasady-ochrany/">Zásady ochrany</a>
+          <a href="/podminky/">Podmínky</a>
+          <a href="mailto:o.kliment@gmail.com">Kontakt</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
