@@ -25,7 +25,7 @@
     <path d="M100 134 Q90 143 82 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
     <path d="M100 134 Q110 143 118 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
   </g>
-  <text x="172" y="138" font-size="62" font-weight="800"><tspan fill="#4A2B45">try</tspan><tspan fill="#F2784B">pup</tspan></text>
+  <text x="218" y="148" font-size="62" font-weight="800"><tspan fill="#4A2B45">try</tspan><tspan fill="#F2784B">pup</tspan></text>
 
   <!-- main message -->
   <text x="82" y="360" font-size="104" font-weight="800" fill="#4A2B45">Pes na zkoušku</text>
