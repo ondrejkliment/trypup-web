@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="860" viewBox="0 0 1500 860" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1500" height="860" fill="#ffffff"/>
+  <text x="60" y="56" font-size="34" font-weight="800" fill="#1F2937">Trypup — 3 hřejivé směry + mascot koncept</text>
+  <text x="60" y="86" font-size="17" fill="#6B7280">Stejný pejsek-charakter ve 3 paletách. Vyber okem; hex kódy jsou pod swatchemi.</text>
+
+  <!-- ================= COLUMN A: Písek & Terakota ================= -->
+  <g transform="translate(60,120)">
+    <rect x="0" y="0" width="420" height="700" rx="26" fill="#FBF3E8" stroke="#EADBC8" stroke-width="2"/>
+    <text x="210" y="46" text-anchor="middle" font-size="22" font-weight="800" fill="#2B2018">A · Písek &amp; Terakota</text>
+    <text x="210" y="72" text-anchor="middle" font-size="13" fill="#7A6A58">teplá, vyzrálá, důvěryhodná</text>
+    <!-- mascot -->
+    <g transform="translate(210,210)">
+      <ellipse cx="-52" cy="-12" rx="22" ry="44" transform="rotate(-22 -52 -12)" fill="#2B2018"/>
+      <ellipse cx="52" cy="-12" rx="22" ry="44" transform="rotate(22 52 -12)" fill="#2B2018"/>
+      <circle cx="0" cy="0" r="62" fill="#E0613A"/>
+      <ellipse cx="0" cy="26" rx="34" ry="26" fill="#FBF3E8"/>
+      <circle cx="-23" cy="-8" r="7.5" fill="#2B2018"/>
+      <circle cx="23" cy="-8" r="7.5" fill="#2B2018"/>
+      <ellipse cx="0" cy="12" rx="9" ry="7" fill="#2B2018"/>
+      <path d="M -12 30 Q 0 40 12 30" stroke="#2B2018" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+    <text x="210" y="330" text-anchor="middle" font-size="40" font-weight="800" fill="#2B2018">Trypup</text>
+    <!-- swatches -->
+    <g transform="translate(20,380)">
+      <rect x="0"   y="0" width="68" height="80" rx="12" fill="#E0613A"/>
+      <rect x="78"  y="0" width="68" height="80" rx="12" fill="#F2C9A0"/>
+      <rect x="156" y="0" width="68" height="80" rx="12" fill="#2F6F6A"/>
+      <rect x="234" y="0" width="68" height="80" rx="12" fill="#2B2018"/>
+      <rect x="312" y="0" width="68" height="80" rx="12" fill="#FBF3E8" stroke="#EADBC8" stroke-width="1.5"/>
+      <text x="34"  y="104" text-anchor="middle" font-size="12" fill="#2B2018">#E0613A</text>
+      <text x="112" y="104" text-anchor="middle" font-size="12" fill="#2B2018">#F2C9A0</text>
+      <text x="190" y="104" text-anchor="middle" font-size="12" fill="#2B2018">#2F6F6A</text>
+      <text x="268" y="104" text-anchor="middle" font-size="12" fill="#2B2018">#2B2018</text>
+      <text x="346" y="104" text-anchor="middle" font-size="12" fill="#2B2018">#FBF3E8</text>
+      <text x="34"  y="124" text-anchor="middle" font-size="10" fill="#7A6A58">primární</text>
+      <text x="112" y="124" text-anchor="middle" font-size="10" fill="#7A6A58">jemná</text>
+      <text x="190" y="124" text-anchor="middle" font-size="10" fill="#7A6A58">akcent</text>
+      <text x="268" y="124" text-anchor="middle" font-size="10" fill="#7A6A58">tmavá</text>
+      <text x="346" y="124" text-anchor="middle" font-size="10" fill="#7A6A58">pozadí</text>
+    </g>
+    <!-- mini CTA preview -->
+    <g transform="translate(20,540)">
+      <rect x="0" y="0" width="180" height="46" rx="23" fill="#E0613A"/>
+      <text x="90" y="29" text-anchor="middle" font-size="16" font-weight="700" fill="#FBF3E8">Vyzkoušet</text>
+      <rect x="200" y="0" width="180" height="46" rx="23" fill="none" stroke="#2F6F6A" stroke-width="2"/>
+      <text x="290" y="29" text-anchor="middle" font-size="16" font-weight="700" fill="#2F6F6A">Jak funguje</text>
+    </g>
+    <text x="210" y="640" text-anchor="middle" font-size="12" fill="#7A6A58">CTA terakota · důvěra = tlumená petrolejová</text>
+  </g>
+
+  <!-- ================= COLUMN B: Med & Smetana ================= -->
+  <g transform="translate(540,120)">
+    <rect x="0" y="0" width="420" height="700" rx="26" fill="#FFF7E6" stroke="#F0E3C0" stroke-width="2"/>
+    <text x="210" y="46" text-anchor="middle" font-size="22" font-weight="800" fill="#3A2E1E">B · Med &amp; Smetana</text>
+    <text x="210" y="72" text-anchor="middle" font-size="13" fill="#8A7A5E">sluneční, vlídná, optimistická</text>
+    <g transform="translate(210,210)">
+      <ellipse cx="-52" cy="-12" rx="22" ry="44" transform="rotate(-22 -52 -12)" fill="#3A2E1E"/>
+      <ellipse cx="52" cy="-12" rx="22" ry="44" transform="rotate(22 52 -12)" fill="#3A2E1E"/>
+      <circle cx="0" cy="0" r="62" fill="#F0A93B"/>
+      <ellipse cx="0" cy="26" rx="34" ry="26" fill="#FFF7E6"/>
+      <circle cx="-23" cy="-8" r="7.5" fill="#3A2E1E"/>
+      <circle cx="23" cy="-8" r="7.5" fill="#3A2E1E"/>
+      <ellipse cx="0" cy="12" rx="9" ry="7" fill="#3A2E1E"/>
+      <path d="M -12 30 Q 0 40 12 30" stroke="#3A2E1E" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+    <text x="210" y="330" text-anchor="middle" font-size="40" font-weight="800" fill="#3A2E1E">Trypup</text>
+    <g transform="translate(20,380)">
+      <rect x="0"   y="0" width="68" height="80" rx="12" fill="#F0A93B"/>
+      <rect x="78"  y="0" width="68" height="80" rx="12" fill="#FBD899"/>
+      <rect x="156" y="0" width="68" height="80" rx="12" fill="#5B8C5A"/>
+      <rect x="234" y="0" width="68" height="80" rx="12" fill="#3A2E1E"/>
+      <rect x="312" y="0" width="68" height="80" rx="12" fill="#FFF7E6" stroke="#F0E3C0" stroke-width="1.5"/>
+      <text x="34"  y="104" text-anchor="middle" font-size="12" fill="#3A2E1E">#F0A93B</text>
+      <text x="112" y="104" text-anchor="middle" font-size="12" fill="#3A2E1E">#FBD899</text>
+      <text x="190" y="104" text-anchor="middle" font-size="12" fill="#3A2E1E">#5B8C5A</text>
+      <text x="268" y="104" text-anchor="middle" font-size="12" fill="#3A2E1E">#3A2E1E</text>
+      <text x="346" y="104" text-anchor="middle" font-size="12" fill="#3A2E1E">#FFF7E6</text>
+      <text x="34"  y="124" text-anchor="middle" font-size="10" fill="#8A7A5E">primární</text>
+      <text x="112" y="124" text-anchor="middle" font-size="10" fill="#8A7A5E">jemná</text>
+      <text x="190" y="124" text-anchor="middle" font-size="10" fill="#8A7A5E">akcent</text>
+      <text x="268" y="124" text-anchor="middle" font-size="10" fill="#8A7A5E">tmavá</text>
+      <text x="346" y="124" text-anchor="middle" font-size="10" fill="#8A7A5E">pozadí</text>
+    </g>
+    <g transform="translate(20,540)">
+      <rect x="0" y="0" width="180" height="46" rx="23" fill="#F0A93B"/>
+      <text x="90" y="29" text-anchor="middle" font-size="16" font-weight="700" fill="#3A2E1E">Vyzkoušet</text>
+      <rect x="200" y="0" width="180" height="46" rx="23" fill="none" stroke="#5B8C5A" stroke-width="2"/>
+      <text x="290" y="29" text-anchor="middle" font-size="16" font-weight="700" fill="#5B8C5A">Jak funguje</text>
+    </g>
+    <text x="210" y="640" text-anchor="middle" font-size="12" fill="#8A7A5E">CTA medová · důvěra = šalvějová zelená</text>
+  </g>
+
+  <!-- ================= COLUMN C: Meruňka & Švestka ================= -->
+  <g transform="translate(1020,120)">
+    <rect x="0" y="0" width="420" height="700" rx="26" fill="#FDF4EF" stroke="#F1DDD0" stroke-width="2"/>
+    <text x="210" y="46" text-anchor="middle" font-size="22" font-weight="800" fill="#4A2B45">C · Meruňka &amp; Švestka</text>
+    <text x="210" y="72" text-anchor="middle" font-size="13" fill="#8A6E80">hravá, výrazná, nejvíc ownable</text>
+    <g transform="translate(210,210)">
+      <ellipse cx="-52" cy="-12" rx="22" ry="44" transform="rotate(-22 -52 -12)" fill="#4A2B45"/>
+      <ellipse cx="52" cy="-12" rx="22" ry="44" transform="rotate(22 52 -12)" fill="#4A2B45"/>
+      <circle cx="0" cy="0" r="62" fill="#F2784B"/>
+      <ellipse cx="0" cy="26" rx="34" ry="26" fill="#FDF4EF"/>
+      <circle cx="-23" cy="-8" r="7.5" fill="#4A2B45"/>
+      <circle cx="23" cy="-8" r="7.5" fill="#4A2B45"/>
+      <ellipse cx="0" cy="12" rx="9" ry="7" fill="#4A2B45"/>
+      <path d="M -12 30 Q 0 40 12 30" stroke="#4A2B45" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+    <text x="210" y="330" text-anchor="middle" font-size="40" font-weight="800" fill="#4A2B45">Trypup</text>
+    <g transform="translate(20,380)">
+      <rect x="0"   y="0" width="68" height="80" rx="12" fill="#F2784B"/>
+      <rect x="78"  y="0" width="68" height="80" rx="12" fill="#F7C9B0"/>
+      <rect x="156" y="0" width="68" height="80" rx="12" fill="#E8B84B"/>
+      <rect x="234" y="0" width="68" height="80" rx="12" fill="#4A2B45"/>
+      <rect x="312" y="0" width="68" height="80" rx="12" fill="#FDF4EF" stroke="#F1DDD0" stroke-width="1.5"/>
+      <text x="34"  y="104" text-anchor="middle" font-size="12" fill="#4A2B45">#F2784B</text>
+      <text x="112" y="104" text-anchor="middle" font-size="12" fill="#4A2B45">#F7C9B0</text>
+      <text x="190" y="104" text-anchor="middle" font-size="12" fill="#4A2B45">#E8B84B</text>
+      <text x="268" y="104" text-anchor="middle" font-size="12" fill="#4A2B45">#4A2B45</text>
+      <text x="346" y="104" text-anchor="middle" font-size="12" fill="#4A2B45">#FDF4EF</text>
+      <text x="34"  y="124" text-anchor="middle" font-size="10" fill="#8A6E80">primární</text>
+      <text x="112" y="124" text-anchor="middle" font-size="10" fill="#8A6E80">jemná</text>
+      <text x="190" y="124" text-anchor="middle" font-size="10" fill="#8A6E80">akcent</text>
+      <text x="268" y="124" text-anchor="middle" font-size="10" fill="#8A6E80">tmavá</text>
+      <text x="346" y="124" text-anchor="middle" font-size="10" fill="#8A6E80">pozadí</text>
+    </g>
+    <g transform="translate(20,540)">
+      <rect x="0" y="0" width="180" height="46" rx="23" fill="#F2784B"/>
+      <text x="90" y="29" text-anchor="middle" font-size="16" font-weight="700" fill="#FDF4EF">Vyzkoušet</text>
+      <rect x="200" y="0" width="180" height="46" rx="23" fill="none" stroke="#4A2B45" stroke-width="2"/>
+      <text x="290" y="29" text-anchor="middle" font-size="16" font-weight="700" fill="#4A2B45">Jak funguje</text>
+    </g>
+    <text x="210" y="640" text-anchor="middle" font-size="12" fill="#8A6E80">CTA meruňka · tmavá = švestka (signature)</text>
+  </g>
+</svg>
