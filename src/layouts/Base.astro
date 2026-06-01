@@ -4,12 +4,17 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
 }
 const {
   title = 'Trypup — Vyzkoušej si psa, než je pozdě',
   description = 'Trypup je virtuální pes na zkoušku. Zjisti, jestli máš čas a sílu na skutečného psa — dřív, než ho přivedeš domů.',
+  image = '/og.png',
 } = Astro.props;
 const year = 2026;
+const site = Astro.site ?? new URL('https://trypup.life');
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image, site).href;
 ---
 <!doctype html>
 <html lang="cs">
@@ -18,9 +23,20 @@ const year = 2026;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Trypup" />
+    <meta property="og:locale" content="cs_CZ" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#FEF7ED" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
