@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const features = [
+  { emoji: '🐾', title: 'GPS walks', text: 'Real routes with time, distance and an anti-cheat check that you actually went out.' },
+  { emoji: '🦴', title: 'Daily care', text: 'Feeding, play, grooming, rest. Stats react to how well you care.' },
+  { emoji: '🎓', title: 'Training', text: '9 commands with progressive unlocks. Each breed learns at its own pace.' },
+  { emoji: '💉', title: 'Health & costs', text: 'Vaccination schedule and realistic monthly and yearly dog costs.' },
+  { emoji: '📚', title: 'Education', text: 'Articles on adoption, choosing a shelter and the questions to ask yourself first.' },
+  { emoji: '👨‍👩‍👧', title: 'Co-ownership', text: 'Share care with family — everyone sees what the other one did.' },
+];
+---
+<Base
+  title="Trypup — Try a dog before it's too late"
+  description="Trypup is a virtual dog you try first. Find out whether you have the time and energy for a real dog — before you bring one home."
+  lang="en"
+  alt="/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 A dog on trial</span>
+    <h1>Try a dog,<br />before it's too late</h1>
+    <p class="lead">Trypup is a virtual dog that shows you whether you have the time and energy for a real one — <strong>before you bring it home</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Get the app</a>
+      <a class="btn btn-ghost" href="#how-it-works">How it works</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big">Up to <span>half of all shelter dogs</span> end up there because their owners weren't prepared.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup lets you find out before the decision — not after.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">How it works</h2>
+    <p class="section-sub">Three steps, just like caring for a real dog.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Pick a breed and name your dog.</strong> A questionnaire recommends what fits you.</div></div>
+      <div class="step"><div class="num"></div><div><strong>Care for it every day.</strong> Walks, feeding, training, vet. Nothing can be skipped.</div></div>
+      <div class="step"><div class="num"></div><div><strong>Learn the truth about yourself.</strong> Can you keep the routine even on days you don't feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.</div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">What the app does</h2>
+    <p class="section-sub">A realistic care simulation — from walks to costs.</p>
+    <div class="grid">
+      {features.map((f) => (
+        <div class="card">
+          <div class="emoji">{f.emoji}</div>
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Try a dog · before it's too late</h2>
+    <p class="section-sub">Coming soon to the App Store and Google Play. For now, take a look at what it's about.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/en/about/">About the app</a>
+      <a class="btn btn-ghost" href="/blog/">Read the blog</a>
+    </div>
+  </section>
+</Base>

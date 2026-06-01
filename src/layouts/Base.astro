@@ -5,25 +5,57 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  lang?: 'cs' | 'en';
+  /** Href of the same page in the other language (for the switcher + hreflang). */
+  alt?: string;
 }
 const {
   title = 'Trypup — Vyzkoušej si psa, než je pozdě',
   description = 'Trypup je virtuální pes na zkoušku. Zjisti, jestli máš čas a sílu na skutečného psa — dřív, než ho přivedeš domů.',
   image = '/og.png',
+  lang = 'cs',
+  alt,
 } = Astro.props;
+
 const year = 2026;
 const site = Astro.site ?? new URL('https://trypup.life');
 const canonical = new URL(Astro.url.pathname, site).href;
 const ogImage = new URL(image, site).href;
+const altHref = alt ? new URL(alt, site).href : null;
+
+// hreflang pair
+const csHref = lang === 'cs' ? canonical : altHref;
+const enHref = lang === 'en' ? canonical : altHref;
+
+const t = lang === 'en'
+  ? {
+      howItWorks: 'How it works', about: 'About', blog: 'Blog',
+      privacy: 'Privacy', terms: 'Terms', contact: 'Contact',
+      switchLabel: 'CZ', switchHref: alt ?? '/',
+      howHref: '/en/#how-it-works', aboutHref: '/en/about/',
+      blogHref: '/blog/', privacyHref: '/en/privacy/', termsHref: '/en/terms/', homeHref: '/en/',
+      ogLocale: 'en_US',
+    }
+  : {
+      howItWorks: 'Jak to funguje', about: 'O aplikaci', blog: 'Blog',
+      privacy: 'Zásady ochrany', terms: 'Podmínky', contact: 'Kontakt',
+      switchLabel: 'EN', switchHref: alt ?? '/en/',
+      howHref: '/#jak-to-funguje', aboutHref: '/o-aplikaci/',
+      blogHref: '/blog/', privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', homeHref: '/',
+      ogLocale: 'cs_CZ',
+    };
 ---
 <!doctype html>
-<html lang="cs">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {csHref && <link rel="alternate" hreflang="cs" href={csHref} />}
+    {enHref && <link rel="alternate" hreflang="en" href={enHref} />}
+    {csHref && <link rel="alternate" hreflang="x-default" href={csHref} />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
@@ -32,7 +64,7 @@ const ogImage = new URL(image, site).href;
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Trypup" />
-    <meta property="og:locale" content="cs_CZ" />
+    <meta property="og:locale" content={t.ogLocale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -43,11 +75,12 @@ const ogImage = new URL(image, site).href;
   <body>
     <header class="site-header">
       <div class="wrap">
-        <a class="brand" href="/">🐾 Trypup</a>
+        <a class="brand" href={t.homeHref}>🐾 Trypup</a>
         <nav class="nav">
-          <a href="/#jak-to-funguje">Jak to funguje</a>
-          <a href="/o-aplikaci/">O aplikaci</a>
-          <a href="/blog/">Blog</a>
+          <a href={t.howHref}>{t.howItWorks}</a>
+          <a href={t.aboutHref}>{t.about}</a>
+          <a href={t.blogHref}>{t.blog}</a>
+          <a class="lang-switch" href={t.switchHref} aria-label="Language">{t.switchLabel}</a>
         </nav>
       </div>
     </header>
@@ -60,11 +93,11 @@ const ogImage = new URL(image, site).href;
       <div class="wrap">
         <div>© {year} Trypup · Ondřej Kliment</div>
         <div class="links">
-          <a href="/o-aplikaci/">O aplikaci</a>
-          <a href="/blog/">Blog</a>
-          <a href="/zasady-ochrany/">Zásady ochrany</a>
-          <a href="/podminky/">Podmínky</a>
-          <a href="mailto:o.kliment@gmail.com">Kontakt</a>
+          <a href={t.aboutHref}>{t.about}</a>
+          <a href={t.blogHref}>{t.blog}</a>
+          <a href={t.privacyHref}>{t.privacy}</a>
+          <a href={t.termsHref}>{t.terms}</a>
+          <a href="mailto:o.kliment@gmail.com">{t.contact}</a>
         </div>
       </div>
     </footer>

@@ -33,8 +33,10 @@ img { max-width: 100%; display: block; }
 .site-header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
 .brand { font-weight: 800; font-size: 20px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
 .brand:hover { text-decoration: none; }
-.nav { display: flex; gap: 22px; font-weight: 600; font-size: 15px; }
+.nav { display: flex; align-items: center; gap: 22px; font-weight: 600; font-size: 15px; }
 .nav a { color: var(--ink); }
+.nav .lang-switch { border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 700; color: var(--blue); }
+.nav .lang-switch:hover { background: var(--blue-soft); }
 
 /* Hero */
 .hero { text-align: center; padding: 80px 0 56px; }
