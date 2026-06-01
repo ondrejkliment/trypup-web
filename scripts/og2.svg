@@ -4,15 +4,15 @@
   <rect x="0" y="0" width="1200" height="12" fill="#4A2B45"/>
 
   <!-- faint head watermark right -->
-  <g transform="translate(820,150) scale(2.7)" opacity="0.08">
+  <g transform="translate(815,150) scale(3.0)" opacity="0.08">
     <ellipse cx="48" cy="112" rx="20" ry="52" transform="rotate(-10 48 112)" fill="#4A2B45"/>
     <ellipse cx="152" cy="112" rx="20" ry="52" transform="rotate(10 152 112)" fill="#4A2B45"/>
     <ellipse cx="100" cy="92" rx="58" ry="54" fill="#4A2B45"/>
     <ellipse cx="100" cy="127" rx="38" ry="31" fill="#4A2B45"/>
   </g>
 
-  <!-- brand lockup: head + wordmark -->
-  <g transform="translate(70,52) scale(0.44)">
+  <!-- logo lockup -->
+  <g transform="translate(80,70) scale(0.62)">
     <ellipse cx="48" cy="112" rx="20" ry="52" transform="rotate(-10 48 112)" fill="#4A2B45"/>
     <ellipse cx="152" cy="112" rx="20" ry="52" transform="rotate(10 152 112)" fill="#4A2B45"/>
     <ellipse cx="100" cy="92" rx="58" ry="54" fill="#C77A45"/>
@@ -25,19 +25,15 @@
     <path d="M100 134 Q90 143 82 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
     <path d="M100 134 Q110 143 118 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
   </g>
-  <text x="172" y="128" font-size="58" font-weight="800"><tspan fill="#4A2B45">try</tspan><tspan fill="#F2784B">pup</tspan></text>
+  <text x="172" y="138" font-size="62" font-weight="800"><tspan fill="#4A2B45">try</tspan><tspan fill="#F2784B">pup</tspan></text>
 
-  <!-- headline -->
-  <text x="72" y="296" font-size="78" font-weight="800" fill="#4A2B45">Vyzkoušej si psa,</text>
-  <text x="72" y="384" font-size="78" font-weight="800" fill="#F2784B">než je pozdě.</text>
-
-  <!-- subline -->
-  <text x="74" y="452" font-size="30" font-weight="400" fill="#6E6A56">Virtuální pes na zkoušku. Zjisti, jestli na něj</text>
-  <text x="74" y="492" font-size="30" font-weight="400" fill="#6E6A56">máš čas a sílu — dřív než ho přivedeš domů.</text>
+  <!-- main message -->
+  <text x="82" y="360" font-size="104" font-weight="800" fill="#4A2B45">Pes na zkoušku</text>
+  <text x="84" y="430" font-size="33" font-weight="400" fill="#6E6A56">Vyzkoušej si péči o psa dřív, než si ho pořídíš.</text>
 
   <!-- url pill -->
-  <g transform="translate(74,532)">
-    <rect width="226" height="46" rx="23" fill="#3E7C8C"/>
-    <text x="113" y="31" text-anchor="middle" font-size="23" font-weight="700" fill="#FDF4EF">trypup.life</text>
+  <g transform="translate(84,470)">
+    <rect width="232" height="48" rx="24" fill="#3E7C8C"/>
+    <text x="116" y="32" text-anchor="middle" font-size="24" font-weight="700" fill="#FDF4EF">trypup.life</text>
   </g>
 </svg>

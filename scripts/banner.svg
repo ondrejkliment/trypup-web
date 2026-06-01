@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="500" viewBox="0 0 1500 500" font-family="Helvetica, Arial, sans-serif">
+  <defs><clipPath id="hc"><ellipse cx="100" cy="92" rx="58" ry="54"/></clipPath></defs>
+  <rect width="1500" height="500" fill="#4A2B45"/>
+
+  <!-- faint paw/head watermark corners -->
+  <g transform="translate(40,250) scale(2.2)" opacity="0.06">
+    <ellipse cx="100" cy="92" rx="58" ry="54" fill="#FDF4EF"/>
+    <ellipse cx="100" cy="127" rx="38" ry="31" fill="#FDF4EF"/>
+  </g>
+  <g transform="translate(1240,-40) scale(2.2)" opacity="0.06">
+    <ellipse cx="100" cy="92" rx="58" ry="54" fill="#FDF4EF"/>
+    <ellipse cx="100" cy="127" rx="38" ry="31" fill="#FDF4EF"/>
+  </g>
+
+  <!-- logo lockup (head + wordmark), centered -->
+  <g transform="translate(545,92) scale(0.62)">
+    <ellipse cx="48" cy="112" rx="20" ry="52" transform="rotate(-10 48 112)" fill="#2A1626"/>
+    <ellipse cx="152" cy="112" rx="20" ry="52" transform="rotate(10 152 112)" fill="#2A1626"/>
+    <ellipse cx="100" cy="92" rx="58" ry="54" fill="#C77A45"/>
+    <ellipse cx="68" cy="80" rx="32" ry="34" fill="#9A5A2E" clip-path="url(#hc)"/>
+    <ellipse cx="100" cy="127" rx="38" ry="31" fill="#FDF4EF" stroke="#B0682F" stroke-width="2.5"/>
+    <circle cx="78" cy="86" r="9" fill="#4A2B45"/><circle cx="122" cy="86" r="9" fill="#4A2B45"/>
+    <circle cx="81" cy="83" r="3" fill="#FDF4EF"/><circle cx="125" cy="83" r="3" fill="#FDF4EF"/>
+    <path d="M89 113 Q100 106 111 113 Q111 123 100 127 Q89 123 89 113 Z" fill="#4A2B45"/>
+    <path d="M100 127 V134" stroke="#4A2B45" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M100 134 Q90 143 82 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path d="M100 134 Q110 143 118 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+  </g>
+  <text x="688" y="168" font-size="86" font-weight="800"><tspan fill="#F7C9B0">try</tspan><tspan fill="#F2784B">pup</tspan></text>
+
+  <!-- tagline -->
+  <text x="750" y="312" text-anchor="middle" font-size="62" font-weight="800" fill="#FDF4EF">Pes na zkoušku</text>
+  <text x="750" y="372" text-anchor="middle" font-size="30" font-weight="400" fill="#E7D6E0">Vyzkoušej si péči o psa dřív, než si ho pořídíš.</text>
+  <text x="750" y="430" text-anchor="middle" font-size="26" font-weight="700" fill="#F2784B">trypup.life</text>
+</svg>
