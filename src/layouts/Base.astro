@@ -36,7 +36,7 @@ const t = lang === 'en'
       howHref: '/en/#how-it-works', aboutHref: '/en/about/',
       blogHref: '/blog/', privacyHref: '/en/privacy/', termsHref: '/en/terms/', homeHref: '/en/',
       ogLocale: 'en_US',
-      announce: '🚧 Trypup is in development — launching soon. Follow @trypupapp for the release.',
+      announce: '🚧 Trypup is in development — launching soon. Follow ',
     }
   : {
       howItWorks: 'Jak to funguje', about: 'O aplikaci', blog: 'Blog',
@@ -45,7 +45,7 @@ const t = lang === 'en'
       howHref: '/#jak-to-funguje', aboutHref: '/o-aplikaci/',
       blogHref: '/blog/', privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', homeHref: '/',
       ogLocale: 'cs_CZ',
-      announce: '🚧 Trypup je ve vývoji — spustíme už brzy. Sleduj @trypupapp, ať ti to neuteče.',
+      announce: '🚧 Trypup je ve vývoji — spustíme už brzy. Sleduj ',
     };
 ---
 <!doctype html>
@@ -76,7 +76,7 @@ const t = lang === 'en'
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
-    <div class="announce">{t.announce}</div>
+    <div class="announce">{t.announce}<a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener">@trypupapp</a></div>
     <header class="site-header">
       <div class="wrap">
         <a class="brand" href={t.homeHref} aria-label="trypup">
@@ -111,7 +111,7 @@ const t = lang === 'en'
 
     <footer class="site-footer">
       <div class="wrap">
-        <div>© {year} Trypup · Ondřej Kliment</div>
+        <div>© {year} Trypup · Ondys</div>
         <div class="links">
           <a href={t.aboutHref}>{t.about}</a>
           <a href={t.blogHref}>{t.blog}</a>
