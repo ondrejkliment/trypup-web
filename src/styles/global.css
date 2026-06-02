@@ -30,6 +30,8 @@ img { max-width: 100%; display: block; }
 .section { padding: 64px 0; }
 
 /* Header */
+.announce { background: var(--plum); color: #FDF4EF; text-align: center; font-size: 13px; font-weight: 600; padding: 9px 16px; letter-spacing: .2px; }
+.announce a { color: var(--orange); }
 .site-header { position: sticky; top: 0; z-index: 20; background: rgba(253,244,239,0.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
 .brand .brand-mark { display: block; }
 .brand .wm-try { color: var(--plum); }
