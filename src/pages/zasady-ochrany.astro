@@ -1,34 +1,56 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="Zásady ochrany osobních údajů — Trypup" description="Jak Trypup nakládá s daty. Aktuální verze ukládá vše pouze lokálně na zařízení." alt="/en/privacy/">
+<Base title="Zásady ochrany osobních údajů — Trypup" description="Jak Trypup nakládá s daty. Aplikace funguje i bez účtu; volitelný účet umožní zálohu pokroku do cloudu (Firebase, EU)." alt="/en/privacy/">
   <section class="section wrap prose">
     <h1>Zásady ochrany osobních údajů</h1>
-    <p class="meta">Aktualizováno 1. 6. 2026 · Správce: Ondys, hello@trypup.life</p>
+    <p class="meta">Aktualizováno 3. 6. 2026 · Správce: Ondřej Kliment (Ondys), <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
-    <p><strong>Aktuální verze aplikace ukládá veškerá data pouze lokálně na vašem zařízení a neodesílá je na žádný server.</strong> Sbíráme jen to, co je nezbytné pro fungování hry.</p>
+    <p><strong>Trypup funguje plně i bez účtu — pak veškerá data zůstávají jen na vašem zařízení.</strong> Volitelně si můžete založit účet, který umožní <strong>zálohu rozehraného stavu do cloudu</strong> a jeho přenos mezi zařízeními. Zpracováváme jen údaje nezbytné pro fungování služby.</p>
 
     <h2>Jaká data zpracováváme</h2>
+    <h3>Vždy (lokálně na zařízení)</h3>
     <ul>
-      <li><strong>Poloha (GPS)</strong> — měření trasy a délky procházky + anti-cheat. Pouze lokálně. Volitelné.</li>
+      <li><strong>Poloha (GPS)</strong> — měření trasy a délky procházky + anti-cheat. Zpracovává se efemérně, neopouští zařízení. Volitelné.</li>
       <li><strong>Pohybové senzory</strong> — ověření, že procházka je reálná. Lokálně, nepersistuje se.</li>
       <li><strong>Notifikace</strong> — lokálně naplánované připomínky péče. Volitelné.</li>
       <li><strong>Fotografie / kamera</strong> — volitelná fotka psa. Pouze lokálně.</li>
       <li><strong>Apple Health / Google Fit</strong> — volitelný zápis dokončené procházky. Data pouze zapisujeme, nečteme.</li>
       <li><strong>Herní stav</strong> (jméno psa, plemeno, statistiky, pokrok) — lokální úložiště.</li>
+      <li><strong>Analytika</strong> — volitelná, měří se <strong>pouze na zařízení</strong> a vyžaduje váš souhlas. Data neodesíláme na server.</li>
     </ul>
-    <p><strong>Nesbíráme</strong> jméno, e-mail, telefon ani kontakty a neprovozujeme analytiku či reklamní trackery.</p>
+    <h3>Pouze pokud si založíte účet</h3>
+    <ul>
+      <li><strong>E-mailová adresa</strong> — pro přihlášení a správu účtu.</li>
+      <li><strong>Identifikátor uživatele</strong> (ID účtu) — technický identifikátor přidělený poskytovatelem ověření.</li>
+      <li><strong>Záloha rozehraného stavu</strong> (pes, výcvik, denní pokrok, zakoupené funkce) — uložená v cloudu, aby šla obnovit na jiném zařízení.</li>
+    </ul>
+    <p>Heslo se ukládá výhradně v zabezpečené (hashované) podobě u poskytovatele ověření; my k němu nemáme přístup.</p>
+
+    <h2>Účely a právní základ (GDPR čl. 6)</h2>
+    <ul>
+      <li><strong>Účet a cloud záloha</strong> — plnění smlouvy o poskytnutí služby (čl. 6 odst. 1 písm. b).</li>
+      <li><strong>Měření procházky (GPS)</strong> — funkce, kterou si výslovně vyžádáte (čl. 6 odst. 1 písm. b), zpracování je lokální.</li>
+      <li><strong>Analytika na zařízení</strong> — váš souhlas (čl. 6 odst. 1 písm. a), který lze kdykoli odvolat.</li>
+    </ul>
+
+    <h2>Zpracovatelé a umístění dat</h2>
+    <p>Pro účet a cloud zálohu využíváme <strong>Google (Firebase — Authentication a Firestore)</strong> jako zpracovatele, na základě <em>Firebase Data Processing and Security Terms</em>. Záloha (Firestore) je uložena v <strong>datacentrech v EU (region europe / eur3)</strong>. Ověřovací služba (Authentication) může část zpracování provádět mimo EU; přenos je krytý <strong>standardními smluvními doložkami (SCC)</strong> schválenými Evropskou komisí.</p>
 
     <h2>Sdílení dat</h2>
-    <p>Vaše data s nikým nesdílíme. Útulky uvedené v aplikaci jsou pouze odkazy na veřejné weby.</p>
+    <p>Vaše data <strong>neprodáváme ani nesdílíme</strong> s třetími stranami pro jejich účely. Google vystupuje jako náš zpracovatel (na základě našich pokynů), nikoli jako samostatný příjemce. Útulky uvedené v aplikaci jsou pouze odkazy na veřejné weby.</p>
 
-    <h2>Děti</h2>
-    <p>Aplikace je určena dospělým zvažujícím pořízení psa. Není směřována na děti mladší 16 let.</p>
+    <h2>Doba uchování</h2>
+    <p>Lokální data zůstávají na zařízení, dokud aplikaci nesmažete nebo neprovedete reset. Cloud zálohu uchováváme po dobu existence účtu; po <strong>smazání účtu</strong> ji odstraníme.</p>
 
     <h2>Vaše práva (GDPR)</h2>
-    <p>Data zůstávají na vašem zařízení, máte nad nimi plnou kontrolu. Smazáním aplikace nebo přes Profil → Tester → „Reset celé aplikace" je trvale odstraníte. Dotazy: <a href="mailto:hello@trypup.life">hello@trypup.life</a>.</p>
+    <p>Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a vznesení námitky. <strong>Účet i cloud zálohu smažete přímo v aplikaci</strong> (Účet → Smazat účet). Pokud jste aplikaci odinstalovali, napište na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a údaje smažeme. Souhlas s analytikou lze kdykoli odvolat v nastavení.</p>
+    <p>Máte také právo podat stížnost u dozorového úřadu — v ČR <strong>Úřad pro ochranu osobních údajů (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
 
-    <h2>Budoucí změny</h2>
-    <p>Po zavedení účtů, plateb a serverových notifikací tento dokument rozšíříme a o podstatných změnách budeme informovat v aplikaci.</p>
+    <h2>Děti</h2>
+    <p>Aplikace je určena dospělým zvažujícím pořízení psa. Není směřována na děti a nesbíráme vědomě údaje osob mladších 16 let.</p>
+
+    <h2>Změny zásad</h2>
+    <p>O podstatných změnách těchto zásad budeme informovat v aplikaci i zde. Při rozšíření o sociální přihlášení (Apple/Google) doplníme příslušné poskytovatele jako zpracovatele.</p>
   </section>
 </Base>

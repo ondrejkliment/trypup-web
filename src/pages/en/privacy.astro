@@ -1,34 +1,56 @@
 ---
 import Base from '../../layouts/Base.astro';
 ---
-<Base title="Privacy Policy — Trypup" description="How Trypup handles data. The current version stores everything locally on your device." lang="en" alt="/zasady-ochrany/">
+<Base title="Privacy Policy — Trypup" description="How Trypup handles data. The app works without an account; an optional account enables cloud backup of your progress (Firebase, EU)." lang="en" alt="/zasady-ochrany/">
   <section class="section wrap prose">
     <h1>Privacy Policy</h1>
-    <p class="meta">Updated 1 Jun 2026 · Controller: Ondys, hello@trypup.life</p>
+    <p class="meta">Updated 3 Jun 2026 · Controller: Ondřej Kliment (Ondys), <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
-    <p><strong>The current version of the app stores all data only locally on your device and does not send it to any server.</strong> We collect only what the game needs to function.</p>
+    <p><strong>Trypup works fully without an account — in that case all data stays on your device only.</strong> Optionally you can create an account, which enables <strong>cloud backup of your saved progress</strong> and syncing across devices. We process only the data necessary to provide the service.</p>
 
     <h2>What data we process</h2>
+    <h3>Always (locally on your device)</h3>
     <ul>
-      <li><strong>Location (GPS)</strong> — measuring walk route and distance + anti-cheat. Local only. Optional.</li>
+      <li><strong>Location (GPS)</strong> — measuring walk route and distance + anti-cheat. Processed ephemerally, does not leave the device. Optional.</li>
       <li><strong>Motion sensors</strong> — verifying the walk is real. Local, not persisted.</li>
       <li><strong>Notifications</strong> — locally scheduled care reminders. Optional.</li>
       <li><strong>Photos / camera</strong> — optional dog photo. Local only.</li>
       <li><strong>Apple Health / Google Fit</strong> — optional write of a completed walk. We only write, we don't read.</li>
       <li><strong>Game state</strong> (dog name, breed, stats, progress) — local storage.</li>
+      <li><strong>Analytics</strong> — optional, measured <strong>on-device only</strong> and requires your consent. We do not send it to a server.</li>
     </ul>
-    <p>We do <strong>not</strong> collect your name, email, phone or contacts, and we run no analytics or advertising trackers.</p>
+    <h3>Only if you create an account</h3>
+    <ul>
+      <li><strong>Email address</strong> — for sign-in and account management.</li>
+      <li><strong>User identifier</strong> (account ID) — a technical identifier assigned by the authentication provider.</li>
+      <li><strong>Saved-progress backup</strong> (dog, training, daily progress, purchased features) — stored in the cloud so it can be restored on another device.</li>
+    </ul>
+    <p>Your password is stored only in secure (hashed) form by the authentication provider; we have no access to it.</p>
+
+    <h2>Purposes and legal basis (GDPR Art. 6)</h2>
+    <ul>
+      <li><strong>Account and cloud backup</strong> — performance of a contract (Art. 6(1)(b)).</li>
+      <li><strong>Walk measurement (GPS)</strong> — a feature you explicitly request (Art. 6(1)(b)); processing is local.</li>
+      <li><strong>On-device analytics</strong> — your consent (Art. 6(1)(a)), which you can withdraw at any time.</li>
+    </ul>
+
+    <h2>Processors and data location</h2>
+    <p>For the account and cloud backup we use <strong>Google (Firebase — Authentication and Firestore)</strong> as a processor, under the <em>Firebase Data Processing and Security Terms</em>. The backup (Firestore) is stored in <strong>EU data centers (region europe / eur3)</strong>. The Authentication service may process part of the data outside the EU; such transfers are covered by <strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission.</p>
 
     <h2>Data sharing</h2>
-    <p>We do not share your data with anyone. Shelters listed in the app are just links to public websites.</p>
+    <p>We do <strong>not</strong> sell or share your data with third parties for their own purposes. Google acts as our processor (on our instructions), not as an independent recipient. Shelters listed in the app are just links to public websites.</p>
 
-    <h2>Children</h2>
-    <p>The app is intended for adults considering getting a dog. It is not directed at children under 16.</p>
+    <h2>Retention</h2>
+    <p>Local data stays on your device until you delete the app or reset it. We keep the cloud backup for the lifetime of your account; once you <strong>delete your account</strong>, we remove it.</p>
 
     <h2>Your rights (GDPR)</h2>
-    <p>Data stays on your device, so you have full control. Deleting the app, or using Profile → Tester → "Reset entire app", removes it permanently. Questions: <a href="mailto:hello@trypup.life">hello@trypup.life</a>.</p>
+    <p>You have the right to access, rectification, erasure, restriction, portability and objection. <strong>You can delete your account and cloud backup directly in the app</strong> (Account → Delete account). If you have uninstalled the app, email <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete your data. You can withdraw analytics consent anytime in settings.</p>
+    <p>You also have the right to lodge a complaint with a supervisory authority — in the Czech Republic the <strong>Office for Personal Data Protection (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
 
-    <h2>Future changes</h2>
-    <p>After we add accounts, payments and server notifications we will expand this document and announce material changes in the app.</p>
+    <h2>Children</h2>
+    <p>The app is intended for adults considering getting a dog. It is not directed at children, and we do not knowingly collect data from anyone under 16.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>We will announce material changes in the app and here. When we add social sign-in (Apple/Google) we will list those providers as processors.</p>
   </section>
 </Base>
