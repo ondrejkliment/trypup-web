@@ -1,40 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#FEF7ED"/>
-  <rect x="0" y="0" width="1200" height="12" fill="#0369A1"/>
-
-  <!-- big paw watermark, right -->
-  <g transform="translate(815,150) scale(5.6)" fill="#D97706" opacity="0.09">
-    <ellipse cx="32" cy="40" rx="11" ry="9"/>
-    <ellipse cx="18" cy="28" rx="5" ry="6.5"/>
-    <ellipse cx="27" cy="21" rx="5" ry="7"/>
-    <ellipse cx="37" cy="21" rx="5" ry="7"/>
-    <ellipse cx="46" cy="28" rx="5" ry="6.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Helvetica, Arial, sans-serif">
+  <defs><clipPath id="hc"><ellipse cx="100" cy="92" rx="58" ry="54"/></clipPath></defs>
+  <rect width="1200" height="630" fill="#FDF4EF"/>
+  <rect x="0" y="0" width="1200" height="12" fill="#4A2B45"/>
+  <!-- jemný mascot watermark (švestková silueta) -->
+  <g transform="translate(815,150) scale(3.0)" opacity="0.08">
+    <ellipse cx="48" cy="112" rx="20" ry="52" transform="rotate(-10 48 112)" fill="#4A2B45"/>
+    <ellipse cx="152" cy="112" rx="20" ry="52" transform="rotate(10 152 112)" fill="#4A2B45"/>
+    <ellipse cx="100" cy="92" rx="58" ry="54" fill="#4A2B45"/>
+    <ellipse cx="100" cy="127" rx="38" ry="31" fill="#4A2B45"/>
   </g>
-
-  <!-- brand: paw logo + wordmark, top-left -->
-  <g transform="translate(80,72)">
-    <rect width="60" height="60" rx="13" fill="#ffffff" stroke="#F3E9DC" stroke-width="2"/>
-    <g fill="#D97706" transform="scale(0.94)">
-      <ellipse cx="32" cy="40" rx="11" ry="9"/>
-      <ellipse cx="18" cy="28" rx="5" ry="6.5"/>
-      <ellipse cx="27" cy="21" rx="5" ry="7"/>
-      <ellipse cx="37" cy="21" rx="5" ry="7"/>
-      <ellipse cx="46" cy="28" rx="5" ry="6.5"/>
-    </g>
-    <text x="78" y="42" font-family="Helvetica, Arial, sans-serif" font-size="36" font-weight="800" fill="#1F2937">Trypup</text>
+  <!-- logo: hlava-mark (na krému, bez dlaždice) -->
+  <g transform="translate(80,70) scale(0.62)">
+    <ellipse cx="48" cy="112" rx="20" ry="52" transform="rotate(-10 48 112)" fill="#4A2B45"/>
+    <ellipse cx="152" cy="112" rx="20" ry="52" transform="rotate(10 152 112)" fill="#4A2B45"/>
+    <ellipse cx="100" cy="92" rx="58" ry="54" fill="#C77A45"/>
+    <ellipse cx="68" cy="80" rx="32" ry="34" fill="#9A5A2E" clip-path="url(#hc)"/>
+    <ellipse cx="100" cy="127" rx="38" ry="31" fill="#FDF4EF" stroke="#B0682F" stroke-width="2.5"/>
+    <circle cx="78" cy="86" r="9" fill="#4A2B45"/><circle cx="122" cy="86" r="9" fill="#4A2B45"/>
+    <circle cx="81" cy="83" r="3" fill="#FDF4EF"/><circle cx="125" cy="83" r="3" fill="#FDF4EF"/>
+    <path d="M89 113 Q100 106 111 113 Q111 123 100 127 Q89 123 89 113 Z" fill="#4A2B45"/>
+    <path d="M100 127 V134" stroke="#4A2B45" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M100 134 Q90 143 82 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path d="M100 134 Q110 143 118 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
   </g>
-
-  <!-- headline -->
-  <text x="80" y="300" font-family="Helvetica, Arial, sans-serif" font-size="74" font-weight="800" fill="#1F2937">Vyzkoušej si psa,</text>
-  <text x="80" y="388" font-family="Helvetica, Arial, sans-serif" font-size="74" font-weight="800" fill="#D97706">než je pozdě.</text>
-
-  <!-- subline -->
-  <text x="82" y="456" font-family="Helvetica, Arial, sans-serif" font-size="29" font-weight="400" fill="#6B7280">Virtuální pes na zkoušku. Zjisti, jestli na něj máš čas</text>
-  <text x="82" y="496" font-family="Helvetica, Arial, sans-serif" font-size="29" font-weight="400" fill="#6B7280">a sílu — dřív než ho přivedeš domů.</text>
-
-  <!-- url pill -->
-  <g transform="translate(82,536)">
-    <rect width="228" height="46" rx="23" fill="#DBEAFE"/>
-    <text x="114" y="31" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#0369A1">trypup.life</text>
+  <!-- wordmark trypup (split: try=švestka / pup=meruňka) -->
+  <text x="218" y="148" font-size="62" font-weight="800"><tspan fill="#4A2B45">try</tspan><tspan fill="#F2784B">pup</tspan></text>
+  <!-- master claim -->
+  <text x="82" y="360" font-size="104" font-weight="800" fill="#4A2B45">Pes na zkoušku</text>
+  <!-- tagline (tlumená) -->
+  <text x="84" y="426" font-size="31" font-weight="400" fill="#6E6A56">Vyzkoušej si péči o psa, dřív než si pořídíš toho skutečného.</text>
+  <!-- url pill (voda, plná) -->
+  <g transform="translate(84,470)">
+    <rect width="232" height="48" rx="24" fill="#3E7C8C"/>
+    <text x="116" y="32" text-anchor="middle" font-size="24" font-weight="700" fill="#FDF4EF">trypup.life</text>
   </g>
 </svg>

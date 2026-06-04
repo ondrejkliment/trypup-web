@@ -20,7 +20,7 @@ const {
 const year = 2026;
 const site = Astro.site ?? new URL('https://trypup.life');
 const canonical = new URL(Astro.url.pathname, site).href;
-const resolvedImage = image ?? (lang === 'en' ? '/og-en.png?v=1' : '/og.png?v=3');
+const resolvedImage = image ?? (lang === 'en' ? '/og-en.png?v=2' : '/og.png?v=4');
 const ogImage = new URL(resolvedImage, site).href;
 const altHref = alt ? new URL(alt, site).href : null;
 
