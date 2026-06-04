@@ -1,6 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080" font-family="Helvetica, Arial, sans-serif">
   <defs><clipPath id="hc"><ellipse cx="100" cy="92" rx="58" ry="54"/></clipPath></defs>
-  <rect width="1080" height="1080" fill="#F7C9B0"/>
+  <rect width="1080" height="1080" fill="#FDF4EF"/>
+  <rect x="0" y="0" width="1080" height="14" fill="#4A2B45"/>
+
+  <!-- logo lockup -->
   <g transform="translate(80,70) scale(0.5)">
     <ellipse cx="48" cy="112" rx="20" ry="52" transform="rotate(-10 48 112)" fill="#4A2B45"/>
     <ellipse cx="152" cy="112" rx="20" ry="52" transform="rotate(10 152 112)" fill="#4A2B45"/>
@@ -15,13 +18,23 @@
     <path d="M100 134 Q110 143 118 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
   </g>
   <text x="190" y="128" font-size="52" font-weight="800"><tspan fill="#4A2B45">try</tspan><tspan fill="#F2784B">pup</tspan></text>
-  <text x="80" y="380" font-size="80" font-weight="800" fill="#4A2B45">„Pes je přece</text>
-  <text x="80" y="470" font-size="80" font-weight="800" fill="#4A2B45">pohoda.“</text>
-  <text x="82" y="565" font-size="40" font-weight="700" fill="#F2784B">Realita, den 3:</text>
-  <circle cx="98" cy="637" r="10" fill="#F2784B"/><text x="130" y="650" font-size="44" font-weight="600" fill="#4A2B45">6:00 — venčení</text>
-  <circle cx="98" cy="702" r="10" fill="#F2784B"/><text x="130" y="715" font-size="44" font-weight="600" fill="#4A2B45">12:00 — krmení</text>
-  <circle cx="98" cy="767" r="10" fill="#F2784B"/><text x="130" y="780" font-size="44" font-weight="600" fill="#4A2B45">18:00 — výcvik</text>
-  <circle cx="98" cy="832" r="10" fill="#F2784B"/><text x="130" y="845" font-size="44" font-weight="600" fill="#4A2B45">22:00 — a zítra zas</text>
-  <text x="80" y="1010" font-size="30" font-weight="700" fill="#4A2B45">trypup.life</text>
-  <text x="1000" y="1010" text-anchor="end" font-size="30" font-weight="600" fill="#8A5A3A">@trypupapp</text>
+
+  <!-- big stat -->
+  <text x="80" y="400" font-size="200" font-weight="800" fill="#F2784B">72 %</text>
+  <text x="80" y="500" font-size="62" font-weight="800" fill="#4A2B45">psů v útulcích</text>
+  <text x="80" y="575" font-size="62" font-weight="800" fill="#4A2B45">jsou dospělí psi.</text>
+
+  <!-- support -->
+  <text x="82" y="680" font-size="36" font-weight="400" fill="#6E6A56">Klidní, učenliví, často už po výcviku —</text>
+  <text x="82" y="728" font-size="36" font-weight="400" fill="#6E6A56">a zoufale hledají domov.</text>
+
+  <!-- CTA line -->
+  <g transform="translate(80,800)">
+    <rect width="430" height="84" rx="42" fill="#3E7C8C"/>
+    <text x="215" y="55" text-anchor="middle" font-size="36" font-weight="800" fill="#FDF4EF">Adoptuj, nekupuj</text>
+  </g>
+
+  <!-- footer -->
+  <text x="80" y="1015" font-size="30" font-weight="700" fill="#4A2B45">trypup.life</text>
+  <text x="1000" y="1015" text-anchor="end" font-size="30" font-weight="600" fill="#8A7E84">@trypupapp</text>
 </svg>
