@@ -1,0 +1,275 @@
+---
+// Trypup — skrytý analytický dashboard (cross-device).
+// Čte kolekci `analytics_events` z Firestore (projekt trypupapp). Přístup jen pro
+// admin účet (Firestore rules: read jen pro o.kliment@gmail.com). Skryté pro roboty
+// (noindex + robots.txt Disallow /admin). Firebase přes CDN (žádná npm změna webu).
+const ADMIN_EMAIL = 'o.kliment@gmail.com';
+---
+
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Trypup · Analytika</title>
+  <style>
+    :root {
+      --apricot:#F2784B; --plum:#4A2B45; --water:#3E7C8C; --cream:#FDF4EF;
+      --bg:#1d1620; --card:#2a2230; --line:#3c3242; --muted:#a99bb0; --text:#f3ecf2;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; }
+    a { color:var(--apricot); }
+    .wrap { max-width:1180px; margin:0 auto; padding:24px 18px 80px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+    h1 { font-size:20px; margin:0; font-weight:800; letter-spacing:-.3px; }
+    h1 small { color:var(--muted); font-weight:500; font-size:13px; }
+    h2 { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin:28px 0 12px; }
+    button { background:var(--apricot); color:#fff; border:0; border-radius:10px;
+      padding:10px 16px; font-weight:700; cursor:pointer; font-size:14px; }
+    button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+    .center { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
+    .logo { width:64px; height:64px; border-radius:18px; }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
+    .kpi { font-size:26px; font-weight:800; }
+    .kpi small { display:block; font-size:12px; color:var(--muted); font-weight:500; margin-top:4px; }
+    .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
+    .panel h3 { margin:0 0 12px; font-size:14px; }
+    .bar { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; margin:6px 0; }
+    .bar .lbl { font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .bar .track { grid-column:1 / -1; height:7px; background:#0000; border-radius:6px; position:relative; margin-top:-2px; }
+    .bar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--water); }
+    .bar .val { font-variant-numeric:tabular-nums; color:var(--muted); font-size:12px; }
+    .funnel .step { margin:8px 0; }
+    .funnel .fill { background:var(--apricot); }
+    .feed { max-height:420px; overflow:auto; font-size:12.5px; }
+    .feed .row { display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px solid var(--line); }
+    .feed .ev { font-weight:600; }
+    .feed .meta { color:var(--muted); }
+    .pill { display:inline-block; background:#0003; border:1px solid var(--line); border-radius:20px; padding:2px 9px; font-size:11px; color:var(--muted); }
+    .err { color:#ff8a8a; }
+    .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    select { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 10px; }
+    .hidden { display:none !important; }
+    table { width:100%; border-collapse:collapse; }
+    td,th { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); font-size:12.5px; }
+    th { color:var(--muted); font-weight:600; }
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="login" class="center">
+    <img src="/icon.png" class="logo" alt="Trypup" />
+    <div>
+      <h1>Trypup · Analytika</h1>
+      <p style="color:var(--muted);max-width:340px">Skrytý dashboard. Přihlas se admin účtem Google.</p>
+    </div>
+    <button id="signin">Přihlásit přes Google</button>
+    <p id="login-err" class="err"></p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dash" class="wrap hidden">
+    <header>
+      <h1>Trypup · Analytika <small id="who"></small></h1>
+      <div class="toolbar">
+        <select id="range">
+          <option value="0">Vše</option>
+          <option value="1">24 h</option>
+          <option value="7" selected>7 dní</option>
+          <option value="30">30 dní</option>
+        </select>
+        <button id="reload" class="ghost">Načíst</button>
+        <button id="signout" class="ghost">Odhlásit</button>
+      </div>
+    </header>
+    <p id="status" style="color:var(--muted)">Načítám…</p>
+    <div id="content" class="hidden">
+      <div class="cards" id="kpis"></div>
+      <h2>Funnely (kolik instalací dojde k…)</h2>
+      <div class="grid2" id="funnels"></div>
+      <h2>Zařízení — na čem se to děje</h2>
+      <div class="grid2" id="devices"></div>
+      <h2>Mise & retence — proč</h2>
+      <div class="grid2" id="mission"></div>
+      <h2>Eventy</h2>
+      <div class="grid2" id="events"></div>
+      <h2>Poslední aktivita</h2>
+      <div class="panel"><div class="feed" id="feed"></div></div>
+    </div>
+  </div>
+
+  <script type="module" is:inline>
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, collection, query, orderBy, limit, getDocs }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const ADMIN_EMAIL = 'o.kliment@gmail.com';
+    const FIREBASE_CONFIG = {
+      apiKey: 'AIzaSyCrFi62rqFPVJuyFcS8HHuEGhZ1PfElgAs',
+      authDomain: 'trypupapp.firebaseapp.com',
+      projectId: 'trypupapp',
+      storageBucket: 'trypupapp.firebasestorage.app',
+      messagingSenderId: '354782336728',
+      appId: '1:354782336728:web:b14e119b183bf4d824e9ad',
+    };
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[<>&]/g, (c) => ({ '<':'&lt;','>':'&gt;','&':'&amp;' }[c]));
+
+    $('signin').onclick = async () => {
+      try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+      catch (e) { $('login-err').textContent = e.message || String(e); }
+    };
+    $('signout').onclick = () => signOut(auth);
+    $('reload').onclick = () => loadData();
+    $('range').onchange = () => loadData();
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email === ADMIN_EMAIL) {
+        $('login').classList.add('hidden');
+        $('dash').classList.remove('hidden');
+        $('who').textContent = '· ' + user.email;
+        loadData();
+      } else if (user) {
+        $('login-err').textContent = 'Účet ' + user.email + ' nemá přístup.';
+        signOut(auth);
+      } else {
+        $('dash').classList.add('hidden');
+        $('login').classList.remove('hidden');
+      }
+    });
+
+    let RAW = [];
+    async function loadData() {
+      $('status').classList.remove('hidden');
+      $('content').classList.add('hidden');
+      $('status').textContent = 'Načítám…';
+      try {
+        const q = query(collection(db, 'analytics_events'), orderBy('lastTs', 'desc'), limit(3000));
+        const snap = await getDocs(q);
+        const flat = [];
+        snap.forEach((d) => {
+          const b = d.data();
+          const dev = b.device || {};
+          (b.events || []).forEach((e) => flat.push({
+            name: e.name, props: e.props || {}, ts: e.ts, session: e.session,
+            installId: b.installId, dev,
+          }));
+        });
+        RAW = flat;
+        render();
+        $('status').classList.add('hidden');
+        $('content').classList.remove('hidden');
+      } catch (e) {
+        $('status').innerHTML = '<span class="err">Chyba: ' + esc(e.message || e) +
+          '</span><br><span style="color:var(--muted)">Pravděpodobně nejsou nasazené Firestore rules pro <code>analytics_events</code>, nebo kolekce je zatím prázdná.</span>';
+      }
+    }
+
+    function inRange(ts) {
+      const days = +$('range').value;
+      if (!days) return true;
+      return ts >= Date.now() - days * 86400000;
+    }
+
+    // --- agregační helpery ---
+    function countBy(arr, keyFn) {
+      const m = new Map();
+      for (const x of arr) { const k = keyFn(x); if (k == null) continue; m.set(k, (m.get(k) || 0) + 1); }
+      return [...m.entries()].sort((a, b) => b[1] - a[1]);
+    }
+    function uniqInstalls(arr) { return new Set(arr.map((e) => e.installId)).size; }
+    function barPanel(title, pairs, color, max) {
+      const top = max ? pairs.slice(0, max) : pairs;
+      const hi = top.length ? top[0][1] : 1;
+      const rows = top.map(([k, v]) => `
+        <div class="bar"><span class="lbl">${esc(k)}</span><span class="val">${v}</span>
+        <div class="track"><div class="fill" style="width:${Math.max(2, (v / hi) * 100)}%;${color ? 'background:' + color : ''}"></div></div></div>`).join('');
+      return `<div class="panel"><h3>${esc(title)}</h3>${rows || '<p style="color:var(--muted)">Žádná data.</p>'}</div>`;
+    }
+
+    function render() {
+      const ev = RAW.filter((e) => inRange(e.ts));
+      // KPIs
+      const installs = uniqInstalls(ev);
+      const sessions = new Set(ev.map((e) => e.installId + ':' + e.session)).size;
+      const tsList = ev.map((e) => e.ts).filter(Boolean);
+      const span = tsList.length ? Math.round((Math.max(...tsList) - Math.min(...tsList)) / 86400000) : 0;
+      const fmt = (t) => new Date(t).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
+      $('kpis').innerHTML = [
+        ['Eventy', ev.length], ['Instalace', installs], ['Relace', sessions],
+        ['Rozsah (dny)', span], ['Poslední', tsList.length ? fmt(Math.max(...tsList)) : '–'],
+      ].map(([l, v]) => `<div class="card"><div class="kpi">${v}<small>${l}</small></div></div>`).join('');
+
+      // Funnely (po instalacích)
+      const FUN = {
+        'Aktivace': ['app_open', 'onboarding_step', 'quiz_completed', 'breed_selected', 'activated'],
+        'Monetizace': ['paywall_viewed', 'purchase_started', 'purchase_completed'],
+        'Mise (→ útulek)': ['activated', 'article_read', 'graduation_reached', 'shelter_opened'],
+      };
+      const installsWith = (name) => new Set(ev.filter((e) => e.name === name).map((e) => e.installId));
+      $('funnels').innerHTML = Object.entries(FUN).map(([title, steps]) => {
+        const sets = steps.map((s) => installsWith(s));
+        const base = sets[0].size || 1;
+        const rows = steps.map((s, i) => {
+          const c = sets[i].size; const pct = Math.round((c / base) * 100);
+          return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} · ${pct}%</span>
+            <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div></div>`;
+        }).join('');
+        return `<div class="panel funnel"><h3>${esc(title)}</h3>${rows}</div>`;
+      }).join('');
+
+      // Zařízení
+      $('devices').innerHTML = [
+        barPanel('Platforma', countBy(ev, (e) => e.dev.platform), 'var(--water)'),
+        barPanel('Model zařízení', countBy(ev, (e) => e.dev.model), null, 12),
+        barPanel('OS verze', countBy(ev, (e) => (e.dev.os || '') + ' ' + (e.dev.osVersion || '')), null, 10),
+        barPanel('Typ', countBy(ev, (e) => e.dev.type), 'var(--plum)'),
+        barPanel('Build appky', countBy(ev, (e) => 'build' + e.dev.appBuild)),
+        barPanel('Jazyk', countBy(ev, (e) => e.dev.locale), 'var(--apricot)'),
+      ].join('');
+
+      // Mise & retence & „proč"
+      const dayReach = (() => {
+        const maxDay = new Map();
+        for (const e of ev) if (e.name === 'day_advanced') {
+          const d = +e.props.day || 0; const cur = maxDay.get(e.installId) || 0;
+          if (d > cur) maxDay.set(e.installId, d);
+        }
+        const buckets = [1, 3, 7, 14, 30];
+        return buckets.map((b) => [`den ≥ ${b}`, [...maxDay.values()].filter((d) => d >= b).length]);
+      })();
+      $('mission').innerHTML = [
+        barPanel('Proklik na útulek (shelter_opened) dle útulku', countBy(ev.filter((e) => e.name === 'shelter_opened'), (e) => e.props.shelter || '(neznámý)'), 'var(--water)', 12),
+        barPanel('Retence — instalace co dosáhly dne', dayReach, 'var(--apricot)'),
+        barPanel('Vybraná plemena (breed_selected)', countBy(ev.filter((e) => e.name === 'breed_selected'), (e) => e.props.breed || '?'), null, 12),
+        barPanel('Selhané nákupy — důvod (purchase_failed)', countBy(ev.filter((e) => e.name === 'purchase_failed'), (e) => e.props.reason || '?'), '#ff8a8a'),
+      ].join('');
+
+      // Eventy přehled
+      $('events').innerHTML = [
+        barPanel('Eventy dle typu', countBy(ev, (e) => e.name), 'var(--water)', 30),
+        barPanel('Otevření appky dle dne', countBy(ev.filter((e) => e.name === 'app_open'), (e) => new Date(e.ts).toLocaleDateString('cs-CZ')), 'var(--apricot)', 20),
+      ].join('');
+
+      // Feed
+      const recent = [...ev].sort((a, b) => b.ts - a.ts).slice(0, 70);
+      $('feed').innerHTML = recent.map((e) => `<div class="row">
+        <span><span class="ev">${esc(e.name)}</span> ${e.props && Object.keys(e.props).length ? '<span class="pill">' + esc(Object.entries(e.props).map(([k, v]) => k + '=' + v).join(' ')) + '</span>' : ''}</span>
+        <span class="meta">${esc(e.dev.model || e.dev.platform || '?')} · ${esc(e.dev.locale || '')} · ${new Date(e.ts).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' })}</span>
+      </div>`).join('') || '<p style="color:var(--muted)">Žádné eventy.</p>';
+    }
+  </script>
+</body>
+</html>
