@@ -200,7 +200,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     }
 
     function render() {
-      const ev = RAW.filter((e) => inRange(e.ts));
+      const ev = RAW.filter((e) => Number.isFinite(e.ts) && inRange(e.ts));
       // KPIs
       const installs = uniqInstalls(ev);
       const sessions = new Set(ev.map((e) => e.installId + ':' + e.session)).size;
@@ -236,7 +236,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         barPanel('Model zařízení', countBy(ev, (e) => e.dev.model), null, 12),
         barPanel('OS verze', countBy(ev, (e) => (e.dev.os || '') + ' ' + (e.dev.osVersion || '')), null, 10),
         barPanel('Typ', countBy(ev, (e) => e.dev.type), 'var(--plum)'),
-        barPanel('Build appky', countBy(ev, (e) => 'build' + e.dev.appBuild)),
+        barPanel('Build appky', countBy(ev, (e) => 'build' + (e.dev.appBuild ?? '?'))),
         barPanel('Jazyk', countBy(ev, (e) => e.dev.locale), 'var(--apricot)'),
       ].join('');
 
