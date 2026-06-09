@@ -1,0 +1,164 @@
+---
+// Trypup — skrytý editor odkazů na útulky (per jazyk). Píše do Firestore
+// `shelter_links/{lang}`, app to čte s fallbackem na bundled. Přístup jen admin.
+// Skryté pro roboty (noindex + robots.txt Disallow /admin).
+---
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Trypup · Útulky</title>
+  <style>
+    :root { --apricot:#F2784B; --water:#3E7C8C; --bg:#1d1620; --card:#2a2230; --line:#3c3242; --muted:#a99bb0; --text:#f3ecf2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; }
+    a { color:var(--apricot); }
+    .wrap { max-width:880px; margin:0 auto; padding:24px 18px 80px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+    h1 { font-size:20px; margin:0; font-weight:800; }
+    h1 small { color:var(--muted); font-weight:500; font-size:13px; }
+    button { background:var(--apricot); color:#fff; border:0; border-radius:10px; padding:9px 15px; font-weight:700; cursor:pointer; }
+    button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+    button.sm { padding:5px 10px; font-size:12px; }
+    .center { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
+    .logo { width:64px; height:64px; border-radius:18px; }
+    select, input { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px; width:100%; }
+    .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-top:14px; }
+    label { display:block; font-size:12px; color:var(--muted); margin:0 0 4px; }
+    .row { display:grid; grid-template-columns:1fr 1fr 1.4fr auto auto; gap:8px; align-items:end; margin:8px 0; }
+    .row .nw { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--muted); white-space:nowrap; }
+    .hidden { display:none !important; }
+    .err { color:#ff8a8a; } .ok { color:#7dd39a; }
+    .muted { color:var(--muted); font-size:12.5px; }
+    @media(max-width:680px){ .row{ grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="login" class="center">
+    <img src="/icon.png" class="logo" alt="Trypup" />
+    <h1>Trypup · Útulky</h1>
+    <p class="muted" style="max-width:320px">Skrytý editor. Přihlas se admin účtem Google.</p>
+    <button id="signin">Přihlásit přes Google</button>
+    <p id="login-err" class="err"></p>
+  </div>
+
+  <div id="app" class="wrap hidden">
+    <header>
+      <h1>Trypup · Útulky <small id="who"></small></h1>
+      <div class="toolbar">
+        <select id="lang" style="width:auto"></select>
+        <a href="/admin" class="muted">← Analytika</a>
+        <button id="signout" class="ghost sm">Odhlásit</button>
+      </div>
+    </header>
+    <p id="state" class="muted"></p>
+    <div class="panel">
+      <label>Odkaz na mapu (tlačítko „najít útulky na mapě")</label>
+      <input id="mapsUrl" placeholder="https://…" />
+    </div>
+    <div class="panel">
+      <label>Útulky (zobrazí se na obrazovce Adopce v tomto jazyce)</label>
+      <div id="rows"></div>
+      <button id="add" class="ghost sm" style="margin-top:8px">+ Přidat útulek</button>
+    </div>
+    <div class="toolbar" style="margin-top:16px">
+      <button id="save">Uložit jazyk</button>
+      <button id="reset" class="ghost">Načíst znovu</button>
+      <span id="msg" class="muted"></span>
+    </div>
+    <p class="muted" style="margin-top:20px">„nationwide" = celostátní (app ukáže lokalizovaný štítek místo města). Uložení přepíše remote dokument pro daný jazyk; app ho začne číst do pár vteřin (jinak fallback na vestavěný seznam).</p>
+  </div>
+
+  <script type="module" is:inline>
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const ADMIN_EMAIL = 'o.kliment@gmail.com';
+    const LANGS = ['cs','sk','pl','de','es','fr','it','nl','pt','uk','bg','en'];
+    // Vestavěné výchozí seznamy (z app shelters.ts) — prefill, dokud jazyk nemá remote dokument.
+    const BUNDLED = {"cs":{"mapsUrl":"https://www.google.com/maps/search/psí+útulek","list":[{"name":"Útulek Voříškov","city":"Praha","url":"https://voriskov.cz"},{"name":"Pesweb — databáze psů k adopci","city":"nationwide","url":"https://www.pesweb.cz/psi-k-adopci"},{"name":"Psí naděje","city":"nationwide","url":"https://www.psinadeje.cz"},{"name":"Liga na ochranu zvířat ČR","city":"nationwide","url":"https://lozcr.eu"}]},"sk":{"mapsUrl":"https://www.google.com/maps/search/útulok+pre+psov","list":[{"name":"Sloboda zvierat","city":"Bratislava","url":"https://slobodazvierat.sk"},{"name":"Pes v núdzi","city":"nationwide","url":"https://www.pesvnudzi.sk"},{"name":"PSY-SOS (databáza útulkov)","city":"nationwide","url":"https://www.psysos.sk"},{"name":"OZ Pomoc psíkom","city":"Šarišské Michaľany","url":"https://www.pomocpsikom.sk"}]},"pl":{"mapsUrl":"https://www.google.com/maps/search/schronisko+dla+psów","list":[{"name":"OTOZ Animals","city":"nationwide","url":"https://otoz.pl"},{"name":"Fundacja dla zwierząt Puszatek","city":"nationwide","url":"https://puszatek.pl"},{"name":"Schronisko dla Bezdomnych Zwierząt w Krakowie","city":"Kraków","url":"https://www.schronisko.krakow.pl"},{"name":"Stowarzyszenie Dog Rescue","city":"nationwide","url":"https://www.dogrescue.pl"}]},"de":{"mapsUrl":"https://www.google.com/maps/search/Tierheim+Hunde","list":[{"name":"Deutscher Tierschutzbund e.V.","city":"nationwide","url":"https://www.tierschutzbund.de"},{"name":"Tierschutzverein für Berlin","city":"Berlin","url":"https://www.tierschutz-berlin.de"},{"name":"Tierschutzverein München","city":"München","url":"https://www.tierschutzverein-muenchen.de"},{"name":"Hamburger Tierschutzverein","city":"Hamburg","url":"https://www.hamburger-tierschutzverein.de"}]},"es":{"mapsUrl":"https://www.google.com/maps/search/protectora+de+animales+perros","list":[{"name":"El Refugio","city":"Madrid","url":"https://elrefugio.org"},{"name":"ANAA — Amigos de los Animales","city":"Madrid","url":"https://anaaweb.org"},{"name":"Asociación Alba","city":"Madrid","url":"https://albaonline.org"},{"name":"Protectora BCN","city":"Barcelona","url":"https://protectorabcn.es"}]},"fr":{"mapsUrl":"https://www.google.com/maps/search/refuge+pour+chiens","list":[{"name":"La SPA","city":"nationwide","url":"https://www.la-spa.fr"},{"name":"Seconde Chance","city":"nationwide","url":"https://www.secondechance.org"},{"name":"Fondation 30 Millions d'Amis","city":"nationwide","url":"https://www.30millionsdamis.fr"},{"name":"Fondation Assistance aux Animaux","city":"nationwide","url":"https://www.fondationassistanceauxanimaux.org"}]},"it":{"mapsUrl":"https://www.google.com/maps/search/canile+rifugio+cani","list":[{"name":"ENPA — Ente Nazionale Protezione Animali","city":"nationwide","url":"https://enpa.org"},{"name":"LNDC Animal Protection","city":"nationwide","url":"https://www.lndc.it"},{"name":"OIPA Italia","city":"nationwide","url":"https://www.oipa.org/italia/"},{"name":"LAV — Lega Anti Vivisezione","city":"nationwide","url":"https://www.lav.it"}]},"nl":{"mapsUrl":"https://www.google.com/maps/search/dierenasiel+honden","list":[{"name":"Dierenbescherming — Ik Zoek Baas","city":"nationwide","url":"https://ikzoekbaas.dierenbescherming.nl"},{"name":"Dierenasiel Amsterdam (DOA)","city":"Amsterdam","url":"https://doa-dierenasiel.nl"},{"name":"Dierenasiel Utrecht","city":"Utrecht","url":"https://www.dierenasielutrecht.nl"},{"name":"Dierenasiel.nl","city":"nationwide","url":"https://www.dierenasiel.nl"}]},"pt":{"mapsUrl":"https://www.google.com/maps/search/canil+abrigo+cães","list":[{"name":"Adopta-me","city":"nationwide","url":"https://www.adopta-me.org"},{"name":"Apets Portugal","city":"nationwide","url":"https://apets.pt"},{"name":"Associação Bianca","city":"Lisboa","url":"https://bianca.pt"},{"name":"APCA — Cães Abandonados","city":"Sintra","url":"https://apca.org.pt"}]},"uk":{"mapsUrl":"https://www.google.com/maps/search/притулок+для+собак","list":[{"name":"Притулок Сіріус","city":"Fedorivka","url":"https://dogcat.com.ua"},{"name":"Kyiv Society for the Protection of Animals","city":"Kyiv","url":"https://rescue-team.rolda.org"},{"name":"Animal Rescue Kharkiv","city":"Kharkiv","url":"https://www.animalrescuekharkiv.org"},{"name":"Transform A Street Dog","city":"nationwide","url":"https://transformastreetdog.org"}]},"bg":{"mapsUrl":"https://www.google.com/maps/search/приют+за+кучета","list":[{"name":"Animal Rescue Sofia","city":"Sofia","url":"https://arsofia.com"},{"name":"ОП Екоравновесие","city":"Sofia","url":"https://ecoravnovesie.sofia.bg"},{"name":"Общински приют — Пловдив","city":"Plovdiv","url":"https://dogshelter.plovdiv.bg"},{"name":"Animal Welfare Bulgaria","city":"nationwide","url":"https://awbulgaria.com"}]},"en":{"mapsUrl":"https://www.google.com/maps/search/dog+rescue+shelter","list":[{"name":"Dogs Trust","city":"nationwide","url":"https://www.dogstrust.org.uk"},{"name":"RSPCA","city":"nationwide","url":"https://www.rspca.org.uk"},{"name":"Battersea Dogs & Cats Home","city":"London","url":"https://www.battersea.org.uk"},{"name":"Blue Cross","city":"nationwide","url":"https://www.bluecross.org.uk"}]}};
+
+    const app = initializeApp({ apiKey:'AIzaSyCrFi62rqFPVJuyFcS8HHuEGhZ1PfElgAs', authDomain:'trypupapp.firebaseapp.com', projectId:'trypupapp', storageBucket:'trypupapp.firebasestorage.app', messagingSenderId:'354782336728', appId:'1:354782336728:web:b14e119b183bf4d824e9ad' });
+    const auth = getAuth(app); const db = getFirestore(app);
+    const $ = (id) => document.getElementById(id);
+
+    $('signin').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e){ $('login-err').textContent = e.message; } };
+    $('signout').onclick = () => signOut(auth);
+
+    const sel = $('lang'); LANGS.forEach(l => { const o=document.createElement('option'); o.value=l; o.textContent=l; sel.appendChild(o); });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email === ADMIN_EMAIL) { $('login').classList.add('hidden'); $('app').classList.remove('hidden'); $('who').textContent='· '+user.email; loadLang(); }
+      else if (user) { $('login-err').textContent='Účet '+user.email+' nemá přístup.'; signOut(auth); }
+      else { $('app').classList.add('hidden'); $('login').classList.remove('hidden'); }
+    });
+    sel.onchange = loadLang;
+    $('reset').onclick = loadLang;
+    $('add').onclick = () => addRow({ name:'', city:'', url:'' });
+
+    function addRow(s) {
+      const nw = s.city === 'nationwide';
+      const div = document.createElement('div'); div.className='row';
+      div.innerHTML = `
+        <div><label>Název</label><input class="f-name" value=""></div>
+        <div><label>Město</label><input class="f-city" value="" ${nw?'disabled':''}></div>
+        <div><label>URL</label><input class="f-url" value=""></div>
+        <div class="nw"><label>&nbsp;</label><span><input type="checkbox" class="f-nw" ${nw?'checked':''}> celostátní</span></div>
+        <div><label>&nbsp;</label><button class="ghost sm f-del">✕</button></div>`;
+      div.querySelector('.f-name').value = s.name || '';
+      div.querySelector('.f-city').value = nw ? '' : (s.city || '');
+      div.querySelector('.f-url').value = s.url || '';
+      div.querySelector('.f-nw').onchange = (e) => { div.querySelector('.f-city').disabled = e.target.checked; };
+      div.querySelector('.f-del').onclick = () => div.remove();
+      $('rows').appendChild(div);
+    }
+
+    function fillForm(market) {
+      $('mapsUrl').value = market.mapsUrl || '';
+      $('rows').innerHTML = '';
+      (market.list || []).forEach(addRow);
+    }
+
+    async function loadLang() {
+      const lang = sel.value; $('msg').textContent='';
+      $('state').textContent = 'Načítám…';
+      try {
+        const snap = await getDoc(doc(db, 'shelter_links', lang));
+        if (snap.exists()) {
+          fillForm(snap.data());
+          const u = snap.data().updatedAt; const by = snap.data().updatedBy;
+          $('state').innerHTML = `<span class="ok">Remote dokument existuje</span>${u?` · upraveno ${new Date(u).toLocaleString('cs-CZ')}`:''}${by?` · ${by}`:''}`;
+        } else {
+          fillForm(BUNDLED[lang] || { mapsUrl:'', list:[] });
+          $('state').innerHTML = `<span class="muted">Žádný remote dokument — předvyplněno vestavěným seznamem. Uložením vytvoříš override.</span>`;
+        }
+      } catch (e) { $('state').innerHTML = `<span class="err">Chyba: ${e.message}</span>`; }
+    }
+
+    function collect() {
+      const list = [...document.querySelectorAll('#rows .row')].map(r => {
+        const nw = r.querySelector('.f-nw').checked;
+        return { name: r.querySelector('.f-name').value.trim(), city: nw ? 'nationwide' : r.querySelector('.f-city').value.trim(), url: r.querySelector('.f-url').value.trim() };
+      }).filter(s => s.name && s.url);
+      return { mapsUrl: $('mapsUrl').value.trim(), list };
+    }
+
+    $('save').onclick = async () => {
+      const lang = sel.value; const data = collect();
+      if (!data.mapsUrl || !data.list.length) { $('msg').innerHTML='<span class="err">Vyplň odkaz na mapu a aspoň jeden útulek (s názvem a URL).</span>'; return; }
+      $('msg').textContent='Ukládám…';
+      try {
+        await setDoc(doc(db, 'shelter_links', lang), { ...data, updatedAt: Date.now(), updatedBy: ADMIN_EMAIL, schema: 1, sentAt: serverTimestamp() });
+        $('msg').innerHTML = `<span class="ok">Uloženo (${data.list.length} útulků). App to načte do pár vteřin.</span>`;
+        $('state').innerHTML = `<span class="ok">Remote dokument existuje</span> · právě uloženo`;
+      } catch (e) { $('msg').innerHTML = `<span class="err">Chyba ukládání: ${e.message}</span>`; }
+    };
+  </script>
+</body>
+</html>
