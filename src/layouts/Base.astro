@@ -74,6 +74,15 @@ const t = lang === 'en'
     <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#FDF4EF" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Google Analytics 4 (gtag.js) — Web stream G-8MWP5X5RPR (veškerý provoz trypup.life).
+         is:inline = Astro snippet nebundluje, vykreslí ho 1:1 do <head>. -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-8MWP5X5RPR"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-8MWP5X5RPR');
+    </script>
   </head>
   <body>
     <div class="announce">{t.announce}<a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener">@trypupapp</a></div>
