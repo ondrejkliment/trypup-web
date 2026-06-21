@@ -26,6 +26,9 @@ import Base from '../layouts/Base.astro';
       o pozvánku do TestFlightu (iOS) nebo testovací verze na Google Play.
       Pak se vrať sem, nebo kód <span id="code-inline" style="font-weight:700;"></span> zadej v appce na záložce <strong>Spolu → Připojit se</strong>.
     </p>
+    <p id="install-fallback" hidden style="background:#FDF4EF; border:1px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.9rem; color:#4A2B45; line-height:1.5;">
+      Vypadá to, že Trypup ještě nemáš nainstalovaný. Zkopíruj si kód výše a zadej ho v appce na záložce <strong>Spolu → Připojit se</strong>. Appku zatím získáš přes pozvánku do TestFlightu (iOS) nebo testovací verze na Google Play.
+    </p>
     <p id="no-code" hidden style="color: #B91C1C; font-weight: 600;">Odkaz nemá platný kód — požádej o nové pozvání.</p>
   </section>
 
@@ -41,6 +44,20 @@ import Base from '../layouts/Base.astro';
       codeEl.textContent = raw;
       if (inlineEl) inlineEl.textContent = raw;
       openEl.href = `trypup://join/${raw}`;
+      // Když appka NENÍ nainstalovaná, custom scheme jen hodí systémovou chybu
+      // („Aplikaci nelze otevřít"). Zkusíme appku otevřít a když se po chvíli nic
+      // nestane (stránka zůstane viditelná), ukážeme nenápadný návod pro stažení.
+      openEl.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        let opened = false;
+        const onHide = () => { opened = true; };
+        document.addEventListener('visibilitychange', onHide, { once: true });
+        window.addEventListener('pagehide', onHide, { once: true });
+        try { window.location.href = `trypup://join/${raw}`; } catch {}
+        setTimeout(() => {
+          if (!opened && !document.hidden) document.getElementById('install-fallback')?.removeAttribute('hidden');
+        }, 1400);
+      });
       copyEl?.addEventListener('click', async () => {
         try { await navigator.clipboard.writeText(raw); if (copyEl) copyEl.textContent = '✓ Zkopírováno'; } catch {}
       });
