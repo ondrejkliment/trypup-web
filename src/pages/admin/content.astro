@@ -1,0 +1,185 @@
+---
+// Trypup — skrytý editor obsahu webu. Píše do Firestore `site_content/content`
+// (mapa fields: { <key>: <text> }). Veřejné stránky to čtou a aplikují (hydratace
+// v Base.astro na elementy s data-cms="<key>"). Katalog polí = src/lib/siteContent.
+// Přístup jen admin (Firestore rules), skryté pro roboty (noindex + robots.txt).
+import { CMS_FIELDS } from '../../lib/siteContent';
+---
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Trypup · Obsah webu</title>
+  <style>
+    :root { --apricot:#F2784B; --water:#3E7C8C; --bg:#1d1620; --card:#2a2230; --line:#3c3242; --muted:#a99bb0; --text:#f3ecf2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; }
+    a { color:var(--apricot); }
+    .wrap { max-width:880px; margin:0 auto; padding:24px 18px 110px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+    h1 { font-size:20px; margin:0; font-weight:800; }
+    h1 small { color:var(--muted); font-weight:500; font-size:13px; }
+    button { background:var(--apricot); color:#fff; border:0; border-radius:10px; padding:9px 15px; font-weight:700; cursor:pointer; }
+    button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+    button.sm { padding:5px 10px; font-size:12px; font-weight:600; }
+    .center { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
+    .logo { width:64px; height:64px; border-radius:18px; }
+    input, textarea { background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px; width:100%; font-family:inherit; resize:vertical; }
+    input:focus, textarea:focus { outline:none; border-color:var(--apricot); }
+    .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .group { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:8px 18px 16px; margin-top:14px; }
+    .group > h2 { font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--apricot); margin:14px 0 6px; }
+    .field { margin:12px 0; }
+    .field label { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin:0 0 4px; }
+    .field label .name { font-weight:600; color:var(--text); }
+    .badge { display:none; background:#3a2e16; color:#e8c46a; border:1px solid #6a5320; border-radius:20px; padding:1px 8px; font-size:10.5px; font-weight:700; }
+    .field.edited .badge { display:inline-block; }
+    .field.edited input, .field.edited textarea { border-color:#6a5320; }
+    .reset { margin-left:auto; }
+    .search { width:100%; margin-bottom:6px; }
+    .savebar { position:fixed; left:0; right:0; bottom:0; background:rgba(29,22,32,.96); border-top:1px solid var(--line); padding:12px 18px; display:flex; gap:10px; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
+    .savebar .inner { max-width:880px; width:100%; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .err { color:#ff8a8a; } .ok { color:#7dd39a; }
+    .muted { color:var(--muted); font-size:12.5px; }
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <div id="login" class="center">
+    <img src="/icon.png" class="logo" alt="Trypup" />
+    <h1>Trypup · Obsah webu</h1>
+    <p class="muted" style="max-width:340px">Skrytý editor textů a prvků webu. Přihlas se admin účtem Google.</p>
+    <button id="signin">Přihlásit přes Google</button>
+    <p id="login-err" class="err"></p>
+  </div>
+
+  <div id="app" class="wrap hidden">
+    <header>
+      <h1>Trypup · Obsah webu <small id="who"></small></h1>
+      <div class="toolbar">
+        <a href="/admin" class="muted">← Analytika</a>
+        <a href="/admin/shelters" class="muted">🐾 Útulky</a>
+        <button id="signout" class="ghost sm">Odhlásit</button>
+      </div>
+    </header>
+    <p id="state" class="muted"></p>
+    <input id="search" class="search" placeholder="🔎 Filtrovat pole (název / text / klíč)…" autocomplete="off" />
+    <div id="groups"></div>
+    <p class="muted" style="margin-top:18px">Změny se na webu projeví do pár vteřin (stránka si je načte při dalším otevření / refreshi). Prázdné pole = vrátí se vestavěný výchozí text. Upravený text se zobrazí jako prostý — vnitřní formátování (tučné, zvýraznění) zůstává jen u needitovaných polí.</p>
+  </div>
+
+  <div id="savebar" class="savebar hidden">
+    <div class="inner">
+      <button id="save">Uložit změny</button>
+      <button id="reload" class="ghost">Načíst znovu</button>
+      <a href="/" target="_blank" class="ghost sm" style="text-decoration:none;display:inline-block">Náhled CZ ↗</a>
+      <a href="/en/" target="_blank" class="ghost sm" style="text-decoration:none;display:inline-block">Náhled EN ↗</a>
+      <span id="msg" class="muted"></span>
+    </div>
+  </div>
+
+  <script type="application/json" id="cms-fields" set:html={JSON.stringify(CMS_FIELDS).replace(/</g, '\\u003c')}></script>
+
+  <script type="module" is:inline>
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const ADMIN_EMAIL = 'o.kliment@gmail.com';
+    const FIELDS = JSON.parse(document.getElementById('cms-fields').textContent);
+    const DEFAULT = Object.fromEntries(FIELDS.map((f) => [f.key, f.default]));
+
+    const app = initializeApp({ apiKey:'AIzaSyCrFi62rqFPVJuyFcS8HHuEGhZ1PfElgAs', authDomain:'trypupapp.firebaseapp.com', projectId:'trypupapp', storageBucket:'trypupapp.firebasestorage.app', messagingSenderId:'354782336728', appId:'1:354782336728:web:b14e119b183bf4d824e9ad' });
+    const auth = getAuth(app); const db = getFirestore(app);
+    const $ = (id) => document.getElementById(id);
+
+    $('signin').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e){ $('login-err').textContent = e.message; } };
+    $('signout').onclick = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email === ADMIN_EMAIL) { $('login').classList.add('hidden'); $('app').classList.remove('hidden'); $('savebar').classList.remove('hidden'); $('who').textContent='· '+user.email; buildForm(); load(); }
+      else if (user) { $('login-err').textContent='Účet '+user.email+' nemá přístup.'; signOut(auth); }
+      else { $('app').classList.add('hidden'); $('savebar').classList.add('hidden'); $('login').classList.remove('hidden'); }
+    });
+
+    // — Form (grupovaný dle FIELDS[].group) —
+    function buildForm() {
+      const root = $('groups'); root.innerHTML = '';
+      const groups = [];
+      for (const f of FIELDS) { let g = groups.find((x) => x.name === f.group); if (!g) { g = { name: f.group, items: [] }; groups.push(g); } g.items.push(f); }
+      for (const g of groups) {
+        const sec = document.createElement('div'); sec.className = 'group';
+        sec.innerHTML = `<h2>${esc(g.name)}</h2>`;
+        for (const f of g.items) {
+          const wrap = document.createElement('div'); wrap.className = 'field'; wrap.dataset.key = f.key;
+          const ctrl = f.type === 'textarea'
+            ? `<textarea rows="2" data-input>${esc(f.default)}</textarea>`
+            : `<input type="${f.type === 'url' ? 'url' : 'text'}" data-input value="${escAttr(f.default)}">`;
+          wrap.innerHTML = `<label><span class="name">${esc(f.label)}</span><span class="badge">upraveno</span>` +
+            `<button class="ghost sm reset" type="button">↺ výchozí</button></label>${ctrl}`;
+          const input = wrap.querySelector('[data-input]');
+          input.addEventListener('input', () => mark(wrap, input.value, f.default));
+          wrap.querySelector('.reset').onclick = () => { input.value = f.default; mark(wrap, f.default, f.default); };
+          sec.appendChild(wrap);
+        }
+        root.appendChild(sec);
+      }
+    }
+    function mark(wrap, val, def) { wrap.classList.toggle('edited', val.trim() !== '' && val.trim() !== def.trim()); }
+
+    // — Načtení přepisů —
+    async function load() {
+      $('state').textContent = 'Načítám…'; $('msg').textContent='';
+      try {
+        const snap = await getDoc(doc(db, 'site_content', 'content'));
+        const fields = (snap.exists() && snap.data().fields) || {};
+        let n = 0;
+        document.querySelectorAll('#groups .field').forEach((wrap) => {
+          const key = wrap.dataset.key; const input = wrap.querySelector('[data-input]');
+          const has = typeof fields[key] === 'string' && fields[key].length;
+          input.value = has ? fields[key] : DEFAULT[key];
+          mark(wrap, input.value, DEFAULT[key]); if (has) n++;
+        });
+        const u = snap.exists() && snap.data().updatedAt;
+        $('state').innerHTML = `<span class="${n?'ok':'muted'}">${n} upravených polí</span>` + (u ? ` · naposled ${new Date(u).toLocaleString('cs-CZ')}` : ' · zatím beze změn (vše výchozí)');
+      } catch (e) { $('state').innerHTML = `<span class="err">Chyba načtení: ${esc(e.message)}</span>`; }
+    }
+
+    // — Uložení (jen pole odlišná od defaultu) —
+    $('save').onclick = async () => {
+      const fields = {}; let n = 0;
+      document.querySelectorAll('#groups .field').forEach((wrap) => {
+        const key = wrap.dataset.key; const v = wrap.querySelector('[data-input]').value.trim();
+        if (v && v !== (DEFAULT[key] || '').trim()) { fields[key] = v; n++; }
+      });
+      $('msg').textContent = 'Ukládám…';
+      try {
+        await setDoc(doc(db, 'site_content', 'content'), { fields, updatedAt: Date.now(), updatedBy: ADMIN_EMAIL, schema: 1, sentAt: serverTimestamp() });
+        $('msg').innerHTML = `<span class="ok">Uloženo (${n} úprav). Web to načte do pár vteřin.</span>`;
+        $('state').innerHTML = `<span class="${n?'ok':'muted'}">${n} upravených polí</span> · právě uloženo`;
+      } catch (e) { $('msg').innerHTML = `<span class="err">Chyba ukládání: ${esc(e.message)}</span>`; }
+    };
+    $('reload').onclick = load;
+
+    // — Filtr —
+    $('search').oninput = (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll('#groups .field').forEach((wrap) => {
+        const txt = (wrap.textContent + ' ' + wrap.dataset.key).toLowerCase();
+        wrap.classList.toggle('hidden', q !== '' && !txt.includes(q));
+      });
+      document.querySelectorAll('#groups .group').forEach((g) => {
+        const anyVisible = [...g.querySelectorAll('.field')].some((f) => !f.classList.contains('hidden'));
+        g.classList.toggle('hidden', !anyVisible);
+      });
+    };
+
+    const esc = (s) => String(s ?? '').replace(/[<>&]/g, (c) => ({ '<':'&lt;','>':'&gt;','&':'&amp;' }[c]));
+    const escAttr = (s) => esc(s).replace(/"/g, '&quot;');
+  </script>
+</body>
+</html>

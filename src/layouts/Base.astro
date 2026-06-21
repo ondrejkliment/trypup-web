@@ -85,7 +85,7 @@ const t = lang === 'en'
     </script>
   </head>
   <body>
-    <div class="announce">{t.announce}<a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener">@trypupapp</a></div>
+    <div class="announce"><span data-cms={lang === 'en' ? 'common.en.announce' : 'common.cs.announce'}>{t.announce}</span><a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener" data-cms-href="common.social.instagram">@trypupapp</a></div>
     <header class="site-header">
       <div class="wrap">
         <a class="brand" href={t.homeHref} aria-label="trypup">
@@ -130,5 +130,33 @@ const t = lang === 'en'
         </div>
       </div>
     </footer>
+
+    <!-- CMS hydratace: na stránkách s [data-cms] / [data-cms-href] načte přepisy
+         textů (site_content/content, spravováno přes /admin/content) a aplikuje je.
+         Čte se přes lehké Firestore REST API (jen nativní fetch, ŽÁDNÝ Firebase SDK
+         → minimální zátěž i na stránkách, kde se edituje jen lišta). textContent =
+         bezpečné proti injekci; odkazy projdou allowlistem schémat. Když přepis
+         chybí (404) nebo fetch selže, zůstane vestavěný text. -->
+    <script is:inline>
+      (async () => {
+        const nodes = document.querySelectorAll('[data-cms],[data-cms-href]');
+        if (!nodes.length) return;
+        try {
+          const KEY = 'AIzaSyCrFi62rqFPVJuyFcS8HHuEGhZ1PfElgAs';
+          const res = await fetch('https://firestore.googleapis.com/v1/projects/trypupapp/databases/(default)/documents/site_content/content?key=' + KEY);
+          if (!res.ok) return; // 404 = dokument zatím není → necháme výchozí texty
+          const raw = ((await res.json()).fields || {}).fields?.mapValue?.fields || {};
+          const f = {};
+          for (const k in raw) if (typeof raw[k]?.stringValue === 'string') f[k] = raw[k].stringValue;
+          const safeUrl = (v) => typeof v === 'string' && /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(v.trim());
+          nodes.forEach((el) => {
+            const tk = el.getAttribute('data-cms');
+            if (tk && typeof f[tk] === 'string' && f[tk].length) el.textContent = f[tk];
+            const hk = el.getAttribute('data-cms-href');
+            if (hk && safeUrl(f[hk])) el.setAttribute('href', f[hk].trim());
+          });
+        } catch (e) { /* offline / prázdné — necháme vestavěný text */ }
+      })();
+    </script>
   </body>
 </html>

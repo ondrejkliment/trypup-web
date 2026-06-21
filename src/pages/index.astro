@@ -17,41 +17,41 @@ const features = [
 ---
 <Base alt="/en/">
   <section class="hero wrap">
-    <span class="badge">🐾 Edukativní simulátor péče</span>
-    <h1>Pes na zkoušku</h1>
-    <p class="lead">Vyzkoušej si na vlastní kůži, co péče o psa obnáší — <strong>dřív, než si pořídíš toho skutečného</strong>.</p>
+    <span class="badge" data-cms="home.cs.hero.badge">🐾 Edukativní simulátor péče</span>
+    <h1 data-cms="home.cs.hero.title">Pes na zkoušku</h1>
+    <p class="lead" data-cms="home.cs.hero.lead">Vyzkoušej si na vlastní kůži, co péče o psa obnáší — <strong>dřív, než si pořídíš toho skutečného</strong>.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="#stahnout">Stáhnout appku</a>
-      <a class="btn btn-ghost" href="#jak-to-funguje">Jak to funguje</a>
+      <a class="btn btn-primary" href="#stahnout" data-cms="home.cs.hero.ctaPrimary">Stáhnout appku</a>
+      <a class="btn btn-ghost" href="#jak-to-funguje" data-cms="home.cs.hero.ctaGhost">Jak to funguje</a>
     </div>
   </section>
 
   <section class="stat section">
     <div class="wrap">
-      <p class="big">Až <span>polovina psů</span> v útulcích tam skončí kvůli nepřipravenosti majitelů.</p>
-      <p style="opacity:.8;margin-top:10px">Trypup ti dá šanci to zjistit před rozhodnutím — ne po něm.</p>
+      <p class="big" data-cms="home.cs.stat.big">Až <span>polovina psů</span> v útulcích tam skončí kvůli nepřipravenosti majitelů.</p>
+      <p style="opacity:.8;margin-top:10px" data-cms="home.cs.stat.sub">Trypup ti dá šanci to zjistit před rozhodnutím — ne po něm.</p>
     </div>
   </section>
 
   <section id="jak-to-funguje" class="section wrap">
-    <h2 class="section-title">Jak to funguje</h2>
-    <p class="section-sub">Tři kroky, jako kdyby ses staral doopravdy.</p>
+    <h2 class="section-title" data-cms="home.cs.how.title">Jak to funguje</h2>
+    <p class="section-sub" data-cms="home.cs.how.sub">Tři kroky, jako kdyby ses staral doopravdy.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
-      <div class="step"><div class="num"></div><div><strong>Vyber plemeno a pojmenuj psa.</strong> Dotazník ti doporučí, co k tobě sedí.</div></div>
-      <div class="step"><div class="num"></div><div><strong>Starej se každý den.</strong> Procházky, krmení, výcvik, veterina. Nic se nedá odbýt.</div></div>
-      <div class="step"><div class="num"></div><div><strong>Zjisti pravdu o sobě.</strong> Zvládneš rutinu i ve dnech, kdy se ti nechce? Pokud psa zanedbáš, odejde do útulku — bez následků pro živé zvíře.</div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step1title">Vyber plemeno a pojmenuj psa.</strong> <span data-cms="home.cs.how.step1text">Dotazník ti doporučí, co k tobě sedí.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step2title">Starej se každý den.</strong> <span data-cms="home.cs.how.step2text">Procházky, krmení, výcvik, veterina. Nic se nedá odbýt.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step3title">Zjisti pravdu o sobě.</strong> <span data-cms="home.cs.how.step3text">Zvládneš rutinu i ve dnech, kdy se ti nechce? Pokud psa zanedbáš, odejde do útulku — bez následků pro živé zvíře.</span></div></div>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">Co appka umí</h2>
-    <p class="section-sub">Realistická simulace péče — od procházek po náklady.</p>
+    <h2 class="section-title" data-cms="home.cs.feat.title">Co appka umí</h2>
+    <p class="section-sub" data-cms="home.cs.feat.sub">Realistická simulace péče — od procházek po náklady.</p>
     <div class="grid">
-      {features.map((f) => (
+      {features.map((f, i) => (
         <div class="card">
           <div class="emoji">{f.emoji}</div>
-          <h3>{f.title}</h3>
-          <p>{f.text}</p>
+          <h3 data-cms={`home.cs.feat${i + 1}.title`}>{f.title}</h3>
+          <p data-cms={`home.cs.feat${i + 1}.text`}>{f.text}</p>
         </div>
       ))}
     </div>
@@ -74,11 +74,11 @@ const features = [
   )}
 
   <section id="stahnout" class="section wrap center">
-    <h2 class="section-title">Pes na zkoušku</h2>
-    <p class="section-sub">Appka brzy v App Store a Google Play. Zatím se mrkni, o co jde.</p>
+    <h2 class="section-title" data-cms="home.cs.dl.title">Pes na zkoušku</h2>
+    <p class="section-sub" data-cms="home.cs.dl.sub">Appka brzy v App Store a Google Play. Zatím se mrkni, o co jde.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="/o-aplikaci/">O aplikaci</a>
-      <a class="btn btn-ghost" href="/blog/">Číst blog</a>
+      <a class="btn btn-primary" href="/o-aplikaci/" data-cms="home.cs.dl.ctaPrimary">O aplikaci</a>
+      <a class="btn btn-ghost" href="/blog/" data-cms="home.cs.dl.ctaGhost">Číst blog</a>
     </div>
   </section>
 </Base>

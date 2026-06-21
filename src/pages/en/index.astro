@@ -17,52 +17,52 @@ const features = [
   alt="/"
 >
   <section class="hero wrap">
-    <span class="badge">🐾 Educational care simulator</span>
-    <h1>A dog on trial</h1>
-    <p class="lead">Feel for yourself what caring for a dog really takes — <strong>before you get a real one</strong>.</p>
+    <span class="badge" data-cms="home.en.hero.badge">🐾 Educational care simulator</span>
+    <h1 data-cms="home.en.hero.title">A dog on trial</h1>
+    <p class="lead" data-cms="home.en.hero.lead">Feel for yourself what caring for a dog really takes — <strong>before you get a real one</strong>.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="#get">Get the app</a>
-      <a class="btn btn-ghost" href="#how-it-works">How it works</a>
+      <a class="btn btn-primary" href="#get" data-cms="home.en.hero.ctaPrimary">Get the app</a>
+      <a class="btn btn-ghost" href="#how-it-works" data-cms="home.en.hero.ctaGhost">How it works</a>
     </div>
   </section>
 
   <section class="stat section">
     <div class="wrap">
-      <p class="big">Up to <span>half of all shelter dogs</span> end up there because their owners weren't prepared.</p>
-      <p style="opacity:.8;margin-top:10px">Trypup lets you find out before the decision — not after.</p>
+      <p class="big" data-cms="home.en.stat.big">Up to <span>half of all shelter dogs</span> end up there because their owners weren't prepared.</p>
+      <p style="opacity:.8;margin-top:10px" data-cms="home.en.stat.sub">Trypup lets you find out before the decision — not after.</p>
     </div>
   </section>
 
   <section id="how-it-works" class="section wrap">
-    <h2 class="section-title">How it works</h2>
-    <p class="section-sub">Three steps, just like caring for a real dog.</p>
+    <h2 class="section-title" data-cms="home.en.how.title">How it works</h2>
+    <p class="section-sub" data-cms="home.en.how.sub">Three steps, just like caring for a real dog.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
-      <div class="step"><div class="num"></div><div><strong>Pick a breed and name your dog.</strong> A questionnaire recommends what fits you.</div></div>
-      <div class="step"><div class="num"></div><div><strong>Care for it every day.</strong> Walks, feeding, training, vet. Nothing can be skipped.</div></div>
-      <div class="step"><div class="num"></div><div><strong>Learn the truth about yourself.</strong> Can you keep the routine even on days you don't feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.</div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step1title">Pick a breed and name your dog.</strong> <span data-cms="home.en.how.step1text">A questionnaire recommends what fits you.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step2title">Care for it every day.</strong> <span data-cms="home.en.how.step2text">Walks, feeding, training, vet. Nothing can be skipped.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step3title">Learn the truth about yourself.</strong> <span data-cms="home.en.how.step3text">Can you keep the routine even on days you don't feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.</span></div></div>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">What the app does</h2>
-    <p class="section-sub">A realistic care simulation — from walks to costs.</p>
+    <h2 class="section-title" data-cms="home.en.feat.title">What the app does</h2>
+    <p class="section-sub" data-cms="home.en.feat.sub">A realistic care simulation — from walks to costs.</p>
     <div class="grid">
-      {features.map((f) => (
+      {features.map((f, i) => (
         <div class="card">
           <div class="emoji">{f.emoji}</div>
-          <h3>{f.title}</h3>
-          <p>{f.text}</p>
+          <h3 data-cms={`home.en.feat${i + 1}.title`}>{f.title}</h3>
+          <p data-cms={`home.en.feat${i + 1}.text`}>{f.text}</p>
         </div>
       ))}
     </div>
   </section>
 
   <section id="get" class="section wrap center">
-    <h2 class="section-title">A dog on trial</h2>
-    <p class="section-sub">Coming soon to the App Store and Google Play. For now, take a look at what it's about.</p>
+    <h2 class="section-title" data-cms="home.en.dl.title">A dog on trial</h2>
+    <p class="section-sub" data-cms="home.en.dl.sub">Coming soon to the App Store and Google Play. For now, take a look at what it's about.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="/en/about/">About the app</a>
-      <a class="btn btn-ghost" href="/blog/">Read the blog</a>
+      <a class="btn btn-primary" href="/en/about/" data-cms="home.en.dl.ctaPrimary">About the app</a>
+      <a class="btn btn-ghost" href="/blog/" data-cms="home.en.dl.ctaGhost">Read the blog</a>
     </div>
   </section>
 </Base>
