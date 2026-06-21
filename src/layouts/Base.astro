@@ -37,6 +37,10 @@ const t = lang === 'en'
       blogHref: '/blog/', privacyHref: '/en/privacy/', termsHref: '/en/terms/', homeHref: '/en/',
       ogLocale: 'en_US',
       announce: '🚧 Trypup is in development — launching soon. Follow ',
+      cookieText: 'We use cookies for anonymous analytics (Google Analytics) to make Trypup better. Analytics runs only with your consent — you can change it anytime via the Cookies link in the footer.',
+      cookieAccept: 'Accept',
+      cookieReject: 'Reject',
+      cookieSettings: 'Cookies',
     }
   : {
       howItWorks: 'Jak to funguje', about: 'O aplikaci', blog: 'Blog',
@@ -46,6 +50,10 @@ const t = lang === 'en'
       blogHref: '/blog/', privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', homeHref: '/',
       ogLocale: 'cs_CZ',
       announce: '🚧 Trypup je ve vývoji — spustíme už brzy. Sleduj ',
+      cookieText: 'Používáme cookies pro anonymní analytiku (Google Analytics), abychom Trypup vylepšovali. Analytika běží jen s tvým souhlasem — kdykoli ho změníš přes odkaz Cookies v patičce.',
+      cookieAccept: 'Přijmout',
+      cookieReject: 'Odmítnout',
+      cookieSettings: 'Cookies',
     };
 ---
 <!doctype html>
@@ -75,11 +83,23 @@ const t = lang === 'en'
     <meta name="theme-color" content="#FDF4EF" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- Google Analytics 4 (gtag.js) — Web stream G-8MWP5X5RPR (veškerý provoz trypup.life).
+         GDPR: Consent Mode v2 — analytics_storage je 'denied' (cookieless), dokud
+         uživatel nedá souhlas v cookie liště (níže). Souhlas se pamatuje v
+         localStorage, takže se default příště rovnou nastaví na 'granted'.
          is:inline = Astro snippet nebundluje, vykreslí ho 1:1 do <head>. -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-8MWP5X5RPR"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      var __tpConsent = 'denied';
+      try { if (localStorage.getItem('trypup-consent') === 'granted') __tpConsent = 'granted'; } catch (e) {}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: __tpConsent,
+        wait_for_update: 500,
+      });
       gtag('js', new Date());
       gtag('config', 'G-8MWP5X5RPR');
     </script>
@@ -127,9 +147,45 @@ const t = lang === 'en'
           <a href={t.privacyHref}>{t.privacy}</a>
           <a href={t.termsHref}>{t.terms}</a>
           <a href="mailto:hello@trypup.life">{t.contact}</a>
+          <a href="#" id="cookie-settings">{t.cookieSettings}</a>
         </div>
       </div>
     </footer>
+
+    <!-- GDPR cookie souhlas. Default (head) = analytics_storage 'denied'; teprve
+         „Přijmout" pošle gtag('consent','update', granted) a uloží volbu. „Cookies"
+         odkaz v patičce lištu znovu otevře (uživatel může souhlas změnit). -->
+    <div id="cookie-bar" hidden style="position:fixed; left:0; right:0; bottom:0; z-index:50; background:#fff; border-top:1px solid #F2784B; box-shadow:0 -4px 20px rgba(74,43,69,.12); padding:14px 18px;">
+      <div style="max-width:860px; margin:0 auto; display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:center;">
+        <p style="margin:0; flex:1 1 320px; font-size:.86rem; line-height:1.5; color:#4A2B45;">
+          {t.cookieText} <a href={t.privacyHref} style="color:#F2784B; text-decoration:underline;">{t.privacy}</a>
+        </p>
+        <div style="display:flex; gap:8px; flex:0 0 auto;">
+          <button id="cookie-reject" type="button" style="background:none; border:1.5px solid #4A2B45; color:#4A2B45; border-radius:999px; padding:.5rem 1.3rem; font-size:.86rem; font-weight:700; cursor:pointer;">{t.cookieReject}</button>
+          <button id="cookie-accept" type="button" style="background:#F2784B; border:1.5px solid #F2784B; color:#fff; border-radius:999px; padding:.5rem 1.3rem; font-size:.86rem; font-weight:700; cursor:pointer;">{t.cookieAccept}</button>
+        </div>
+      </div>
+    </div>
+    <script is:inline>
+      (function () {
+        var KEY = 'trypup-consent';
+        var bar = document.getElementById('cookie-bar');
+        var saved = null;
+        try { saved = localStorage.getItem(KEY); } catch (e) {}
+        if (!saved && bar) bar.removeAttribute('hidden');
+        function decide(v) {
+          try { localStorage.setItem(KEY, v); } catch (e) {}
+          if (typeof gtag === 'function') gtag('consent', 'update', { analytics_storage: v === 'granted' ? 'granted' : 'denied' });
+          if (bar) bar.setAttribute('hidden', '');
+        }
+        var a = document.getElementById('cookie-accept');
+        var r = document.getElementById('cookie-reject');
+        var s = document.getElementById('cookie-settings');
+        if (a) a.addEventListener('click', function () { decide('granted'); });
+        if (r) r.addEventListener('click', function () { decide('denied'); });
+        if (s) s.addEventListener('click', function (e) { e.preventDefault(); if (bar) bar.removeAttribute('hidden'); });
+      })();
+    </script>
 
     <!-- CMS hydratace: na stránkách s [data-cms] / [data-cms-href] načte přepisy
          textů (site_content/content, spravováno přes /admin/content) a aplikuje je.
