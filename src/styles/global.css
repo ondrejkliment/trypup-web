@@ -98,6 +98,10 @@ p.section-sub { text-align: center; color: var(--muted); max-width: 600px; margi
 .prose p, .prose ul, .prose ol { margin-bottom: 16px; color: #374151; }
 .prose ul, .prose ol { padding-left: 22px; }
 .prose strong { color: var(--ink); }
+.prose table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 14px; }
+.prose th, .prose td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--border); color: #374151; }
+.prose th { color: var(--ink); font-weight: 700; }
+.prose td code { font-size: 13px; }
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--muted); font-size: 14px; }
