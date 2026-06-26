@@ -104,6 +104,11 @@ p.section-sub { text-align: center; color: var(--muted); max-width: 600px; margi
 .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
 .site-footer .links { display: flex; gap: 18px; flex-wrap: wrap; }
 .site-footer a { color: var(--muted); }
+.site-footer .legal-id { flex-basis: 100%; font-size: 12px; line-height: 1.5; opacity: .75; }
+
+/* Zákonná identifikace provozovatele (Správce údajů / Provozovatel) */
+.operator-identity { list-style: none; padding-left: 0; }
+.operator-identity li { margin-bottom: 4px; }
 
 .center { text-align: center; }
 .mt { margin-top: 28px; }

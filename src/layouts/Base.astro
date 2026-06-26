@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { operator, operatorLabels } from '../lib/operator';
 
 interface Props {
   title?: string;
@@ -55,6 +56,10 @@ const t = lang === 'en'
       cookieReject: 'Odmítnout',
       cookieSettings: 'Cookies',
     };
+
+// Zákonná identifikace provozovatele v patičce (§ 435 obč. zák.) — na každé stránce.
+const opL = operatorLabels(lang);
+const opRegistry = operator.spisovaZnacka[lang];
 ---
 <!doctype html>
 <html lang={lang}>
@@ -140,7 +145,7 @@ const t = lang === 'en'
 
     <footer class="site-footer">
       <div class="wrap">
-        <div>© {year} Trypup · Ondys</div>
+        <div>© {year} Trypup · {operator.firma}</div>
         <div class="links">
           <a href={t.aboutHref}>{t.about}</a>
           <a href={t.blogHref}>{t.blog}</a>
@@ -149,6 +154,7 @@ const t = lang === 'en'
           <a href="mailto:hello@trypup.life">{t.contact}</a>
           <a href="#" id="cookie-settings">{t.cookieSettings}</a>
         </div>
+        <div class="legal-id">{operator.sidlo} · {opL.ico} {operator.ico}{operator.dic ? ` · ${opL.dic} ${operator.dic}` : ''} · {opRegistry}</div>
       </div>
     </footer>
 

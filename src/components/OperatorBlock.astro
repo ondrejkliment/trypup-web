@@ -1,0 +1,23 @@
+---
+// Plný výpis zákonné identifikace provozovatele. Údaje z jediného zdroje
+// (src/lib/operator.ts); popisky lokalizované. DIČ se renderuje jen když je vyplněné.
+import { operator, operatorLabels, type Lang } from '../lib/operator';
+
+interface Props {
+  lang?: Lang;
+  /** Volitelný nadpis sekce (např. „Správce údajů" / „Provozovatel"). */
+  heading?: string;
+}
+const { lang = 'cs', heading } = Astro.props;
+const L = operatorLabels(lang);
+---
+{heading && <h2>{heading}</h2>}
+<ul class="operator-identity">
+  <li><strong>{L.operator}:</strong> {operator.firma}</li>
+  <li><strong>{L.legalForm}:</strong> {operator.pravniForma[lang]}</li>
+  <li><strong>{L.ico}:</strong> {operator.ico}</li>
+  {operator.dic && <li><strong>{L.dic}:</strong> {operator.dic}</li>}
+  <li><strong>{L.office}:</strong> {operator.sidlo}</li>
+  <li><strong>{L.registry}:</strong> {operator.spisovaZnacka[lang]}</li>
+  <li><strong>{L.email}:</strong> <a href={`mailto:${operator.email}`}>{operator.email}</a></li>
+</ul>

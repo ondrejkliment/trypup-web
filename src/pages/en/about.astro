@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import OperatorBlock from '../../components/OperatorBlock.astro';
 ---
 <Base title="About — Trypup" description="What Trypup is, why it exists and how it helps you decide about a dog responsibly." lang="en" alt="/o-aplikaci/">
   <section class="section wrap prose">
@@ -28,5 +29,7 @@ import Base from '../../layouts/Base.astro';
     <p data-cms="about.en.commitText">We donate a share of revenue to partner shelters. Trypup isn't a game you win — it's an honest test of whether you're ready for a dog.</p>
 
     <p class="mt"><a class="btn btn-primary" href="/en/#get" data-cms="about.en.cta">Try Trypup</a></p>
+
+    <OperatorBlock lang="en" heading="Operator" />
   </section>
 </Base>
