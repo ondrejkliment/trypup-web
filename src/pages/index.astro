@@ -1,18 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { featureIcons } from '../lib/featureIcons';
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 ).slice(0, 3);
 
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
 const features = [
-  { emoji: '🐾', title: 'GPS procházky', text: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdeš ven.' },
-  { emoji: '🦴', title: 'Denní péče', text: 'Krmení, hra, čištění, odpočinek. Statistiky reagují na to, jak se staráš.' },
-  { emoji: '🎓', title: 'Výcvik', text: '9 povelů s postupným odemykáním. Každé plemeno se učí jinak rychle.' },
-  { emoji: '💉', title: 'Zdraví & náklady', text: 'Očkovací kalendář a reálné měsíční i roční náklady na psa.' },
-  { emoji: '📚', title: 'Vzdělávání', text: 'Články o adopci, výběru útulku a otázkách, které si polož předem.' },
-  { emoji: '👨‍👩‍👧', title: 'Spoluvlastnictví', text: 'Sdílej péči s rodinou — každý vidí, co udělal ten druhý.' },
+  { title: 'GPS procházky', text: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdeš ven.' },
+  { title: 'Denní péče', text: 'Krmení, hra, čištění, odpočinek. Statistiky reagují na to, jak se staráš.' },
+  { title: 'Výcvik', text: '9 povelů s postupným odemykáním. Každé plemeno se učí jinak rychle.' },
+  { title: 'Zdraví & náklady', text: 'Očkovací kalendář a reálné měsíční i roční náklady na psa.' },
+  { title: 'Vzdělávání', text: 'Články o adopci, výběru útulku a otázkách, které si polož předem.' },
+  { title: 'Spoluvlastnictví', text: 'Sdílej péči s rodinou — každý vidí, co udělal ten druhý.' },
 ];
 ---
 <Base alt="/en/">
@@ -49,7 +51,7 @@ const features = [
     <div class="grid">
       {features.map((f, i) => (
         <div class="card">
-          <div class="emoji">{f.emoji}</div>
+          <div class="feat-icon" set:html={featureIcons[i]} />
           <h3 data-cms={`home.cs.feat${i + 1}.title`}>{f.title}</h3>
           <p data-cms={`home.cs.feat${i + 1}.text`}>{f.text}</p>
         </div>

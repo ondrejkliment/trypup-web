@@ -1,13 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
 
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
 const features = [
-  { emoji: '🐾', title: 'GPS walks', text: 'Real routes with time, distance and an anti-cheat check that you actually went out.' },
-  { emoji: '🦴', title: 'Daily care', text: 'Feeding, play, grooming, rest. Stats react to how well you care.' },
-  { emoji: '🎓', title: 'Training', text: '9 commands with progressive unlocks. Each breed learns at its own pace.' },
-  { emoji: '💉', title: 'Health & costs', text: 'Vaccination schedule and realistic monthly and yearly dog costs.' },
-  { emoji: '📚', title: 'Education', text: 'Articles on adoption, choosing a shelter and the questions to ask yourself first.' },
-  { emoji: '👨‍👩‍👧', title: 'Co-ownership', text: 'Share care with family — everyone sees what the other one did.' },
+  { title: 'GPS walks', text: 'Real routes with time, distance and an anti-cheat check that you actually went out.' },
+  { title: 'Daily care', text: 'Feeding, play, grooming, rest. Stats react to how well you care.' },
+  { title: 'Training', text: '9 commands with progressive unlocks. Each breed learns at its own pace.' },
+  { title: 'Health & costs', text: 'Vaccination schedule and realistic monthly and yearly dog costs.' },
+  { title: 'Education', text: 'Articles on adoption, choosing a shelter and the questions to ask yourself first.' },
+  { title: 'Co-ownership', text: 'Share care with family — everyone sees what the other one did.' },
 ];
 ---
 <Base
@@ -49,7 +51,7 @@ const features = [
     <div class="grid">
       {features.map((f, i) => (
         <div class="card">
-          <div class="emoji">{f.emoji}</div>
+          <div class="feat-icon" set:html={featureIcons[i]} />
           <h3 data-cms={`home.en.feat${i + 1}.title`}>{f.title}</h3>
           <p data-cms={`home.en.feat${i + 1}.text`}>{f.text}</p>
         </div>

@@ -69,7 +69,8 @@ img { max-width: 100%; display: block; }
 /* Cards / grid */
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
-.card .emoji { font-size: 30px; }
+.card .feat-icon { color: var(--orange); }
+.card .feat-icon svg { width: 34px; height: 34px; display: block; }
 .card h3 { margin: 12px 0 6px; font-size: 18px; }
 .card p { color: var(--muted); font-size: 15px; }
 
