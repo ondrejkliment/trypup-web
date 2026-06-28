@@ -3,6 +3,10 @@
 // Čte kolekci `analytics_events` z Firestore (projekt trypupapp). Přístup jen pro
 // admin účet (Firestore rules: read jen pro o.kliment@gmail.com). Skryté pro roboty
 // (noindex + robots.txt Disallow /admin). Firebase přes CDN (žádná npm změna webu).
+//
+// Záložky: PŘEHLED (KPI+funnely) · VÝZKUM (onboarding odpovědi/chování — oddělené od
+// technických dat) · TECHNIKA (zařízení/chyby/build). Filtr + fulltext nad daty.
+// Retence: stránkování (Načíst starší / Načíst vše) — data se drží od začátku měření.
 const ADMIN_EMAIL = 'o.kliment@gmail.com';
 ---
 
@@ -23,12 +27,12 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; }
     a { color:var(--apricot); }
     .wrap { max-width:1180px; margin:0 auto; padding:24px 18px 80px; }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
     h1 { font-size:20px; margin:0; font-weight:800; letter-spacing:-.3px; }
     h1 small { color:var(--muted); font-weight:500; font-size:13px; }
     h2 { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin:28px 0 12px; }
     button { background:var(--apricot); color:#fff; border:0; border-radius:10px;
-      padding:10px 16px; font-weight:700; cursor:pointer; font-size:14px; }
+      padding:9px 14px; font-weight:700; cursor:pointer; font-size:13px; }
     button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
     .center { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
     .logo { width:64px; height:64px; border-radius:18px; }
@@ -39,6 +43,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px; }
     .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
     .panel h3 { margin:0 0 12px; font-size:14px; }
+    .panel h3 .hint { font-weight:500; color:var(--muted); font-size:12px; }
     .bar { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; margin:6px 0; }
     .bar .lbl { font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .bar .track { grid-column:1 / -1; height:7px; background:#0000; border-radius:6px; position:relative; margin-top:-2px; }
@@ -46,15 +51,29 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     .bar .val { font-variant-numeric:tabular-nums; color:var(--muted); font-size:12px; }
     .funnel .step { margin:8px 0; }
     .funnel .fill { background:var(--apricot); }
-    .feed { max-height:420px; overflow:auto; font-size:12.5px; }
+    .feed { max-height:520px; overflow:auto; font-size:12.5px; }
     .feed .row { display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px solid var(--line); }
     .feed .ev { font-weight:600; }
-    .feed .meta { color:var(--muted); }
+    .feed .meta { color:var(--muted); white-space:nowrap; }
+    .feed .iid { cursor:pointer; text-decoration:underline dotted; }
     .pill { display:inline-block; background:#0003; border:1px solid var(--line); border-radius:20px; padding:2px 9px; font-size:11px; color:var(--muted); }
     .err { color:#ff8a8a; }
     .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    select { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 10px; }
+    select, input { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-size:13px; }
+    input::placeholder { color:var(--muted); }
     .hidden { display:none !important; }
+    /* Tab bar */
+    .tabs { display:flex; gap:6px; border-bottom:1px solid var(--line); margin:6px 0 4px; }
+    .tab { background:transparent; color:var(--muted); border:0; border-bottom:2px solid transparent; border-radius:0; padding:10px 14px; font-weight:700; }
+    .tab.active { color:var(--text); border-bottom-color:var(--apricot); }
+    /* Filter bar */
+    .filters { position:sticky; top:0; z-index:5; background:var(--bg); padding:12px 0; border-bottom:1px solid var(--line); margin-bottom:8px; }
+    .filters .row1, .filters .row2 { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .filters .row2 { margin-top:8px; }
+    .filters .count { color:var(--muted); font-size:12px; margin-left:auto; }
+    .quick { display:inline-flex; gap:4px; }
+    .quick button { padding:6px 10px; font-size:12px; }
+    .quick button.on { background:var(--water); }
     table { width:100%; border-collapse:collapse; }
     td,th { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); font-size:12.5px; }
     th { color:var(--muted); font-weight:600; }
@@ -79,28 +98,76 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <div class="toolbar">
         <a href="/admin/content" class="pill" style="text-decoration:none">✏️ Obsah webu</a>
         <a href="/admin/shelters" class="pill" style="text-decoration:none">🐾 Útulky</a>
-        <select id="range">
-          <option value="0">Vše</option>
-          <option value="1">24 h</option>
-          <option value="7" selected>7 dní</option>
-          <option value="30">30 dní</option>
-        </select>
-        <button id="reload" class="ghost">Načíst</button>
+        <button id="loadOlder" class="ghost">Načíst starší</button>
+        <button id="loadAll" class="ghost">Načíst vše</button>
         <button id="signout" class="ghost">Odhlásit</button>
       </div>
     </header>
+
+    <!-- ZÁLOŽKY -->
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="prehled">Přehled</button>
+      <button class="tab" data-tab="vyzkum">Výzkum</button>
+      <button class="tab" data-tab="technika">Technika</button>
+    </div>
+
+    <!-- FILTRY + VYHLEDÁVÁNÍ -->
+    <div class="filters">
+      <div class="row1">
+        <input id="f-text" type="search" placeholder="🔎 Hledat (event, props, model, jazyk…)" style="min-width:240px;flex:1" />
+        <input id="f-iid" type="text" placeholder="installId (prefix)" style="width:150px" />
+        <button id="f-clear" class="ghost">Vyčistit</button>
+      </div>
+      <div class="row2">
+        <select id="f-event"><option value="">Event: vše</option></select>
+        <select id="f-platform"><option value="">Platforma: vše</option></select>
+        <select id="f-locale"><option value="">Jazyk: vše</option></select>
+        <select id="f-build"><option value="">Build: vše</option></select>
+        <select id="f-type"><option value="">Typ: vše</option></select>
+        <span class="quick" id="quick">
+          <button data-d="1">24 h</button><button data-d="7">7 d</button>
+          <button data-d="30">30 d</button><button data-d="0" class="on">Vše</button>
+        </span>
+        <input id="f-from" type="date" title="Od" />
+        <input id="f-to" type="date" title="Do" />
+        <span class="count" id="count"></span>
+      </div>
+    </div>
+
     <p id="status" style="color:var(--muted)">Načítám…</p>
-    <div id="content" class="hidden">
+
+    <!-- TAB: PŘEHLED -->
+    <div id="tab-prehled" class="tabpane">
       <div class="cards" id="kpis"></div>
       <h2>Funnely (kolik instalací dojde k…)</h2>
       <div class="grid2" id="funnels"></div>
+      <h2>Aktivita v čase</h2>
+      <div class="grid2" id="overview-events"></div>
+    </div>
+
+    <!-- TAB: VÝZKUM -->
+    <div id="tab-vyzkum" class="tabpane hidden">
+      <h2>Onboarding funnel & váhání</h2>
+      <div class="grid2" id="r-funnel"></div>
+      <h2>Připravenost (formulář „Než si pořídíš psa")</h2>
+      <div class="grid2" id="r-readiness"></div>
+      <h2>Kvíz — profil uživatele</h2>
+      <div class="grid2" id="r-quiz"></div>
+      <h2>Doporučení vs. výběr plemene</h2>
+      <div class="grid2" id="r-breed"></div>
+      <h2>Engagement & chování</h2>
+      <div class="grid2" id="r-engage"></div>
+      <h2>Mise, retence & virální smyčka</h2>
+      <div class="grid2" id="r-mission"></div>
+    </div>
+
+    <!-- TAB: TECHNIKA -->
+    <div id="tab-technika" class="tabpane hidden">
       <h2>Zařízení — na čem se to děje</h2>
-      <div class="grid2" id="devices"></div>
-      <h2>Mise & retence — proč</h2>
-      <div class="grid2" id="mission"></div>
-      <h2>Eventy</h2>
-      <div class="grid2" id="events"></div>
-      <h2>Poslední aktivita</h2>
+      <div class="grid2" id="t-devices"></div>
+      <h2>Kvalita & chyby</h2>
+      <div class="grid2" id="t-quality"></div>
+      <h2>Poslední aktivita (drill log)</h2>
       <div class="panel"><div class="feed" id="feed"></div></div>
     </div>
   </div>
@@ -109,7 +176,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-    import { getFirestore, collection, query, orderBy, limit, getDocs }
+    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const ADMIN_EMAIL = 'o.kliment@gmail.com';
@@ -127,22 +194,23 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     const db = getFirestore(app);
 
     const $ = (id) => document.getElementById(id);
-    const esc = (s) => String(s ?? '').replace(/[<>&]/g, (c) => ({ '<':'&lt;','>':'&gt;','&':'&amp;' }[c]));
+    // Escapuje i uvozovky — data jdou i do HTML ATRIBUTŮ (data-iid, <option value>), a zápis
+    // do analytics_events je anonymní (Firestore rules nevalidují tvar) → bez toho stored XSS.
+    const esc = (s) => String(s ?? '').replace(/[<>&"']/g, (c) => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]));
+    const fmt = (t) => new Date(t).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
 
     $('signin').onclick = async () => {
       try { await signInWithPopup(auth, new GoogleAuthProvider()); }
       catch (e) { $('login-err').textContent = e.message || String(e); }
     };
     $('signout').onclick = () => signOut(auth);
-    $('reload').onclick = () => loadData();
-    $('range').onchange = () => loadData();
 
     onAuthStateChanged(auth, (user) => {
       if (user && user.email === ADMIN_EMAIL) {
         $('login').classList.add('hidden');
         $('dash').classList.remove('hidden');
         $('who').textContent = '· ' + user.email;
-        loadData();
+        firstLoad();
       } else if (user) {
         $('login-err').textContent = 'Účet ' + user.email + ' nemá přístup.';
         signOut(auth);
@@ -152,126 +220,309 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       }
     });
 
-    let RAW = [];
-    async function loadData() {
-      $('status').classList.remove('hidden');
-      $('content').classList.add('hidden');
-      $('status').textContent = 'Načítám…';
+    // --- Data load (stránkování — drží data od začátku měření) ---
+    const PAGE = 500;
+    let RAW = [];          // ploché eventy ze všech načtených dávek
+    let lastDoc = null;    // cursor pro startAfter
+    let batches = 0;       // počet načtených dávek
+    let exhausted = false; // už není co načítat
+    let loading = false;
+
+    async function fetchPage() {
+      if (loading || exhausted) return 0;
+      loading = true;
       try {
-        const q = query(collection(db, 'analytics_events'), orderBy('lastTs', 'desc'), limit(3000));
+        const base = [collection(db, 'analytics_events'), orderBy('lastTs', 'desc')];
+        const q = lastDoc ? query(...base, startAfter(lastDoc), limit(PAGE)) : query(...base, limit(PAGE));
         const snap = await getDocs(q);
-        const flat = [];
         snap.forEach((d) => {
           const b = d.data();
           const dev = b.device || {};
-          (b.events || []).forEach((e) => flat.push({
+          (b.events || []).forEach((e) => RAW.push({
             name: e.name, props: e.props || {}, ts: e.ts, session: e.session,
             installId: b.installId, dev,
           }));
         });
-        RAW = flat;
+        lastDoc = snap.docs.length ? snap.docs[snap.docs.length - 1] : lastDoc;
+        batches += snap.size;
+        if (snap.size < PAGE) exhausted = true;
+        return snap.size;
+      } finally { loading = false; }
+    }
+
+    async function firstLoad() {
+      RAW = []; lastDoc = null; batches = 0; exhausted = false;
+      $('status').classList.remove('hidden');
+      $('status').textContent = 'Načítám…';
+      try {
+        await fetchPage();
+        buildFilterOptions();
         render();
         $('status').classList.add('hidden');
-        $('content').classList.remove('hidden');
       } catch (e) {
         $('status').innerHTML = '<span class="err">Chyba: ' + esc(e.message || e) +
-          '</span><br><span style="color:var(--muted)">Pravděpodobně nejsou nasazené Firestore rules pro <code>analytics_events</code>, nebo kolekce je zatím prázdná.</span>';
+          '</span><br><span style="color:var(--muted)">Pravděpodobně nejsou nasazené Firestore rules pro <code>analytics_events</code>, nebo je kolekce prázdná.</span>';
       }
     }
 
-    function inRange(ts) {
-      const days = +$('range').value;
-      if (!days) return true;
-      return ts >= Date.now() - days * 86400000;
+    $('loadOlder').onclick = async () => {
+      const n = await fetchPage();
+      buildFilterOptions(); render();
+      if (!n || exhausted) $('loadOlder').textContent = 'Historie kompletní';
+    };
+    $('loadAll').onclick = async () => {
+      $('loadAll').textContent = 'Načítám…';
+      let guard = 0;
+      while (!exhausted && guard++ < 200) { await fetchPage(); }
+      buildFilterOptions(); render();
+      $('loadAll').textContent = 'Vše načteno';
+    };
+
+    // --- Filtry ---
+    const FILTERS = { text:'', installId:'', event:'', platform:'', locale:'', build:'', type:'', from:'', to:'' };
+
+    function buildFilterOptions() {
+      const fill = (id, vals, label) => {
+        const sel = $(id); const cur = sel.value;
+        const opts = [...new Set(vals.filter(Boolean))].sort();
+        sel.innerHTML = '<option value="">' + label + ': vše</option>' +
+          opts.map((v) => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join('');
+        sel.value = cur; // zachovej výběr po reloadu
+      };
+      fill('f-event', RAW.map((e) => e.name), 'Event');
+      fill('f-platform', RAW.map((e) => e.dev.platform), 'Platforma');
+      fill('f-locale', RAW.map((e) => e.dev.locale), 'Jazyk');
+      fill('f-build', RAW.map((e) => e.dev.appBuild != null ? String(e.dev.appBuild) : ''), 'Build');
+      fill('f-type', RAW.map((e) => e.dev.type), 'Typ');
     }
+
+    function applyFilters(arr) {
+      const text = FILTERS.text.trim().toLowerCase();
+      const iid = FILTERS.installId.trim();
+      const fromTs = FILTERS.from ? new Date(FILTERS.from).getTime() : null;
+      const toTs = FILTERS.to ? new Date(FILTERS.to).getTime() + 86400000 : null; // celý „do" den včetně
+      return arr.filter((e) => {
+        if (!Number.isFinite(e.ts)) return false;
+        if (FILTERS.event && e.name !== FILTERS.event) return false;
+        if (FILTERS.platform && e.dev.platform !== FILTERS.platform) return false;
+        if (FILTERS.locale && e.dev.locale !== FILTERS.locale) return false;
+        if (FILTERS.build && String(e.dev.appBuild) !== FILTERS.build) return false;
+        if (FILTERS.type && e.dev.type !== FILTERS.type) return false;
+        if (iid && !String(e.installId || '').startsWith(iid)) return false;
+        if (fromTs && e.ts < fromTs) return false;
+        if (toTs && e.ts >= toTs) return false;
+        if (text) {
+          const hay = (e.name + ' ' + JSON.stringify(e.props) + ' ' + (e.dev.model || '') + ' ' + (e.dev.locale || '')).toLowerCase();
+          if (!hay.includes(text)) return false;
+        }
+        return true;
+      });
+    }
+
+    // filter event wiring
+    let textTimer = null;
+    $('f-text').oninput = (ev) => { clearTimeout(textTimer); const v = ev.target.value; textTimer = setTimeout(() => { FILTERS.text = v; render(); }, 200); };
+    $('f-iid').oninput = (ev) => { clearTimeout(textTimer); const v = ev.target.value; textTimer = setTimeout(() => { FILTERS.installId = v; render(); }, 200); };
+    ['event','platform','locale','build','type'].forEach((k) => { $('f-' + k).onchange = (ev) => { FILTERS[k] = ev.target.value; render(); }; });
+    $('f-from').onchange = (ev) => { FILTERS.from = ev.target.value; setQuickActive(null); render(); };
+    $('f-to').onchange = (ev) => { FILTERS.to = ev.target.value; setQuickActive(null); render(); };
+    $('quick').querySelectorAll('button').forEach((b) => { b.onclick = () => {
+      const d = +b.dataset.d;
+      FILTERS.to = '';
+      FILTERS.from = d ? new Date(Date.now() - d * 86400000).toISOString().slice(0, 10) : '';
+      $('f-from').value = FILTERS.from; $('f-to').value = '';
+      setQuickActive(b); render();
+    }; });
+    function setQuickActive(btn) { $('quick').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === btn)); }
+    $('f-clear').onclick = () => {
+      Object.keys(FILTERS).forEach((k) => FILTERS[k] = '');
+      ['f-text','f-iid','f-from','f-to'].forEach((id) => $(id).value = '');
+      ['f-event','f-platform','f-locale','f-build','f-type'].forEach((id) => $(id).value = '');
+      setQuickActive($('quick').querySelector('[data-d="0"]'));
+      render();
+    };
+
+    // --- Záložky ---
+    let activeTab = (location.hash || '#prehled').slice(1);
+    if (!['prehled','vyzkum','technika'].includes(activeTab)) activeTab = 'prehled';
+    function setTab(t) {
+      activeTab = t; location.hash = t;
+      $('tabs').querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === t));
+      ['prehled','vyzkum','technika'].forEach((x) => $('tab-' + x).classList.toggle('hidden', x !== t));
+      render();
+    }
+    $('tabs').querySelectorAll('.tab').forEach((b) => b.onclick = () => setTab(b.dataset.tab));
 
     // --- agregační helpery ---
     function countBy(arr, keyFn) {
       const m = new Map();
-      for (const x of arr) { const k = keyFn(x); if (k == null) continue; m.set(k, (m.get(k) || 0) + 1); }
+      for (const x of arr) { const k = keyFn(x); if (k == null || k === '') continue; m.set(k, (m.get(k) || 0) + 1); }
       return [...m.entries()].sort((a, b) => b[1] - a[1]);
     }
-    function uniqInstalls(arr) { return new Set(arr.map((e) => e.installId)).size; }
-    function barPanel(title, pairs, color, max) {
+    const uniqInstalls = (arr) => new Set(arr.map((e) => e.installId)).size;
+    function barPanel(title, pairs, color, max, hint) {
       const top = max ? pairs.slice(0, max) : pairs;
-      const hi = top.length ? top[0][1] : 1;
+      const hi = top.length ? Math.max(...top.map((p) => p[1])) : 1;
       const rows = top.map(([k, v]) => `
         <div class="bar"><span class="lbl">${esc(k)}</span><span class="val">${v}</span>
         <div class="track"><div class="fill" style="width:${Math.max(2, (v / hi) * 100)}%;${color ? 'background:' + color : ''}"></div></div></div>`).join('');
-      return `<div class="panel"><h3>${esc(title)}</h3>${rows || '<p style="color:var(--muted)">Žádná data.</p>'}</div>`;
+      const h = hint ? ` <span class="hint">${esc(hint)}</span>` : '';
+      return `<div class="panel"><h3>${esc(title)}${h}</h3>${rows || '<p style="color:var(--muted)">Žádná data.</p>'}</div>`;
+    }
+    function funnelPanel(title, steps, ev) {
+      const installsWith = (name) => new Set(ev.filter((e) => e.name === name).map((e) => e.installId));
+      const sets = steps.map((s) => installsWith(s));
+      const base = sets[0].size || 1;
+      const rows = steps.map((s, i) => {
+        const c = sets[i].size; const pct = Math.round((c / base) * 100);
+        return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} · ${pct}%</span>
+          <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div></div>`;
+      }).join('');
+      return `<div class="panel funnel"><h3>${esc(title)}</h3>${rows}</div>`;
+    }
+    const evByName = (ev, name) => ev.filter((e) => e.name === name);
+
+    // --- Render (jen aktivní záložka kvůli výkonu) ---
+    function render() {
+      const ev = applyFilters(RAW);
+      $('count').textContent = 'Zobrazeno ' + ev.length + ' / ' + RAW.length + ' eventů · ' + batches + ' dávek' + (exhausted ? ' (kompletní)' : ' (jsou starší — Načíst starší)');
+      if (activeTab === 'prehled') renderOverview(ev);
+      else if (activeTab === 'vyzkum') renderResearch(ev);
+      else renderTech(ev);
     }
 
-    function render() {
-      const ev = RAW.filter((e) => Number.isFinite(e.ts) && inRange(e.ts));
-      // KPIs
-      const installs = uniqInstalls(ev);
-      const sessions = new Set(ev.map((e) => e.installId + ':' + e.session)).size;
+    function renderOverview(ev) {
       const tsList = ev.map((e) => e.ts).filter(Boolean);
+      const sessions = new Set(ev.map((e) => e.installId + ':' + e.session)).size;
       const span = tsList.length ? Math.round((Math.max(...tsList) - Math.min(...tsList)) / 86400000) : 0;
-      const fmt = (t) => new Date(t).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
       $('kpis').innerHTML = [
-        ['Eventy', ev.length], ['Instalace', installs], ['Relace', sessions],
+        ['Eventy', ev.length], ['Instalace', uniqInstalls(ev)], ['Relace', sessions],
         ['Rozsah (dny)', span], ['Poslední', tsList.length ? fmt(Math.max(...tsList)) : '–'],
       ].map(([l, v]) => `<div class="card"><div class="kpi">${v}<small>${l}</small></div></div>`).join('');
 
-      // Funnely (po instalacích)
-      const FUN = {
-        'Aktivace': ['app_open', 'onboarding_step', 'quiz_completed', 'breed_selected', 'activated'],
-        'Monetizace': ['paywall_viewed', 'purchase_started', 'purchase_completed'],
-        'Mise (→ útulek)': ['activated', 'article_read', 'graduation_reached', 'shelter_opened'],
-      };
-      const installsWith = (name) => new Set(ev.filter((e) => e.name === name).map((e) => e.installId));
-      $('funnels').innerHTML = Object.entries(FUN).map(([title, steps]) => {
-        const sets = steps.map((s) => installsWith(s));
-        const base = sets[0].size || 1;
-        const rows = steps.map((s, i) => {
-          const c = sets[i].size; const pct = Math.round((c / base) * 100);
-          return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} · ${pct}%</span>
-            <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div></div>`;
-        }).join('');
-        return `<div class="panel funnel"><h3>${esc(title)}</h3>${rows}</div>`;
-      }).join('');
+      $('funnels').innerHTML = [
+        funnelPanel('Aktivace', ['app_open','onboarding_step','quiz_completed','breed_selected','activated'], ev),
+        funnelPanel('Monetizace', ['paywall_viewed','purchase_started','purchase_completed'], ev),
+        funnelPanel('Mise (→ útulek)', ['activated','article_read','graduation_reached','shelter_opened'], ev),
+      ].join('');
 
-      // Zařízení
-      $('devices').innerHTML = [
+      $('overview-events').innerHTML = [
+        barPanel('Eventy dle typu', countBy(ev, (e) => e.name), 'var(--water)', 30),
+        barPanel('Otevření appky dle dne', countBy(evByName(ev, 'app_open'), (e) => new Date(e.ts).toLocaleDateString('cs-CZ')), 'var(--apricot)', 21),
+      ].join('');
+    }
+
+    function renderResearch(ev) {
+      // Onboarding funnel + dwell (průměrný čas na kroku z onboarding_step.dwellMs)
+      const dwell = (() => {
+        const m = new Map();
+        for (const e of evByName(ev, 'onboarding_step')) {
+          const k = e.props.fromStep; const d = +e.props.dwellMs;
+          if (!k || !Number.isFinite(d)) continue;
+          const a = m.get(k) || [0, 0]; a[0] += d; a[1]++; m.set(k, a);
+        }
+        return [...m.entries()].map(([k, [s, n]]) => [k + ' (' + n + '×)', Math.round(s / n / 1000)]).sort((a, b) => b[1] - a[1]);
+      })();
+      $('r-funnel').innerHTML = [
+        funnelPanel('Onboarding funnel (dle instalací)', ['app_open','onboarding_step','readiness_completed','quiz_completed','breed_selected','activated'], ev),
+        barPanel('Průměrný čas na kroku (s)', dwell, 'var(--plum)', 8, 'z onboarding_step.dwellMs'),
+      ].join('');
+
+      // Readiness
+      const rc = evByName(ev, 'readiness_completed');
+      const perQ = ['q1','q2','q3','q4','q5','q6'].map((q) => {
+        const yes = rc.filter((e) => e.props[q] === 'yes').length;
+        const no = rc.filter((e) => e.props[q] === 'no').length;
+        const na = rc.filter((e) => e.props[q] === 'na').length;
+        return [q + ': ' + yes + '× ano / ' + no + '× ne / ' + na + '× ø', yes];
+      });
+      $('r-readiness').innerHTML = [
+        barPanel('Tier připravenosti', countBy(rc, (e) => e.props.tier), 'var(--water)', null, rc.length + '× vyplněno'),
+        barPanel('Odpovědi „ano" dle otázky', perQ, 'var(--apricot)', null, 'kolik z nich na danou otázku odpovědělo ano'),
+      ].join('');
+
+      // Quiz profil
+      const qc = evByName(ev, 'quiz_completed');
+      $('r-quiz').innerHTML = [
+        barPanel('Čas na péči (q1)', countBy(qc, (e) => 'volba ' + e.props.hours), 'var(--water)'),
+        barPanel('Bydlení (q2)', countBy(qc, (e) => 'volba ' + e.props.housing), 'var(--plum)'),
+        barPanel('Aktivita (q3)', countBy(qc, (e) => 'volba ' + e.props.activity), 'var(--apricot)'),
+      ].join('');
+
+      // Doporučení vs výběr
+      const bs = evByName(ev, 'breed_selected');
+      const matched = bs.filter((e) => e.props.matchedRecommendation === true).length;
+      const diff = bs.filter((e) => e.props.matchedRecommendation === false).length;
+      const premiumDiff = bs.filter((e) => e.props.matchedRecommendation === false && e.props.ownsPremium === true).length;
+      const premiumPicked = bs.filter((e) => e.props.isPremium === true).length;
+      $('r-breed').innerHTML = [
+        barPanel('Vybral doporučené plemeno?', [['ano (shoda)', matched], ['ne (jiné)', diff]], 'var(--water)'),
+        barPanel('Vybraná plemena', countBy(bs, (e) => e.props.breed), null, 13),
+        barPanel('Premium nabídka v onboardingu', countBy(evByName(ev, 'onboarding_premium_offer'), (e) => e.props.action), 'var(--apricot)', null, 'shown vs tapped'),
+        barPanel('„Koupil premium A vybral jiné"', [['premium + jiné než doporučené', premiumDiff], ['premium plemeno vybráno', premiumPicked]], '#caa6ff', null, 'TF otázka'),
+      ].join('');
+
+      // Engagement
+      const tch = countBy(evByName(ev, 'event_choice'), (e) => e.props.best ? 'nejlepší volba' : 'horší volba');
+      $('r-engage').innerHTML = [
+        barPanel('Splněné úkoly (task_done)', countBy(evByName(ev, 'task_done'), (e) => e.props.task), 'var(--water)'),
+        barPanel('Trénink povelů (training_done)', countBy(evByName(ev, 'training_done'), (e) => e.props.command), 'var(--apricot)', 12),
+        barPanel('Kvalita rozhodnutí v událostech', tch, 'var(--plum)'),
+        barPanel('Sdílení (share_initiated)', countBy(evByName(ev, 'share_initiated'), (e) => e.props.kind), 'var(--water)'),
+      ].join('');
+
+      // Mise + retence + délka session
+      const dayReach = (() => {
+        const maxDay = new Map();
+        for (const e of evByName(ev, 'day_advanced')) { const d = +e.props.day || 0; const cur = maxDay.get(e.installId) || 0; if (d > cur) maxDay.set(e.installId, d); }
+        return [1, 3, 7, 14, 30].map((b) => ['den ≥ ' + b, [...maxDay.values()].filter((d) => d >= b).length]);
+      })();
+      const returns = (() => {
+        const days = new Map();
+        for (const e of evByName(ev, 'app_open')) { const k = e.installId; const set = days.get(k) || new Set(); set.add(new Date(e.ts).toDateString()); days.set(k, set); }
+        const counts = [...days.values()].map((s) => s.size);
+        return [['1 den', counts.filter((c) => c === 1).length], ['2–3 dny', counts.filter((c) => c >= 2 && c <= 3).length], ['4–6 dní', counts.filter((c) => c >= 4 && c <= 6).length], ['7+ dní', counts.filter((c) => c >= 7).length]];
+      })();
+      const sess = evByName(ev, 'session_end').map((e) => +e.props.durationSec).filter((n) => Number.isFinite(n) && n >= 0);
+      const sessBuckets = [['< 30 s', sess.filter((s) => s < 30).length], ['30 s–2 min', sess.filter((s) => s >= 30 && s < 120).length], ['2–10 min', sess.filter((s) => s >= 120 && s < 600).length], ['10+ min', sess.filter((s) => s >= 600).length]];
+      $('r-mission').innerHTML = [
+        barPanel('Retence — instalace co dosáhly herního dne', dayReach, 'var(--apricot)'),
+        barPanel('Návraty — počet odlišných dní s otevřením', returns, 'var(--water)'),
+        barPanel('Délka relace (session_end)', sessBuckets, 'var(--plum)', null, sess.length + '× ukončeno'),
+        barPanel('Proklik na útulek dle útulku', countBy(evByName(ev, 'shelter_opened'), (e) => e.props.shelter || '(neznámý)'), 'var(--water)', 12),
+      ].join('');
+    }
+
+    function renderTech(ev) {
+      $('t-devices').innerHTML = [
         barPanel('Platforma', countBy(ev, (e) => e.dev.platform), 'var(--water)'),
         barPanel('Model zařízení', countBy(ev, (e) => e.dev.model), null, 12),
         barPanel('OS verze', countBy(ev, (e) => (e.dev.os || '') + ' ' + (e.dev.osVersion || '')), null, 10),
         barPanel('Typ', countBy(ev, (e) => e.dev.type), 'var(--plum)'),
-        barPanel('Build appky', countBy(ev, (e) => 'build' + (e.dev.appBuild ?? '?'))),
+        barPanel('Build appky', countBy(ev, (e) => e.dev.appBuild != null ? 'build' + e.dev.appBuild : '?')),
         barPanel('Jazyk', countBy(ev, (e) => e.dev.locale), 'var(--apricot)'),
       ].join('');
 
-      // Mise & retence & „proč"
-      const dayReach = (() => {
-        const maxDay = new Map();
-        for (const e of ev) if (e.name === 'day_advanced') {
-          const d = +e.props.day || 0; const cur = maxDay.get(e.installId) || 0;
-          if (d > cur) maxDay.set(e.installId, d);
-        }
-        const buckets = [1, 3, 7, 14, 30];
-        return buckets.map((b) => [`den ≥ ${b}`, [...maxDay.values()].filter((d) => d >= b).length]);
-      })();
-      $('mission').innerHTML = [
-        barPanel('Proklik na útulek (shelter_opened) dle útulku', countBy(ev.filter((e) => e.name === 'shelter_opened'), (e) => e.props.shelter || '(neznámý)'), 'var(--water)', 12),
-        barPanel('Retence — instalace co dosáhly dne', dayReach, 'var(--apricot)'),
-        barPanel('Vybraná plemena (breed_selected)', countBy(ev.filter((e) => e.name === 'breed_selected'), (e) => e.props.breed || '?'), null, 12),
-        barPanel('Selhané nákupy — důvod (purchase_failed)', countBy(ev.filter((e) => e.name === 'purchase_failed'), (e) => e.props.reason || '?'), '#ff8a8a'),
+      $('t-quality').innerHTML = [
+        barPanel('Chyby (app_error) dle kontextu', countBy(evByName(ev, 'app_error'), (e) => e.props.context || '?'), '#ff8a8a', 12),
+        barPanel('Selhané nákupy — důvod', countBy(evByName(ev, 'purchase_failed'), (e) => e.props.reason || '?'), '#ff8a8a'),
+        barPanel('GPS odmítnuto', countBy(evByName(ev, 'gps_denied'), () => 'gps_denied'), '#ff8a8a'),
+        barPanel('Fail-state (pes do útulku) dle dne', countBy(evByName(ev, 'fail_state'), (e) => 'den ' + (e.props.day ?? '?')), '#ff8a8a'),
       ].join('');
 
-      // Eventy přehled
-      $('events').innerHTML = [
-        barPanel('Eventy dle typu', countBy(ev, (e) => e.name), 'var(--water)', 30),
-        barPanel('Otevření appky dle dne', countBy(ev.filter((e) => e.name === 'app_open'), (e) => new Date(e.ts).toLocaleDateString('cs-CZ')), 'var(--apricot)', 20),
-      ].join('');
-
-      // Feed
-      const recent = [...ev].sort((a, b) => b.ts - a.ts).slice(0, 70);
+      const recent = [...ev].sort((a, b) => b.ts - a.ts).slice(0, 80);
       $('feed').innerHTML = recent.map((e) => `<div class="row">
         <span><span class="ev">${esc(e.name)}</span> ${e.props && Object.keys(e.props).length ? '<span class="pill">' + esc(Object.entries(e.props).map(([k, v]) => k + '=' + v).join(' ')) + '</span>' : ''}</span>
-        <span class="meta">${esc(e.dev.model || e.dev.platform || '?')} · ${esc(e.dev.locale || '')} · ${new Date(e.ts).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' })}</span>
+        <span class="meta"><span class="iid" data-iid="${esc(e.installId || '')}">${esc((e.installId || '?').slice(0, 6))}</span> · ${esc(e.dev.model || e.dev.platform || '?')} · ${esc(e.dev.locale || '')} · ${fmt(e.ts)}</span>
       </div>`).join('') || '<p style="color:var(--muted)">Žádné eventy.</p>';
+      // drill-down: klik na installId ve feedu → nastav filtr + zůstaň
+      $('feed').querySelectorAll('.iid').forEach((el) => el.onclick = () => {
+        FILTERS.installId = el.dataset.iid; $('f-iid').value = el.dataset.iid; render();
+      });
     }
+
+    // init tab z hashe
+    setTab(activeTab);
   </script>
 </body>
 </html>
