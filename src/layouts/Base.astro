@@ -32,10 +32,10 @@ const enHref = lang === 'en' ? canonical : altHref;
 const t = lang === 'en'
   ? {
       howItWorks: 'How it works', about: 'About', blog: 'Blog',
-      privacy: 'Privacy', terms: 'Terms', contact: 'Contact',
+      privacy: 'Privacy', terms: 'Terms', support: 'Support', contact: 'Contact',
       switchLabel: 'CZ', switchHref: alt ?? '/',
       howHref: '/en/#how-it-works', aboutHref: '/en/about/',
-      blogHref: '/blog/', privacyHref: '/en/privacy/', termsHref: '/en/terms/', homeHref: '/en/',
+      blogHref: '/blog/', privacyHref: '/en/privacy/', termsHref: '/en/terms/', supportHref: '/en/support/', homeHref: '/en/',
       ogLocale: 'en_US',
       announce: '🚧 Trypup is in development — launching soon. Follow ',
       cookieText: 'We use cookies for anonymous analytics (Google Analytics) to make Trypup better. Analytics runs only with your consent — you can change it anytime via the Cookies link in the footer.',
@@ -45,10 +45,10 @@ const t = lang === 'en'
     }
   : {
       howItWorks: 'Jak to funguje', about: 'O aplikaci', blog: 'Blog',
-      privacy: 'Zásady ochrany', terms: 'Podmínky', contact: 'Kontakt',
+      privacy: 'Zásady ochrany', terms: 'Podmínky', support: 'Podpora', contact: 'Kontakt',
       switchLabel: 'EN', switchHref: alt ?? '/en/',
       howHref: '/#jak-to-funguje', aboutHref: '/o-aplikaci/',
-      blogHref: '/blog/', privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', homeHref: '/',
+      blogHref: '/blog/', privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', supportHref: '/podpora/', homeHref: '/',
       ogLocale: 'cs_CZ',
       announce: '🚧 Trypup je ve vývoji — spustíme už brzy. Sleduj ',
       cookieText: 'Používáme cookies pro anonymní analytiku (Google Analytics), abychom Trypup vylepšovali. Analytika běží jen s tvým souhlasem — kdykoli ho změníš přes odkaz Cookies v patičce.',
@@ -151,6 +151,7 @@ const opRegistry = operator.spisovaZnacka[lang];
           <a href={t.blogHref}>{t.blog}</a>
           <a href={t.privacyHref}>{t.privacy}</a>
           <a href={t.termsHref}>{t.terms}</a>
+          <a href={t.supportHref}>{t.support}</a>
           <a href="mailto:hello@trypup.life">{t.contact}</a>
           <a href="#" id="cookie-settings">{t.cookieSettings}</a>
         </div>
