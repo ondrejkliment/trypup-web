@@ -37,19 +37,20 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     .center { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
     .logo { width:64px; height:64px; border-radius:18px; }
     .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
-    .kpi { font-size:26px; font-weight:800; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 1px 2px #00000030; }
+    .kpi { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.5px; }
     .kpi small { display:block; font-size:12px; color:var(--muted); font-weight:500; margin-top:4px; }
     .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px; }
-    .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
-    .panel h3 { margin:0 0 12px; font-size:14px; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; box-shadow:0 1px 2px #00000030; }
+    .panel h3 { margin:0 0 14px; font-size:14px; display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
     .panel h3 .hint { font-weight:500; color:var(--muted); font-size:12px; }
-    .bar { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; margin:6px 0; }
+    .bar { display:grid; grid-template-columns:1fr auto; column-gap:10px; align-items:baseline; margin:9px 0 12px; }
     .bar .lbl { font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .bar .track { grid-column:1 / -1; height:7px; background:#0000; border-radius:6px; position:relative; margin-top:-2px; }
-    .bar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--water); }
-    .bar .val { font-variant-numeric:tabular-nums; color:var(--muted); font-size:12px; }
-    .funnel .step { margin:8px 0; }
+    .bar .track { grid-column:1 / -1; height:8px; background:#ffffff14; border-radius:6px; position:relative; margin-top:5px; overflow:hidden; }
+    .bar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--water); min-width:3px; }
+    .bar .val { font-variant-numeric:tabular-nums; color:var(--text); font-weight:600; font-size:12.5px; }
+    .bar .val .pct { color:var(--muted); font-weight:500; }
+    .funnel .step { margin:0; }
     .funnel .fill { background:var(--apricot); }
     .feed { max-height:520px; overflow:auto; font-size:12.5px; }
     .feed .row { display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px solid var(--line); }
@@ -375,7 +376,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const base = sets[0].size || 1;
       const rows = steps.map((s, i) => {
         const c = sets[i].size; const pct = Math.round((c / base) * 100);
-        return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} · ${pct}%</span>
+        return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} <span class="pct">· ${pct}%</span></span>
           <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div></div>`;
       }).join('');
       return `<div class="panel funnel"><h3>${esc(title)}</h3>${rows}</div>`;
