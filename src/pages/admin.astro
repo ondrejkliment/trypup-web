@@ -50,8 +50,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     .bar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--water); min-width:3px; }
     .bar .val { font-variant-numeric:tabular-nums; color:var(--text); font-weight:600; font-size:12.5px; }
     .bar .val .pct { color:var(--muted); font-weight:500; }
-    .funnel .step { margin:0; }
+    .funnel .step { margin:0 0 12px; }
+    .funnel .bar { margin:0; }
     .funnel .fill { background:var(--apricot); }
+    .funnel .conv { font-size:11px; color:var(--muted); margin:4px 0 0; letter-spacing:.2px; }
+    .funnel .conv .drop { color:#d98a6b; font-variant-numeric:tabular-nums; margin-left:3px; }
     .feed { max-height:520px; overflow:auto; font-size:12.5px; }
     .feed .row { display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px solid var(--line); }
     .feed .ev { font-weight:600; }
@@ -376,8 +379,16 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const base = sets[0].size || 1;
       const rows = steps.map((s, i) => {
         const c = sets[i].size; const pct = Math.round((c / base) * 100);
+        // Krok-na-krok konverze: kolik % z PŘEDCHOZÍHO kroku se dostalo sem (+ absolutní úbytek).
+        let conv = '';
+        if (i > 0) {
+          const prev = sets[i - 1].size;
+          const stepPct = prev ? Math.round((c / prev) * 100) : 0;
+          const drop = prev - c;
+          conv = `<div class="conv">↳ ${stepPct}&nbsp;% z předchozího${drop > 0 ? `<span class="drop">−${drop}</span>` : ''}</div>`;
+        }
         return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} <span class="pct">· ${pct}%</span></span>
-          <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div></div>`;
+          <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div>${conv}</div>`;
       }).join('');
       return `<div class="panel funnel"><h3>${esc(title)}</h3>${rows}</div>`;
     }
