@@ -5,7 +5,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 <Base title="Privacy Policy — Trypup" description="How Trypup handles data. The app works without an account; an optional account enables cloud backup of your progress (Firebase, EU)." lang="en" alt="/zasady-ochrany/">
   <section class="section wrap prose">
     <h1>Privacy Policy</h1>
-    <p class="meta">Updated 4 Jul 2026 · Controller: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+    <p class="meta">Updated 15 Jul 2026 · Controller: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
     <p><strong>Trypup works fully without an account — in that case all data stays on your device only.</strong> Optionally you can create an account, which enables <strong>cloud backup of your saved progress</strong> and syncing across devices. We process only the data necessary to provide the service.</p>
 
@@ -20,7 +20,6 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
       <li><strong>Photos / camera</strong> — optional dog photo. Local only.</li>
       <li><strong>Apple Health / Google Fit</strong> — optional write of a completed walk. We only write, we don't read.</li>
       <li><strong>Game state</strong> (dog name, breed, stats, progress) — local storage.</li>
-      <li><strong>In-app analytics</strong> — optional, measured <strong>on-device only</strong> and requires your consent; we don't send app data to a server. It is <strong>fully disabled</strong> for users under 16 (see "Children and minors"). <em>(This website trypup.life separately uses Google Analytics — see "Cookies and website analytics" below.)</em></li>
     </ul>
     <h3>Only if you create an account</h3>
     <ul>
@@ -34,7 +33,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <ul>
       <li><strong>Account and cloud backup</strong> — performance of a contract (Art. 6(1)(b)).</li>
       <li><strong>Walk measurement (GPS)</strong> — a feature you explicitly request (Art. 6(1)(b)); processing is local.</li>
-      <li><strong>On-device analytics</strong> — your consent (Art. 6(1)(a)), which you can withdraw at any time.</li>
+      <li><strong>Product analytics and error diagnostics</strong> — our legitimate interest (Art. 6(1)(f)); you can turn them off anytime in the app Settings (right to object).</li>
     </ul>
 
     <h2>Processors and data location</h2>
@@ -43,8 +42,21 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h2>Data sharing</h2>
     <p>We do <strong>not</strong> sell or share your data with third parties for their own purposes. Google acts as our processor (on our instructions), not as an independent recipient. Shelters listed in the app are just links to public websites.</p>
 
+    <h2>Product analytics and error diagnostics (app)</h2>
+    <h3>Product analytics</h3>
+    <p>To improve the app, we process anonymized data about how it is used:</p>
+    <ul>
+      <li><strong>What:</strong> a pseudonymous installation identifier (not linked to a person), technical device context (model, OS version, language) and usage events (screens visited, completed walks) — no personal data.</li>
+      <li><strong>Where:</strong> Google Firebase / Cloud Firestore (processor Google Ireland Ltd.), stored in the EU.</li>
+      <li><strong>Legal basis:</strong> our legitimate interest (Art. 6(1)(f) GDPR) in improving and measuring app usage. Collection is purely first-party traffic measurement — we do not share the data with third parties, do not link it to your account, and do not use it for advertising or cross-app tracking.</li>
+      <li><strong>Your choice:</strong> you can turn collection off anytime in the app Settings (right to object, Art. 21 GDPR). We do not collect analytics from users under 16.</li>
+      <li>This runs regardless of whether you create an account.</li>
+    </ul>
+    <h3>Error diagnostics (Sentry)</h3>
+    <p>For stability we use <strong>Sentry</strong> (crash reporting + performance) — technical diagnostics without personal data, based on our legitimate interest in the app's functionality.</p>
+
     <h2>Cookies and website analytics (trypup.life)</h2>
-    <p>This website uses <strong>Google Analytics 4</strong> (Google Ireland Ltd.) to anonymously measure traffic so we can improve the site. Analytics cookies and measurement only start <strong>after you give consent</strong> in the cookie bar (legal basis: consent, Art. 6(1)(a)). Until you consent, Google Analytics runs in a <strong>cookieless</strong> mode (Google Consent Mode). Google acts as a processor and may process part of the data <strong>outside the EU</strong>, covered by <strong>Standard Contractual Clauses (SCCs)</strong>. You can <strong>change or withdraw consent at any time</strong> via the <strong>"Cookies"</strong> link in the site footer. This website analytics is separate from the (optional) in-app analytics, which stays on your device.</p>
+    <p>This website uses <strong>Google Analytics 4</strong> (Google Ireland Ltd.) to anonymously measure traffic so we can improve the site. Analytics cookies and measurement only start <strong>after you give consent</strong> in the cookie bar (legal basis: consent, Art. 6(1)(a)). Until you consent, Google Analytics runs in a <strong>cookieless</strong> mode (Google Consent Mode). Google acts as a processor and may process part of the data <strong>outside the EU</strong>, covered by <strong>Standard Contractual Clauses (SCCs)</strong>. You can <strong>change or withdraw consent at any time</strong> via the <strong>"Cookies"</strong> link in the site footer. This website analytics (cookies + consent) is separate from the app's product analytics described in the section above.</p>
 
     <p>The specific cookies and storage this website uses:</p>
     <table>
@@ -60,12 +72,12 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <p>Local data stays on your device until you delete the app or reset it. We keep the cloud backup for the lifetime of your account; once you <strong>delete your account</strong>, we remove it.</p>
 
     <h2>Your rights (GDPR)</h2>
-    <p>You have the right to access, rectification, erasure, restriction, portability and objection. <strong>You can delete your account and cloud backup directly in the app</strong> (Account → Delete account). If you have uninstalled the app, email <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete your data. You can withdraw analytics consent anytime in settings.</p>
+    <p>You have the right to access, rectification, erasure, restriction, portability and objection. <strong>You can delete your account and cloud backup directly in the app</strong> (Account → Delete account). If you have uninstalled the app, email <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete your data. You can turn off product analytics anytime in the app Settings (right to object).</p>
     <p>You also have the right to lodge a complaint with a supervisory authority — in the Czech Republic the <strong>Office for Personal Data Protection (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
 
     <h2>Children and minors</h2>
     <p>On first launch the app asks for the user's age category ("16 or older" / "under 16"). <strong>The answer stays on your device only and is never sent anywhere.</strong></p>
-    <p>For users <strong>under 16</strong>, analytics collection is <strong>completely disabled</strong> — regardless of the in-app consent setting — and <strong>purchase options are not shown</strong>. The 16-year threshold matches the strictest age of consent under the GDPR (Art. 8). We do not knowingly collect any personal data from children. If you believe a child under 16 has provided us with personal data, contact us at <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete it.</p>
+    <p>For users <strong>under 16</strong>, analytics collection is <strong>completely disabled</strong> — regardless of the in-app setting — and <strong>purchase options are not shown</strong>. The 16-year threshold matches the strictest age of consent under the GDPR (Art. 8). We do not knowingly collect any personal data from children. If you believe a child under 16 has provided us with personal data, contact us at <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete it.</p>
 
     <h2>Changes to this policy</h2>
     <p>We will announce material changes in the app and here. When we add social sign-in (Apple/Google) we will list those providers as processors.</p>

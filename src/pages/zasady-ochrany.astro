@@ -5,7 +5,7 @@ import OperatorBlock from '../components/OperatorBlock.astro';
 <Base title="Zásady ochrany osobních údajů — Trypup" description="Jak Trypup nakládá s daty. Aplikace funguje i bez účtu; volitelný účet umožní zálohu pokroku do cloudu (Firebase, EU)." alt="/en/privacy/">
   <section class="section wrap prose">
     <h1>Zásady ochrany osobních údajů</h1>
-    <p class="meta">Aktualizováno 4. 7. 2026 · Správce: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+    <p class="meta">Aktualizováno 15. 7. 2026 · Správce: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
     <p><strong>Trypup funguje plně i bez účtu — pak veškerá data zůstávají jen na vašem zařízení.</strong> Volitelně si můžete založit účet, který umožní <strong>zálohu rozehraného stavu do cloudu</strong> a jeho přenos mezi zařízeními. Zpracováváme jen údaje nezbytné pro fungování služby.</p>
 
@@ -20,7 +20,6 @@ import OperatorBlock from '../components/OperatorBlock.astro';
       <li><strong>Fotografie / kamera</strong> — volitelná fotka psa. Pouze lokálně.</li>
       <li><strong>Apple Health / Google Fit</strong> — volitelný zápis dokončené procházky. Data pouze zapisujeme, nečteme.</li>
       <li><strong>Herní stav</strong> (jméno psa, plemeno, statistiky, pokrok) — lokální úložiště.</li>
-      <li><strong>Analytika v aplikaci</strong> — volitelná, měří se <strong>pouze na zařízení</strong> a vyžaduje váš souhlas; data z aplikace neodesíláme na server. U uživatelů mladších 16 let je <strong>zcela vypnutá</strong> (viz sekce „Děti a mladiství"). <em>(Tento web trypup.life používá samostatně Google Analytics — viz sekce „Cookies a analytika webu" níže.)</em></li>
     </ul>
     <h3>Pouze pokud si založíte účet</h3>
     <ul>
@@ -34,7 +33,7 @@ import OperatorBlock from '../components/OperatorBlock.astro';
     <ul>
       <li><strong>Účet a cloud záloha</strong> — plnění smlouvy o poskytnutí služby (čl. 6 odst. 1 písm. b).</li>
       <li><strong>Měření procházky (GPS)</strong> — funkce, kterou si výslovně vyžádáte (čl. 6 odst. 1 písm. b), zpracování je lokální.</li>
-      <li><strong>Analytika na zařízení</strong> — váš souhlas (čl. 6 odst. 1 písm. a), který lze kdykoli odvolat.</li>
+      <li><strong>Produktová analytika a diagnostika chyb</strong> — náš oprávněný zájem (čl. 6 odst. 1 písm. f); můžete je kdykoli vypnout v Nastavení aplikace (právo vznést námitku).</li>
     </ul>
 
     <h2>Zpracovatelé a umístění dat</h2>
@@ -43,8 +42,21 @@ import OperatorBlock from '../components/OperatorBlock.astro';
     <h2>Sdílení dat</h2>
     <p>Vaše data <strong>neprodáváme ani nesdílíme</strong> s třetími stranami pro jejich účely. Google vystupuje jako náš zpracovatel (na základě našich pokynů), nikoli jako samostatný příjemce. Útulky uvedené v aplikaci jsou pouze odkazy na veřejné weby.</p>
 
+    <h2>Produktová analytika a diagnostika chyb (aplikace)</h2>
+    <h3>Produktová analytika</h3>
+    <p>Pro zlepšování aplikace zpracováváme anonymizovaná data o jejím používání:</p>
+    <ul>
+      <li><strong>Co:</strong> pseudonymní identifikátor instalace (nenavázaný na osobu), technický kontext zařízení (model, verze OS, jazyk) a události používání (navštívené obrazovky, dokončené procházky) — bez osobních údajů.</li>
+      <li><strong>Kam:</strong> Google Firebase / Cloud Firestore (zpracovatel Google Ireland Ltd.), uložení v EU.</li>
+      <li><strong>Právní základ:</strong> náš oprávněný zájem (čl. 6 odst. 1 písm. f GDPR) na zlepšování a měření používání aplikace. Sběr probíhá výhradně jako first-party měření návštěvnosti — data nesdílíme s třetími stranami, nespojujeme s vaším účtem ani nepoužíváme k reklamě či cross-app sledování.</li>
+      <li><strong>Vaše volba:</strong> sběr můžete kdykoli vypnout v Nastavení aplikace (právo vznést námitku, čl. 21 GDPR). Analytiku nesbíráme od uživatelů mladších 16 let.</li>
+      <li>Probíhá nezávisle na tom, zda si založíte účet.</li>
+    </ul>
+    <h3>Diagnostika chyb (Sentry)</h3>
+    <p>Pro stabilitu používáme <strong>Sentry</strong> (crash reporting + výkon) — technická diagnostika bez osobních údajů, na základě oprávněného zájmu na funkčnosti aplikace.</p>
+
     <h2>Cookies a analytika webu (trypup.life)</h2>
-    <p>Tento web používá <strong>Google Analytics 4</strong> (Google Ireland Ltd.) k anonymnímu měření návštěvnosti, abychom web vylepšovali. Analytické cookies a měření se spustí <strong>až po vašem souhlasu</strong> v cookie liště (právní základ: souhlas, čl. 6 odst. 1 písm. a). Do udělení souhlasu běží Google Analytics v režimu <strong>bez cookies</strong> (Google Consent Mode). Google vystupuje jako zpracovatel a může část zpracování provádět <strong>mimo EU</strong>, kryto <strong>standardními smluvními doložkami (SCC)</strong>. Souhlas můžete <strong>kdykoli změnit nebo odvolat</strong> přes odkaz <strong>„Cookies"</strong> v patičce webu. Tato webová analytika je oddělená od (volitelné) analytiky v aplikaci, která zůstává na zařízení.</p>
+    <p>Tento web používá <strong>Google Analytics 4</strong> (Google Ireland Ltd.) k anonymnímu měření návštěvnosti, abychom web vylepšovali. Analytické cookies a měření se spustí <strong>až po vašem souhlasu</strong> v cookie liště (právní základ: souhlas, čl. 6 odst. 1 písm. a). Do udělení souhlasu běží Google Analytics v režimu <strong>bez cookies</strong> (Google Consent Mode). Google vystupuje jako zpracovatel a může část zpracování provádět <strong>mimo EU</strong>, kryto <strong>standardními smluvními doložkami (SCC)</strong>. Souhlas můžete <strong>kdykoli změnit nebo odvolat</strong> přes odkaz <strong>„Cookies"</strong> v patičce webu. Tato webová analytika (cookies + souhlas) je oddělená od produktové analytiky v aplikaci, popsané v sekci výše.</p>
 
     <p>Konkrétní cookies a úložiště, které tento web používá:</p>
     <table>
@@ -60,12 +72,12 @@ import OperatorBlock from '../components/OperatorBlock.astro';
     <p>Lokální data zůstávají na zařízení, dokud aplikaci nesmažete nebo neprovedete reset. Cloud zálohu uchováváme po dobu existence účtu; po <strong>smazání účtu</strong> ji odstraníme.</p>
 
     <h2>Vaše práva (GDPR)</h2>
-    <p>Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a vznesení námitky. <strong>Účet i cloud zálohu smažete přímo v aplikaci</strong> (Účet → Smazat účet). Pokud jste aplikaci odinstalovali, napište na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a údaje smažeme. Souhlas s analytikou lze kdykoli odvolat v nastavení.</p>
+    <p>Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a vznesení námitky. <strong>Účet i cloud zálohu smažete přímo v aplikaci</strong> (Účet → Smazat účet). Pokud jste aplikaci odinstalovali, napište na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a údaje smažeme. Sběr produktové analytiky můžete kdykoli vypnout v Nastavení aplikace (právo vznést námitku).</p>
     <p>Máte také právo podat stížnost u dozorového úřadu — v ČR <strong>Úřad pro ochranu osobních údajů (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
 
     <h2>Děti a mladiství</h2>
     <p>Aplikace se při prvním spuštění ptá na věkovou kategorii uživatele („16 a více" / „méně než 16"). <strong>Odpověď zůstává pouze v zařízení a nikam se neodesílá.</strong></p>
-    <p>U uživatelů <strong>mladších 16 let</strong> je sběr analytických dat <strong>zcela vypnutý</strong> — nezávisle na nastavení souhlasu v aplikaci — a <strong>nezobrazují se možnosti nákupu</strong>. Hranice 16 let odpovídá nejpřísnějšímu věku souhlasu podle GDPR (čl. 8). Vědomě neshromažďujeme žádné osobní údaje dětí. Pokud se domníváte, že nám dítě mladší 16 let poskytlo osobní údaje, kontaktujte nás na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a údaje odstraníme.</p>
+    <p>U uživatelů <strong>mladších 16 let</strong> je sběr analytických dat <strong>zcela vypnutý</strong> — nezávisle na nastavení v aplikaci — a <strong>nezobrazují se možnosti nákupu</strong>. Hranice 16 let odpovídá nejpřísnějšímu věku souhlasu podle GDPR (čl. 8). Vědomě neshromažďujeme žádné osobní údaje dětí. Pokud se domníváte, že nám dítě mladší 16 let poskytlo osobní údaje, kontaktujte nás na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a údaje odstraníme.</p>
 
     <h2>Změny zásad</h2>
     <p>O podstatných změnách těchto zásad budeme informovat v aplikaci i zde. Při rozšíření o sociální přihlášení (Apple/Google) doplníme příslušné poskytovatele jako zpracovatele.</p>
