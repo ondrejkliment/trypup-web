@@ -1,11 +1,11 @@
 ---
-title: "Proč polovina psů končí v útulku — a jak tomu předejít"
+title: "Proč psi končí v útulku — a jak tomu předejít"
 description: "Většina psů se do útulku nedostane kvůli zlým lidem, ale kvůli nepřipravenosti. Co si ověřit, než si pořídíte psa."
 date: 2026-06-01
 tag: "Adopce"
 ---
 
-Každý rok skončí v českých útulcích přes 20 000 psů. Smutné na tom je, že většina z nich tam není kvůli krutosti — ale kvůli **nepřipravenosti majitelů**. Lidé podcení, kolik času, peněz a energie pes opravdu spotřebuje.
+Každý rok skončí v českých útulcích tisíce psů. Smutné na tom je, že většina z nich tam není kvůli povaze psa — ale kvůli **nepřipravenosti majitelů**. Podle studií odevzdání do útulku převažují důvody na straně člověka (bydlení, čas, náklady, životní změny) nad chováním psa. Lidé podcení, kolik času, peněz a energie pes opravdu spotřebuje.
 
 A přesně proti tomu jsme postavili Trypup.
 
