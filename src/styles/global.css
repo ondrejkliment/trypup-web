@@ -81,6 +81,16 @@ a.store-badge { transition:transform .12s ease; }
 a.store-badge:hover { transform:translateY(-2px); }
 .store-badge.soon { cursor:default; }
 .store-badge .soon-tag { font-size:11px; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:.05em; }
+/* Blog — app CTA box (odkaz + QR) */
+.app-cta { display:flex; gap:26px; align-items:center; background:var(--blue-soft); border:1px solid var(--border); border-radius:16px; padding:24px 26px; margin:30px 0; flex-wrap:wrap; }
+.app-cta > div { flex:1 1 300px; }
+.app-cta strong { display:block; font-size:19px; color:var(--ink); margin:0 0 6px; }
+.app-cta p { margin:0 0 14px; color:var(--ink); }
+.app-cta .store-badge { flex-direction:row; }
+.app-cta .store-badge img { height:52px; margin:0; }
+.app-cta-qr { display:flex; flex-direction:column; align-items:center; gap:6px; text-decoration:none; flex:0 0 auto; }
+.app-cta-qr img { width:130px; height:130px; margin:0; background:#fff; padding:7px; border:1px solid var(--border); border-radius:10px; }
+.app-cta-qr span { font-size:12px; color:var(--muted); }
 .card h3 { margin: 12px 0 6px; font-size: 18px; }
 .card p { color: var(--muted); font-size: 15px; }
 
