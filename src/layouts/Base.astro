@@ -19,6 +19,7 @@ const {
 } = Astro.props;
 
 const year = 2026;
+const playUrl = 'https://play.google.com/store/apps/details?id=app.trypup.mobile&pcampaignid=web_trypup';
 const site = Astro.site ?? new URL('https://trypup.life');
 const canonical = new URL(Astro.url.pathname, site).href;
 const resolvedImage = image ?? (lang === 'en' ? '/og-en.png?v=2' : '/og.png?v=4');
@@ -37,7 +38,7 @@ const t = lang === 'en'
       howHref: '/en/#how-it-works', aboutHref: '/en/about/',
       blogHref: '/blog/', privacyHref: '/en/privacy/', termsHref: '/en/terms/', supportHref: '/en/support/', homeHref: '/en/',
       ogLocale: 'en_US',
-      announce: '📱 Trypup is live on Google Play! iPhone version coming soon. Follow ',
+      announcePre: '📱 Trypup is live on ', announcePost: '! iPhone version coming soon. Follow ',
       cookieText: 'We use cookies for anonymous analytics (Google Analytics) to make Trypup better. Analytics runs only with your consent — you can change it anytime via the Cookies link in the footer.',
       cookieAccept: 'Accept',
       cookieReject: 'Reject',
@@ -50,7 +51,7 @@ const t = lang === 'en'
       howHref: '/#jak-to-funguje', aboutHref: '/o-aplikaci/',
       blogHref: '/blog/', privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', supportHref: '/podpora/', homeHref: '/',
       ogLocale: 'cs_CZ',
-      announce: '📱 Trypup je na Google Play! Verze pro iPhone brzy. Sledujte ',
+      announcePre: '📱 Trypup je na ', announcePost: '! Verze pro iPhone brzy. Sledujte ',
       cookieText: 'Používáme cookies pro anonymní analytiku (Google Analytics), abychom Trypup vylepšovali. Analytika běží jen s vaším souhlasem — kdykoli ho změníte přes odkaz Cookies v patičce.',
       cookieAccept: 'Přijmout',
       cookieReject: 'Odmítnout',
@@ -112,7 +113,7 @@ const opRegistry = operator.spisovaZnacka[lang];
     </script>
   </head>
   <body>
-    <div class="announce"><span data-cms={lang === 'en' ? 'common.en.announce' : 'common.cs.announce'}>{t.announce}</span><a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener" data-cms-href="common.social.instagram">@trypupapp</a></div>
+    <div class="announce">{t.announcePre}<a href={playUrl} target="_blank" rel="noopener" class="announce-play">Google Play</a>{t.announcePost}<a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener" data-cms-href="common.social.instagram">@trypupapp</a></div>
     <header class="site-header">
       <div class="wrap">
         <a class="brand" href={t.homeHref} aria-label="trypup">
