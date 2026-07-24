@@ -71,6 +71,17 @@ img { max-width: 100%; display: block; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
 .card .feat-icon { color: var(--orange); }
 .card .feat-icon svg { width: 34px; height: 34px; display: block; }
+/* App store buttons */
+.store-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:6px; }
+.store-btn { display:inline-flex; align-items:center; gap:11px; background:#1b1b1f; color:#fff; border:1px solid #1b1b1f; border-radius:13px; padding:10px 20px; text-decoration:none; transition:transform .12s ease, box-shadow .12s ease; }
+.store-btn:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(74,43,69,.18); }
+.store-btn svg { flex:none; }
+.store-btn .t { display:flex; flex-direction:column; line-height:1.12; text-align:left; }
+.store-btn .t small { font-size:10px; letter-spacing:.05em; text-transform:uppercase; opacity:.82; }
+.store-btn .t b { font-size:17px; font-weight:600; letter-spacing:.01em; }
+.store-btn.soon { background:transparent; color:var(--ink); border:1px solid var(--border); cursor:default; }
+.store-btn.soon:hover { transform:none; box-shadow:none; }
+.store-btn.soon .t small { color:var(--green); opacity:1; font-weight:700; }
 .card h3 { margin: 12px 0 6px; font-size: 18px; }
 .card p { color: var(--muted); font-size: 15px; }
 
