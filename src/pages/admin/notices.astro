@@ -370,9 +370,10 @@
     function card(n, now) {
       const ok = isValidNotice(n);
       const expired = typeof n.expiresAt === 'number' && n.expiresAt <= now;
+      const stazena = n.retracted === true;
 
       const el = document.createElement('div');
-      el.className = 'item' + (expired ? ' dead' : '') + (ok ? '' : ' bad');
+      el.className = 'item' + (expired || stazena ? ' dead' : '') + (ok || stazena ? '' : ' bad');
 
       const head = document.createElement('div'); head.className = 'item-head';
       const left = document.createElement('div');
@@ -380,8 +381,8 @@
       const title = document.createElement('div'); title.className = 'item-title';
       title.textContent = (n.text?.cs?.title) || (n.text?.en?.title) || '(bez titulku)';
       const badge = document.createElement('span');
-      badge.className = 'badge ' + (!ok ? 'bad' : expired ? 'gone' : 'live');
-      badge.textContent = !ok ? 'appka zahodí' : expired ? 'ukončeno' : 'aktivní';
+      badge.className = 'badge ' + (stazena ? 'gone' : !ok ? 'bad' : expired ? 'gone' : 'live');
+      badge.textContent = stazena ? 'staženo — mizí z archivů' : !ok ? 'appka zahodí' : expired ? 'ukončeno' : 'aktivní';
       title.appendChild(badge);
       left.appendChild(title);
 
@@ -405,15 +406,21 @@
       }
 
       const acts = document.createElement('div'); acts.className = 'item-acts';
-      const edit = document.createElement('button');
-      edit.className = 'ghost sm'; edit.textContent = 'Upravit';
-      edit.onclick = () => startEdit(n);
-      acts.appendChild(edit);
-      if (!expired) {
-        const end = document.createElement('button');
-        end.className = 'ghost sm'; end.textContent = 'Ukončit teď';
-        end.onclick = () => endNow(n);
-        acts.appendChild(end);
+      if (!stazena) {
+        const edit = document.createElement('button');
+        edit.className = 'ghost sm'; edit.textContent = 'Upravit';
+        edit.onclick = () => startEdit(n);
+        acts.appendChild(edit);
+        if (!expired) {
+          const end = document.createElement('button');
+          end.className = 'ghost sm'; end.textContent = 'Ukončit teď';
+          end.onclick = () => endNow(n);
+          acts.appendChild(end);
+        }
+        const ret = document.createElement('button');
+        ret.className = 'danger sm'; ret.textContent = 'Stáhnout úplně';
+        ret.onclick = () => retract(n);
+        acts.appendChild(ret);
       }
       const del = document.createElement('button');
       del.className = 'danger sm'; del.textContent = 'Smazat';
@@ -432,9 +439,24 @@
       await persist(next, 'Zpráva ukončena.', $('listmsg'));
     }
 
+    /**
+     * Stažení — jediná akce, která zprávu odstraní i z ARCHIVU lidem, co ji už mají.
+     * Zpráva zůstává v remote s příznakem `retracted`, protože jinak by se app store
+     * neměl o čem dozvědět (smazané položky nevidí). Smazat nadobro jde až potom.
+     */
+    async function retract(n) {
+      if (!confirm('Stáhnout zprávu „' + ((n.text?.cs?.title) || n.id) + '" úplně?\n\nZmizí i z archivu lidem, kterým se už stáhla — jako by nikdy nebyla.\n\nZprávu tu nech aspoň pár dní, ať se stažení stihne rozšířit; teprve pak ji smaž nadobro.')) return;
+      const next = items.map((x) => (x.id === n.id ? { ...x, retracted: true } : x));
+      await persist(next, 'Zpráva stažena. Z archivů zmizí lidem při dalším otevření appky.', $('listmsg'));
+    }
+
     /** Smazání z remote — nová zařízení ji už nedostanou, stará si ji nechají v archivu. */
     async function remove(n) {
-      if (!confirm('Smazat zprávu „' + ((n.text?.cs?.title) || n.id) + '"?\n\nPozor: komu se už stáhla, tomu zůstane v archivu. Pokud ji chceš sundat z banneru, použij „Ukončit teď".')) return;
+      const stazena = n.retracted === true;
+      const varovani = stazena
+        ? '\n\nZpráva je stažená. Pokud ji smažeš dřív, než si stažení stáhnou všichni, zůstane jim v archivu natrvalo.'
+        : '\n\nPozor: komu se už stáhla, tomu zůstane v archivu. Na odebrání z banneru je „Ukončit teď", na odstranění i z archivu „Stáhnout úplně".';
+      if (!confirm('Smazat zprávu „' + ((n.text?.cs?.title) || n.id) + '"?' + varovani)) return;
       const next = items.filter((x) => x.id !== n.id);
       await persist(next, 'Zpráva smazána.', $('listmsg'));
     }
