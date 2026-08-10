@@ -1,0 +1,588 @@
+---
+// Trypup — skrytý editor oznámení v appce („Novinky a akce"). Píše do Firestore
+// `app_notice/current`, pole `items: Notice[]`; app to čte při startu
+// (@stores/appNoticeStore). ŽÁDNÝ push — doručení je „při dalším otevření appky".
+//
+// Tvar zápisu MUSÍ sedět na `isValidNotice` ve storu, jinak appka zprávu TIŠE zahodí.
+// Proto je validace níž zkopírovaná 1:1 ze storu a běží před každým uložením.
+// Zároveň se nikam neposílá `undefined` (Firestore ho odmítá) — volitelná pole se
+// do objektu vůbec nepřidávají.
+//
+// Přístup jen admin (Firestore rules), skryté pro roboty (noindex + robots.txt).
+// POZOR: styly jsou `is:global` — seznam se vykresluje z JS, scoped styly by na něj
+// nesedly (bez data-astro-cid atributu by byl plochý).
+---
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Trypup · Oznámení</title>
+  <style is:global>
+    :root { --apricot:#F2784B; --water:#3E7C8C; --bg:#1d1620; --card:#2a2230; --line:#3c3242; --muted:#a99bb0; --text:#f3ecf2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; }
+    a { color:var(--apricot); }
+    .wrap { max-width:940px; margin:0 auto; padding:24px 18px 80px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+    h1 { font-size:20px; margin:0; font-weight:800; }
+    h1 small { color:var(--muted); font-weight:500; font-size:13px; }
+    h2 { font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--apricot); margin:0 0 10px; }
+    button { background:var(--apricot); color:#fff; border:0; border-radius:10px; padding:9px 15px; font-weight:700; cursor:pointer; font-family:inherit; }
+    button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+    button.danger { background:transparent; color:#ff8a8a; border:1px solid #6a2f2f; }
+    button.sm { padding:5px 10px; font-size:12px; font-weight:600; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .center { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
+    .logo { width:64px; height:64px; border-radius:18px; }
+    input, textarea, select { background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px; width:100%; font-family:inherit; resize:vertical; }
+    input:focus, textarea:focus, select:focus { outline:none; border-color:var(--apricot); }
+    .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-top:14px; }
+    label { display:block; font-size:12px; color:var(--muted); margin:0 0 4px; }
+    .field { margin:0 0 12px; }
+    .cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .cols3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+    .flag { font-size:12px; font-weight:700; color:var(--text); }
+    .count { float:right; font-size:11px; color:var(--muted); font-weight:500; }
+    .count.over { color:#e8c46a; }
+    .hidden { display:none !important; }
+    .err { color:#ff8a8a; } .ok { color:#7dd39a; } .warn { color:#e8c46a; }
+    .muted { color:var(--muted); font-size:12.5px; }
+    .hint { color:var(--muted); font-size:12px; margin:6px 0 0; line-height:1.5; }
+
+    /* --- cílení podle země --- */
+    .chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .chip { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:20px; padding:5px 11px; font-size:12.5px; cursor:pointer; user-select:none; background:var(--bg); }
+    .chip input { width:auto; margin:0; accent-color:var(--apricot); }
+    .chip.on { border-color:var(--apricot); color:#fff; background:rgba(242,120,75,.16); }
+    .chip.all { font-weight:700; }
+
+    /* --- seznam existujících oznámení (vykresluje se z JS → is:global styly) --- */
+    .item { border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:0 0 10px; background:var(--bg); }
+    .item.dead { opacity:.6; }
+    .item.bad { border-color:#6a2f2f; }
+    .item-head { display:flex; align-items:flex-start; gap:10px; justify-content:space-between; flex-wrap:wrap; }
+    .item-title { font-weight:700; font-size:14.5px; }
+    .item-meta { font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.6; }
+    .item-body { font-size:12.5px; color:var(--muted); margin-top:8px; white-space:pre-wrap; border-left:2px solid var(--line); padding-left:10px; }
+    .item-acts { display:flex; gap:6px; flex-shrink:0; }
+    .badge { display:inline-block; border-radius:20px; padding:1px 8px; font-size:10.5px; font-weight:700; margin-left:6px; vertical-align:middle; }
+    .badge.live { background:#17351f; color:#7dd39a; border:1px solid #2c5c39; }
+    .badge.gone { background:#2f2a33; color:var(--muted); border:1px solid var(--line); }
+    .badge.bad  { background:#3a1c1c; color:#ff8a8a; border:1px solid #6a2f2f; }
+
+    @media(max-width:680px){ .cols, .cols3 { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div id="login" class="center">
+    <img src="/icon.png" class="logo" alt="Trypup" />
+    <h1>Trypup · Oznámení</h1>
+    <p class="muted" style="max-width:340px">Skrytý editor novinek a akcí v appce. Přihlas se admin účtem Google.</p>
+    <button id="signin">Přihlásit přes Google</button>
+    <p id="login-err" class="err"></p>
+  </div>
+
+  <div id="app" class="wrap hidden">
+    <header>
+      <h1>Trypup · Oznámení <small id="who"></small></h1>
+      <div class="toolbar">
+        <a href="/admin" class="muted">← Analytika</a>
+        <a href="/admin/content" class="muted">✏️ Obsah webu</a>
+        <a href="/admin/shelters" class="muted">🐾 Útulky</a>
+        <button id="signout" class="ghost sm">Odhlásit</button>
+      </div>
+    </header>
+    <p id="state" class="muted"></p>
+
+    <!-- === NOVÁ ZPRÁVA === -->
+    <div class="panel">
+      <h2 id="form-title">Nová zpráva</h2>
+      <p class="hint editing-only hidden" id="edit-hint"></p>
+      <div class="cols">
+        <div>
+          <div class="field">
+            <label><span class="flag">🇨🇿 Titulek (česky)</span><span class="count" id="c-cs-title"></span></label>
+            <input id="cs-title" maxlength="120" placeholder="Sraz štěňat v Riegrových sadech" />
+          </div>
+          <div class="field">
+            <label><span class="flag">🇨🇿 Text (česky)</span><span class="count" id="c-cs-body"></span></label>
+            <textarea id="cs-body" rows="5" placeholder="V sobotu od 10:00 se scházíme…"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="field">
+            <label><span class="flag">🇬🇧 Titulek (anglicky)</span><span class="count" id="c-en-title"></span></label>
+            <input id="en-title" maxlength="120" placeholder="Puppy meetup in Riegrovy sady" />
+          </div>
+          <div class="field">
+            <label><span class="flag">🇬🇧 Text (anglicky)</span><span class="count" id="c-en-body"></span></label>
+            <textarea id="en-body" rows="5" placeholder="Saturday from 10:00 we meet…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="cols3" style="margin-top:4px">
+        <div class="field">
+          <label>Datum a čas akce <span class="muted">(volitelné)</span></label>
+          <input id="eventAt" type="datetime-local" />
+        </div>
+        <div class="field">
+          <label>Zpráva zmizí z banneru <span class="muted">(volitelné)</span></label>
+          <input id="expiresAt" type="datetime-local" />
+        </div>
+        <div class="field">
+          <label>Odkaz <span class="muted">(volitelné, jen https://)</span></label>
+          <input id="url" placeholder="https://…" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Komu zprávu ukázat (země zařízení)</label>
+        <div class="chips" id="countries"></div>
+        <p class="hint">Appka zemi bere z nastavení telefonu a nikam ji neposílá — filtruje se na zařízení.
+          Když zařízení zemi nehlásí, cílená zpráva se <strong>nezobrazí</strong> (proto „Všem" u obecných novinek).</p>
+      </div>
+
+      <div class="toolbar" style="margin-top:6px">
+        <button id="publish">Zveřejnit zprávu</button>
+        <button id="cancel-edit" class="ghost editing-only hidden">Zrušit úpravu</button>
+        <button id="clear" class="ghost">Vyprázdnit formulář</button>
+        <span id="msg" class="muted"></span>
+      </div>
+    </div>
+
+    <!-- === SEZNAM === -->
+    <div class="panel">
+      <h2>Zveřejněné zprávy <span id="cnt" class="muted"></span></h2>
+      <div id="list"></div>
+      <div class="toolbar" style="margin-top:10px">
+        <button id="reload" class="ghost sm">Načíst znovu</button>
+        <span id="listmsg" class="muted"></span>
+      </div>
+      <p class="hint">
+        <strong>Smazání ≠ stažení zprávy.</strong> Kdo appku už otevřel, má zprávu v archivu
+        (Nastavení → Novinky a akce) a smazání z remote ji odtud neodebere. Chceš-li zprávu
+        <em>sundat z banneru</em> i lidem, co ji už mají, použij <strong>„Ukončit teď"</strong>
+        (nastaví expiraci na teď a app si opravu stáhne). „Smazat" ji jen přestane rozesílat dál.
+      </p>
+      <p class="hint">Appka si drží posledních 30 zpráv. Nové zprávy se u lidí objeví při dalším otevření appky (žádné push).</p>
+    </div>
+  </div>
+
+  <script type="module" is:inline>
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const ADMIN_EMAIL = 'o.kliment@gmail.com';
+    const COLLECTION = 'app_notice';
+    const DOC_ID = 'current';
+
+    // Země, kam appka reálně míří (kopíruje 12 jazyků + sousední trhy). ISO-3166-1 alpha-2.
+    const COUNTRIES = [
+      { code:'CZ', name:'🇨🇿 Česko' },   { code:'SK', name:'🇸🇰 Slovensko' }, { code:'PL', name:'🇵🇱 Polsko' },
+      { code:'DE', name:'🇩🇪 Německo' }, { code:'AT', name:'🇦🇹 Rakousko' },  { code:'CH', name:'🇨🇭 Švýcarsko' },
+      { code:'GB', name:'🇬🇧 Británie' },{ code:'IE', name:'🇮🇪 Irsko' },     { code:'US', name:'🇺🇸 USA' },
+      { code:'CA', name:'🇨🇦 Kanada' },  { code:'ES', name:'🇪🇸 Španělsko' }, { code:'FR', name:'🇫🇷 Francie' },
+      { code:'IT', name:'🇮🇹 Itálie' },  { code:'NL', name:'🇳🇱 Nizozemsko' },{ code:'BE', name:'🇧🇪 Belgie' },
+      { code:'PT', name:'🇵🇹 Portugalsko' }, { code:'UA', name:'🇺🇦 Ukrajina' }, { code:'BG', name:'🇧🇬 Bulharsko' },
+    ];
+
+    const app = initializeApp({ apiKey:'AIzaSyCrFi62rqFPVJuyFcS8HHuEGhZ1PfElgAs', authDomain:'trypupapp.firebaseapp.com', projectId:'trypupapp', storageBucket:'trypupapp.firebasestorage.app', messagingSenderId:'354782336728', appId:'1:354782336728:web:b14e119b183bf4d824e9ad' });
+    const auth = getAuth(app); const db = getFirestore(app);
+    const $ = (id) => document.getElementById(id);
+
+    /** Aktuální obsah remote pole `items`. Zdroj pravdy pro každý zápis. */
+    let items = [];
+
+    // ------------------------------------------------------------------
+    // Validace — KOPIE 1:1 z @stores/appNoticeStore.isValidNotice.
+    // Když se store změní, změň i tohle. Zpráva, která tudy neprojde, by se
+    // v appce tiše zahodila, takže ji radši vůbec neuložíme.
+    // ------------------------------------------------------------------
+    function isValidText(t) {
+      return !!t && typeof t.title === 'string' && !!t.title.trim() && typeof t.body === 'string';
+    }
+    function isValidNotice(n) {
+      if (!n || typeof n.id !== 'string' || !n.id.trim()) return false;
+      if (typeof n.publishedAt !== 'number' || !Number.isFinite(n.publishedAt)) return false;
+      if (n.expiresAt !== undefined && typeof n.expiresAt !== 'number') return false;
+      if (n.eventAt !== undefined && typeof n.eventAt !== 'number') return false;
+      if (n.url !== undefined && (typeof n.url !== 'string' || !/^https:\/\//i.test(n.url))) return false;
+      if (n.countries !== undefined) {
+        if (!Array.isArray(n.countries)) return false;
+        if (!n.countries.every((c) => typeof c === 'string' && c.length === 2)) return false;
+      }
+      if (!n.text || typeof n.text !== 'object' || Array.isArray(n.text)) return false;
+      const langs = Object.keys(n.text);
+      if (langs.length === 0) return false;
+      return langs.every((l) => isValidText(n.text[l]));
+    }
+
+    // --- auth -----------------------------------------------------------
+    $('signin').onclick = async () => {
+      try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+      catch (e) { $('login-err').textContent = e.message; }
+    };
+    $('signout').onclick = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email === ADMIN_EMAIL) {
+        $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+        $('who').textContent = '· ' + user.email;
+        load();
+      } else if (user) {
+        $('login-err').textContent = 'Účet ' + user.email + ' nemá přístup.'; signOut(auth);
+      } else {
+        $('app').classList.add('hidden'); $('login').classList.remove('hidden');
+      }
+    });
+
+    // --- cílení podle země ----------------------------------------------
+    // „Všem" a konkrétní země se vzájemně vylučují; nevybráno nic = všem.
+    function buildCountries() {
+      const box = $('countries');
+      const mkChip = (name, cls) => {
+        const l = document.createElement('label');
+        l.className = 'chip' + (cls ? ' ' + cls : '');
+        const cb = document.createElement('input'); cb.type = 'checkbox';
+        const sp = document.createElement('span'); sp.textContent = name;
+        l.appendChild(cb); l.appendChild(sp);
+        box.appendChild(l);
+        return cb;
+      };
+      const all = mkChip('Všem (bez cílení)', 'all');
+      all.id = 'c-all'; all.checked = true;
+      all.onchange = () => {
+        if (all.checked) oneBoxes().forEach((c) => { c.checked = false; });
+        else if (!anyPicked()) all.checked = true;   // „nic" nedává smysl → zpátky na všem
+        paintCountries();
+      };
+      COUNTRIES.forEach((c) => {
+        const cb = mkChip(c.name);
+        cb.className = 'c-one'; cb.value = c.code;
+        cb.onchange = () => { all.checked = !anyPicked(); paintCountries(); };
+      });
+      paintCountries();
+    }
+    const oneBoxes = () => [...document.querySelectorAll('#countries input.c-one')];
+    const anyPicked = () => oneBoxes().some((c) => c.checked);
+    function paintCountries() {
+      document.querySelectorAll('#countries .chip').forEach((l) => {
+        l.classList.toggle('on', l.querySelector('input').checked);
+      });
+    }
+    function pickedCountries() {
+      return $('c-all').checked ? [] : oneBoxes().filter((c) => c.checked).map((c) => c.value);
+    }
+
+    // --- počítadla znaků (banner je úzký, dlouhý titulek se ořeže) --------
+    function counter(inputId, outId, soft) {
+      const el = $(inputId), out = $(outId);
+      const upd = () => {
+        const n = el.value.length;
+        out.textContent = n ? n + ' / ~' + soft : '';
+        out.classList.toggle('over', n > soft);
+      };
+      el.addEventListener('input', upd); upd();
+    }
+
+    // --- pomocné ---------------------------------------------------------
+    /** datetime-local → ms epoch. '' = nevyplněno (undefined), nevalidní = NaN. */
+    function toMs(v) {
+      if (!v) return undefined;
+      const t = new Date(v).getTime();
+      return Number.isFinite(t) ? t : NaN;
+    }
+    function fmt(ms) {
+      try { return new Date(ms).toLocaleString('cs-CZ', { dateStyle:'medium', timeStyle:'short' }); }
+      catch { return String(ms); }
+    }
+    /** Nerecyklovatelné ID: timestamp + náhodná přípona, ověřené proti existujícím. */
+    function newId() {
+      let id;
+      do { id = 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
+      while (items.some((n) => n && n.id === id));
+      return id;
+    }
+
+    // --- načtení / uložení ------------------------------------------------
+    async function load() {
+      $('state').textContent = 'Načítám…';
+      try {
+        const snap = await getDoc(doc(db, COLLECTION, DOC_ID));
+        const raw = snap.exists() ? snap.data().items : null;
+        items = Array.isArray(raw) ? raw.filter((n) => n && typeof n === 'object') : [];
+        const u = snap.exists() ? snap.data().updatedAt : null;
+        $('state').innerHTML = snap.exists()
+          ? `<span class="ok">Remote dokument existuje</span> · ${items.length} zpráv${u ? ` · upraveno ${fmt(u)}` : ''}`
+          : `<span class="muted">Dokument app_notice/current zatím neexistuje — vznikne prvním uložením.</span>`;
+        render();
+      } catch (e) {
+        $('state').innerHTML = `<span class="err">Chyba načítání: ${e.message}</span>`;
+      }
+    }
+
+    async function persist(next, okMsg, target) {
+      const bad = next.find((n) => !isValidNotice(n));
+      if (bad) {
+        target.innerHTML = `<span class="err">Uložení zastaveno: zpráva „${(bad.id || '?')}" nesplňuje tvar, který appka přijímá.</span>`;
+        return false;
+      }
+      target.textContent = 'Ukládám…';
+      try {
+        await setDoc(doc(db, COLLECTION, DOC_ID), {
+          items: next,
+          updatedAt: Date.now(),
+          updatedBy: ADMIN_EMAIL,
+          schema: 1,
+          sentAt: serverTimestamp(),
+        });
+        items = next;
+        render();
+        target.innerHTML = `<span class="ok">${okMsg}</span>`;
+        return true;
+      } catch (e) {
+        target.innerHTML = `<span class="err">Chyba ukládání: ${e.message}</span>`;
+        return false;
+      }
+    }
+
+    // --- seznam ------------------------------------------------------------
+    function render() {
+      const list = $('list'); list.innerHTML = '';
+      $('cnt').textContent = items.length ? `(${items.length})` : '';
+      if (!items.length) {
+        const p = document.createElement('p'); p.className = 'muted';
+        p.textContent = 'Zatím žádná zpráva.'; list.appendChild(p); return;
+      }
+      const now = Date.now();
+      [...items]
+        .sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0))
+        .forEach((n) => list.appendChild(card(n, now)));
+    }
+
+    function card(n, now) {
+      const ok = isValidNotice(n);
+      const expired = typeof n.expiresAt === 'number' && n.expiresAt <= now;
+
+      const el = document.createElement('div');
+      el.className = 'item' + (expired ? ' dead' : '') + (ok ? '' : ' bad');
+
+      const head = document.createElement('div'); head.className = 'item-head';
+      const left = document.createElement('div');
+
+      const title = document.createElement('div'); title.className = 'item-title';
+      title.textContent = (n.text?.cs?.title) || (n.text?.en?.title) || '(bez titulku)';
+      const badge = document.createElement('span');
+      badge.className = 'badge ' + (!ok ? 'bad' : expired ? 'gone' : 'live');
+      badge.textContent = !ok ? 'appka zahodí' : expired ? 'ukončeno' : 'aktivní';
+      title.appendChild(badge);
+      left.appendChild(title);
+
+      const meta = document.createElement('div'); meta.className = 'item-meta';
+      const bits = [
+        'zveřejněno ' + fmt(n.publishedAt),
+        'jazyky: ' + (n.text ? Object.keys(n.text).join(', ') : '—'),
+        'země: ' + (Array.isArray(n.countries) && n.countries.length ? n.countries.join(', ') : 'všem'),
+      ];
+      if (typeof n.eventAt === 'number') bits.push('akce ' + fmt(n.eventAt));
+      if (typeof n.expiresAt === 'number') bits.push((expired ? 'ukončeno ' : 'skončí ') + fmt(n.expiresAt));
+      if (n.url) bits.push('odkaz: ' + n.url);
+      bits.push('id: ' + n.id);
+      meta.textContent = bits.join(' · ');
+      left.appendChild(meta);
+
+      const bodyTxt = (n.text?.cs?.body) || (n.text?.en?.body) || '';
+      if (bodyTxt) {
+        const b = document.createElement('div'); b.className = 'item-body';
+        b.textContent = bodyTxt; left.appendChild(b);
+      }
+
+      const acts = document.createElement('div'); acts.className = 'item-acts';
+      const edit = document.createElement('button');
+      edit.className = 'ghost sm'; edit.textContent = 'Upravit';
+      edit.onclick = () => startEdit(n);
+      acts.appendChild(edit);
+      if (!expired) {
+        const end = document.createElement('button');
+        end.className = 'ghost sm'; end.textContent = 'Ukončit teď';
+        end.onclick = () => endNow(n);
+        acts.appendChild(end);
+      }
+      const del = document.createElement('button');
+      del.className = 'danger sm'; del.textContent = 'Smazat';
+      del.onclick = () => remove(n);
+      acts.appendChild(del);
+
+      head.appendChild(left); head.appendChild(acts);
+      el.appendChild(head);
+      return el;
+    }
+
+    /** Expirace na teď — banner zmizí i lidem, co zprávu už staženou mají. */
+    async function endNow(n) {
+      if (!confirm('Ukončit zprávu „' + ((n.text?.cs?.title) || n.id) + '"?\n\nBanner zmizí i lidem, co ji už mají. V archivu jim zůstane.')) return;
+      const next = items.map((x) => (x.id === n.id ? { ...x, expiresAt: Date.now() } : x));
+      await persist(next, 'Zpráva ukončena.', $('listmsg'));
+    }
+
+    /** Smazání z remote — nová zařízení ji už nedostanou, stará si ji nechají v archivu. */
+    async function remove(n) {
+      if (!confirm('Smazat zprávu „' + ((n.text?.cs?.title) || n.id) + '"?\n\nPozor: komu se už stáhla, tomu zůstane v archivu. Pokud ji chceš sundat z banneru, použij „Ukončit teď".')) return;
+      const next = items.filter((x) => x.id !== n.id);
+      await persist(next, 'Zpráva smazána.', $('listmsg'));
+    }
+
+    // --- nová zpráva / úprava existující -------------------------------------
+
+    /**
+     * ID zprávy, kterou právě upravujeme (null = skládáme novou).
+     *
+     * Úprava ZÁMĚRNĚ zachovává `id` i `publishedAt`: app store bere remote jako
+     * autoritu podle `id` (byId.set přepíše archivovanou kopii), takže se oprava
+     * překlepu propíše i lidem, kterým se zpráva už stáhla. Nové `id` by u nich
+     * naopak nechalo v archivu ležet původní chybnou verzi vedle opravené.
+     */
+    let editingId = null;
+
+    /** Přepni formulář mezi „nová zpráva" a „úprava". */
+    function setEditingUi(n) {
+      editingId = n ? n.id : null;
+      const on = !!n;
+      document.querySelectorAll('.editing-only').forEach((el) => el.classList.toggle('hidden', !on));
+      $('form-title').textContent = on ? 'Úprava zprávy' : 'Nová zpráva';
+      $('publish').textContent = on ? 'Uložit změny' : 'Zveřejnit zprávu';
+      $('edit-hint').textContent = on
+        ? 'Oprava se propíše i lidem, kterým se zpráva už stáhla (zůstává stejné id ' + n.id +
+          '). Kdo si ji ale zavřel křížkem, znovu ji v banneru neuvidí — najde ji opravenou v archivu.'
+        : '';
+    }
+
+    function startEdit(n) {
+      $('cs-title').value = n.text?.cs?.title || '';
+      $('cs-body').value  = n.text?.cs?.body  || '';
+      $('en-title').value = n.text?.en?.title || '';
+      $('en-body').value  = n.text?.en?.body  || '';
+      $('eventAt').value   = toLocalInput(n.eventAt);
+      $('expiresAt').value = toLocalInput(n.expiresAt);
+      $('url').value = n.url || '';
+
+      const targeted = Array.isArray(n.countries) && n.countries.length > 0;
+      oneBoxes().forEach((c) => { c.checked = targeted && n.countries.includes(c.value); });
+      $('c-all').checked = !targeted;
+      paintCountries();
+
+      // Přepočítej počítadla znaků na načtený obsah.
+      ['cs-title','cs-body','en-title','en-body'].forEach((id) => {
+        $(id).dispatchEvent(new Event('input'));
+      });
+
+      setEditingUi(n);
+      $('msg').textContent = '';
+      $('form-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /** ms epoch → hodnota pro <input type="datetime-local"> (lokální čas, bez zóny). */
+    function toLocalInput(ms) {
+      if (typeof ms !== 'number' || !Number.isFinite(ms)) return '';
+      const d = new Date(ms);
+      if (Number.isNaN(d.getTime())) return '';
+      const pad = (x) => String(x).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function clearForm() {
+      ['cs-title','cs-body','en-title','en-body','eventAt','expiresAt','url'].forEach((id) => { $(id).value = ''; });
+      oneBoxes().forEach((c) => { c.checked = false; });
+      $('c-all').checked = true; paintCountries();
+      ['c-cs-title','c-cs-body','c-en-title','c-en-body'].forEach((id) => { $(id).textContent = ''; $(id).classList.remove('over'); });
+      setEditingUi(null);
+    }
+    $('clear').onclick = () => { clearForm(); $('msg').textContent = ''; };
+    $('cancel-edit').onclick = () => { clearForm(); $('msg').textContent = ''; };
+    $('reload').onclick = () => { $('listmsg').textContent = ''; load(); };
+
+    $('publish').onclick = async () => {
+      const msg = $('msg'); msg.textContent = '';
+      const fail = (t) => { msg.innerHTML = `<span class="err">${t}</span>`; };
+
+      const cs = { title: $('cs-title').value.trim(), body: $('cs-body').value.trim() };
+      const en = { title: $('en-title').value.trim(), body: $('en-body').value.trim() };
+
+      // Titulek bez textu appka zobrazí (body smí být prázdné), ale titulek je povinný.
+      if (!cs.title && !en.title) return fail('Vyplň aspoň jeden titulek (česky nebo anglicky).');
+      if (cs.body && !cs.title) return fail('Český text má prázdný titulek — appka by celou zprávu zahodila.');
+      if (en.body && !en.title) return fail('Anglický text má prázdný titulek — appka by celou zprávu zahodila.');
+
+      const eventAt = toMs($('eventAt').value);
+      const expiresAt = toMs($('expiresAt').value);
+      if (Number.isNaN(eventAt)) return fail('Datum akce nedává smysl.');
+      if (Number.isNaN(expiresAt)) return fail('Datum expirace nedává smysl.');
+      // Expirace v minulosti dává smysl JEN u úpravy zprávy, která UŽ ukončená byla —
+      // opravit překlep v archivu musí jít, aniž by se znovu rozsvítila v banneru.
+      // (Neporovnáváme s původní hodnotou na rovnost: `toLocalInput` ořezává na
+      // minuty, takže po načtení do formuláře by se nikdy netrefila.)
+      const puvodni = editingId ? items.find((x) => x.id === editingId) : null;
+      if (editingId && !puvodni) {
+        clearForm();
+        return fail('Upravovaná zpráva už v seznamu není — někdo ji mezitím smazal. Načti seznam znovu.');
+      }
+      const jizBylaUkoncena =
+        !!puvodni && typeof puvodni.expiresAt === 'number' && puvodni.expiresAt <= Date.now();
+      if (typeof expiresAt === 'number' && expiresAt <= Date.now() && !jizBylaUkoncena)
+        return fail('Expirace je v minulosti — zpráva by se nikomu neukázala.');
+
+      const url = $('url').value.trim();
+      if (url && !/^https:\/\//i.test(url)) return fail('Odkaz musí začínat https:// (http ani jiné schéma appka nepřijme).');
+
+      const countries = pickedCountries();
+
+      // Objekt skládáme podmíněně — Firestore neumí `undefined` a store čeká
+      // buď platnou hodnotu, nebo chybějící klíč. Při úpravě držíme původní id
+      // i datum zveřejnění (viz komentář u editingId); mění se jen obsah.
+      const notice = puvodni
+        ? { id: puvodni.id, publishedAt: puvodni.publishedAt, text: {} }
+        : { id: newId(), publishedAt: Date.now(), text: {} };
+      if (cs.title) notice.text.cs = { title: cs.title, body: cs.body };
+      if (en.title) notice.text.en = { title: en.title, body: en.body };
+      if (typeof expiresAt === 'number') notice.expiresAt = expiresAt;
+      if (typeof eventAt === 'number') notice.eventAt = eventAt;
+      if (url) notice.url = url;
+      if (countries.length) notice.countries = countries;
+
+      if (!isValidNotice(notice)) return fail('Zpráva neprošla kontrolou tvaru — appka by ji tiše zahodila. Zkontroluj titulky, odkaz a data.');
+
+      const slovesoQ = puvodni ? 'Uložit?' : 'Zveřejnit?';
+      if (!notice.text.en && !confirm('Zpráva nemá anglickou verzi.\n\nUvidí ji jen lidé s češtinou — ostatní jazyky padají na angličtinu, a ta chybí. ' + slovesoQ)) return;
+      if (!notice.text.cs && !confirm('Zpráva nemá českou verzi — Čechům se ukáže anglicky. ' + slovesoQ)) return;
+
+      // Úprava zprávu ponechá na jejím místě v seznamu (řadí se stejně podle
+      // publishedAt); nová jde na začátek.
+      const next = puvodni
+        ? items.map((x) => (x.id === puvodni.id ? notice : x))
+        : [notice, ...items];
+      const ok = await persist(
+        next,
+        puvodni
+          ? 'Změny uloženy. Opravená verze se lidem propíše při dalším otevření appky.'
+          : 'Zveřejněno. Lidem se to ukáže při dalším otevření appky.',
+        msg
+      );
+      if (ok) clearForm();
+    };
+
+    // --- init ---------------------------------------------------------------
+    buildCountries();
+    counter('cs-title', 'c-cs-title', 60);
+    counter('cs-body', 'c-cs-body', 220);
+    counter('en-title', 'c-en-title', 60);
+    counter('en-body', 'c-en-body', 220);
+  </script>
+</body>
+</html>
