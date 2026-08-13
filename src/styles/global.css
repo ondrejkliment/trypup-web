@@ -29,10 +29,14 @@ img { max-width: 100%; display: block; }
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
 @media (max-width: 600px) {
   .wrap { padding: 0 24px; }
-  .section { padding: 44px 0; }
+  .section { padding-top: 44px; padding-bottom: 44px; }
   .prose { max-width: 100%; }
 }
-.section { padding: 64px 0; }
+/* padding-top/bottom jen (NE shorthand `padding: 64px 0`) — .section se vždy
+   používá spolu s .wrap na stejném elementu (class="section wrap"); shorthand
+   by při stejné specificitě přebil .wrap horizontální padding (nulou), takže
+   by obsah sedl až na okraj obrazovky na mobilu. Takhle si nešlapou na paty. */
+.section { padding-top: 64px; padding-bottom: 64px; }
 
 /* Header */
 .announce { background: var(--plum); color: #FDF4EF; text-align: center; font-size: 13px; font-weight: 600; padding: 9px 16px; letter-spacing: .2px; }
