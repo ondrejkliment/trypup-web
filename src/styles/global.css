@@ -56,7 +56,7 @@ img { max-width: 100%; display: block; }
 .nav .lang-switch:hover { background: var(--blue-soft); }
 
 /* Hero */
-.hero { text-align: center; padding: 80px 0 56px; }
+.hero { text-align: center; padding-top: 80px; padding-bottom: 56px; } /* NE shorthand — stejný .wrap-kolizní důvod jako u .section výše */
 .badge { display: inline-block; background: var(--blue-soft); color: var(--blue); font-weight: 700; font-size: 13px; padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; }
 .hero h1 { font-size: clamp(34px, 6vw, 56px); font-weight: 850; letter-spacing: -1px; line-height: 1.05; }
 .hero p.lead { font-size: clamp(17px, 2.4vw, 21px); color: var(--muted); max-width: 620px; margin: 18px auto 0; }
