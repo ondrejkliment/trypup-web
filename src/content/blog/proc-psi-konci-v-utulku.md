@@ -52,20 +52,31 @@ Když už jste připravení, zvažte adopci. V útulcích čekají skvělí psi 
 
 Většinu toho, o čem je tenhle článek, si dnes můžete osahat, aniž byste riskovali osud živého zvířete. Trypup je edukativní simulátor péče o psa — „pes na zkoušku" v telefonu. Nanečisto vás provede každodenní rutinou: venčením, krmením, návštěvami veterináře i výdaji, které se sčítají. Nejde o hru na výhru, ale o upřímné zrcadlo, které vám ukáže, jestli na tenhle závazek máte čas, peníze i výdrž — bez následků pro skutečného psa. A pokud zjistíte, že ano, budete připravení mnohem líp než většina lidí, kteří si psa přinesli domů ze dne na den.
 
-Trypup je právě teď dostupný na Androidu na Google Play, verze pro iPhone se blíží.
+Trypup je právě teď dostupný pro Android i iPhone.
 
 <div class="app-cta">
   <div>
     <strong>Pes na zkoušku — nanečisto ve vašem telefonu</strong>
-    <p>Projděte si týden péče o virtuálního psa a zjistěte, jestli na to reálně máte — bez následků pro živé zvíře. Trypup je teď na Androidu, verze pro iPhone se blíží.</p>
-    <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=blog" target="_blank" rel="noopener">
-      <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />
+    <p>Projděte si týden péče o virtuálního psa a zjistěte, jestli na to reálně máte — bez následků pro živé zvíře. Trypup je teď venku pro Android i iPhone.</p>
+    <div class="app-cta-badges">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=blog" target="_blank" rel="noopener">
+        <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-cs.svg" alt="Stáhnout v App Store" width="120" height="40" />
+      </a>
+    </div>
+  </div>
+  <div class="app-cta-qrs">
+    <a class="app-cta-qr" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=blog" target="_blank" rel="noopener" aria-label="Trypup na Google Play – QR kód">
+      <img src="/qr-blog-play.png" alt="QR kód – Trypup na Google Play" width="480" height="480" />
+      <span>Google Play</span>
+    </a>
+    <a class="app-cta-qr" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener" aria-label="Trypup v App Store – QR kód">
+      <img src="/qr-blog-appstore.png" alt="QR kód – Trypup v App Store" width="480" height="480" />
+      <span>App Store</span>
     </a>
   </div>
-  <a class="app-cta-qr" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=blog" target="_blank" rel="noopener" aria-label="Trypup na Google Play – QR kód">
-    <img src="/qr-blog.png" alt="QR kód – Trypup na Google Play" width="480" height="480" />
-    <span>Naskenujte telefonem</span>
-  </a>
 </div>
 
 ## Závěr
