@@ -52,8 +52,21 @@ img { max-width: 100%; display: block; }
 .brand:hover { text-decoration: none; }
 .nav { display: flex; align-items: center; gap: 22px; font-weight: 600; font-size: 15px; }
 .nav a { color: var(--ink); }
-.nav .lang-switch { border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 700; color: var(--blue); }
+.nav .lang-switch { position: relative; border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 700; color: var(--blue); }
 .nav .lang-switch:hover { background: var(--blue-soft); }
+.nav details.lang-switch summary { cursor: pointer; list-style: none; }
+.nav details.lang-switch summary::-webkit-details-marker { display: none; }
+.nav details.lang-switch[open] { background: var(--blue-soft); }
+.lang-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; min-width: 168px;
+  list-style: none; margin: 0; padding: 6px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(74,43,69,.16);
+  max-height: 60vh; overflow-y: auto;
+}
+.lang-menu li a { display: block; padding: 8px 12px; border-radius: 9px; color: var(--ink); font-size: 14px; font-weight: 600; }
+.lang-menu li a:hover { background: var(--blue-soft); text-decoration: none; }
+.lang-menu li a[aria-current] { color: var(--blue); background: var(--blue-soft); }
 
 /* Hero */
 .hero { text-align: center; padding-top: 80px; padding-bottom: 56px; } /* NE shorthand — stejný .wrap-kolizní důvod jako u .section výše */

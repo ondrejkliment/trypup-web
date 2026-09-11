@@ -2,13 +2,19 @@
 import '../styles/global.css';
 import { operator, operatorLabels, type Lang } from '../lib/operator';
 
+type PageKey = 'home' | 'about' | 'privacy' | 'terms' | 'support';
+
 interface Props {
   title?: string;
   description?: string;
   image?: string;
   lang?: Lang;
-  /** Href of the same page in the other language (for the switcher + hreflang). */
+  /** Href of the same page in the other language (for the CZ/EN-only fallback switcher + hreflang). */
   alt?: string;
+  /** Který typ stránky to je — jen home/about/privacy/terms/support existuje ve všech 12
+   * jazycích, takže jen ty dostanou plné 12jazyčné menu (viz `langLinks` níže). Ostatní
+   * stránky (blog, admin, smazání účtu…) nemají 12 mutací → zůstává starý CZ/EN přepínač. */
+  pageKey?: PageKey;
 }
 const {
   title = 'Trypup — pes na zkoušku',
@@ -16,6 +22,7 @@ const {
   image,
   lang = 'cs',
   alt,
+  pageKey,
 } = Astro.props;
 
 const year = 2026;
@@ -197,6 +204,18 @@ const t = STRINGS[lang] ?? STRINGS.en;
 // Zákonná identifikace provozovatele v patičce (§ 435 obč. zák.) — na každé stránce.
 const opL = operatorLabels(lang);
 const opRegistry = operator.spisovaZnacka[lang];
+
+// Plné jazykové menu — jen pro pageKey (home/about/privacy/terms/support), které
+// existují ve všech 12 jazycích. LANG_CODE = krátký kód v uzavřené pilulce (stejná
+// délka jako dřívější "CZ"/"EN", ať se hlavička nerozjíždí do šířky); LANG_NAME =
+// plný název jazyka v sobě samém, zobrazený v rozbalené nabídce. „uk" (ISO kód pro
+// ukrajinštinu) se v pilulce záměrně zobrazuje jako „UA" — „UK" by čtenáři splynulo
+// se zkratkou United Kingdom.
+const ALL_LANGS: Lang[] = ['cs', 'en', 'de', 'fr', 'pl', 'es', 'it', 'nl', 'pt', 'sk', 'bg', 'uk'];
+const LANG_CODE: Record<Lang, string> = { cs: 'CZ', en: 'EN', de: 'DE', fr: 'FR', pl: 'PL', es: 'ES', it: 'IT', nl: 'NL', pt: 'PT', sk: 'SK', bg: 'BG', uk: 'UA' };
+const LANG_NAME: Record<Lang, string> = { cs: 'Čeština', en: 'English', de: 'Deutsch', fr: 'Français', pl: 'Polski', es: 'Español', it: 'Italiano', nl: 'Nederlands', pt: 'Português', sk: 'Slovenčina', bg: 'Български', uk: 'Українська' };
+const PAGE_HREF_KEY: Record<PageKey, keyof Strings> = { home: 'homeHref', about: 'aboutHref', privacy: 'privacyHref', terms: 'termsHref', support: 'supportHref' };
+const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[code], href: STRINGS[code][PAGE_HREF_KEY[pageKey]] })) : null;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -273,7 +292,18 @@ const opRegistry = operator.spisovaZnacka[lang];
           <a href={t.howHref}>{t.howItWorks}</a>
           <a href={t.aboutHref}>{t.about}</a>
           <a href={t.blogHref}>{t.blog}</a>
-          <a class="lang-switch" href={t.switchHref} aria-label="Language">{t.switchLabel}</a>
+          {langLinks ? (
+            <details class="lang-switch">
+              <summary aria-label="Language">{LANG_CODE[lang]}</summary>
+              <ul class="lang-menu">
+                {langLinks.map((l) => (
+                  <li><a href={l.href} aria-current={l.code === lang ? 'page' : undefined}>{l.name}</a></li>
+                ))}
+              </ul>
+            </details>
+          ) : (
+            <a class="lang-switch" href={t.switchHref} aria-label="Language">{t.switchLabel}</a>
+          )}
         </nav>
       </div>
     </header>
@@ -330,6 +360,18 @@ const opRegistry = operator.spisovaZnacka[lang];
         if (a) a.addEventListener('click', function () { decide('granted'); });
         if (r) r.addEventListener('click', function () { decide('denied'); });
         if (s) s.addEventListener('click', function (e) { e.preventDefault(); if (bar) bar.removeAttribute('hidden'); });
+      })();
+    </script>
+
+    <!-- Jazykové menu (<details>) — funguje i bez JS (nativní disclosure), skript
+         jen dovírá po kliku mimo / na jinou položku, ať nezůstává otevřené. -->
+    <script is:inline>
+      (function () {
+        var el = document.querySelector('details.lang-switch');
+        if (!el) return;
+        document.addEventListener('click', function (e) {
+          if (el.hasAttribute('open') && !el.contains(e.target)) el.removeAttribute('open');
+        });
       })();
     </script>
 
