@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
+const features = [
+  { title: 'GPS разходки', text: 'Истински маршрути с време, разстояние и проверка срещу измама, че наистина сте излезли навън.' },
+  { title: 'Ежедневна грижа', text: 'Хранене, игра, поддръжка, почивка. Показателите реагират на това колко добре се грижите.' },
+  { title: 'Дресировка', text: '9 команди с постепенно отключване. Всяка порода учи със собствено темпо.' },
+  { title: 'Здраве и разходи', text: 'График за ваксинации и реалистични месечни и годишни разходи за куче.' },
+  { title: 'Обучение', text: 'Статии за осиновяване, избор на приют и въпросите, които трябва да си зададете първо.' },
+  { title: 'Съвместна грижа', text: 'Споделяйте грижата със семейството — всеки вижда какво е направил другият.' },
+];
+---
+<Base
+  title="Trypup — куче на изпитание"
+  description="Trypup е куче на изпитание — реалистичен симулатор за грижа за куче. Разходки, хранене, дресировка и разходи, преди да си вземете истинско куче."
+  lang="bg"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Образователен симулатор за грижа</span>
+    <h1>Куче на изпитание</h1>
+    <p class="lead">Усетете сами какво наистина означава да се грижите за куче — <strong>преди да си вземете истинско</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Изтегли приложението</a>
+      <a class="btn btn-ghost" href="#how-it-works">Как работи</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>Повечето кучета в приютите</span> не са там заради самите тях, а защото собствениците им не са били подготвени.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup ви позволява да разберете това преди решението — не след него.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Как работи</h2>
+    <p class="section-sub">Три стъпки, точно като грижата за истинско куче.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Изберете порода и кръстете кучето си.</strong> <span>Въпросник препоръчва това, което ви пасва.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Грижете се за него всеки ден.</strong> <span>Разходки, хранене, дресировка, ветеринар. Нищо не може да бъде пропуснато.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Научете истината за себе си.</strong> <span>Успявате ли да спазвате рутината дори в дните, когато не ви се иска? Пренебрегнете ли кучето, то отива в приют — без последствия за живо животно.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Какво прави приложението</h2>
+    <p class="section-sub">Реалистична симулация на грижа — от разходки до разходи.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Изтегли Trypup</h2>
+    <p class="section-sub">Trypup вече е достъпен за Android и iPhone. Изтеглете приложението и изпробвайте куче по мярка.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>

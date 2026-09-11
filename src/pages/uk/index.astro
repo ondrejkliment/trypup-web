@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
+const features = [
+  { title: 'Прогулянки з GPS', text: 'Реальні маршрути з часом, відстанню та перевіркою проти читерства, що ви справді вийшли на прогулянку.' },
+  { title: 'Щоденний догляд', text: 'Годування, ігри, гігієна, відпочинок. Показники реагують на якість вашого догляду.' },
+  { title: 'Дресирування', text: '9 команд з поступовим відкриттям нових рівнів. Кожна порода вчиться у своєму темпі.' },
+  { title: 'Здоров’я та витрати', text: 'Графік вакцинації та реалістичні щомісячні й щорічні витрати на собаку.' },
+  { title: 'Освіта', text: 'Статті про усиновлення, вибір притулку та питання, які варто поставити собі заздалегідь.' },
+  { title: 'Спільний догляд', text: 'Діліться доглядом із родиною — кожен бачить, що зробив інший.' },
+];
+---
+<Base
+  title="Trypup — собака на випробувальний термін"
+  description="Trypup — це собака на випробувальний термін, реалістичний симулятор догляду за собакою. Прогулянки, годування, дресирування та витрати — ще до того, як ви заведете справжню собаку."
+  lang="uk"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Освітній симулятор догляду</span>
+    <h1>Собака на випробувальний термін</h1>
+    <p class="lead">Відчуйте на собі, що насправді означає доглядати за собакою — <strong>ще до того, як завести справжню</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Завантажити застосунок</a>
+      <a class="btn btn-ghost" href="#how-it-works">Як це працює</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>Більшість собак у притулках</span> опинилися там не через свою поведінку, а тому, що їхні власники не були готові.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup дає змогу дізнатися це до ухвалення рішення, а не після.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Як це працює</h2>
+    <p class="section-sub">Три кроки, як і догляд за справжньою собакою.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Оберіть породу та дайте собаці ім'я.</strong> <span>Анкета порекомендує те, що вам підходить.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Доглядайте за нею щодня.</strong> <span>Прогулянки, годування, дресирування, ветеринар. Нічого не можна пропустити.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Дізнайтеся правду про себе.</strong> <span>Чи зможете ви дотримуватися рутини навіть у дні, коли зовсім не хочеться? Занедбайте собаку — і вона потрапить у притулок, без наслідків для живої тварини.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Що вміє застосунок</h2>
+    <p class="section-sub">Реалістична симуляція догляду — від прогулянок до витрат.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Завантажте Trypup</h2>
+    <p class="section-sub">Trypup уже доступний для Android та iPhone. Завантажте застосунок і приміряйте собаку на себе.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>

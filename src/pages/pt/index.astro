@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ícones por área → `featureIcons` (partilhados, 1:1 com a app). A ordem tem de coincidir.
+const features = [
+  { title: 'Passeios com GPS', text: 'Percursos reais com tempo, distância e uma verificação anti-fraude de que saiu mesmo de casa.' },
+  { title: 'Cuidados diários', text: 'Alimentação, brincadeiras, higiene, descanso. As estatísticas reagem à qualidade dos seus cuidados.' },
+  { title: 'Treino', text: '9 comandos com desbloqueios progressivos. Cada raça aprende ao seu próprio ritmo.' },
+  { title: 'Saúde e custos', text: 'Calendário de vacinação e custos mensais e anuais realistas do cão.' },
+  { title: 'Educação', text: 'Artigos sobre adoção, como escolher um abrigo e as perguntas a fazer a si mesmo primeiro.' },
+  { title: 'Co-propriedade', text: 'Partilhe os cuidados com a família — todos veem o que o outro fez.' },
+];
+---
+<Base
+  title="Trypup — um cão à prova"
+  description="A Trypup é um cão à prova — um simulador de cuidados com cães realista. Passeios, alimentação, treino e custos, antes de ter um cão real."
+  lang="pt"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Simulador educativo de cuidados</span>
+    <h1>Um cão à prova</h1>
+    <p class="lead">Sinta na pele o que realmente é cuidar de um cão — <strong>antes de ter um cão real</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Obter a aplicação</a>
+      <a class="btn btn-ghost" href="#how-it-works">Como funciona</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>A maioria dos cães em abrigos</span> está lá não por causa do cão, mas porque os donos não estavam preparados.</p>
+      <p style="opacity:.8;margin-top:10px">A Trypup permite-lhe descobrir isso antes da decisão — não depois.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Como funciona</h2>
+    <p class="section-sub">Três passos, tal como cuidar de um cão real.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Escolha uma raça e dê nome ao seu cão.</strong> <span>Um questionário recomenda o que se adapta a si.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Cuide dele todos os dias.</strong> <span>Passeios, alimentação, treino, veterinário. Nada pode ser ignorado.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Descubra a verdade sobre si mesmo.</strong> <span>Consegue manter a rotina mesmo nos dias em que não lhe apetece? Negligencie o cão e ele vai parar a um abrigo — sem consequências para um animal real.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">O que a aplicação faz</h2>
+    <p class="section-sub">Uma simulação de cuidados realista — dos passeios aos custos.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Obtenha a Trypup</h2>
+    <p class="section-sub">A Trypup já está disponível para Android e iPhone. Descarregue a aplicação e experimente ter um cão à prova.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>

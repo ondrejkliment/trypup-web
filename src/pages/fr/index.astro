@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
+const features = [
+  { title: 'Promenades GPS', text: 'De vrais trajets avec durée, distance et une vérification anti-triche que vous êtes vraiment sorti.' },
+  { title: 'Soins quotidiens', text: 'Alimentation, jeu, toilettage, repos. Les statistiques réagissent à la qualité de vos soins.' },
+  { title: 'Entraînement', text: '9 commandes débloquées progressivement. Chaque race apprend à son propre rythme.' },
+  { title: 'Santé et coûts', text: 'Calendrier de vaccination et coûts mensuels et annuels réalistes pour un chien.' },
+  { title: 'Éducation', text: "Des articles sur l'adoption, le choix d'un refuge et les questions à se poser avant tout." },
+  { title: 'Garde partagée', text: "Partagez les soins en famille — chacun voit ce que l'autre a fait." },
+];
+---
+<Base
+  title="Trypup — un chien à l'essai"
+  description="Trypup, c'est un chien à l'essai — un simulateur réaliste de soins pour chien. Promenades, alimentation, entraînement et coûts, avant d'adopter un chien réel."
+  lang="fr"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Simulateur éducatif de soins</span>
+    <h1>Un chien à l'essai</h1>
+    <p class="lead">Découvrez par vous-même ce qu'implique vraiment le soin d'un chien — <strong>avant d'en adopter un vrai</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Télécharger l'app</a>
+      <a class="btn btn-ghost" href="#how-it-works">Comment ça marche</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>La plupart des chiens en refuge</span> n'y sont pas à cause d'eux-mêmes, mais parce que leurs propriétaires n'étaient pas prêts.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup vous permet de le découvrir avant la décision — pas après.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Comment ça marche</h2>
+    <p class="section-sub">Trois étapes, comme pour prendre soin d'un vrai chien.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Choisissez une race et donnez un nom à votre chien.</strong> <span>Un questionnaire vous recommande ce qui vous correspond.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Occupez-vous-en chaque jour.</strong> <span>Promenades, alimentation, entraînement, vétérinaire. Rien ne peut être sauté.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Découvrez la vérité sur vous-même.</strong> <span>Arriverez-vous à tenir la routine même les jours sans envie ? Négligez le chien et il finit en refuge — sans conséquence pour un animal réel.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Ce que fait l'application</h2>
+    <p class="section-sub">Une simulation réaliste de soins — des promenades aux coûts.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Télécharger Trypup</h2>
+    <p class="section-sub">Trypup est disponible dès maintenant sur Android et iPhone. Téléchargez l'application et essayez un chien avant de vous décider.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>

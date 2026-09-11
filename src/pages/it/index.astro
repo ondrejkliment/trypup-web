@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
+const features = [
+  { title: 'Passeggiate GPS', text: 'Percorsi reali con tempo, distanza e un controllo anti-cheat per verificare che tu sia davvero uscito.' },
+  { title: 'Cura quotidiana', text: 'Alimentazione, gioco, toelettatura, riposo. Le statistiche reagiscono a quanto bene ti prendi cura di lui.' },
+  { title: 'Addestramento', text: '9 comandi con sblocchi progressivi. Ogni razza impara al proprio ritmo.' },
+  { title: 'Salute e costi', text: 'Calendario vaccinale e costi mensili e annuali realistici per il cane.' },
+  { title: 'Formazione', text: 'Articoli sull\'adozione, su come scegliere un rifugio e sulle domande da porsi prima.' },
+  { title: 'Co-proprietà', text: 'Condividi la cura con la famiglia — ognuno vede cosa ha fatto l\'altro.' },
+];
+---
+<Base
+  title="Trypup — un cane in prova"
+  description="Trypup è un cane in prova — un simulatore realistico di cura del cane. Passeggiate, alimentazione, addestramento e costi, prima di prendere un cane vero."
+  lang="it"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Simulatore educativo di cura</span>
+    <h1>Un cane in prova</h1>
+    <p class="lead">Scopri di persona cosa significa davvero prendersi cura di un cane — <strong>prima di prenderne uno vero</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Scarica l'app</a>
+      <a class="btn btn-ghost" href="#how-it-works">Come funziona</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>La maggior parte dei cani nei rifugi</span> non ci finisce per colpa del cane, ma perché i proprietari non erano preparati.</p>
+      <p style="opacity:.8;margin-top:10px">Con Trypup lo scopri prima della decisione — non dopo.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Come funziona</h2>
+    <p class="section-sub">Tre passi, proprio come prendersi cura di un cane vero.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Scegli una razza e dai un nome al tuo cane.</strong> <span>Un questionario ti consiglia quella più adatta a te.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Prenditene cura ogni giorno.</strong> <span>Passeggiate, alimentazione, addestramento, veterinario. Niente può essere saltato.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Scopri la verità su te stesso.</strong> <span>Riesci a mantenere la routine anche nei giorni in cui non ne hai voglia? Trascura il cane e finisce in un rifugio — senza conseguenze per un animale vero.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Cosa fa l'app</h2>
+    <p class="section-sub">Una simulazione di cura realistica — dalle passeggiate ai costi.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Scarica Trypup</h2>
+    <p class="section-sub">Trypup è ora disponibile per Android e iPhone. Scarica l'app e prova un cane per vedere se fa per te.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>

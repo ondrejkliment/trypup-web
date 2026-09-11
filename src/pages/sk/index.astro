@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ikony per oblasť → `featureIcons` (zdieľané, 1:1 z appky). Poradie musí sedieť.
+const features = [
+  { title: 'GPS prechádzky', text: 'Skutočné trasy s časom, vzdialenosťou a kontrolou proti podvádzaniu, že ste naozaj vyšli von.' },
+  { title: 'Denná starostlivosť', text: 'Kŕmenie, hra, starostlivosť o srsť, odpočinok. Štatistiky reagujú na to, ako dobre sa staráte.' },
+  { title: 'Výcvik', text: '9 povelov s postupným odomykaním. Každé plemeno sa učí vlastným tempom.' },
+  { title: 'Zdravie a náklady', text: 'Očkovací kalendár a reálne mesačné aj ročné náklady na psa.' },
+  { title: 'Vzdelávanie', text: 'Články o adopcii, výbere útulku a otázkach, ktoré si treba položiť ako prvé.' },
+  { title: 'Spoluvlastníctvo', text: 'Zdieľajte starostlivosť s rodinou — každý vidí, čo urobil ten druhý.' },
+];
+---
+<Base
+  title="Trypup — pes na skúšku"
+  description="Trypup je pes na skúšku — realistický simulátor starostlivosti o psa. Prechádzky, kŕmenie, výcvik a náklady, skôr než si zadovážite skutočného psa."
+  lang="sk"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Vzdelávací simulátor starostlivosti</span>
+    <h1>Pes na skúšku</h1>
+    <p class="lead">Vyskúšajte si na vlastnej koži, čo starostlivosť o psa naozaj obnáša — <strong>skôr než si zadovážite skutočného</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Stiahnuť appku</a>
+      <a class="btn btn-ghost" href="#how-it-works">Ako to funguje</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>Väčšina psov v útulkoch</span> tam nie je kvôli sebe, ale preto, že ich majitelia neboli pripravení.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup vám to umožní zistiť pred rozhodnutím — nie až po ňom.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Ako to funguje</h2>
+    <p class="section-sub">Tri kroky, presne ako pri starostlivosti o skutočného psa.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Vyberte plemeno a pomenujte svojho psa.</strong> <span>Dotazník odporučí, čo sa k vám hodí.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Starajte sa oň každý deň.</strong> <span>Prechádzky, kŕmenie, výcvik, veterinár. Nič sa nedá preskočiť.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Zistite o sebe pravdu.</strong> <span>Dokážete udržať rutinu aj v dňoch, keď sa vám nechce? Zanedbáte psa a skončí v útulku — bez dôsledkov pre živé zviera.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Čo appka ponúka</h2>
+    <p class="section-sub">Realistická simulácia starostlivosti — od prechádzok až po náklady.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Získajte Trypup</h2>
+    <p class="section-sub">Trypup je teraz dostupný pre Android aj iPhone. Stiahnite si appku a vyskúšajte si psa na skúšku.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
+const features = [
+  { title: 'Paseos GPS', text: 'Rutas reales con tiempo, distancia y una comprobación antitrampas de que realmente ha salido.' },
+  { title: 'Cuidado diario', text: 'Alimentación, juego, aseo, descanso. Las estadísticas reaccionan a lo bien que cuide al perro.' },
+  { title: 'Entrenamiento', text: '9 comandos con desbloqueos progresivos. Cada raza aprende a su propio ritmo.' },
+  { title: 'Salud y costes', text: 'Calendario de vacunación y costes mensuales y anuales realistas del perro.' },
+  { title: 'Educación', text: 'Artículos sobre adopción, cómo elegir un refugio y las preguntas que debe hacerse antes.' },
+  { title: 'Cuidado compartido', text: 'Comparta el cuidado con la familia — todos ven lo que ha hecho el otro.' },
+];
+---
+<Base
+  title="Trypup — un perro a prueba"
+  description="Trypup es un perro a prueba — un simulador realista de cuidado de perros. Paseos, alimentación, entrenamiento y costes, antes de tener un perro de verdad."
+  lang="es"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Simulador educativo de cuidado</span>
+    <h1>Un perro a prueba</h1>
+    <p class="lead">Descubra por sí mismo lo que realmente supone cuidar a un perro — <strong>antes de tener uno de verdad</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Descargar la app</a>
+      <a class="btn btn-ghost" href="#how-it-works">Cómo funciona</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>La mayoría de los perros de refugio</span> no están allí por culpa del perro, sino porque sus dueños no estaban preparados.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup le permite descubrirlo antes de decidir — no después.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Cómo funciona</h2>
+    <p class="section-sub">Tres pasos, igual que cuidar a un perro de verdad.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Elija una raza y póngale nombre a su perro.</strong> <span>Un cuestionario le recomienda lo que mejor encaja con usted.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Cuídelo cada día.</strong> <span>Paseos, alimentación, entrenamiento, veterinario. Nada se puede saltar.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Descubra la verdad sobre usted mismo.</strong> <span>¿Puede mantener la rutina incluso los días en que no le apetece? Si descuida al perro, termina en un refugio — sin consecuencias para un animal real.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Qué hace la app</h2>
+    <p class="section-sub">Una simulación realista de cuidado — desde los paseos hasta los costes.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Consiga Trypup</h2>
+    <p class="section-sub">Trypup ya está disponible para Android y iPhone. Descargue la app y pruebe un perro a su medida.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>

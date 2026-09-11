@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import { featureIcons } from '../../lib/featureIcons';
+
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
+const features = [
+  { title: 'GPS-wandelingen', text: 'Echte routes met tijd, afstand en een anti-cheatcontrole of u daadwerkelijk naar buiten bent geweest.' },
+  { title: 'Dagelijkse verzorging', text: 'Voeren, spelen, verzorgen, rust. De statistieken reageren op hoe goed u zorgt.' },
+  { title: 'Training', text: '9 commando\'s met geleidelijke ontgrendelingen. Elk ras leert in zijn eigen tempo.' },
+  { title: 'Gezondheid & kosten', text: 'Vaccinatieschema en realistische maandelijkse en jaarlijkse hondenkosten.' },
+  { title: 'Educatie', text: 'Artikelen over adoptie, het kiezen van een asiel en de vragen die u uzelf eerst moet stellen.' },
+  { title: 'Samen eigenaar', text: 'Deel de zorg met familie — iedereen ziet wat de ander heeft gedaan.' },
+];
+---
+<Base
+  title="Trypup — een hond op proef"
+  description="Trypup is een hond op proef — een realistische hondenverzorgingssimulator. Wandelen, voeren, trainen en kosten, voordat u een echte hond neemt."
+  lang="nl"
+  alt="/en/"
+>
+  <section class="hero wrap">
+    <span class="badge">🐾 Educatieve verzorgingssimulator</span>
+    <h1>Een hond op proef</h1>
+    <p class="lead">Ervaar zelf wat de zorg voor een hond echt vraagt — <strong>voordat u een echte neemt</strong>.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#get">Download de app</a>
+      <a class="btn btn-ghost" href="#how-it-works">Hoe het werkt</a>
+    </div>
+  </section>
+
+  <section class="stat section">
+    <div class="wrap">
+      <p class="big"><span>De meeste asielhonden</span> zitten daar niet vanwege de hond zelf, maar omdat hun eigenaren niet voorbereid waren.</p>
+      <p style="opacity:.8;margin-top:10px">Met Trypup komt u daar vóór de beslissing achter — niet erna.</p>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section wrap">
+    <h2 class="section-title">Hoe het werkt</h2>
+    <p class="section-sub">Drie stappen, net als de zorg voor een echte hond.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong>Kies een ras en geef uw hond een naam.</strong> <span>Een vragenlijst adviseert wat bij u past.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Verzorg hem elke dag.</strong> <span>Wandelen, voeren, trainen, dierenarts. Niets kan worden overgeslagen.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Leer de waarheid over uzelf.</strong> <span>Houdt u de routine vol, ook op dagen dat u er geen zin in heeft? Verwaarloos de hond en hij belandt in een asiel — zonder gevolgen voor een levend dier.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Wat de app doet</h2>
+    <p class="section-sub">Een realistische verzorgingssimulatie — van wandelingen tot kosten.</p>
+    <div class="grid">
+      {features.map((f, i) => (
+        <div class="card">
+          <div class="feat-icon" set:html={featureIcons[i]} />
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="get" class="section wrap center">
+    <h2 class="section-title">Download Trypup</h2>
+    <p class="section-sub">Trypup is nu beschikbaar voor Android en iPhone. Download de app en probeer een hond op maat.</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
+        <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href="https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135" target="_blank" rel="noopener">
+        <img src="/badges/app-store-en.svg" alt="Download on the App Store" width="120" height="40" />
+      </a>
+    </div>
+  </section>
+</Base>
