@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+import OperatorBlock from '../../components/OperatorBlock.astro';
+---
+<Base title="Polityka prywatności — Trypup" description="Jak Trypup przetwarza dane. Aplikacja działa bez konta; opcjonalne konto umożliwia kopię zapasową postępów w chmurze (Firebase, UE)." lang="pl" alt="/en/privacy/">
+  <section class="section wrap prose">
+    <h1>Polityka prywatności</h1>
+    <p class="meta">Aktualizacja 15 lipca 2026 · Administrator: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+
+    <p><strong>Trypup działa w pełni bez konta — w takim przypadku wszystkie dane pozostają wyłącznie na Twoim urządzeniu.</strong> Opcjonalnie możesz założyć konto, które umożliwia <strong>kopię zapasową zapisanych postępów w chmurze</strong> oraz synchronizację między urządzeniami. Przetwarzamy wyłącznie dane niezbędne do świadczenia usługi.</p>
+
+    <OperatorBlock lang="pl" heading="Administrator danych" />
+
+    <h2>Jakie dane przetwarzamy</h2>
+    <h3>Zawsze (lokalnie na Twoim urządzeniu)</h3>
+    <ul>
+      <li><strong>Lokalizacja (GPS)</strong> — pomiar trasy i dystansu spaceru oraz zabezpieczenie przed oszustwami. Przetwarzana efemerycznie, nie opuszcza urządzenia. Opcjonalna.</li>
+      <li><strong>Czujniki ruchu</strong> — weryfikacja, że spacer jest rzeczywisty. Lokalnie, bez zapisywania.</li>
+      <li><strong>Powiadomienia</strong> — lokalnie zaplanowane przypomnienia o opiece. Opcjonalne.</li>
+      <li><strong>Zdjęcia / aparat</strong> — opcjonalne zdjęcie psa. Tylko lokalnie.</li>
+      <li><strong>Apple Health / Google Fit</strong> — opcjonalny zapis ukończonego spaceru. Tylko zapisujemy, nie odczytujemy.</li>
+      <li><strong>Stan gry</strong> (imię psa, rasa, statystyki, postępy) — pamięć lokalna.</li>
+    </ul>
+    <h3>Tylko po założeniu konta</h3>
+    <ul>
+      <li><strong>Adres e-mail</strong> — do logowania i zarządzania kontem.</li>
+      <li><strong>Identyfikator użytkownika</strong> (ID konta) — techniczny identyfikator nadawany przez dostawcę uwierzytelniania.</li>
+      <li><strong>Kopia zapasowa postępów</strong> (pies, trening, dzienne postępy, zakupione funkcje) — przechowywana w chmurze, aby można ją było przywrócić na innym urządzeniu.</li>
+    </ul>
+    <p>Twoje hasło jest przechowywane wyłącznie w bezpiecznej (zahaszowanej) formie przez dostawcę uwierzytelniania; nie mamy do niego dostępu.</p>
+
+    <h2>Cele i podstawa prawna (art. 6 RODO)</h2>
+    <ul>
+      <li><strong>Konto i kopia zapasowa w chmurze</strong> — wykonanie umowy (art. 6 ust. 1 lit. b).</li>
+      <li><strong>Pomiar spaceru (GPS)</strong> — funkcja, o którą wyraźnie prosisz (art. 6 ust. 1 lit. b); przetwarzanie odbywa się lokalnie.</li>
+      <li><strong>Analityka produktowa i diagnostyka błędów</strong> — nasz prawnie uzasadniony interes (art. 6 ust. 1 lit. f); możesz je w każdej chwili wyłączyć w Ustawieniach aplikacji (prawo do sprzeciwu).</li>
+    </ul>
+
+    <h2>Podmioty przetwarzające i lokalizacja danych</h2>
+    <p>Do obsługi konta i kopii zapasowej w chmurze korzystamy z <strong>Google (Firebase — Authentication i Firestore)</strong> jako podmiotu przetwarzającego, na podstawie <em>Firebase Data Processing and Security Terms</em>. Kopia zapasowa (Firestore) jest przechowywana w <strong>centrach danych UE (region europe / eur3)</strong>. Usługa Authentication może przetwarzać część danych poza UE; takie transfery są objęte <strong>standardowymi klauzulami umownymi (SCC)</strong> zatwierdzonymi przez Komisję Europejską.</p>
+    <p>Korzystamy również z podmiotów przetwarzających <strong>Sentry</strong> (diagnostyka błędów aplikacji) oraz <strong>RevenueCat</strong> (zarządzanie subskrypcjami). Zakupy Premium są przetwarzane przez <strong>Apple</strong> i <strong>Google</strong> jako niezależnych administratorów na podstawie ich własnych regulaminów. W przypadku transferu danych osobowych poza UE/EOG opieramy się na decyzji o adekwatności <strong>EU–US Data Privacy Framework</strong> (dla certyfikowanych odbiorców), a w pozostałych przypadkach na <strong>standardowych klauzulach umownych (SCC)</strong> z dodatkowymi środkami zabezpieczającymi (szyfrowanie, kontrola dostępu).</p>
+
+    <h2>Udostępnianie danych</h2>
+    <p>Nie <strong>sprzedajemy</strong> ani nie udostępniamy Twoich danych osobom trzecim do ich własnych celów. Google działa jako nasz podmiot przetwarzający (na nasze polecenie), a nie jako niezależny odbiorca. Schroniska wymienione w aplikacji to jedynie linki do publicznych stron internetowych.</p>
+
+    <h2>Analityka produktowa i diagnostyka błędów (aplikacja)</h2>
+    <h3>Analityka produktowa</h3>
+    <p>Aby ulepszać aplikację, przetwarzamy zanonimizowane dane o sposobie jej użytkowania:</p>
+    <ul>
+      <li><strong>Co:</strong> pseudonimowy identyfikator instalacji (niepowiązany z osobą), techniczny kontekst urządzenia (model, wersja systemu, język) oraz zdarzenia użytkowania (odwiedzone ekrany, ukończone spacery) — bez danych osobowych.</li>
+      <li><strong>Gdzie:</strong> Google Firebase / Cloud Firestore (podmiot przetwarzający Google Ireland Ltd.), przechowywane w UE.</li>
+      <li><strong>Podstawa prawna:</strong> nasz prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO) w zakresie ulepszania i mierzenia użytkowania aplikacji. Zbieranie danych to wyłącznie pomiar ruchu własnego (first-party) — nie udostępniamy danych osobom trzecim, nie łączymy ich z Twoim kontem i nie wykorzystujemy do reklamy ani śledzenia między aplikacjami.</li>
+      <li><strong>Twój wybór:</strong> zbieranie danych możesz wyłączyć w dowolnym momencie w Ustawieniach aplikacji (prawo do sprzeciwu, art. 21 RODO). Nie zbieramy danych analitycznych od użytkowników poniżej 16 roku życia.</li>
+      <li>Dzieje się to niezależnie od tego, czy założysz konto.</li>
+    </ul>
+    <h3>Diagnostyka błędów (Sentry)</h3>
+    <p>Dla zapewnienia stabilności korzystamy z <strong>Sentry</strong> (raportowanie awarii + wydajność) — techniczna diagnostyka bez danych osobowych, oparta na naszym prawnie uzasadnionym interesie w zakresie funkcjonalności aplikacji.</p>
+
+    <h2>Pliki cookie i analityka strony internetowej (trypup.life)</h2>
+    <p>Ta strona internetowa wykorzystuje <strong>Google Analytics 4</strong> (Google Ireland Ltd.) do anonimowego mierzenia ruchu, abyśmy mogli ulepszać stronę. Pliki cookie analityczne i pomiar zaczynają działać dopiero <strong>po wyrażeniu zgody</strong> w pasku cookie (podstawa prawna: zgoda, art. 6 ust. 1 lit. a). Do momentu wyrażenia zgody Google Analytics działa w trybie <strong>bez plików cookie</strong> (Google Consent Mode). Google działa jako podmiot przetwarzający i może przetwarzać część danych <strong>poza UE</strong>, co jest objęte <strong>standardowymi klauzulami umownymi (SCC)</strong>. Zgodę możesz <strong>zmienić lub wycofać w dowolnym momencie</strong> poprzez link <strong>„Cookies"</strong> w stopce strony. Analityka tej strony internetowej (cookies + zgoda) jest odrębna od analityki produktowej aplikacji opisanej w sekcji powyżej.</p>
+
+    <p>Konkretne pliki cookie i pamięć wykorzystywane przez tę stronę internetową:</p>
+    <table>
+      <thead><tr><th>Nazwa</th><th>Cel</th><th>Czas trwania</th></tr></thead>
+      <tbody>
+        <tr><td><code>_ga</code></td><td>Google Analytics — rozróżnia odwiedzających na potrzeby anonimowych statystyk. Ustawiany <strong>dopiero po wyrażeniu zgody</strong>.</td><td>2 lata</td></tr>
+        <tr><td><code>_ga_8MWP5X5RPR</code></td><td>Google Analytics — zachowuje stan sesji. Ustawiany <strong>dopiero po wyrażeniu zgody</strong>.</td><td>2 lata</td></tr>
+        <tr><td><code>trypup-consent</code><br><small>(localStorage)</small></td><td>Zapamiętuje Twój wybór dotyczący zgody na analitykę. Ściśle niezbędny dla paska zgody; bez zgody nic innego nie jest przechowywane.</td><td>Do momentu wyczyszczenia danych przeglądarki</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Okres przechowywania</h2>
+    <p>Dane lokalne pozostają na Twoim urządzeniu, dopóki nie usuniesz aplikacji lub jej nie zresetujesz. Kopię zapasową w chmurze (konto) przechowujemy przez czas trwania Twojego konta; po <strong>usunięciu konta</strong> ją usuwamy. <strong>Analitykę produktową</strong> przechowujemy maksymalnie przez <strong>14 miesięcy</strong>, a <strong>diagnostykę błędów (Sentry)</strong> maksymalnie przez <strong>90 dni</strong>, po czym są usuwane. Wiadomości e-mail do wsparcia są przechowywane przez czas ich obsługi i rozsądny okres po jej zakończeniu.</p>
+
+    <h2>Twoje prawa (RODO)</h2>
+    <p>Masz prawo do dostępu, sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz sprzeciwu. <strong>Konto i kopię zapasową w chmurze możesz usunąć bezpośrednio w aplikacji</strong> (Konto → Usuń konto). Jeśli odinstalowałeś/aś aplikację, napisz na <a href="mailto:hello@trypup.life">hello@trypup.life</a>, a usuniemy Twoje dane. Analitykę produktową możesz wyłączyć w dowolnym momencie w Ustawieniach aplikacji (prawo do sprzeciwu).</p>
+    <p>Masz również prawo wniesienia skargi do organu nadzorczego — w Czechach jest to <strong>Urząd Ochrony Danych Osobowych (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
+
+    <h2>Dzieci i osoby niepełnoletnie</h2>
+    <p>Przy pierwszym uruchomieniu aplikacja pyta o kategorię wiekową użytkownika („16 lat lub więcej" / „poniżej 16 lat"). <strong>Odpowiedź pozostaje wyłącznie na Twoim urządzeniu i nigdy nie jest nigdzie wysyłana.</strong></p>
+    <p>Dla użytkowników <strong>poniżej 16 roku życia</strong> zbieranie danych analitycznych jest <strong>całkowicie wyłączone</strong> — niezależnie od ustawienia w aplikacji — a <strong>opcje zakupu nie są wyświetlane</strong>. Próg 16 lat odpowiada najsurowszemu wiekowi wyrażania zgody przewidzianemu w RODO (art. 8). Świadomie nie zbieramy żadnych danych osobowych od dzieci. Jeśli uważasz, że dziecko poniżej 16 roku życia przekazało nam dane osobowe, skontaktuj się z nami pod adresem <a href="mailto:hello@trypup.life">hello@trypup.life</a>, a usuniemy je.</p>
+
+    <h2>Zmiany niniejszej polityki</h2>
+    <p>O istotnych zmianach poinformujemy w aplikacji oraz na tej stronie. Gdy dodamy logowanie społecznościowe (Apple/Google), wymienimy tych dostawców jako podmioty przetwarzające.</p>
+  </section>
+</Base>

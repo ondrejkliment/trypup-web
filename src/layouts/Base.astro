@@ -1,12 +1,12 @@
 ---
 import '../styles/global.css';
-import { operator, operatorLabels } from '../lib/operator';
+import { operator, operatorLabels, type Lang } from '../lib/operator';
 
 interface Props {
   title?: string;
   description?: string;
   image?: string;
-  lang?: 'cs' | 'en';
+  lang?: Lang;
   /** Href of the same page in the other language (for the switcher + hreflang). */
   alt?: string;
 }
@@ -28,45 +28,160 @@ const canonical = new URL(Astro.url.pathname, site).href;
 // obchod — dřív odkazoval jen na Google Play a musel se kvůli Apple 2.3.10 (appka
 // nesmí odkazovat na jinou platformu) schovávat na stránkách linkovaných z iOS appky.
 // Neutrální odkaz na "kde appku získat" tenhle problém neřeší jen na 6 stránkách,
-// řeší ho úplně — banner je teď bezpečné zobrazit všude.
-const dlAnchor = lang === 'en' ? '/en/#get' : '/#stahnout';
-const resolvedImage = image ?? (lang === 'en' ? '/og-en.png?v=2' : '/og.png?v=4');
+// řeší ho úplně — banner je teď bezpečné zobrazit všude. Marketingový web (homepage/
+// about/blog) existuje jen cs+en; ostatních 10 jazyků má JEN právní stránky (Zásady/
+// Podmínky/Podpora — GDPR čl. 12 + EDPB pokyny k transparentnosti: informace musí být
+// v jazyce cílového publika, jakmile na něj cílíš store listingem). Proto u nich
+// nav/CTA odkazy na "marketingový" obsah míří do /en/ (nejbližší úplný obsah), jen
+// právní stránky míří do vlastního jazyka.
+const dlAnchor = lang === 'cs' ? '/#stahnout' : '/en/#get';
+const resolvedImage = image ?? (lang === 'cs' ? '/og.png?v=4' : '/og-en.png?v=2');
 const ogImage = new URL(resolvedImage, site).href;
 const altHref = alt ? new URL(alt, site).href : null;
 
-// hreflang pair
-const csHref = lang === 'cs' ? canonical : altHref;
-const enHref = lang === 'en' ? canonical : altHref;
+// hreflang pair — jen cs/en (marketingový pár); zbylých 10 jazyků nemá vlastní
+// homepage, takže by nedávalo smysl vydávat je za alternativy TÉTO stránky.
+const csHref = lang === 'cs' ? canonical : (lang === 'en' ? altHref : null);
+const enHref = lang === 'en' ? canonical : (lang === 'cs' ? altHref : null);
 
-const t = lang === 'en'
-  ? {
-      howItWorks: 'How it works', about: 'About', blog: 'Blog',
-      privacy: 'Privacy', terms: 'Terms', support: 'Support', contact: 'Contact',
-      switchLabel: 'CZ', switchHref: alt ?? '/',
-      howHref: '/en/#how-it-works', aboutHref: '/en/about/',
-      blogHref: '/blog/', privacyHref: '/en/privacy/', termsHref: '/en/terms/', supportHref: '/en/support/', homeHref: '/en/',
-      ogLocale: 'en_US',
-      announcePre: '📱 Trypup is now live on ', announcePost: '! Follow ',
-      announceBoth: 'iPhone and Android',
-      cookieText: 'We use cookies for anonymous analytics (Google Analytics) to make Trypup better. Analytics runs only with your consent — you can change it anytime via the Cookies link in the footer.',
-      cookieAccept: 'Accept',
-      cookieReject: 'Reject',
-      cookieSettings: 'Cookies',
-    }
-  : {
-      howItWorks: 'Jak to funguje', about: 'O aplikaci', blog: 'Blog',
-      privacy: 'Zásady ochrany', terms: 'Podmínky', support: 'Podpora', contact: 'Kontakt',
-      switchLabel: 'EN', switchHref: alt ?? '/en/',
-      howHref: '/#jak-to-funguje', aboutHref: '/o-aplikaci/',
-      blogHref: '/blog/', privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', supportHref: '/podpora/', homeHref: '/',
-      ogLocale: 'cs_CZ',
-      announcePre: '📱 Trypup je teď na ', announcePost: '! Sledujte ',
-      announceBoth: 'iPhonu i Androidu',
-      cookieText: 'Používáme cookies pro anonymní analytiku (Google Analytics), abychom Trypup vylepšovali. Analytika běží jen s vaším souhlasem — kdykoli ho změníte přes odkaz Cookies v patičce.',
-      cookieAccept: 'Přijmout',
-      cookieReject: 'Odmítnout',
-      cookieSettings: 'Cookies',
-    };
+type Strings = {
+  howItWorks: string; about: string; blog: string; privacy: string; terms: string; support: string; contact: string;
+  switchLabel: string; switchHref: string;
+  howHref: string; aboutHref: string; blogHref: string; privacyHref: string; termsHref: string; supportHref: string; homeHref: string;
+  ogLocale: string;
+  announcePre: string; announcePost: string; announceBoth: string;
+  cookieText: string; cookieAccept: string; cookieReject: string; cookieSettings: string;
+};
+
+// Nav/CTA na marketingový obsah (howHref/aboutHref/blogHref/homeHref) míří do /en/
+// pro všechny jazyky KROMĚ cs — jen cs a en mají vlastní homepage/about/blog.
+const enNav = { howHref: '/en/#how-it-works', aboutHref: '/en/about/', blogHref: '/blog/', homeHref: '/en/' };
+const csNav = { howHref: '/#jak-to-funguje', aboutHref: '/o-aplikaci/', blogHref: '/blog/', homeHref: '/' };
+
+const STRINGS: Record<Lang, Strings> = {
+  cs: {
+    howItWorks: 'Jak to funguje', about: 'O aplikaci', blog: 'Blog',
+    privacy: 'Zásady ochrany', terms: 'Podmínky', support: 'Podpora', contact: 'Kontakt',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...csNav, privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', supportHref: '/podpora/',
+    ogLocale: 'cs_CZ',
+    announcePre: '📱 Trypup je teď na ', announcePost: '! Sledujte ', announceBoth: 'iPhonu i Androidu',
+    cookieText: 'Používáme cookies pro anonymní analytiku (Google Analytics), abychom Trypup vylepšovali. Analytika běží jen s vaším souhlasem — kdykoli ho změníte přes odkaz Cookies v patičce.',
+    cookieAccept: 'Přijmout', cookieReject: 'Odmítnout', cookieSettings: 'Cookies',
+  },
+  en: {
+    howItWorks: 'How it works', about: 'About', blog: 'Blog',
+    privacy: 'Privacy', terms: 'Terms', support: 'Support', contact: 'Contact',
+    switchLabel: 'CZ', switchHref: alt ?? '/',
+    ...enNav, privacyHref: '/en/privacy/', termsHref: '/en/terms/', supportHref: '/en/support/',
+    ogLocale: 'en_US',
+    announcePre: '📱 Trypup is now live on ', announcePost: '! Follow ', announceBoth: 'iPhone and Android',
+    cookieText: 'We use cookies for anonymous analytics (Google Analytics) to make Trypup better. Analytics runs only with your consent — you can change it anytime via the Cookies link in the footer.',
+    cookieAccept: 'Accept', cookieReject: 'Reject', cookieSettings: 'Cookies',
+  },
+  de: {
+    howItWorks: 'Wie es funktioniert', about: 'Über uns', blog: 'Blog',
+    privacy: 'Datenschutz', terms: 'Nutzungsbedingungen', support: 'Support', contact: 'Kontakt',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/de/privacy/', termsHref: '/de/terms/', supportHref: '/de/support/',
+    ogLocale: 'de_DE',
+    announcePre: '📱 Trypup ist jetzt verfügbar für ', announcePost: '! Folge uns auf ', announceBoth: 'iPhone und Android',
+    cookieText: 'Wir verwenden Cookies für anonyme Analysen (Google Analytics), um Trypup zu verbessern. Analysen laufen nur mit Ihrer Zustimmung — Sie können diese jederzeit über den Cookies-Link in der Fußzeile ändern.',
+    cookieAccept: 'Akzeptieren', cookieReject: 'Ablehnen', cookieSettings: 'Cookies',
+  },
+  fr: {
+    howItWorks: 'Comment ça marche', about: 'À propos', blog: 'Blog',
+    privacy: 'Confidentialité', terms: 'Conditions d’utilisation', support: 'Assistance', contact: 'Contact',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/fr/privacy/', termsHref: '/fr/terms/', supportHref: '/fr/support/',
+    ogLocale: 'fr_FR',
+    announcePre: '📱 Trypup est maintenant disponible sur ', announcePost: ' ! Suivez ', announceBoth: 'iPhone et Android',
+    cookieText: 'Nous utilisons des cookies pour des analyses anonymes (Google Analytics) afin d’améliorer Trypup. Les analyses ne fonctionnent qu’avec votre consentement — vous pouvez le modifier à tout moment via le lien Cookies dans le pied de page.',
+    cookieAccept: 'Accepter', cookieReject: 'Refuser', cookieSettings: 'Cookies',
+  },
+  pl: {
+    howItWorks: 'Jak to działa', about: 'O aplikacji', blog: 'Blog',
+    privacy: 'Prywatność', terms: 'Warunki użytkowania', support: 'Pomoc', contact: 'Kontakt',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/pl/privacy/', termsHref: '/pl/terms/', supportHref: '/pl/support/',
+    ogLocale: 'pl_PL',
+    announcePre: '📱 Trypup jest już dostępny na ', announcePost: '! Śledź nas ', announceBoth: 'iPhone i Androida',
+    cookieText: 'Używamy plików cookie do anonimowej analityki (Google Analytics), aby ulepszać Trypup. Analityka działa tylko za Twoją zgodą — możesz ją zmienić w dowolnym momencie za pomocą linku Cookies w stopce.',
+    cookieAccept: 'Akceptuj', cookieReject: 'Odrzuć', cookieSettings: 'Cookies',
+  },
+  es: {
+    howItWorks: 'Cómo funciona', about: 'Acerca de', blog: 'Blog',
+    privacy: 'Privacidad', terms: 'Términos de uso', support: 'Soporte', contact: 'Contacto',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/es/privacy/', termsHref: '/es/terms/', supportHref: '/es/support/',
+    ogLocale: 'es_ES',
+    announcePre: '📱 Trypup ya está disponible en ', announcePost: '. Síguenos en ', announceBoth: 'iPhone y Android',
+    cookieText: 'Utilizamos cookies para análisis anónimos (Google Analytics) con el fin de mejorar Trypup. El análisis solo funciona con su consentimiento — puede cambiarlo en cualquier momento mediante el enlace Cookies en el pie de página.',
+    cookieAccept: 'Aceptar', cookieReject: 'Rechazar', cookieSettings: 'Cookies',
+  },
+  it: {
+    howItWorks: 'Come funziona', about: 'Chi siamo', blog: 'Blog',
+    privacy: 'Privacy', terms: 'Termini di utilizzo', support: 'Assistenza', contact: 'Contatto',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/it/privacy/', termsHref: '/it/terms/', supportHref: '/it/support/',
+    ogLocale: 'it_IT',
+    announcePre: '📱 Trypup è ora disponibile su ', announcePost: '! Seguici su ', announceBoth: 'iPhone e Android',
+    cookieText: 'Utilizziamo cookie per analisi anonime (Google Analytics) per migliorare Trypup. L’analisi viene eseguita solo con il tuo consenso — puoi modificarlo in qualsiasi momento tramite il link Cookie nel footer.',
+    cookieAccept: 'Accetta', cookieReject: 'Rifiuta', cookieSettings: 'Cookie',
+  },
+  nl: {
+    howItWorks: 'Hoe het werkt', about: 'Over', blog: 'Blog',
+    privacy: 'Privacy', terms: 'Gebruiksvoorwaarden', support: 'Ondersteuning', contact: 'Contact',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/nl/privacy/', termsHref: '/nl/terms/', supportHref: '/nl/support/',
+    ogLocale: 'nl_NL',
+    announcePre: '📱 Trypup is nu beschikbaar voor ', announcePost: '! Volg ', announceBoth: 'iPhone en Android',
+    cookieText: 'We gebruiken cookies voor anonieme analyses (Google Analytics) om Trypup te verbeteren. Analyses lopen alleen met uw toestemming — u kunt dit op elk moment wijzigen via de link Cookies in de voettekst.',
+    cookieAccept: 'Accepteren', cookieReject: 'Weigeren', cookieSettings: 'Cookies',
+  },
+  pt: {
+    howItWorks: 'Como funciona', about: 'Sobre', blog: 'Blog',
+    privacy: 'Privacidade', terms: 'Termos de utilização', support: 'Suporte', contact: 'Contacto',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/pt/privacy/', termsHref: '/pt/terms/', supportHref: '/pt/support/',
+    ogLocale: 'pt_PT',
+    announcePre: '📱 O Trypup já está disponível para ', announcePost: '! Siga-nos em ', announceBoth: 'iPhone e Android',
+    cookieText: 'Utilizamos cookies para análises anónimas (Google Analytics) para melhorar o Trypup. A análise só funciona com o seu consentimento — pode alterá-lo a qualquer momento através da ligação Cookies no rodapé.',
+    cookieAccept: 'Aceitar', cookieReject: 'Rejeitar', cookieSettings: 'Cookies',
+  },
+  sk: {
+    howItWorks: 'Ako to funguje', about: 'O aplikácii', blog: 'Blog',
+    privacy: 'Súkromie', terms: 'Podmienky používania', support: 'Podpora', contact: 'Kontakt',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/sk/privacy/', termsHref: '/sk/terms/', supportHref: '/sk/support/',
+    ogLocale: 'sk_SK',
+    announcePre: '📱 Trypup je teraz na ', announcePost: '! Sledujte ', announceBoth: 'iPhone aj Androide',
+    cookieText: 'Používame cookies na anonymnú analytiku (Google Analytics), aby sme Trypup vylepšovali. Analytika beží len s vaším súhlasom — kedykoľvek ho zmeníte cez odkaz Cookies v pätičke.',
+    cookieAccept: 'Prijať', cookieReject: 'Odmietnuť', cookieSettings: 'Cookies',
+  },
+  bg: {
+    howItWorks: 'Как работи', about: 'За приложението', blog: 'Блог',
+    privacy: 'Поверителност', terms: 'Условия за ползване', support: 'Поддръжка', contact: 'Контакт',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/bg/privacy/', termsHref: '/bg/terms/', supportHref: '/bg/support/',
+    ogLocale: 'bg_BG',
+    announcePre: '📱 Trypup вече е достъпен за ', announcePost: '! Последвайте ', announceBoth: 'iPhone и Android',
+    cookieText: 'Използваме бисквитки за анонимна аналитика (Google Analytics), за да подобрим Trypup. Анализите работят само с вашето съгласие — можете да го промените по всяко време чрез връзката Бисквитки в долния колонтитул.',
+    cookieAccept: 'Приемам', cookieReject: 'Отказвам', cookieSettings: 'Бисквитки',
+  },
+  uk: {
+    howItWorks: 'Як це працює', about: 'Про застосунок', blog: 'Блог',
+    privacy: 'Конфіденційність', terms: 'Умови використання', support: 'Підтримка', contact: 'Контакти',
+    switchLabel: 'EN', switchHref: alt ?? '/en/',
+    ...enNav, privacyHref: '/uk/privacy/', termsHref: '/uk/terms/', supportHref: '/uk/support/',
+    ogLocale: 'uk_UA',
+    announcePre: '📱 Trypup вже доступний для ', announcePost: '! Підписуйтесь на ', announceBoth: 'iPhone і Android',
+    cookieText: 'Ми використовуємо файли cookie для анонімної аналітики (Google Analytics), щоб покращувати Trypup. Аналітика працює лише за вашою згодою — ви можете змінити її будь-коли через посилання Cookies у нижньому колонтитулі.',
+    cookieAccept: 'Прийняти', cookieReject: 'Відхилити', cookieSettings: 'Cookies',
+  },
+};
+
+const t = STRINGS[lang] ?? STRINGS.en;
 
 // Zákonná identifikace provozovatele v patičce (§ 435 obč. zák.) — na každé stránce.
 const opL = operatorLabels(lang);

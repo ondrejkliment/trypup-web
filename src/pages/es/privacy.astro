@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+import OperatorBlock from '../../components/OperatorBlock.astro';
+---
+<Base title="Política de privacidad — Trypup" description="Cómo trata Trypup los datos. La aplicación funciona sin necesidad de cuenta; una cuenta opcional permite la copia de seguridad en la nube de su progreso (Firebase, UE)." lang="es" alt="/en/privacy/">
+  <section class="section wrap prose">
+    <h1>Política de privacidad</h1>
+    <p class="meta">Actualizado el 15 de julio de 2026 · Responsable: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+
+    <p><strong>Trypup funciona completamente sin necesidad de cuenta — en ese caso, todos los datos permanecen únicamente en su dispositivo.</strong> Opcionalmente puede crear una cuenta, lo que permite la <strong>copia de seguridad en la nube de su progreso guardado</strong> y la sincronización entre dispositivos. Solo tratamos los datos necesarios para prestar el servicio.</p>
+
+    <OperatorBlock lang="es" heading="Responsable del tratamiento" />
+
+    <h2>Qué datos tratamos</h2>
+    <h3>Siempre (localmente en su dispositivo)</h3>
+    <ul>
+      <li><strong>Ubicación (GPS)</strong> — para medir la ruta y la distancia del paseo, y como medida antifraude. Se procesa de forma efímera, no sale del dispositivo. Opcional.</li>
+      <li><strong>Sensores de movimiento</strong> — para verificar que el paseo es real. Local, no se almacena.</li>
+      <li><strong>Notificaciones</strong> — recordatorios de cuidado programados localmente. Opcional.</li>
+      <li><strong>Fotos / cámara</strong> — foto opcional del perro. Solo local.</li>
+      <li><strong>Apple Health / Google Fit</strong> — escritura opcional de un paseo completado. Solo escribimos, no leemos.</li>
+      <li><strong>Estado del juego</strong> (nombre del perro, raza, estadísticas, progreso) — almacenamiento local.</li>
+    </ul>
+    <h3>Solo si crea una cuenta</h3>
+    <ul>
+      <li><strong>Dirección de correo electrónico</strong> — para iniciar sesión y gestionar la cuenta.</li>
+      <li><strong>Identificador de usuario</strong> (ID de cuenta) — un identificador técnico asignado por el proveedor de autenticación.</li>
+      <li><strong>Copia de seguridad del progreso guardado</strong> (perro, entrenamiento, progreso diario, funciones compradas) — almacenada en la nube para poder restaurarla en otro dispositivo.</li>
+    </ul>
+    <p>Su contraseña se almacena únicamente de forma segura (cifrada) por el proveedor de autenticación; nosotros no tenemos acceso a ella.</p>
+
+    <h2>Finalidades y base jurídica (art. 6 RGPD)</h2>
+    <ul>
+      <li><strong>Cuenta y copia de seguridad en la nube</strong> — ejecución de un contrato (art. 6.1.b).</li>
+      <li><strong>Medición del paseo (GPS)</strong> — una función que usted solicita expresamente (art. 6.1.b); el tratamiento es local.</li>
+      <li><strong>Analítica de producto y diagnóstico de errores</strong> — nuestro interés legítimo (art. 6.1.f); puede desactivarlos en cualquier momento en los Ajustes de la aplicación (derecho de oposición).</li>
+    </ul>
+
+    <h2>Encargados del tratamiento y ubicación de los datos</h2>
+    <p>Para la cuenta y la copia de seguridad en la nube utilizamos <strong>Google (Firebase — Authentication y Firestore)</strong> como encargado del tratamiento, conforme a los <em>Firebase Data Processing and Security Terms</em>. La copia de seguridad (Firestore) se almacena en <strong>centros de datos de la UE (región europe / eur3)</strong>. El servicio de Authentication puede tratar parte de los datos fuera de la UE; dichas transferencias están cubiertas por <strong>cláusulas contractuales tipo (CCT)</strong> aprobadas por la Comisión Europea.</p>
+    <p>También utilizamos los encargados del tratamiento <strong>Sentry</strong> (diagnóstico de errores de la aplicación) y <strong>RevenueCat</strong> (gestión de suscripciones). Las compras Premium son procesadas por <strong>Apple</strong> y <strong>Google</strong> como responsables independientes conforme a sus propias condiciones. Para las transferencias de datos personales fuera de la UE/EEE nos basamos en la decisión de adecuación del <strong>EU-US Data Privacy Framework</strong> (para destinatarios certificados) o, en su defecto, en <strong>cláusulas contractuales tipo (CCT)</strong> con medidas adicionales (cifrado, controles de acceso).</p>
+
+    <h2>Cesión de datos</h2>
+    <p><strong>No</strong> vendemos ni compartimos sus datos con terceros para fines propios de estos. Google actúa como nuestro encargado del tratamiento (siguiendo nuestras instrucciones), no como destinatario independiente. Los refugios que aparecen en la aplicación son solo enlaces a sitios web públicos.</p>
+
+    <h2>Analítica de producto y diagnóstico de errores (aplicación)</h2>
+    <h3>Analítica de producto</h3>
+    <p>Para mejorar la aplicación, tratamos datos anonimizados sobre su uso:</p>
+    <ul>
+      <li><strong>Qué:</strong> un identificador de instalación seudónimo (no vinculado a una persona), contexto técnico del dispositivo (modelo, versión del sistema operativo, idioma) y eventos de uso (pantallas visitadas, paseos completados) — sin datos personales.</li>
+      <li><strong>Dónde:</strong> Google Firebase / Cloud Firestore (encargado Google Ireland Ltd.), almacenado en la UE.</li>
+      <li><strong>Base jurídica:</strong> nuestro interés legítimo (art. 6.1.f RGPD) en mejorar y medir el uso de la aplicación. Se trata únicamente de una medición de tráfico propio (first-party) — no compartimos los datos con terceros, no los vinculamos a su cuenta ni los usamos con fines publicitarios o de seguimiento entre aplicaciones.</li>
+      <li><strong>Su elección:</strong> puede desactivar esta recopilación en cualquier momento en los Ajustes de la aplicación (derecho de oposición, art. 21 RGPD). No recopilamos analítica de usuarios menores de 16 años.</li>
+      <li>Esto ocurre independientemente de que cree o no una cuenta.</li>
+    </ul>
+    <h3>Diagnóstico de errores (Sentry)</h3>
+    <p>Por motivos de estabilidad utilizamos <strong>Sentry</strong> (informes de fallos + rendimiento) — diagnóstico técnico sin datos personales, basado en nuestro interés legítimo en el correcto funcionamiento de la aplicación.</p>
+
+    <h2>Cookies y analítica del sitio web (trypup.life)</h2>
+    <p>Este sitio web utiliza <strong>Google Analytics 4</strong> (Google Ireland Ltd.) para medir el tráfico de forma anónima y así poder mejorar el sitio. Las cookies analíticas y la medición solo se activan <strong>después de que usted dé su consentimiento</strong> en el aviso de cookies (base jurídica: consentimiento, art. 6.1.a). Hasta que dé su consentimiento, Google Analytics funciona en modo <strong>sin cookies</strong> (Google Consent Mode). Google actúa como encargado del tratamiento y puede tratar parte de los datos <strong>fuera de la UE</strong>, lo cual está cubierto por <strong>cláusulas contractuales tipo (CCT)</strong>. Puede <strong>cambiar o retirar su consentimiento en cualquier momento</strong> a través del enlace <strong>«Cookies»</strong> en el pie de página del sitio. Esta analítica del sitio web (cookies + consentimiento) es independiente de la analítica de producto de la aplicación descrita en la sección anterior.</p>
+
+    <p>Las cookies y el almacenamiento concretos que utiliza este sitio web:</p>
+    <table>
+      <thead><tr><th>Nombre</th><th>Finalidad</th><th>Duración</th></tr></thead>
+      <tbody>
+        <tr><td><code>_ga</code></td><td>Google Analytics — distingue a los visitantes para estadísticas anónimas. Se establece <strong>solo tras su consentimiento</strong>.</td><td>2 años</td></tr>
+        <tr><td><code>_ga_8MWP5X5RPR</code></td><td>Google Analytics — mantiene el estado de la sesión. Se establece <strong>solo tras su consentimiento</strong>.</td><td>2 años</td></tr>
+        <tr><td><code>trypup-consent</code><br><small>(localStorage)</small></td><td>Recuerda su elección de consentimiento analítico. Estrictamente necesaria para el aviso de consentimiento; sin su consentimiento no se almacena nada más.</td><td>Hasta que borre los datos del navegador</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Conservación</h2>
+    <p>Los datos locales permanecen en su dispositivo hasta que desinstale la aplicación o la restablezca. Conservamos la copia de seguridad en la nube (cuenta) mientras exista su cuenta; en cuanto <strong>elimine su cuenta</strong>, la eliminamos. Conservamos la <strong>analítica de producto</strong> durante un máximo de <strong>14 meses</strong> y el <strong>diagnóstico de errores (Sentry)</strong> durante un máximo de <strong>90 días</strong>, tras lo cual se eliminan. Los correos de soporte se conservan mientras dure su gestión y durante un periodo razonable después.</p>
+
+    <h2>Sus derechos (RGPD)</h2>
+    <p>Tiene derecho de acceso, rectificación, supresión, limitación, portabilidad y oposición. <strong>Puede eliminar su cuenta y la copia de seguridad en la nube directamente desde la aplicación</strong> (Cuenta → Eliminar cuenta). Si ha desinstalado la aplicación, escriba a <a href="mailto:hello@trypup.life">hello@trypup.life</a> y eliminaremos sus datos. Puede desactivar la analítica de producto en cualquier momento en los Ajustes de la aplicación (derecho de oposición).</p>
+    <p>También tiene derecho a presentar una reclamación ante una autoridad de control — en la República Checa, la <strong>Oficina de Protección de Datos Personales (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
+
+    <h2>Menores</h2>
+    <p>En el primer inicio, la aplicación pregunta la categoría de edad del usuario («16 años o más» / «menos de 16»). <strong>La respuesta permanece únicamente en su dispositivo y nunca se envía a ningún sitio.</strong></p>
+    <p>Para los usuarios <strong>menores de 16 años</strong>, la recopilación de analítica está <strong>completamente desactivada</strong> — independientemente de la configuración dentro de la aplicación — y <strong>no se muestran opciones de compra</strong>. El umbral de 16 años corresponde a la edad de consentimiento más estricta prevista por el RGPD (art. 8). No recopilamos conscientemente datos personales de menores. Si cree que un menor de 16 años nos ha facilitado datos personales, contacte con nosotros en <a href="mailto:hello@trypup.life">hello@trypup.life</a> y los eliminaremos.</p>
+
+    <h2>Cambios en esta política</h2>
+    <p>Anunciaremos los cambios materiales en la aplicación y en este mismo lugar. Cuando añadamos el inicio de sesión social (Apple/Google), incluiremos a esos proveedores como encargados del tratamiento.</p>
+  </section>
+</Base>

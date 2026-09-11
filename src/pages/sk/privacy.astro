@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+import OperatorBlock from '../../components/OperatorBlock.astro';
+---
+<Base title="Zásady ochrany osobných údajov — Trypup" description="Ako Trypup zaobchádza s údajmi. Aplikácia funguje aj bez účtu; voliteľný účet umožňuje zálohu pokroku do cloudu (Firebase, EÚ)." lang="sk" alt="/en/privacy/">
+  <section class="section wrap prose">
+    <h1>Zásady ochrany osobných údajov</h1>
+    <p class="meta">Aktualizované 15. júla 2026 · Prevádzkovateľ: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+
+    <p><strong>Trypup funguje plnohodnotne aj bez účtu — v takom prípade všetky údaje zostávajú iba vo vašom zariadení.</strong> Voliteľne si môžete vytvoriť účet, ktorý umožní <strong>zálohu uloženého pokroku do cloudu</strong> a jeho synchronizáciu medzi zariadeniami. Spracúvame len údaje nevyhnutné na poskytovanie služby.</p>
+
+    <OperatorBlock lang="sk" heading="Prevádzkovateľ údajov" />
+
+    <h2>Aké údaje spracúvame</h2>
+    <h3>Vždy (lokálne vo vašom zariadení)</h3>
+    <ul>
+      <li><strong>Poloha (GPS)</strong> — meranie trasy a dĺžky prechádzky + ochrana proti podvádzaniu. Spracúva sa efemérne, neopúšťa zariadenie. Voliteľné.</li>
+      <li><strong>Pohybové senzory</strong> — overenie, že prechádzka je reálna. Lokálne, neukladá sa natrvalo.</li>
+      <li><strong>Notifikácie</strong> — lokálne naplánované pripomienky starostlivosti. Voliteľné.</li>
+      <li><strong>Fotografie / fotoaparát</strong> — voliteľná fotka psa. Iba lokálne.</li>
+      <li><strong>Apple Health / Google Fit</strong> — voliteľný zápis dokončenej prechádzky. Údaje iba zapisujeme, nečítame.</li>
+      <li><strong>Stav hry</strong> (meno psa, plemeno, štatistiky, pokrok) — lokálne úložisko.</li>
+    </ul>
+    <h3>Iba ak si vytvoríte účet</h3>
+    <ul>
+      <li><strong>E-mailová adresa</strong> — na prihlásenie a správu účtu.</li>
+      <li><strong>Identifikátor používateľa</strong> (ID účtu) — technický identifikátor pridelený poskytovateľom overenia.</li>
+      <li><strong>Záloha uloženého pokroku</strong> (pes, výcvik, denný pokrok, zakúpené funkcie) — uložená v cloude, aby sa dala obnoviť na inom zariadení.</li>
+    </ul>
+    <p>Vaše heslo ukladá poskytovateľ overenia výhradne v zabezpečenej (hashovanej) podobe; my k nemu nemáme prístup.</p>
+
+    <h2>Účely a právny základ (GDPR čl. 6)</h2>
+    <ul>
+      <li><strong>Účet a cloudová záloha</strong> — plnenie zmluvy (čl. 6 ods. 1 písm. b).</li>
+      <li><strong>Meranie prechádzky (GPS)</strong> — funkcia, ktorú si výslovne vyžiadate (čl. 6 ods. 1 písm. b); spracúvanie je lokálne.</li>
+      <li><strong>Produktová analytika a diagnostika chýb</strong> — náš oprávnený záujem (čl. 6 ods. 1 písm. f); môžete ich kedykoľvek vypnúť v Nastaveniach aplikácie (právo namietať).</li>
+    </ul>
+
+    <h2>Sprostredkovatelia a umiestnenie údajov</h2>
+    <p>Pre účet a cloudovú zálohu využívame <strong>Google (Firebase — Authentication a Firestore)</strong> ako sprostredkovateľa, na základe <em>Firebase Data Processing and Security Terms</em>. Záloha (Firestore) je uložená v <strong>dátových centrách v EÚ (región europe / eur3)</strong>. Overovacia služba (Authentication) môže časť spracúvania vykonávať mimo EÚ; takéto prenosy pokrývajú <strong>štandardné zmluvné doložky (SCC)</strong> schválené Európskou komisiou.</p>
+    <p>Ďalej využívame sprostredkovateľov <strong>Sentry</strong> (diagnostika chýb aplikácie) a <strong>RevenueCat</strong> (správa predplatného). Nákupy Premium spracúvajú <strong>Apple</strong> a <strong>Google</strong> ako samostatní prevádzkovatelia podľa vlastných podmienok. Pri prenose osobných údajov mimo EÚ/EHP sa opierame o rozhodnutie o primeranosti <strong>EU–US Data Privacy Framework</strong> (u certifikovaných príjemcov), inak o <strong>štandardné zmluvné doložky (SCC)</strong> s doplnkovými opatreniami (šifrovanie, riadenie prístupov).</p>
+
+    <h2>Zdieľanie údajov</h2>
+    <p>Vaše údaje <strong>nepredávame ani nezdieľame</strong> s tretími stranami na ich vlastné účely. Google vystupuje ako náš sprostredkovateľ (na základe našich pokynov), nie ako samostatný príjemca. Útulky uvedené v aplikácii sú len odkazy na verejné webové stránky.</p>
+
+    <h2>Produktová analytika a diagnostika chýb (aplikácia)</h2>
+    <h3>Produktová analytika</h3>
+    <p>Na zlepšovanie aplikácie spracúvame anonymizované údaje o jej používaní:</p>
+    <ul>
+      <li><strong>Čo:</strong> pseudonymný identifikátor inštalácie (nenaviazaný na osobu), technický kontext zariadenia (model, verzia OS, jazyk) a udalosti používania (navštívené obrazovky, dokončené prechádzky) — bez osobných údajov.</li>
+      <li><strong>Kam:</strong> Google Firebase / Cloud Firestore (sprostredkovateľ Google Ireland Ltd.), uložené v EÚ.</li>
+      <li><strong>Právny základ:</strong> náš oprávnený záujem (čl. 6 ods. 1 písm. f GDPR) na zlepšovaní a meraní používania aplikácie. Zber prebieha výhradne ako first-party meranie návštevnosti — údaje nezdieľame s tretími stranami, neprepájame ich s vaším účtom ani nepoužívame na reklamu či sledovanie naprieč aplikáciami.</li>
+      <li><strong>Vaša voľba:</strong> zber môžete kedykoľvek vypnúť v Nastaveniach aplikácie (právo namietať, čl. 21 GDPR). Analytiku nezbierame od používateľov mladších ako 16 rokov.</li>
+      <li>Prebieha nezávisle od toho, či si vytvoríte účet.</li>
+    </ul>
+    <h3>Diagnostika chýb (Sentry)</h3>
+    <p>Pre stabilitu používame <strong>Sentry</strong> (hlásenie pádov + výkon) — technická diagnostika bez osobných údajov, na základe oprávneného záujmu na funkčnosti aplikácie.</p>
+
+    <h2>Cookies a analytika webu (trypup.life)</h2>
+    <p>Táto webová stránka používa <strong>Google Analytics 4</strong> (Google Ireland Ltd.) na anonymné meranie návštevnosti, aby sme mohli stránku vylepšovať. Analytické cookies a meranie sa spustia <strong>až po vašom súhlase</strong> v cookie lište (právny základ: súhlas, čl. 6 ods. 1 písm. a). Kým súhlas neudelíte, Google Analytics beží v režime <strong>bez cookies</strong> (Google Consent Mode). Google vystupuje ako sprostredkovateľ a časť spracúvania môže vykonávať <strong>mimo EÚ</strong>, čo je kryté <strong>štandardnými zmluvnými doložkami (SCC)</strong>. Súhlas môžete <strong>kedykoľvek zmeniť alebo odvolať</strong> cez odkaz <strong>„Cookies"</strong> v päte stránky. Táto webová analytika (cookies + súhlas) je oddelená od produktovej analytiky v aplikácii, popísanej v sekcii vyššie.</p>
+
+    <p>Konkrétne cookies a úložiská, ktoré táto webová stránka používa:</p>
+    <table>
+      <thead><tr><th>Názov</th><th>Účel</th><th>Trvanie</th></tr></thead>
+      <tbody>
+        <tr><td><code>_ga</code></td><td>Google Analytics — rozlišuje návštevníkov na účely anonymnej štatistiky. Nastaví sa <strong>až po vašom súhlase</strong>.</td><td>2 roky</td></tr>
+        <tr><td><code>_ga_8MWP5X5RPR</code></td><td>Google Analytics — udržiava stav relácie. Nastaví sa <strong>až po vašom súhlase</strong>.</td><td>2 roky</td></tr>
+        <tr><td><code>trypup-consent</code><br><small>(localStorage)</small></td><td>Zapamätá si vašu voľbu súhlasu s analytikou. Nevyhnutné pre fungovanie cookie lišty; bez súhlasu sa neukladá nič iné.</td><td>Do vymazania údajov prehliadača</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Doba uchovávania</h2>
+    <p>Lokálne údaje zostávajú vo vašom zariadení, kým aplikáciu neodinštalujete alebo neresetujete. Cloudovú zálohu (účet) uchovávame počas trvania vášho účtu; po <strong>vymazaní účtu</strong> ju odstránime. <strong>Produktovú analytiku</strong> uchovávame najviac <strong>14 mesiacov</strong> a <strong>diagnostiku chýb (Sentry)</strong> najviac <strong>90 dní</strong>, potom sa vymažú. E-maily podpory uchovávame počas ich vybavovania a primeranú dobu potom.</p>
+
+    <h2>Vaše práva (GDPR)</h2>
+    <p>Máte právo na prístup, opravu, vymazanie, obmedzenie spracúvania, prenosnosť a namietanie. <strong>Účet aj cloudovú zálohu môžete vymazať priamo v aplikácii</strong> (Účet → Vymazať účet). Ak ste aplikáciu odinštalovali, napíšte na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a vaše údaje vymažeme. Produktovú analytiku môžete kedykoľvek vypnúť v Nastaveniach aplikácie (právo namietať).</p>
+    <p>Máte tiež právo podať sťažnosť na dozorný orgán — v Českej republike na <strong>Úrad na ochranu osobných údajov (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
+
+    <h2>Deti a maloletí</h2>
+    <p>Aplikácia sa pri prvom spustení pýta na vekovú kategóriu používateľa („16 a viac" / „menej ako 16"). <strong>Odpoveď zostáva iba vo vašom zariadení a nikam sa neodosiela.</strong></p>
+    <p>U používateľov <strong>mladších ako 16 rokov</strong> je zber analytických údajov <strong>úplne vypnutý</strong> — bez ohľadu na nastavenie v aplikácii — a <strong>nezobrazujú sa možnosti nákupu</strong>. Hranica 16 rokov zodpovedá najprísnejšiemu veku súhlasu podľa GDPR (čl. 8). Vedome nezhromažďujeme žiadne osobné údaje detí. Ak sa domnievate, že nám dieťa mladšie ako 16 rokov poskytlo osobné údaje, kontaktujte nás na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a údaje odstránime.</p>
+
+    <h2>Zmeny týchto zásad</h2>
+    <p>O podstatných zmenách vás budeme informovať v aplikácii aj tu. Keď doplníme prihlásenie cez sociálne siete (Apple/Google), uvedieme príslušných poskytovateľov ako sprostredkovateľov.</p>
+  </section>
+</Base>

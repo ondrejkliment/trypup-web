@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+import OperatorBlock from '../../components/OperatorBlock.astro';
+---
+<Base title="Privacybeleid — Trypup" description="Hoe Trypup met gegevens omgaat. De app werkt zonder account; met een optioneel account maakt u een back-up van uw voortgang in de cloud (Firebase, EU)." lang="nl" alt="/en/privacy/">
+  <section class="section wrap prose">
+    <h1>Privacybeleid</h1>
+    <p class="meta">Bijgewerkt op 15 juli 2026 · Verwerkingsverantwoordelijke: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+
+    <p><strong>Trypup werkt volledig zonder account — in dat geval blijven alle gegevens uitsluitend op uw apparaat.</strong> Optioneel kunt u een account aanmaken, waarmee u een <strong>back-up van uw opgeslagen voortgang in de cloud</strong> maakt en gegevens tussen apparaten synchroniseert. Wij verwerken alleen de gegevens die nodig zijn om de dienst te leveren.</p>
+
+    <OperatorBlock lang="nl" heading="Verwerkingsverantwoordelijke" />
+
+    <h2>Welke gegevens wij verwerken</h2>
+    <h3>Altijd (lokaal op uw apparaat)</h3>
+    <ul>
+      <li><strong>Locatie (gps)</strong> — meting van de wandelroute en afstand + fraudepreventie. Wordt tijdelijk verwerkt en verlaat het apparaat niet. Optioneel.</li>
+      <li><strong>Bewegingssensoren</strong> — verifiëren dat de wandeling echt is. Lokaal, wordt niet opgeslagen.</li>
+      <li><strong>Meldingen</strong> — lokaal geplande verzorgingsherinneringen. Optioneel.</li>
+      <li><strong>Foto's / camera</strong> — optionele foto van uw hond. Alleen lokaal.</li>
+      <li><strong>Apple Health / Google Fit</strong> — optioneel wegschrijven van een voltooide wandeling. Wij schrijven alleen weg, wij lezen niet.</li>
+      <li><strong>Spelstatus</strong> (naam hond, ras, statistieken, voortgang) — lokale opslag.</li>
+    </ul>
+    <h3>Alleen als u een account aanmaakt</h3>
+    <ul>
+      <li><strong>E-mailadres</strong> — voor inloggen en accountbeheer.</li>
+      <li><strong>Gebruikers-ID</strong> (account-ID) — een technische identificatie die wordt toegekend door de authenticatieprovider.</li>
+      <li><strong>Back-up van opgeslagen voortgang</strong> (hond, training, dagelijkse voortgang, aangeschafte functies) — opgeslagen in de cloud, zodat deze op een ander apparaat kan worden hersteld.</li>
+    </ul>
+    <p>Uw wachtwoord wordt door de authenticatieprovider uitsluitend in beveiligde (gehashte) vorm opgeslagen; wij hebben er geen toegang toe.</p>
+
+    <h2>Doeleinden en rechtsgrondslag (art. 6 AVG)</h2>
+    <ul>
+      <li><strong>Account en cloud-back-up</strong> — uitvoering van een overeenkomst (art. 6(1)(b)).</li>
+      <li><strong>Meting van de wandeling (gps)</strong> — een functie die u uitdrukkelijk aanvraagt (art. 6(1)(b)); de verwerking vindt lokaal plaats.</li>
+      <li><strong>Productanalyse en foutdiagnose</strong> — ons gerechtvaardigd belang (art. 6(1)(f)); u kunt dit op elk moment uitschakelen in de instellingen van de app (recht van bezwaar).</li>
+    </ul>
+
+    <h2>Verwerkers en locatie van de gegevens</h2>
+    <p>Voor het account en de cloud-back-up maken wij gebruik van <strong>Google (Firebase — Authentication en Firestore)</strong> als verwerker, op basis van de <em>Firebase Data Processing and Security Terms</em>. De back-up (Firestore) wordt opgeslagen in <strong>EU-datacenters (regio europe / eur3)</strong>. De Authentication-dienst kan een deel van de gegevens buiten de EU verwerken; dergelijke doorgiften zijn gedekt door <strong>modelcontractbepalingen (Standard Contractual Clauses, SCC)</strong> die zijn goedgekeurd door de Europese Commissie.</p>
+    <p>Daarnaast maken wij gebruik van de verwerkers <strong>Sentry</strong> (foutdiagnose van de app) en <strong>RevenueCat</strong> (abonnementsbeheer). Premium-aankopen worden verwerkt door <strong>Apple</strong> en <strong>Google</strong> als zelfstandige verwerkingsverantwoordelijken op basis van hun eigen voorwaarden. Voor doorgiften van persoonsgegevens buiten de EU/EER baseren wij ons op het adequaatheidsbesluit voor het <strong>EU-US Data Privacy Framework</strong> (voor gecertificeerde ontvangers), en anders op <strong>modelcontractbepalingen (SCC)</strong> met aanvullende maatregelen (encryptie, toegangscontroles).</p>
+
+    <h2>Delen van gegevens</h2>
+    <p>Wij verkopen uw gegevens <strong>niet</strong> en delen deze niet met derden voor hun eigen doeleinden. Google treedt op als onze verwerker (in onze opdracht), niet als zelfstandige ontvanger. De asielen die in de app worden vermeld, zijn slechts links naar openbare websites.</p>
+
+    <h2>Productanalyse en foutdiagnose (app)</h2>
+    <h3>Productanalyse</h3>
+    <p>Om de app te verbeteren, verwerken wij geanonimiseerde gegevens over het gebruik ervan:</p>
+    <ul>
+      <li><strong>Wat:</strong> een pseudonieme installatie-ID (niet gekoppeld aan een persoon), technische apparaatcontext (model, OS-versie, taal) en gebruiksgebeurtenissen (bezochte schermen, voltooide wandelingen) — geen persoonsgegevens.</li>
+      <li><strong>Waar:</strong> Google Firebase / Cloud Firestore (verwerker Google Ireland Ltd.), opgeslagen in de EU.</li>
+      <li><strong>Rechtsgrondslag:</strong> ons gerechtvaardigd belang (art. 6(1)(f) AVG) bij het verbeteren en meten van het app-gebruik. Het gaat uitsluitend om first-party verkeersmeting — wij delen de gegevens niet met derden, koppelen ze niet aan uw account en gebruiken ze niet voor advertenties of cross-app tracking.</li>
+      <li><strong>Uw keuze:</strong> u kunt het verzamelen op elk moment uitschakelen in de instellingen van de app (recht van bezwaar, art. 21 AVG). Wij verzamelen geen analysegegevens van gebruikers jonger dan 16 jaar.</li>
+      <li>Dit gebeurt ongeacht of u een account aanmaakt.</li>
+    </ul>
+    <h3>Foutdiagnose (Sentry)</h3>
+    <p>Voor de stabiliteit gebruiken wij <strong>Sentry</strong> (crashrapportage + prestaties) — technische diagnostiek zonder persoonsgegevens, gebaseerd op ons gerechtvaardigd belang bij de functionaliteit van de app.</p>
+
+    <h2>Cookies en websiteanalyse (trypup.life)</h2>
+    <p>Deze website gebruikt <strong>Google Analytics 4</strong> (Google Ireland Ltd.) om het verkeer anoniem te meten, zodat wij de site kunnen verbeteren. Analytische cookies en metingen starten pas <strong>nadat u toestemming heeft gegeven</strong> in de cookiebalk (rechtsgrondslag: toestemming, art. 6(1)(a)). Totdat u toestemming geeft, werkt Google Analytics in een <strong>cookieloze</strong> modus (Google Consent Mode). Google treedt op als verwerker en kan een deel van de gegevens <strong>buiten de EU</strong> verwerken, gedekt door <strong>modelcontractbepalingen (SCC)</strong>. U kunt uw <strong>toestemming op elk moment wijzigen of intrekken</strong> via de link <strong>"Cookies"</strong> in de footer van de site. Deze websiteanalyse (cookies + toestemming) staat los van de productanalyse van de app die hierboven wordt beschreven.</p>
+
+    <p>De specifieke cookies en opslag die deze website gebruikt:</p>
+    <table>
+      <thead><tr><th>Naam</th><th>Doel</th><th>Duur</th></tr></thead>
+      <tbody>
+        <tr><td><code>_ga</code></td><td>Google Analytics — onderscheidt bezoekers voor anonieme statistieken. Wordt <strong>alleen ingesteld nadat u toestemming heeft gegeven</strong>.</td><td>2 jaar</td></tr>
+        <tr><td><code>_ga_8MWP5X5RPR</code></td><td>Google Analytics — behoudt de sessiestatus. Wordt <strong>alleen ingesteld nadat u toestemming heeft gegeven</strong>.</td><td>2 jaar</td></tr>
+        <tr><td><code>trypup-consent</code><br><small>(localStorage)</small></td><td>Onthoudt uw keuze over toestemming voor analyse. Strikt noodzakelijk voor de toestemmingsbalk; zonder toestemming wordt niets anders opgeslagen.</td><td>Totdat u de browsergegevens wist</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Bewaartermijn</h2>
+    <p>Lokale gegevens blijven op uw apparaat totdat u de app verwijdert of deze reset. Wij bewaren de cloud-back-up (account) voor de duur van uw account; zodra u <strong>uw account verwijdert</strong>, verwijderen wij deze ook. Wij bewaren <strong>productanalyse</strong> maximaal <strong>14 maanden</strong> en <strong>foutdiagnose (Sentry)</strong> maximaal <strong>90 dagen</strong>, waarna deze wordt verwijderd. Support-e-mails worden bewaard voor de duur van de afhandeling en een redelijke periode daarna.</p>
+
+    <h2>Uw rechten (AVG)</h2>
+    <p>U heeft recht op inzage, rectificatie, verwijdering, beperking, overdraagbaarheid en bezwaar. <strong>U kunt uw account en cloud-back-up rechtstreeks in de app verwijderen</strong> (Account → Account verwijderen). Heeft u de app al verwijderd, mail dan naar <a href="mailto:hello@trypup.life">hello@trypup.life</a> en wij verwijderen uw gegevens. U kunt de productanalyse op elk moment uitschakelen in de instellingen van de app (recht van bezwaar).</p>
+    <p>U heeft ook het recht om een klacht in te dienen bij een toezichthoudende autoriteit — in Tsjechië is dat het <strong>Bureau voor de Bescherming van Persoonsgegevens (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
+
+    <h2>Kinderen en minderjarigen</h2>
+    <p>Bij het eerste gebruik vraagt de app naar de leeftijdscategorie van de gebruiker ("16 jaar of ouder" / "jonger dan 16"). <strong>Het antwoord blijft uitsluitend op uw apparaat en wordt nooit ergens naartoe verzonden.</strong></p>
+    <p>Voor gebruikers <strong>jonger dan 16 jaar</strong> is het verzamelen van analysegegevens <strong>volledig uitgeschakeld</strong> — ongeacht de instelling in de app — en worden <strong>geen aankoopopties getoond</strong>. De leeftijdsgrens van 16 jaar komt overeen met de strengste toestemmingsleeftijd onder de AVG (art. 8). Wij verzamelen bewust geen persoonsgegevens van kinderen. Vermoedt u dat een kind jonger dan 16 jaar ons persoonsgegevens heeft verstrekt? Neem dan contact met ons op via <a href="mailto:hello@trypup.life">hello@trypup.life</a> en wij verwijderen deze.</p>
+
+    <h2>Wijzigingen in dit beleid</h2>
+    <p>Wezenlijke wijzigingen kondigen wij aan in de app en op deze pagina. Wanneer wij social sign-in (Apple/Google) toevoegen, vermelden wij deze providers als verwerkers.</p>
+  </section>
+</Base>

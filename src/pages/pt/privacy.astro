@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+import OperatorBlock from '../../components/OperatorBlock.astro';
+---
+<Base title="Política de Privacidade — Trypup" description="Como a Trypup trata os dados. A aplicação funciona sem conta; uma conta opcional permite cópia de segurança na nuvem do seu progresso (Firebase, UE)." lang="pt" alt="/en/privacy/">
+  <section class="section wrap prose">
+    <h1>Política de Privacidade</h1>
+    <p class="meta">Atualização a 15 de julho de 2026 · Responsável pelo tratamento: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+
+    <p><strong>A Trypup funciona integralmente sem conta — nesse caso, todos os dados permanecem apenas no seu dispositivo.</strong> Opcionalmente, pode criar uma conta, que permite a <strong>cópia de segurança na nuvem do progresso guardado</strong> e a sincronização entre dispositivos. Só tratamos os dados necessários para prestar o serviço.</p>
+
+    <OperatorBlock lang="pt" heading="Responsável pelo tratamento" />
+
+    <h2>Que dados tratamos</h2>
+    <h3>Sempre (localmente, no seu dispositivo)</h3>
+    <ul>
+      <li><strong>Localização (GPS)</strong> — medição do percurso e da distância do passeio, e deteção de fraude. Processada de forma efémera, não sai do dispositivo. Opcional.</li>
+      <li><strong>Sensores de movimento</strong> — verificação de que o passeio é real. Local, não é guardado.</li>
+      <li><strong>Notificações</strong> — lembretes de cuidados agendados localmente. Opcional.</li>
+      <li><strong>Fotografias / câmara</strong> — fotografia do cão, opcional. Apenas local.</li>
+      <li><strong>Apple Health / Google Fit</strong> — registo opcional de um passeio concluído. Apenas escrevemos, não lemos.</li>
+      <li><strong>Estado do jogo</strong> (nome do cão, raça, estatísticas, progresso) — armazenamento local.</li>
+    </ul>
+    <h3>Apenas se criar uma conta</h3>
+    <ul>
+      <li><strong>Endereço de email</strong> — para iniciar sessão e gerir a conta.</li>
+      <li><strong>Identificador de utilizador</strong> (ID da conta) — um identificador técnico atribuído pelo fornecedor de autenticação.</li>
+      <li><strong>Cópia de segurança do progresso guardado</strong> (cão, treino, progresso diário, funcionalidades adquiridas) — armazenada na nuvem para poder ser restaurada noutro dispositivo.</li>
+    </ul>
+    <p>A sua palavra-passe é armazenada apenas de forma segura (com hash) pelo fornecedor de autenticação; não temos acesso a ela.</p>
+
+    <h2>Finalidades e base jurídica (art. 6.º do RGPD)</h2>
+    <ul>
+      <li><strong>Conta e cópia de segurança na nuvem</strong> — execução de um contrato (art. 6.º, n.º 1, alínea b)).</li>
+      <li><strong>Medição do passeio (GPS)</strong> — uma funcionalidade que solicita expressamente (art. 6.º, n.º 1, alínea b)); o tratamento é local.</li>
+      <li><strong>Análise do produto e diagnóstico de erros</strong> — o nosso interesse legítimo (art. 6.º, n.º 1, alínea f)); pode desativá-los a qualquer momento nas Definições da aplicação (direito de oposição).</li>
+    </ul>
+
+    <h2>Subcontratantes e localização dos dados</h2>
+    <p>Para a conta e a cópia de segurança na nuvem, utilizamos a <strong>Google (Firebase — Authentication e Firestore)</strong> como subcontratante, ao abrigo dos <em>Firebase Data Processing and Security Terms</em>. A cópia de segurança (Firestore) é armazenada em <strong>centros de dados na UE (região europe / eur3)</strong>. O serviço Authentication pode tratar parte dos dados fora da UE; essas transferências estão cobertas por <strong>Cláusulas Contratuais-Tipo (CCT)</strong> aprovadas pela Comissão Europeia.</p>
+    <p>Também utilizamos os subcontratantes <strong>Sentry</strong> (diagnóstico de erros da aplicação) e <strong>RevenueCat</strong> (gestão de subscrições). As compras Premium são processadas pela <strong>Apple</strong> e pela <strong>Google</strong> como responsáveis independentes, nos termos das respetivas condições. Para transferências de dados pessoais fora da UE/EEE, baseamo-nos na decisão de adequação do <strong>EU–US Data Privacy Framework</strong> (para destinatários certificados) ou, nos restantes casos, em <strong>Cláusulas Contratuais-Tipo (CCT)</strong> com medidas suplementares (encriptação, controlos de acesso).</p>
+
+    <h2>Partilha de dados</h2>
+    <p>Não <strong>vendemos</strong> nem partilhamos os seus dados com terceiros para fins próprios destes. A Google atua como nosso subcontratante (segundo as nossas instruções), e não como destinatário independente. Os abrigos listados na aplicação são apenas ligações a sites públicos.</p>
+
+    <h2>Análise do produto e diagnóstico de erros (aplicação)</h2>
+    <h3>Análise do produto</h3>
+    <p>Para melhorar a aplicação, tratamos dados anonimizados sobre a forma como é utilizada:</p>
+    <ul>
+      <li><strong>O quê:</strong> um identificador de instalação pseudonimizado (não associado a uma pessoa), o contexto técnico do dispositivo (modelo, versão do sistema operativo, idioma) e eventos de utilização (ecrãs visitados, passeios concluídos) — sem dados pessoais.</li>
+      <li><strong>Onde:</strong> Google Firebase / Cloud Firestore (subcontratante Google Ireland Ltd.), armazenados na UE.</li>
+      <li><strong>Base jurídica:</strong> o nosso interesse legítimo (art. 6.º, n.º 1, alínea f), do RGPD) em melhorar e medir a utilização da aplicação. A recolha é exclusivamente medição de tráfego em primeira parte — não partilhamos os dados com terceiros, não os associamos à sua conta e não os utilizamos para publicidade ou rastreio entre aplicações.</li>
+      <li><strong>A sua escolha:</strong> pode desativar a recolha a qualquer momento nas Definições da aplicação (direito de oposição, art. 21.º do RGPD). Não recolhemos dados analíticos de utilizadores com menos de 16 anos.</li>
+      <li>Isto acontece independentemente de criar ou não uma conta.</li>
+    </ul>
+    <h3>Diagnóstico de erros (Sentry)</h3>
+    <p>Para garantir a estabilidade, utilizamos o <strong>Sentry</strong> (relatórios de falhas + desempenho) — diagnóstico técnico sem dados pessoais, com base no nosso interesse legítimo no funcionamento da aplicação.</p>
+
+    <h2>Cookies e análise do site (trypup.life)</h2>
+    <p>Este site utiliza o <strong>Google Analytics 4</strong> (Google Ireland Ltd.) para medir o tráfego de forma anónima, para podermos melhorar o site. Os cookies analíticos e a medição só começam <strong>depois de dar o seu consentimento</strong> na barra de cookies (base jurídica: consentimento, art. 6.º, n.º 1, alínea a)). Até dar o consentimento, o Google Analytics funciona em modo <strong>sem cookies</strong> (Google Consent Mode). A Google atua como subcontratante e pode tratar parte dos dados <strong>fora da UE</strong>, ao abrigo de <strong>Cláusulas Contratuais-Tipo (CCT)</strong>. Pode <strong>alterar ou retirar o consentimento a qualquer momento</strong> através da ligação <strong>"Cookies"</strong> no rodapé do site. Esta análise do site (cookies + consentimento) é distinta da análise do produto da aplicação, descrita na secção acima.</p>
+
+    <p>Os cookies e o armazenamento específicos utilizados por este site:</p>
+    <table>
+      <thead><tr><th>Nome</th><th>Finalidade</th><th>Duração</th></tr></thead>
+      <tbody>
+        <tr><td><code>_ga</code></td><td>Google Analytics — distingue visitantes para fins de estatísticas anónimas. Definido <strong>apenas após o consentimento</strong>.</td><td>2 anos</td></tr>
+        <tr><td><code>_ga_8MWP5X5RPR</code></td><td>Google Analytics — mantém o estado da sessão. Definido <strong>apenas após o consentimento</strong>.</td><td>2 anos</td></tr>
+        <tr><td><code>trypup-consent</code><br><small>(localStorage)</small></td><td>Memoriza a sua escolha de consentimento para a análise. Estritamente necessário para a barra de consentimento; nada mais é armazenado sem consentimento.</td><td>Até limpar os dados do navegador</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Conservação dos dados</h2>
+    <p>Os dados locais permanecem no seu dispositivo até eliminar a aplicação ou a repor. Mantemos a cópia de segurança na nuvem (conta) durante o tempo de vida da sua conta; assim que <strong>eliminar a conta</strong>, removemo-la. Mantemos a <strong>análise do produto</strong> durante, no máximo, <strong>14 meses</strong>, e o <strong>diagnóstico de erros (Sentry)</strong> durante, no máximo, <strong>90 dias</strong>, após os quais são eliminados. Os emails de apoio são conservados durante o tratamento e por um período razoável depois disso.</p>
+
+    <h2>Os seus direitos (RGPD)</h2>
+    <p>Tem direito de acesso, retificação, apagamento, limitação do tratamento, portabilidade e oposição. <strong>Pode eliminar a sua conta e a cópia de segurança na nuvem diretamente na aplicação</strong> (Conta → Eliminar conta). Se já desinstalou a aplicação, envie um email para <a href="mailto:hello@trypup.life">hello@trypup.life</a> e eliminaremos os seus dados. Pode desativar a análise do produto a qualquer momento nas Definições da aplicação (direito de oposição).</p>
+    <p>Tem também o direito de apresentar reclamação junto de uma autoridade de controlo — na República Checa, o <strong>Gabinete de Proteção de Dados Pessoais (ÚOOÚ)</strong>, <a href="https://uoou.gov.cz" target="_blank" rel="noopener">uoou.gov.cz</a>.</p>
+
+    <h2>Crianças e menores</h2>
+    <p>No primeiro arranque, a aplicação pergunta a categoria etária do utilizador ("16 anos ou mais" / "menos de 16 anos"). <strong>A resposta fica apenas no seu dispositivo e nunca é enviada para lado nenhum.</strong></p>
+    <p>Para utilizadores <strong>com menos de 16 anos</strong>, a recolha de dados analíticos é <strong>completamente desativada</strong> — independentemente da definição na aplicação — e as <strong>opções de compra não são apresentadas</strong>. O limite de 16 anos corresponde à idade de consentimento mais rigorosa prevista no RGPD (art. 8.º). Não recolhemos intencionalmente quaisquer dados pessoais de crianças. Se acredita que uma criança com menos de 16 anos nos forneceu dados pessoais, contacte-nos através de <a href="mailto:hello@trypup.life">hello@trypup.life</a> e eliminá-los-emos.</p>
+
+    <h2>Alterações a esta política</h2>
+    <p>Anunciaremos alterações materiais na aplicação e aqui. Quando adicionarmos início de sessão social (Apple/Google), incluiremos esses fornecedores como subcontratantes.</p>
+  </section>
+</Base>
