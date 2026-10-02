@@ -4,5 +4,42 @@
       "source": "/api/stats.json",
       "destination": "https://europe-west1-trypupapp.cloudfunctions.net/getStats"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/ct",
+      "destination": "/tv",
+      "permanent": false
+    },
+    {
+      "source": "/studio6",
+      "destination": "/tv",
+      "permanent": false
+    },
+    {
+      "source": "/televize",
+      "destination": "/tv",
+      "permanent": false
+    },
+    {
+      "source": "/app",
+      "destination": "/tv",
+      "permanent": false
+    },
+    {
+      "source": "/privacy",
+      "destination": "/zasady-ochrany/",
+      "permanent": true
+    },
+    {
+      "source": "/terms",
+      "destination": "/podminky/",
+      "permanent": true
+    },
+    {
+      "source": "/support",
+      "destination": "/podpora/",
+      "permanent": true
+    }
   ]
 }

@@ -251,6 +251,9 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <link rel="icon" type="image/svg+xml" href="/favicon-app.svg?v=4" />
     <link rel="icon" type="image/png" href="/favicon-192.png?v=4" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
+    <!-- Smart App Banner: Safari na iPhonu sám nabídne „Zobrazit / Otevřít" v App Storu
+         (nativní lišta nad stránkou, žádný vlastní kód). Jinde se tag ignoruje. -->
+    <meta name="apple-itunes-app" content="app-id=6775990135" />
     <!-- Google Analytics 4 (gtag.js) — Web stream G-8MWP5X5RPR (veškerý provoz trypup.life).
          GDPR: Consent Mode v2 — analytics_storage je 'denied' (cookieless), dokud
          uživatel nedá souhlas v cookie liště (níže). Souhlas se pamatuje v
@@ -366,6 +369,35 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
         if (a) a.addEventListener('click', function () { decide('granted'); });
         if (r) r.addEventListener('click', function () { decide('denied'); });
         if (s) s.addEventListener('click', function (e) { e.preventDefault(); if (bar) bar.removeAttribute('hidden'); });
+      })();
+    </script>
+
+    <!-- Tlačítko „Stáhnout" podle telefonu (příprava na ČT, 2. 10. 2026). Na mobilu vede
+         hlavní tlačítko v hero a odkaz v horní liště ROVNOU do správného obchodu — dřív
+         jen sjelo na konec stránky, kde si člověk musel vybrat odznak (dva kroky navíc).
+         Na počítači a bez JS zůstává kotva na sekci se oběma obchody. iPhone dostane jen
+         App Store (Apple 2.3.10 — viz komentář u `dlAnchor` nahoře).
+         `data-os` na <html> používá i stránka /tv. `store_click` = kolik lidí z webu
+         opravdu odešlo do obchodu (GA4, v Consent Mode bez cookies). -->
+    <script is:inline define:vars={{ playUrl, appStoreUrl }}>
+      (function () {
+        var ua = navigator.userAgent || '';
+        var os = /iPhone|iPad|iPod/.test(ua) ? 'ios' : (/Android/.test(ua) ? 'android' : '');
+        if (os) document.documentElement.setAttribute('data-os', os);
+        var store = os === 'ios' ? appStoreUrl : (os === 'android' ? playUrl : null);
+        if (store) {
+          document.querySelectorAll('.hero .cta-row .btn-primary, .announce-play').forEach(function (a) {
+            a.setAttribute('href', store);
+          });
+        }
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest ? e.target.closest('a[href*="apps.apple.com"], a[href*="play.google.com"]') : null;
+          if (!a || typeof gtag !== 'function') return;
+          gtag('event', 'store_click', {
+            store: a.href.indexOf('apple.com') > -1 ? 'ios' : 'android',
+            page: location.pathname,
+          });
+        });
       })();
     </script>
 

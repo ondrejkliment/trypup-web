@@ -1,0 +1,106 @@
+---
+/**
+ * /tv — vstupní stránka pro lidi, kteří o Trypupu slyšeli v televizi (ČT Studio 6, říjen 2026).
+ *
+ * PROČ zvlášť: divák má telefon v ruce a jednu myšlenku — „kde to stáhnu". Homepage ho
+ * napřed provádí celým příběhem; tady je tlačítko do obchodu první věc na obrazovce.
+ * - Na mobilu se ukáže JEDNO velké tlačítko do správného obchodu (`data-os` na <html>
+ *   nastavuje skript v Base.astro). Druhý obchod zůstává jako malý odkaz pod ním.
+ * - Na počítači QR kód (vede zpátky na /tv → telefon si vybere obchod sám) + oba odznaky.
+ * - Bez JS: oba odznaky, nic se neschová.
+ *
+ * MĚŘENÍ: odkazy nesou kampaň `tv` (Play: referrer UTM → Play Console; App Store: `ct`,
+ * ⚠️ počítá se až s `pt` = provider token z App Store Connect → Analytics → Campaign link).
+ * K tomu `store_click` z Base.astro (stránka /tv/).
+ *
+ * TEXTY jdou měnit bez nasazení v /admin/content (skupina „Stránka /tv") — v den vysílání
+ * např. štítek „Viděli jste nás ve Studiu 6?". Do té doby záměrně NEtvrdí nic o televizi
+ * (stránka je živá už před vysíláním). Logo ČT bez svolení nepoužívat.
+ * Krátké adresy /ct, /studio6, /televize, /app → sem (vercel.json).
+ */
+import Base from '../layouts/Base.astro';
+
+const appStoreTv = 'https://apps.apple.com/cz/app/id6775990135?ct=tv';
+const playTv = 'https://play.google.com/store/apps/details?id=app.trypup.mobile&referrer=utm_source%3Dtv%26utm_medium%3Dtelevize%26utm_campaign%3Dstudio6';
+---
+<Base
+  title="Trypup — pes na zkoušku · stáhnout aplikaci"
+  description="Trypup je pes na zkoušku: aplikace, ve které se o virtuálního psa staráte jako o skutečného. Zdarma pro iPhone i Android."
+>
+  <section class="hero wrap tv-hero">
+    <span class="badge" data-cms="tv.cs.badge">🐾 Zdarma pro iPhone i Android</span>
+    <h1 data-cms="tv.cs.title">Vyzkoušejte si psa nanečisto</h1>
+    <p class="lead" data-cms="tv.cs.lead">V aplikaci Trypup se o virtuálního psa staráte jako o skutečného — procházky, krmení, výcvik i náklady. Zjistíte, co pes obnáší, dřív, než si pořídíte toho živého.</p>
+
+    <div class="tv-get">
+      <a class="btn btn-primary tv-big tv-ios" href={appStoreTv}>Stáhnout do iPhonu</a>
+      <a class="btn btn-primary tv-big tv-android" href={playTv}>Stáhnout do Androidu</a>
+
+      <div class="store-btns tv-badges">
+        <a class="store-badge as" href={appStoreTv} target="_blank" rel="noopener">
+          <img src="/badges/app-store-cs.svg" alt="Stáhnout v App Store" width="120" height="40" />
+        </a>
+        <a class="store-badge gp" href={playTv} target="_blank" rel="noopener">
+          <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />
+        </a>
+      </div>
+
+      <p class="tv-other tv-ios">Máte Android? <a href={playTv}>Stáhnout z Google Play</a></p>
+      <p class="tv-other tv-android">Máte iPhone? <a href={appStoreTv}>Stáhnout z App Storu</a></p>
+    </div>
+
+    <p class="tv-note" data-cms="tv.cs.note">Základ je zdarma — čtyři plemena včetně voříška z útulku.</p>
+
+    <div class="tv-qr">
+      <img src="/qr-tv.svg" alt="QR kód — trypup.life/tv" width="150" height="150" />
+      <p><strong>Sedíte u počítače?</strong><br />Namiřte na kód fotoaparát telefonu a stažení se otevře samo.</p>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Jak to funguje</h2>
+    <p class="section-sub">Tři kroky, jako byste se starali doopravdy.</p>
+    <div class="steps" style="max-width:680px;margin:0 auto">
+      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step1title">Vyberte plemeno a pojmenujte psa.</strong> <span data-cms="home.cs.how.step1text">Dotazník vám doporučí, co k vám sedí.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step2title">Starejte se každý den.</strong> <span data-cms="home.cs.how.step2text">Procházky, krmení, výcvik, veterina. Nic se nedá odbýt.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step3title">Zjistěte pravdu o sobě.</strong> <span data-cms="home.cs.how.step3text">Zvládnete rutinu i ve dnech, kdy se vám nechce? Pokud psa zanedbáte, odejde do útulku — bez následků pro živé zvíře.</span></div></div>
+    </div>
+    <div class="cta-row"><a class="btn btn-ghost" href="/">Více o aplikaci</a></div>
+  </section>
+
+  <section class="section wrap center tv-foot">
+    <p><strong>Hledáte nás v obchodě?</strong> Píše se to <strong>Trypup</strong> — s ypsilonem: T‑R‑Y‑P‑U‑P.</p>
+    <p>Jste z útulku nebo z médií? Napište nám na <a href="mailto:support@trypup.life">support@trypup.life</a>.</p>
+  </section>
+</Base>
+
+<!-- is:global záměrně: pravidla visí na `html[data-os]`, které nastavuje skript v Base.astro
+     (mimo tuhle komponentu). Všechno má předponu `tv-`, takže se s ničím nepotká. -->
+<style is:global>
+  .tv-hero { padding-top: 56px; }
+  .tv-get { margin-top: 30px; }
+  .tv-big { display: none; font-size: 19px; padding: 18px 34px; box-shadow: 0 8px 22px rgba(242,120,75,.28); }
+  .tv-other { display: none; margin-top: 16px; font-size: 15px; color: var(--muted); }
+  .tv-note { margin-top: 18px; color: var(--muted); font-size: 15px; }
+  .tv-qr { display: flex; gap: 20px; align-items: center; justify-content: center; text-align: left; margin: 34px auto 0; max-width: 460px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; }
+  .tv-qr img { flex: 0 0 auto; width: 150px; height: 150px; border-radius: 8px; }
+  .tv-qr p { margin: 0; color: var(--muted); font-size: 15px; }
+  .tv-qr strong { color: var(--ink); }
+  .tv-foot p { color: var(--muted); max-width: 620px; margin: 0 auto 10px; }
+  .tv-foot strong { color: var(--ink); }
+
+  /* Telefon: jedno velké tlačítko do „jeho" obchodu, druhý obchod jen jako odkaz, QR pryč. */
+  html[data-os="ios"] .tv-big.tv-ios,
+  html[data-os="android"] .tv-big.tv-android { display: inline-block; }
+  html[data-os="ios"] .tv-other.tv-ios,
+  html[data-os="android"] .tv-other.tv-android { display: block; }
+  html[data-os] .tv-badges,
+  html[data-os] .tv-qr { display: none; }
+  @media (max-width: 600px) {
+    .tv-hero { padding-top: 36px; }
+    .tv-qr { display: none; }
+    html[data-os] .tv-big { display: none; width: 100%; text-align: center; }
+    html[data-os="ios"] .tv-big.tv-ios,
+    html[data-os="android"] .tv-big.tv-android { display: block; }
+  }
+</style>

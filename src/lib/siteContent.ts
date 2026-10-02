@@ -110,7 +110,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.cs.whyTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Proč vznikl"', default: 'Proč Trypup vznikl' },
   { key: 'about.cs.whyText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Proč vznikl"', default: 'Polovina psů v útulcích tam skončí proto, že majitelé nepočítali s tím, co péče opravdu obnáší — čas, peníze, výdrž. Trypup tě tou rutinou provede nanečisto, bez následků pro živé zvíře.' },
   { key: 'about.cs.breedsTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Plemena"', default: 'Plemena' },
-  { key: 'about.cs.breedsText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Plemena"', default: 'Tři základní plemena zdarma (jedno od každého vzrůstu — malé, střední, velké) a další jako Premium (Border kolie, Sibiřský husky, Německý ovčák, Zlatý retrívr, Bernský salašnický pes a další).' },
+  { key: 'about.cs.breedsText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Plemena"', default: 'Čtyři plemena zdarma — jedno od každého vzrůstu (malé, střední, velké) a navíc voříšek z útulku — a další jako Premium (Border kolie, Sibiřský husky, Německý ovčák, Zlatý retrívr, Bernský salašnický pes a další).' },
   { key: 'about.cs.commitTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Náš závazek"', default: 'Náš závazek' },
   { key: 'about.cs.commitText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Náš závazek"', default: 'Část výnosů věnujeme partnerským útulkům. Trypup není hra na výhru — je to upřímná zkouška, jestli na psa máš.' },
   { key: 'about.cs.cta', group: 'O aplikaci CZ', type: 'text', label: 'Tlačítko dole', default: 'Vyzkoušet Trypup' },
@@ -122,10 +122,17 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.en.whyTitle', group: 'O aplikaci EN', type: 'text', label: '„Why" title', default: 'Why Trypup exists' },
   { key: 'about.en.whyText', group: 'O aplikaci EN', type: 'textarea', label: '„Why" text', default: 'Half of all shelter dogs end up there because their owners didn\'t realize what care really takes — time, money, stamina. Trypup walks you through that routine as a dry run, with no consequences for a living animal.' },
   { key: 'about.en.breedsTitle', group: 'O aplikaci EN', type: 'text', label: '„Breeds" title', default: 'Breeds' },
-  { key: 'about.en.breedsText', group: 'O aplikaci EN', type: 'textarea', label: '„Breeds" text', default: 'Three starter breeds free (one of each size — small, medium, large) and more as Premium (Border Collie, Siberian Husky, German Shepherd, Golden Retriever, Bernese Mountain Dog and others).' },
+  { key: 'about.en.breedsText', group: 'O aplikaci EN', type: 'textarea', label: '„Breeds" text', default: 'Four breeds free — one of each size (small, medium, large) plus a shelter mutt — and more as Premium (Border Collie, Siberian Husky, German Shepherd, Golden Retriever, Bernese Mountain Dog and others).' },
   { key: 'about.en.commitTitle', group: 'O aplikaci EN', type: 'text', label: '„Commitment" title', default: 'Our commitment' },
   { key: 'about.en.commitText', group: 'O aplikaci EN', type: 'textarea', label: '„Commitment" text', default: 'We donate a share of revenue to partner shelters. Trypup isn\'t a game you win — it\'s an honest test of whether you\'re ready for a dog.' },
   { key: 'about.en.cta', group: 'O aplikaci EN', type: 'text', label: 'Bottom button', default: 'Try Trypup' },
+
+  // ─────────────────────────── /tv (vstupní stránka z televize) ───────────────────────────
+  // V den vysílání stačí přepsat štítek / nadpis tady (např. „Viděli jste nás ve Studiu 6?") — bez nasazení.
+  { key: 'tv.cs.badge', group: 'Stránka /tv', type: 'text', label: 'Štítek nad nadpisem', default: '🐾 Zdarma pro iPhone i Android' },
+  { key: 'tv.cs.title', group: 'Stránka /tv', type: 'text', label: 'Hlavní nadpis', default: 'Vyzkoušejte si psa nanečisto' },
+  { key: 'tv.cs.lead', group: 'Stránka /tv', type: 'textarea', label: 'Podnadpis (lead)', default: 'V aplikaci Trypup se o virtuálního psa staráte jako o skutečného — procházky, krmení, výcvik i náklady. Zjistíte, co pes obnáší, dřív, než si pořídíte toho živého.' },
+  { key: 'tv.cs.note', group: 'Stránka /tv', type: 'text', label: 'Řádek pod tlačítky', default: 'Základ je zdarma — čtyři plemena včetně voříška z útulku.' },
 
   // ─────────────────────────── Společné (lišta) ───────────────────────────
   { key: 'common.cs.announce', group: 'Společné · Oznamovací lišta', type: 'text', label: 'Lišta nahoře (CZ) — text před odkazem', default: '🚧 Trypup je ve vývoji — spustíme už brzy. Sleduj ' },
