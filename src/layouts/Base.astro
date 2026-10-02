@@ -242,14 +242,15 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#FDF4EF" />
-    <!-- Favicon = ikona appky z obchodů (švestkové pozadí s přechodem), 2. 10. 2026.
-         Zdroj: pawprint-mobile/assets/icon.png. Dřívější plochá favicon.svg zůstává
-         v public/ jako brand asset, ale jako ikona se už neodkazuje (prohlížeč by
-         SVG upřednostnil). ?v=3 obchází agresivní cache favicon v prohlížečích. -->
-    <link rel="icon" href="/favicon.ico?v=3" sizes="48x48" />
-    <link rel="icon" type="image/png" href="/favicon-32.png?v=3" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/favicon-192.png?v=3" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+    <!-- Favicon = ikona appky z obchodů (švestka s přechodem), 2. 10. 2026.
+         Zaoblené rohy s průhledným okolím JSOU záměr: Safari 26 (macOS Tahoe) vsadí
+         neprůhledný čtverec do vlastní bílé destičky („ořez"). SVG (Safari 26+, Chrome,
+         Firefox) je vektor téže ikony; .ico/.png pro starší prohlížeče. apple-touch-icon
+         zůstává neprůhledný čtverec (iOS si ho zaoblí sám). Zdroj: pawprint-mobile/assets/icon.png. -->
+    <link rel="icon" href="/favicon.ico?v=4" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon-app.svg?v=4" />
+    <link rel="icon" type="image/png" href="/favicon-192.png?v=4" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
     <!-- Google Analytics 4 (gtag.js) — Web stream G-8MWP5X5RPR (veškerý provoz trypup.life).
          GDPR: Consent Mode v2 — analytics_storage je 'denied' (cookieless), dokud
          uživatel nedá souhlas v cookie liště (níže). Souhlas se pamatuje v
