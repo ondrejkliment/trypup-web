@@ -104,6 +104,12 @@
         <div id="detail"></div>
         <div id="results" class="panel hidden"></div>
         <div class="panel">
+          <details open>
+            <summary>Tvrzení mimo články (web, onboarding, mise)</summary>
+            <div id="other" style="margin-top:10px"></div>
+          </details>
+        </div>
+        <div class="panel">
           <details>
             <summary>Co audit z článků odstranil a proč</summary>
             <ul id="removed" class="removed"></ul>
@@ -147,7 +153,7 @@
         if (!ARTICLES.length) { $('state').innerHTML = '<span class="err">Knihovna je prázdná — spusť v repu appky <code>node scripts/publish-article-library.js</code>.</span>'; return; }
         const when = META?.updatedAt ? new Date(META.updatedAt).toLocaleString('cs-CZ') : '?';
         $('state').innerHTML = `<span class="ok">${ARTICLES.length} článků · ${META?.claimCount ?? '?'} tvrzení se zdrojem · ${META?.sourceCount ?? '?'} zdrojů</span> · nahráno ${esc(when)}`;
-        renderSide(); renderRemoved();
+        renderSide(); renderRemoved(); renderOther();
         const wanted = decodeURIComponent(location.hash.slice(1));
         show(ARTICLES.find((a) => a.id === wanted)?.id ?? ARTICLES[0].id);
       } catch (e) { $('state').innerHTML = `<span class="err">Chyba načtení: ${esc(e.message)}</span>`; }
@@ -229,6 +235,13 @@
 
     function renderRemoved() {
       $('removed').innerHTML = (META?.removed || []).map((r) => `<li><strong>${esc(r.text)}</strong><span class="why">${esc(r.why)}</span></li>`).join('') || '<li class="muted">Nic.</li>';
+    }
+
+    // Tvrzení mimo články: stejné karty jako u článků, místo typu opory stav („podloženo“, „zvážit“…).
+    function renderOther() {
+      const items = (META?.other || []).map((o) => ({ claim: o.claim, basis: o.status, note: o.note, sources: o.sources || [], where: o.where }));
+      $('other').innerHTML = items.map((c, i) => claimHtml(c, i, c.where).replace('Článek: ', 'Kde: ')).join('') || '<p class="muted">Nic.</p>';
+      wireCopy($('other'), items);
     }
 
     function filter(q) {
