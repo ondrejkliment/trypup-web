@@ -242,9 +242,14 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#FDF4EF" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
-    <link rel="icon" type="image/png" href="/icon.png" sizes="512x512" />
-    <link rel="apple-touch-icon" href="/icon.png" />
+    <!-- Favicon = ikona appky z obchodů (švestkové pozadí s přechodem), 2. 10. 2026.
+         Zdroj: pawprint-mobile/assets/icon.png. Dřívější plochá favicon.svg zůstává
+         v public/ jako brand asset, ale jako ikona se už neodkazuje (prohlížeč by
+         SVG upřednostnil). ?v=3 obchází agresivní cache favicon v prohlížečích. -->
+    <link rel="icon" href="/favicon.ico?v=3" sizes="48x48" />
+    <link rel="icon" type="image/png" href="/favicon-32.png?v=3" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon-192.png?v=3" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
     <!-- Google Analytics 4 (gtag.js) — Web stream G-8MWP5X5RPR (veškerý provoz trypup.life).
          GDPR: Consent Mode v2 — analytics_storage je 'denied' (cookieless), dokud
          uživatel nedá souhlas v cookie liště (níže). Souhlas se pamatuje v
