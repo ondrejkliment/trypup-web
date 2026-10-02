@@ -242,14 +242,24 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#FDF4EF" />
-    <!-- Favicon = ikona appky z obchodů (švestka s přechodem), 2. 10. 2026.
-         Zaoblené rohy s průhledným okolím JSOU záměr: Safari 26 (macOS Tahoe) vsadí
-         neprůhledný čtverec do vlastní bílé destičky („ořez"). SVG (Safari 26+, Chrome,
-         Firefox) je vektor téže ikony; .ico/.png pro starší prohlížeče. apple-touch-icon
-         zůstává neprůhledný čtverec (iOS si ho zaoblí sám). Zdroj: pawprint-mobile/assets/icon.png. -->
-    <link rel="icon" href="/favicon.ico?v=4" sizes="32x32" />
-    <link rel="icon" type="image/svg+xml" href="/favicon-app.svg?v=4" />
-    <link rel="icon" type="image/png" href="/favicon-192.png?v=4" sizes="192x192" />
+    <!-- Favicon = samotná hlava psa na PRŮHLEDNÉM pozadí (2. 10. 2026, třetí pokus).
+         Proč ne dlaždice appky: Safari 26 v tmavém režimu vyhodnotí tmavou (švestkovou)
+         ikonu jako málo kontrastní a podloží ji vlastní bílou destičkou → bílý rámeček
+         kolem ikony na záložce. Stalo se u čtverce i u zaoblené dlaždice. Hlava bez pozadí
+         je dost světlá, takže destičku nedostane.
+         Dvě barevnosti přes `media`: v tmavém režimu mají uši světlejší odstín, jinak na
+         tmavé liště zmizí. Záložní favicon.ico / favicon-192.png (prohlížeče bez `media`)
+         mají střední odstín. Jen PNG — SVG odkaz Safari bralo přednostně.
+         apple-touch-icon zůstává plná dlaždice appky (iOS si ji zaoblí sám).
+         Zdroje: scripts/favicon-head-{light,dark,fallback}.svg. -->
+    <link rel="icon" href="/favicon.ico?v=5" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/favicon-192.png?v=5" sizes="192x192" />
+    <link rel="icon" type="image/png" href="/favicon-light-32.png?v=5" sizes="32x32" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" href="/favicon-light-96.png?v=5" sizes="96x96" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" href="/favicon-light-192.png?v=5" sizes="192x192" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" href="/favicon-dark-32.png?v=5" sizes="32x32" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" href="/favicon-dark-96.png?v=5" sizes="96x96" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" href="/favicon-dark-192.png?v=5" sizes="192x192" media="(prefers-color-scheme: dark)" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
     <!-- Smart App Banner: Safari na iPhonu sám nabídne „Zobrazit / Otevřít" v App Storu
          (nativní lišta nad stránkou, žádný vlastní kód). Jinde se tag ignoruje. -->
