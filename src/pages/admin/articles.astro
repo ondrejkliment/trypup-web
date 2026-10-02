@@ -1,0 +1,250 @@
+---
+// Trypup — knihovna vzdělávacích článků SE ZDROJI (jen ke čtení).
+// Čte Firestore `article_library` — texty článků z appky a ke každému tvrzení zdroj.
+// Zdroje NEJSOU veřejné: v appce ani na webu se neukazují, slouží jako podklad, kdyby
+// někdo tvrzení zpochybnil. Proto v téhle stránce nejsou zapečené (statický web je
+// veřejný i bez přihlášení) — načtou se z databáze až po přihlášení admina a pravidla
+// Firestore je nikomu jinému nevydají.
+// Obsah se sem dostává skriptem v repu appky: `node scripts/publish-article-library.js`
+// (zdroj pravdy: src/locales/cs.ts + docs/content/article-sources.json).
+// Skryté pro roboty (noindex + robots.txt Disallow /admin).
+---
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Trypup · Články a zdroje</title>
+  <!-- is:global: obsah se vkládá skriptem (innerHTML), na ten se scoped styly Astra nevztahují. -->
+  <style is:global>
+    :root { --apricot:#F2784B; --water:#3E7C8C; --bg:#1d1620; --card:#2a2230; --line:#3c3242; --muted:#a99bb0; --text:#f3ecf2; --ok:#7dd39a; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; line-height:1.55; }
+    a { color:var(--apricot); }
+    .wrap { max-width:1180px; margin:0 auto; padding:24px 18px 80px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    h1 { font-size:20px; margin:0; font-weight:800; }
+    h1 small { color:var(--muted); font-weight:500; font-size:13px; }
+    button { background:var(--apricot); color:#fff; border:0; border-radius:10px; padding:9px 15px; font-weight:700; cursor:pointer; font-family:inherit; }
+    button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+    button.sm { padding:5px 10px; font-size:12px; font-weight:600; }
+    .center { min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center; }
+    .logo { width:64px; height:64px; border-radius:18px; }
+    input { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:9px 11px; font-size:13px; width:100%; font-family:inherit; }
+    input:focus { outline:none; border-color:var(--apricot); }
+    .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .muted { color:var(--muted); font-size:12.5px; }
+    .err { color:#ff8a8a; } .ok { color:var(--ok); }
+    .hidden { display:none !important; }
+
+    .layout { display:grid; grid-template-columns:270px minmax(0,1fr); gap:18px; align-items:start; margin-top:14px; }
+    .side { position:sticky; top:14px; display:flex; flex-direction:column; gap:6px; }
+    .item { display:flex; align-items:center; gap:8px; width:100%; text-align:left; background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:9px 11px; font-weight:600; font-size:13px; }
+    .item .n { margin-left:auto; color:var(--muted); font-weight:500; font-size:12px; white-space:nowrap; }
+    .item.active { border-color:var(--apricot); background:#3a2a2c; }
+    .item .crown { color:#e8c46a; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+    .panel + .panel { margin-top:14px; }
+    .panel h2 { font-size:18px; margin:0 0 4px; }
+    .panel h3 { font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--apricot); margin:0 0 12px; }
+    .lead { color:var(--muted); margin:0 0 6px; }
+    .tags { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 0; }
+    .tag { border:1px solid var(--line); border-radius:20px; padding:1px 9px; font-size:11.5px; color:var(--muted); }
+    .tag.prem { color:#e8c46a; border-color:#6a5320; }
+
+    .claim { border-top:1px solid var(--line); padding:14px 0; }
+    .claim:first-of-type { border-top:0; padding-top:2px; }
+    .claim .text { font-weight:650; font-size:14.5px; }
+    .claim .basis { display:inline-block; margin-left:8px; background:#243a3f; color:#8fd0df; border-radius:20px; padding:1px 9px; font-size:11px; font-weight:700; vertical-align:middle; white-space:nowrap; }
+    .claim .note { color:var(--muted); margin:6px 0 0; }
+    .src { margin:8px 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px; }
+    .src li { background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:8px 11px; font-size:13px; }
+    .src .meta { color:var(--muted); font-size:12px; }
+    .copy { float:right; margin-left:10px; }
+
+    .article h4 { font-size:15px; margin:18px 0 6px; }
+    .article p { margin:0 0 10px; color:#ddd2dc; }
+    .article ul { margin:0 0 10px; padding-left:20px; color:#ddd2dc; }
+    .article li { margin:3px 0; }
+    .article li.check { list-style:'✓  '; } .article li.cross { list-style:'✗  '; }
+    details > summary { cursor:pointer; font-weight:700; }
+    .removed li { margin:8px 0; }
+    .removed .why { color:var(--muted); display:block; }
+    mark { background:#6a5320; color:#fff; border-radius:3px; padding:0 2px; }
+    @media (max-width:820px) { .layout { grid-template-columns:1fr; } .side { position:static; flex-direction:row; flex-wrap:wrap; } .item { width:auto; } }
+  </style>
+</head>
+<body>
+  <div id="login" class="center">
+    <img src="/icon.png" class="logo" alt="Trypup" />
+    <h1>Trypup · Články a zdroje</h1>
+    <p class="muted" style="max-width:360px">Vzdělávací články z appky a ke každému tvrzení zdroj. Neveřejné — přihlas se admin účtem Google.</p>
+    <button id="signin">Přihlásit přes Google</button>
+    <p id="login-err" class="err"></p>
+  </div>
+
+  <div id="app" class="wrap hidden">
+    <header>
+      <h1>Trypup · Články a zdroje <small id="who"></small></h1>
+      <div class="toolbar">
+        <a href="/admin" class="muted">← Analytika</a>
+        <a href="/admin/content" class="muted">✏️ Obsah webu</a>
+        <a href="/admin/shelters" class="muted">🐾 Útulky</a>
+        <a href="/admin/notices" class="muted">📣 Novinky</a>
+        <button id="signout" class="ghost sm">Odhlásit</button>
+      </div>
+    </header>
+    <p id="state" class="muted">Načítám…</p>
+    <input id="search" placeholder="🔎 Hledat v tvrzeních, poznámkách a zdrojích (např. „utraceno“, „kastrace“, „4 hodiny“)…" autocomplete="off" />
+
+    <div class="layout">
+      <nav id="side" class="side" aria-label="Články"></nav>
+      <main>
+        <div id="detail"></div>
+        <div id="results" class="panel hidden"></div>
+        <div class="panel">
+          <details>
+            <summary>Co audit z článků odstranil a proč</summary>
+            <ul id="removed" class="removed"></ul>
+          </details>
+        </div>
+        <p class="muted" style="margin-top:14px">Jen ke čtení. Texty článků se mění v appce, zdroje v souboru <code>docs/content/article-sources.json</code>; sem se obojí nahrává příkazem <code>node scripts/publish-article-library.js</code>.</p>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" is:inline>
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, collection, getDocs }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const ADMIN_EMAIL = 'o.kliment@gmail.com';
+    const app = initializeApp({ apiKey:'AIzaSyCrFi62rqFPVJuyFcS8HHuEGhZ1PfElgAs', authDomain:'trypupapp.firebaseapp.com', projectId:'trypupapp', storageBucket:'trypupapp.firebasestorage.app' });
+    const auth = getAuth(app); const db = getFirestore(app);
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[<>&"]/g, (c) => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;' }[c]));
+    const safeUrl = (u) => (typeof u === 'string' && /^https:\/\//i.test(u.trim()) ? u.trim() : '');
+
+    let ARTICLES = []; let META = null; let current = null;
+
+    $('signin').onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { $('login-err').textContent = e.message; } };
+    $('signout').onclick = () => signOut(auth);
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email === ADMIN_EMAIL) { $('login').classList.add('hidden'); $('app').classList.remove('hidden'); $('who').textContent = '· ' + user.email; load(); }
+      else if (user) { $('login-err').textContent = 'Účet ' + user.email + ' nemá přístup.'; signOut(auth); }
+      else { $('app').classList.add('hidden'); $('login').classList.remove('hidden'); }
+    });
+
+    async function load() {
+      try {
+        const snap = await getDocs(collection(db, 'article_library'));
+        ARTICLES = []; META = null;
+        snap.forEach((d) => { if (d.id === '_meta') META = d.data(); else ARTICLES.push(d.data()); });
+        ARTICLES.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        if (!ARTICLES.length) { $('state').innerHTML = '<span class="err">Knihovna je prázdná — spusť v repu appky <code>node scripts/publish-article-library.js</code>.</span>'; return; }
+        const when = META?.updatedAt ? new Date(META.updatedAt).toLocaleString('cs-CZ') : '?';
+        $('state').innerHTML = `<span class="ok">${ARTICLES.length} článků · ${META?.claimCount ?? '?'} tvrzení se zdrojem · ${META?.sourceCount ?? '?'} zdrojů</span> · nahráno ${esc(when)}`;
+        renderSide(); renderRemoved();
+        const wanted = decodeURIComponent(location.hash.slice(1));
+        show(ARTICLES.find((a) => a.id === wanted)?.id ?? ARTICLES[0].id);
+      } catch (e) { $('state').innerHTML = `<span class="err">Chyba načtení: ${esc(e.message)}</span>`; }
+    }
+
+    function renderSide() {
+      $('side').innerHTML = ARTICLES.map((a) =>
+        `<button class="item" data-id="${esc(a.id)}">${a.premium ? '<span class="crown" title="Premium">★</span>' : ''}<span>${esc(a.title)}</span><span class="n">${(a.claims || []).length}</span></button>`).join('');
+      $('side').querySelectorAll('.item').forEach((b) => { b.onclick = () => { $('search').value = ''; filter(''); show(b.dataset.id); }; });
+    }
+
+    // Stejná konvence jako v appce (src/data/articleFormat.ts): **nadpis**, „- “ odrážka, ✓ / ✗, „1. “.
+    function articleHtml(content) {
+      const out = []; let list = [];
+      const flush = () => { if (list.length) { out.push('<ul>' + list.join('') + '</ul>'); list = []; } };
+      for (const raw of String(content || '').split('\n')) {
+        const line = raw.trim();
+        if (!line) { flush(); continue; }
+        const h = /^\*\*(.+?)\*\*$/.exec(line);
+        if (h) { flush(); out.push(`<h4>${esc(h[1])}</h4>`); continue; }
+        if (line.startsWith('- ')) { list.push(`<li>${esc(line.slice(2))}</li>`); continue; }
+        if (line.startsWith('✓')) { list.push(`<li class="check">${esc(line.slice(1).trim())}</li>`); continue; }
+        if (line.startsWith('✗')) { list.push(`<li class="cross">${esc(line.slice(1).trim())}</li>`); continue; }
+        const n = /^(\d{1,2})[.)]\s+(.*)$/.exec(line);
+        if (n) { list.push(`<li style="list-style:none;margin-left:-20px"><strong>${esc(n[1])}.</strong> ${esc(n[2])}</li>`); continue; }
+        flush(); out.push(`<p>${esc(line.replace(/\*\*/g, ''))}</p>`);
+      }
+      flush(); return out.join('');
+    }
+
+    function sourceHtml(s) {
+      const url = safeUrl(s.url);
+      const title = url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>` : `<strong>${esc(s.title)}</strong>`;
+      const meta = [s.authors, s.publisher, s.year || '', s.kind].filter(Boolean).map(esc).join(' · ');
+      return `<li>${title}<div class="meta">${meta}</div></li>`;
+    }
+
+    function claimHtml(c, i, articleTitle) {
+      return `<div class="claim" data-i="${i}">
+        <button class="ghost sm copy" type="button" data-copy="${i}">Kopírovat</button>
+        <span class="text">${esc(c.claim)}</span><span class="basis">${esc(c.basis)}</span>
+        ${c.note ? `<p class="note">${esc(c.note)}</p>` : ''}
+        ${(c.sources || []).length ? `<ul class="src">${c.sources.map(sourceHtml).join('')}</ul>` : '<p class="note">Bez externího zdroje — obecná znalost / vlastní formulace.</p>'}
+        ${articleTitle ? `<p class="muted" style="margin:6px 0 0">Článek: ${esc(articleTitle)}</p>` : ''}
+      </div>`;
+    }
+
+    function claimText(c) {
+      const src = (c.sources || []).map((s) => `- ${s.title}${s.authors ? ' (' + s.authors + ')' : ''}${s.publisher ? ', ' + s.publisher : ''}${s.year ? ', ' + s.year : ''}${s.url ? ' — ' + s.url : ''}`).join('\n');
+      return `${c.claim}\n${c.note ? c.note + '\n' : ''}${src ? 'Zdroje:\n' + src : ''}`.trim();
+    }
+
+    function wireCopy(root, claims) {
+      root.querySelectorAll('[data-copy]').forEach((b) => {
+        b.onclick = async () => {
+          try { await navigator.clipboard.writeText(claimText(claims[Number(b.dataset.copy)])); b.textContent = 'Zkopírováno ✓'; }
+          catch { b.textContent = 'Nejde zkopírovat'; }
+          setTimeout(() => { b.textContent = 'Kopírovat'; }, 1600);
+        };
+      });
+    }
+
+    function show(id) {
+      const a = ARTICLES.find((x) => x.id === id); if (!a) return;
+      current = id; history.replaceState(null, '', '#' + encodeURIComponent(id));
+      $('side').querySelectorAll('.item').forEach((b) => b.classList.toggle('active', b.dataset.id === id));
+      const claims = a.claims || [];
+      $('detail').innerHTML = `
+        <div class="panel">
+          <h2>${esc(a.title)}</h2>
+          <p class="lead">${esc(a.preview)}</p>
+          <div class="tags"><span class="tag ${a.premium ? 'prem' : ''}">${a.premium ? '★ Premium' : 'Zdarma'}</span><span class="tag">${esc(a.readTime)}</span><span class="tag">${claims.length} tvrzení se zdrojem</span></div>
+        </div>
+        <div class="panel"><h3>Tvrzení a zdroje</h3>${claims.map((c, i) => claimHtml(c, i)).join('')}</div>
+        <div class="panel"><details open><summary>Text článku, jak ho vidí uživatel (česky)</summary><div class="article" style="margin-top:10px">${articleHtml(a.content)}</div></details></div>`;
+      wireCopy($('detail'), claims);
+      $('detail').classList.remove('hidden');
+    }
+
+    function renderRemoved() {
+      $('removed').innerHTML = (META?.removed || []).map((r) => `<li><strong>${esc(r.text)}</strong><span class="why">${esc(r.why)}</span></li>`).join('') || '<li class="muted">Nic.</li>';
+    }
+
+    function filter(q) {
+      q = q.trim().toLowerCase();
+      if (!q) { $('results').classList.add('hidden'); $('detail').classList.remove('hidden'); return; }
+      const hits = [];
+      for (const a of ARTICLES) for (const c of a.claims || []) {
+        const hay = [c.claim, c.note, c.basis, ...(c.sources || []).flatMap((s) => [s.title, s.authors, s.publisher, s.url])].join(' ').toLowerCase();
+        if (hay.includes(q)) hits.push({ a, c });
+      }
+      $('detail').classList.add('hidden'); $('results').classList.remove('hidden');
+      const flat = hits.map((h) => h.c);
+      $('results').innerHTML = `<h3>Nalezeno ${hits.length} tvrzení</h3>` + (hits.map((h, i) => claimHtml(h.c, i, h.a.title)).join('') || '<p class="muted">Nic nenalezeno.</p>');
+      wireCopy($('results'), flat);
+    }
+    $('search').oninput = (e) => filter(e.target.value);
+  </script>
+</body>
+</html>
