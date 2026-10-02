@@ -127,13 +127,6 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.en.commitText', group: 'O aplikaci EN', type: 'textarea', label: '„Commitment" text', default: 'We donate a share of revenue to partner shelters. Trypup isn\'t a game you win — it\'s an honest test of whether you\'re ready for a dog.' },
   { key: 'about.en.cta', group: 'O aplikaci EN', type: 'text', label: 'Bottom button', default: 'Try Trypup' },
 
-  // ─────────────────────────── /tv (vstupní stránka z televize) ───────────────────────────
-  // V den vysílání stačí přepsat štítek / nadpis tady (např. „Viděli jste nás ve Studiu 6?") — bez nasazení.
-  { key: 'tv.cs.badge', group: 'Stránka /tv', type: 'text', label: 'Štítek nad nadpisem', default: '🐾 Zdarma pro iPhone i Android' },
-  { key: 'tv.cs.title', group: 'Stránka /tv', type: 'text', label: 'Hlavní nadpis', default: 'Vyzkoušejte si psa nanečisto' },
-  { key: 'tv.cs.lead', group: 'Stránka /tv', type: 'textarea', label: 'Podnadpis (lead)', default: 'V aplikaci Trypup se o virtuálního psa staráte jako o skutečného — procházky, krmení, výcvik i náklady. Zjistíte, co pes obnáší, dřív, než si pořídíte toho živého.' },
-  { key: 'tv.cs.note', group: 'Stránka /tv', type: 'text', label: 'Řádek pod tlačítky', default: 'Základ je zdarma — čtyři plemena včetně voříška z útulku.' },
-
   // ─────────────────────────── Společné (lišta) ───────────────────────────
   { key: 'common.cs.announce', group: 'Společné · Oznamovací lišta', type: 'text', label: 'Lišta nahoře (CZ) — text před odkazem', default: '🚧 Trypup je ve vývoji — spustíme už brzy. Sleduj ' },
   { key: 'common.en.announce', group: 'Společné · Oznamovací lišta', type: 'text', label: 'Lišta nahoře (EN) — text před odkazem', default: '🚧 Trypup is in development — launching soon. Follow ' },

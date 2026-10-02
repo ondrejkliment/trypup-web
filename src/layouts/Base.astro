@@ -375,28 +375,15 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <!-- Tlačítko „Stáhnout" podle telefonu (příprava na ČT, 2. 10. 2026). Na mobilu vede
          hlavní tlačítko v hero a odkaz v horní liště ROVNOU do správného obchodu — dřív
          jen sjelo na konec stránky, kde si člověk musel vybrat odznak (dva kroky navíc).
-         Na počítači a bez JS zůstává kotva na sekci se oběma obchody. iPhone dostane jen
-         App Store (Apple 2.3.10 — viz komentář u `dlAnchor` nahoře).
-         `data-os` na <html> používá i stránka /tv. `store_click` = kolik lidí z webu
-         opravdu odešlo do obchodu (GA4, v Consent Mode bez cookies). -->
+         Na počítači a bez JS zůstává kotva na sekci s oběma obchody. iPhone dostane jen
+         App Store (Apple 2.3.10 — viz komentář u `dlAnchor` nahoře). -->
     <script is:inline define:vars={{ playUrl, appStoreUrl }}>
       (function () {
         var ua = navigator.userAgent || '';
-        var os = /iPhone|iPad|iPod/.test(ua) ? 'ios' : (/Android/.test(ua) ? 'android' : '');
-        if (os) document.documentElement.setAttribute('data-os', os);
-        var store = os === 'ios' ? appStoreUrl : (os === 'android' ? playUrl : null);
-        if (store) {
-          document.querySelectorAll('.hero .cta-row .btn-primary, .announce-play').forEach(function (a) {
-            a.setAttribute('href', store);
-          });
-        }
-        document.addEventListener('click', function (e) {
-          var a = e.target && e.target.closest ? e.target.closest('a[href*="apps.apple.com"], a[href*="play.google.com"]') : null;
-          if (!a || typeof gtag !== 'function') return;
-          gtag('event', 'store_click', {
-            store: a.href.indexOf('apple.com') > -1 ? 'ios' : 'android',
-            page: location.pathname,
-          });
+        var store = /iPhone|iPad|iPod/.test(ua) ? appStoreUrl : (/Android/.test(ua) ? playUrl : null);
+        if (!store) return;
+        document.querySelectorAll('.hero .cta-row .btn-primary, .announce-play').forEach(function (a) {
+          a.setAttribute('href', store);
         });
       })();
     </script>
