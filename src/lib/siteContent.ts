@@ -32,8 +32,8 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.cs.hero.ctaPrimary', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 1 (text)', default: 'Stáhnout appku' },
   { key: 'home.cs.hero.ctaGhost', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 2 (text)', default: 'Jak to funguje' },
 
-  { key: 'home.cs.stat.big', group: 'Domů CZ · Statistika', type: 'textarea', label: 'Velký výrok', default: 'Většina psů v útulcích tam není kvůli povaze, ale kvůli nepřipravenosti majitelů.' },
-  { key: 'home.cs.stat.sub', group: 'Domů CZ · Statistika', type: 'textarea', label: 'Doplněk pod výrokem', default: 'Trypup ti dá šanci to zjistit před rozhodnutím — ne po něm.' },
+  { key: 'home.cs.stat.big', group: 'Domů CZ · Statistika', type: 'textarea', label: 'Velký výrok', default: 'Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí.' },
+  { key: 'home.cs.stat.sub', group: 'Domů CZ · Statistika', type: 'textarea', label: 'Doplněk pod výrokem', default: 'Trypup vám ukáže, co pes obnáší, ještě před rozhodnutím — ne po něm.' },
 
   { key: 'home.cs.how.title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Nadpis sekce', default: 'Jak to funguje' },
   { key: 'home.cs.how.sub', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Podnadpis sekce', default: 'Tři kroky, jako kdyby ses staral doopravdy.' },
@@ -71,8 +71,8 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.en.hero.ctaPrimary', group: 'Domů EN · Hero', type: 'text', label: 'Button 1', default: 'Get the app' },
   { key: 'home.en.hero.ctaGhost', group: 'Domů EN · Hero', type: 'text', label: 'Button 2', default: 'How it works' },
 
-  { key: 'home.en.stat.big', group: 'Domů EN · Stat', type: 'textarea', label: 'Big statement', default: 'Most shelter dogs are there not because of the dog, but because their owners weren\'t prepared.' },
-  { key: 'home.en.stat.sub', group: 'Domů EN · Stat', type: 'textarea', label: 'Sub', default: 'Trypup lets you find out before the decision — not after.' },
+  { key: 'home.en.stat.big', group: 'Domů EN · Stat', type: 'textarea', label: 'Big statement', default: 'Dogs mostly end up in shelters not because of their temperament, but because of their owners\' circumstances.' },
+  { key: 'home.en.stat.sub', group: 'Domů EN · Stat', type: 'textarea', label: 'Sub', default: 'Trypup lets you find out what a dog really takes before the decision — not after.' },
 
   { key: 'home.en.how.title', group: 'Domů EN · How it works', type: 'text', label: 'Section title', default: 'How it works' },
   { key: 'home.en.how.sub', group: 'Domů EN · How it works', type: 'text', label: 'Section sub', default: 'Three steps, just like caring for a real dog.' },
@@ -108,7 +108,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.cs.meta', group: 'O aplikaci CZ', type: 'text', label: 'Meta řádek', default: 'Pes na zkoušku · zodpovědné rozhodnutí' },
   { key: 'about.cs.intro', group: 'O aplikaci CZ', type: 'textarea', label: 'Úvodní odstavec', default: 'Trypup je edukativní simulátor péče o psa pro dospělé, kteří vážně uvažují o pořízení skutečného psa. Cílem je snížit počty psů v útulcích tím, že lidi přiměje přemýšlet PŘED rozhodnutím — ne po něm.' },
   { key: 'about.cs.whyTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Proč vznikl"', default: 'Proč Trypup vznikl' },
-  { key: 'about.cs.whyText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Proč vznikl"', default: 'Většina psů se do útulku nedostane kvůli povaze psa, ale proto, že majitelé podcenili, co péče opravdu obnáší — čas, peníze, výdrž. Trypup vás tou rutinou provede nanečisto, bez následků pro živé zvíře.' },
+  { key: 'about.cs.whyText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Proč vznikl"', default: 'Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí — čas, peníze, bydlení, životní změny. Trypup vás každodenní rutinou provede nanečisto, bez následků pro živé zvíře.' },
   { key: 'about.cs.breedsTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Plemena"', default: 'Plemena' },
   { key: 'about.cs.breedsText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Plemena"', default: 'Čtyři plemena zdarma — jedno od každého vzrůstu (malé, střední, velké) a navíc voříšek z útulku — a další jako Premium (Border kolie, Sibiřský husky, Německý ovčák, Zlatý retrívr, Bernský salašnický pes a další).' },
   { key: 'about.cs.commitTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Náš závazek"', default: 'Náš závazek' },
@@ -120,7 +120,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.en.meta', group: 'O aplikaci EN', type: 'text', label: 'Meta line', default: 'A dog on trial · a responsible decision' },
   { key: 'about.en.intro', group: 'O aplikaci EN', type: 'textarea', label: 'Intro paragraph', default: 'Trypup is an educational dog-care simulator for adults seriously considering getting a real dog. The goal is to reduce the number of dogs in shelters by getting people to think BEFORE the decision — not after.' },
   { key: 'about.en.whyTitle', group: 'O aplikaci EN', type: 'text', label: '„Why" title', default: 'Why Trypup exists' },
-  { key: 'about.en.whyText', group: 'O aplikaci EN', type: 'textarea', label: '„Why" text', default: 'Most shelter dogs are there not because of the dog, but because their owners underestimated what care really takes — time, money, stamina. Trypup walks you through that routine as a dry run, with no consequences for a living animal.' },
+  { key: 'about.en.whyText', group: 'O aplikaci EN', type: 'textarea', label: '„Why" text', default: 'Dogs mostly end up in shelters not because of their temperament, but because of their owners\' circumstances — time, money, housing, life changes. Trypup walks you through the daily routine as a dry run, with no consequences for a living animal.' },
   { key: 'about.en.breedsTitle', group: 'O aplikaci EN', type: 'text', label: '„Breeds" title', default: 'Breeds' },
   { key: 'about.en.breedsText', group: 'O aplikaci EN', type: 'textarea', label: '„Breeds" text', default: 'Four breeds free — one of each size (small, medium, large) plus a shelter mutt — and more as Premium (Border Collie, Siberian Husky, German Shepherd, Golden Retriever, Bernese Mountain Dog and others).' },
   { key: 'about.en.commitTitle', group: 'O aplikaci EN', type: 'text', label: '„Commitment" title', default: 'Our commitment' },

@@ -1,11 +1,11 @@
 ---
 title: "Proč psi končí v útulku — a jak tomu předejít"
-description: "Většina psů se do útulku nedostane kvůli zlým lidem, ale kvůli nepřipravenosti. Co si ověřit, než si pořídíte psa."
+description: "Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí. Co si ověřit, než si pořídíte psa."
 date: 2026-06-01
 tag: "Adopce"
 ---
 
-Každý rok skončí v českých útulcích tisíce psů. Smutné na tom je, že většina z nich tam není kvůli povaze psa — ale kvůli **nepřipravenosti majitelů**. Podle studií odevzdání do útulku převažují důvody na straně člověka (bydlení, čas, náklady, životní změny) nad chováním psa. Lidé podcení, kolik času, peněz a energie pes opravdu spotřebuje.
+Každý rok skončí v českých útulcích tisíce psů. Většinou ne kvůli své povaze: podle studií o odevzdávání psů převažují důvody **na straně člověka** — bydlení, čas, náklady, životní změny — nad chováním psa. Část z toho se přitom dá odhadnout předem. Lidé často podcení, kolik času, peněz a energie pes opravdu spotřebuje.
 
 A přesně proti tomu jsme postavili Trypup.
 
@@ -13,7 +13,7 @@ A přesně proti tomu jsme postavili Trypup.
 
 **Čas.** Pes potřebuje péči každý den, bez výjimky — ráno, večer, o víkendu, když jste nemocní, když prší. Není to koníček, který odložíte.
 
-**Peníze.** Průměrný pes v ČR vyjde na 60 000–120 000 Kč ročně (krmivo, veterina, výbava, hlídání). Jeden operační zákrok může stát víc než dovolená.
+**Peníze.** Běžný rok se zdravým psem vyjde v Česku zhruba na 12 000–38 000 Kč podle velikosti (krmivo, veterina, výbava) — a jeden operační zákrok umí přidat desítky tisíc.
 
 **Výdrž.** Štěně ničí věci, štěká, budí vás v noci. Adaptace trvá měsíce. Romantická představa o psovi se rychle potká s realitou.
 

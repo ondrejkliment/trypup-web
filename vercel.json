@@ -20,6 +20,11 @@
       "source": "/support",
       "destination": "/podpora/",
       "permanent": true
+    },
+    {
+      "source": "/blog/proc-pulka-psu-konci-v-utulku",
+      "destination": "/blog/jak-predejit-tomu-aby-pes-skoncil-v-utulku/",
+      "permanent": true
     }
   ]
 }
