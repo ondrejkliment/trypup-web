@@ -124,7 +124,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.en.breedsTitle', group: 'O aplikaci EN', type: 'text', label: '„Breeds" title', default: 'Breeds' },
   { key: 'about.en.breedsText', group: 'O aplikaci EN', type: 'textarea', label: '„Breeds" text', default: 'Four breeds free — one of each size (small, medium, large) plus a shelter mutt — and more as Premium (Border Collie, Siberian Husky, German Shepherd, Golden Retriever, Bernese Mountain Dog and others).' },
   { key: 'about.en.commitTitle', group: 'O aplikaci EN', type: 'text', label: '„Commitment" title', default: 'Our commitment' },
-  { key: 'about.en.commitText', group: 'O aplikaci EN', type: 'textarea', label: '„Commitment" text', default: 'We donate a share of revenue to partner shelters. Trypup isn\'t a game you win — it\'s an honest test of whether you\'re ready for a dog.' },
+  { key: 'about.en.commitText', group: 'O aplikaci EN', type: 'textarea', label: '„Commitment" text', default: 'Trypup isn\'t a game you win — it\'s an honest test of whether you\'re ready for a dog.' },
   { key: 'about.en.cta', group: 'O aplikaci EN', type: 'text', label: 'Bottom button', default: 'Try Trypup' },
 
   // ─────────────────────────── Společné (lišta) ───────────────────────────
