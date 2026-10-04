@@ -5,7 +5,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 <Base title="Datenschutzerklärung — Trypup" description="Wie Trypup mit Daten umgeht. Die App funktioniert ohne Konto; ein optionales Konto ermöglicht die Cloud-Sicherung Ihres Fortschritts (Firebase, EU)." lang="de" alt="/en/privacy/" pageKey="privacy">
   <section class="section wrap prose">
     <h1>Datenschutzerklärung</h1>
-    <p class="meta">Aktualisiert am 15. Juli 2026 · Verantwortlicher: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+    <p class="meta">Aktualisiert am 4. Oktober 2026 · Verantwortlicher: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
     <p><strong>Trypup funktioniert vollständig ohne Konto — in diesem Fall verbleiben sämtliche Daten ausschließlich auf Ihrem Gerät.</strong> Optional können Sie ein Konto erstellen, das eine <strong>Cloud-Sicherung Ihres gespeicherten Fortschritts</strong> sowie die Synchronisierung zwischen Geräten ermöglicht. Wir verarbeiten nur die Daten, die für die Bereitstellung des Dienstes erforderlich sind.</p>
 
@@ -14,31 +14,34 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h2>Welche Daten wir verarbeiten</h2>
     <h3>Immer (lokal auf Ihrem Gerät)</h3>
     <ul>
-      <li><strong>Standort (GPS)</strong> — Messung der Gassi-Route und Distanz + Schutz vor Manipulation. Wird nur vorübergehend verarbeitet und verlässt das Gerät nicht. Optional.</li>
-      <li><strong>Bewegungssensoren</strong> — Überprüfung, dass der Spaziergang real ist. Lokal, wird nicht gespeichert.</li>
-      <li><strong>Benachrichtigungen</strong> — lokal geplante Erinnerungen zur Pflege. Optional.</li>
-      <li><strong>Fotos / Kamera</strong> — optionales Foto Ihres Hundes. Nur lokal.</li>
-      <li><strong>Apple Health / Google Fit</strong> — optionales Schreiben eines abgeschlossenen Spaziergangs. Wir schreiben nur, wir lesen nicht.</li>
-      <li><strong>Spielstand</strong> (Hundename, Rasse, Werte, Fortschritt) — lokaler Speicher.</li>
+      <li><strong>Standort (GPS)</strong> – Messung von Strecke und Dauer eines Spaziergangs und Prüfung, dass Sie wirklich draußen waren. Während des Spaziergangs wird die Route nur vorübergehend auf dem Gerät gespeichert (damit ein unterbrochener Spaziergang beendet werden kann); danach behält das Gerät nur Länge und Zeit. Koordinaten verlassen Ihr Telefon nie und sind nicht Teil des Cloud-Backups. Die Berechtigung „Immer“ dient nur dazu, dass der Spaziergang bei ausgeschaltetem Display weiterläuft. Optional.</li>
+      <li><strong>Benachrichtigungen</strong> – Pflege-Erinnerungen, die direkt auf dem Gerät geplant werden (keine Push-Server). Optional.</li>
+      <li><strong>Spielstand</strong> (Hundename, Rasse, Werte, Fortschritt, Antwort zur Alterskategorie) – lokaler Speicher.</li>
     </ul>
     <h3>Nur wenn Sie ein Konto erstellen</h3>
     <ul>
-      <li><strong>E-Mail-Adresse</strong> — für die Anmeldung und die Kontoverwaltung.</li>
-      <li><strong>Benutzerkennung</strong> (Konto-ID) — eine technische Kennung, die vom Authentifizierungsanbieter vergeben wird.</li>
-      <li><strong>Sicherung des gespeicherten Fortschritts</strong> (Hund, Training, Tagesfortschritt, erworbene Funktionen) — in der Cloud gespeichert, damit sie auf einem anderen Gerät wiederhergestellt werden kann.</li>
+      <li><strong>E-Mail-Adresse</strong> – für Anmeldung und Kontoverwaltung. Sie können sich <strong>mit E-Mail und Passwort, mit Ihrem Apple-Konto oder Ihrem Google-Konto</strong> anmelden. Von Apple oder Google erhalten wir Ihre E-Mail-Adresse (bei Apple ggf. eine verborgene Weiterleitungsadresse) und Ihren Namen, wenn Sie ihn teilen; mehr lesen wir aus diesen Konten nicht.</li>
+      <li><strong>Nutzerkennung</strong> (Konto-ID) – eine technische Kennung, die der Anmeldedienst vergibt.</li>
+      <li><strong>Backup des Spielstands</strong> (Hund, Training, Tagesfortschritt, gekaufte Funktionen) – in der Cloud gespeichert, damit es auf einem anderen Gerät wiederhergestellt werden kann.</li>
+      <li><strong>Anzeigename</strong> in der gemeinsamen Pflege – der Teil Ihrer E-Mail vor dem @ (bei verborgener Apple-Adresse Ihr Vorname), siehe unten.</li>
     </ul>
-    <p>Ihr Passwort wird vom Authentifizierungsanbieter ausschließlich in sicherer (gehashter) Form gespeichert; wir haben keinen Zugriff darauf.</p>
+    <p>Ihr Passwort wird ausschließlich in gesicherter (gehashter) Form beim Anmeldedienst gespeichert; wir haben keinen Zugriff darauf. Bei der Anmeldung mit Apple oder Google verarbeiten diese Unternehmen Ihre Daten als eigenständige Verantwortliche nach ihren eigenen Richtlinien.</p>
+
+    <h3>Gemeinsame Pflege („Gemeinsam“)</h3>
+    <p>Wenn Sie einen Hund mit Ihrer Familie teilen, sehen alle Mitglieder den Zustand des Hundes, welche Aufgaben wer wann erledigt hat und Ihren <strong>Anzeigenamen</strong>. Das Teilen beginnt mit einem sechsstelligen Einladungscode; der Besitzer des Hundes kann Mitglieder jederzeit entfernen, ein Mitglied kann jederzeit austreten. Diese Daten liegen in derselben Cloud-Datenbank wie das Backup (EU). Das Löschen Ihres Kontos entfernt Ihre Mitgliedschaft, Ihren Namen und Einladungen.</p>
 
     <h2>Zwecke und Rechtsgrundlage (Art. 6 DSGVO)</h2>
     <ul>
       <li><strong>Konto und Cloud-Sicherung</strong> — Erfüllung eines Vertrags (Art. 6(1)(b)).</li>
       <li><strong>Messung des Spaziergangs (GPS)</strong> — eine von Ihnen ausdrücklich angeforderte Funktion (Art. 6(1)(b)); die Verarbeitung erfolgt lokal.</li>
-      <li><strong>Produktanalyse und Fehlerdiagnose</strong> — unser berechtigtes Interesse (Art. 6(1)(f)); Sie können diese jederzeit in den App-Einstellungen deaktivieren (Widerspruchsrecht).</li>
+      <li><strong>Gemeinsame Pflege</strong> – Vertragserfüllung (Art. 6 Abs. 1 lit. b); Sie schalten das Teilen ausdrücklich per Einladung ein.</li>
+      <li><strong>Produktanalyse</strong> – unser berechtigtes Interesse (Art. 6 Abs. 1 lit. f); Sie können sie jederzeit in den Einstellungen der App abschalten (Widerspruchsrecht).</li>
+      <li><strong>Fehlerdiagnose</strong> – unser berechtigtes Interesse an einer funktionierenden App (Art. 6 Abs. 1 lit. f); technische Daten ohne Name oder E-Mail, Widerspruch per E-Mail möglich.</li>
     </ul>
 
     <h2>Auftragsverarbeiter und Datenstandort</h2>
     <p>Für das Konto und die Cloud-Sicherung nutzen wir <strong>Google (Firebase — Authentication und Firestore)</strong> als Auftragsverarbeiter, gemäß den <em>Firebase Data Processing and Security Terms</em>. Die Sicherung (Firestore) wird in <strong>EU-Rechenzentren (Region europe / eur3)</strong> gespeichert. Der Authentication-Dienst kann einen Teil der Daten außerhalb der EU verarbeiten; solche Übermittlungen sind durch von der Europäischen Kommission genehmigte <strong>Standardvertragsklauseln (SCC)</strong> abgedeckt.</p>
-    <p>Außerdem nutzen wir die Auftragsverarbeiter <strong>Sentry</strong> (Fehlerdiagnose der App) und <strong>RevenueCat</strong> (Abo-Verwaltung). Premium-Käufe werden von <strong>Apple</strong> und <strong>Google</strong> als eigenständige Verantwortliche im Rahmen ihrer eigenen Bedingungen verarbeitet. Für Übermittlungen personenbezogener Daten außerhalb der EU/des EWR stützen wir uns auf den Angemessenheitsbeschluss zum <strong>EU-US Data Privacy Framework</strong> (für zertifizierte Empfänger), andernfalls auf <strong>Standardvertragsklauseln (SCC)</strong> mit ergänzenden Maßnahmen (Verschlüsselung, Zugriffskontrollen).</p>
+    <p>Außerdem nutzen wir die Auftragsverarbeiter <strong>Sentry</strong> (Fehlerdiagnose der App, gehostet in der EU) und <strong>RevenueCat</strong> (Kaufprüfung – arbeitet mit einer zufälligen App-Kennung und dem Store-Beleg, ohne Ihre E-Mail). Premium-Käufe und die Anmeldung mit Apple oder Google verarbeiten <strong>Apple</strong> und <strong>Google</strong> als eigenständige Verantwortliche nach ihren Bedingungen. Bei Übermittlungen personenbezogener Daten außerhalb der EU/des EWR stützen wir uns auf den <strong>Angemessenheitsbeschluss zum EU-US Data Privacy Framework</strong> (bei zertifizierten Empfängern), sonst auf <strong>Standardvertragsklauseln (SCC)</strong> mit zusätzlichen Maßnahmen (Verschlüsselung, Zugriffskontrolle).</p>
 
     <h2>Datenweitergabe</h2>
     <p>Wir verkaufen oder teilen Ihre Daten <strong>nicht</strong> an Dritte für deren eigene Zwecke. Google handelt als unser Auftragsverarbeiter (nach unseren Weisungen), nicht als eigenständiger Empfänger. Die in der App aufgeführten Tierheime sind lediglich Links zu öffentlichen Websites.</p>
@@ -47,17 +50,18 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h3>Produktanalyse</h3>
     <p>Um die App zu verbessern, verarbeiten wir anonymisierte Daten darüber, wie sie genutzt wird:</p>
     <ul>
-      <li><strong>Was:</strong> eine pseudonyme Installationskennung (nicht mit einer Person verknüpft), technischer Gerätekontext (Modell, Betriebssystemversion, Sprache) sowie Nutzungsereignisse (besuchte Bildschirme, abgeschlossene Spaziergänge) — keine personenbezogenen Daten.</li>
+      <li><strong>Was:</strong> eine pseudonyme Installationskennung (nicht mit einer Person verknüpft), technischer Gerätekontext (Modell, Typ, Systemversion, App-Version, Sprache von App und Gerät) und Nutzungsereignisse (besuchte Bildschirme, erledigte Aufgaben, abgeschlossene Spaziergänge, Art eines Kaufs ohne Betrag) – keine personenbezogenen Daten.</li>
       <li><strong>Wo:</strong> Google Firebase / Cloud Firestore (Auftragsverarbeiter Google Ireland Ltd.), gespeichert in der EU.</li>
       <li><strong>Rechtsgrundlage:</strong> unser berechtigtes Interesse (Art. 6(1)(f) DSGVO) an der Verbesserung und Messung der App-Nutzung. Es handelt sich ausschließlich um First-Party-Reichweitenmessung — wir geben die Daten nicht an Dritte weiter, verknüpfen sie nicht mit Ihrem Konto und nutzen sie nicht für Werbung oder App-übergreifendes Tracking.</li>
       <li><strong>Ihre Wahl:</strong> Sie können die Erfassung jederzeit in den App-Einstellungen deaktivieren (Widerspruchsrecht, Art. 21 DSGVO). Von Nutzern unter 16 Jahren erheben wir keine Analysedaten.</li>
       <li>Dies erfolgt unabhängig davon, ob Sie ein Konto erstellen.</li>
     </ul>
     <h3>Fehlerdiagnose (Sentry)</h3>
-    <p>Zur Sicherstellung der Stabilität nutzen wir <strong>Sentry</strong> (Absturzberichte + Performance) — technische Diagnosedaten ohne Personenbezug, auf Grundlage unseres berechtigten Interesses an der Funktionsfähigkeit der App.</p>
+    <p>Für die Stabilität nutzen wir <strong>Sentry</strong> (Absturz- und Leistungsberichte, Server in der EU – Frankfurt). Ein Bericht enthält eine pseudonyme Installationskennung, Gerätemodell, System- und App-Version, Sprache und den technischen Ablauf des Fehlers – nie Ihren Namen oder Ihre E-Mail. Die IP-Adresse dient nur der Zustellung und der Ableitung des Landes und wird nicht gespeichert. Die Diagnose lässt sich in der App nicht abschalten (berechtigtes Interesse an einer funktionierenden App, Art. 6 Abs. 1 lit. f); widersprechen können Sie unter <a href="mailto:hello@trypup.life">hello@trypup.life</a>.</p>
 
     <h2>Cookies und Website-Analyse (trypup.life)</h2>
     <p>Diese Website verwendet <strong>Google Analytics 4</strong> (Google Ireland Ltd.), um den Traffic anonym zu messen und so die Website zu verbessern. Analyse-Cookies und die Messung beginnen erst, <strong>nachdem Sie im Cookie-Banner zugestimmt haben</strong> (Rechtsgrundlage: Einwilligung, Art. 6(1)(a)). Bis zu Ihrer Einwilligung läuft Google Analytics im <strong>cookielosen</strong> Modus (Google Consent Mode). Google handelt als Auftragsverarbeiter und kann einen Teil der Daten <strong>außerhalb der EU</strong> verarbeiten, abgedeckt durch <strong>Standardvertragsklauseln (SCC)</strong>. Sie können Ihre Einwilligung <strong>jederzeit ändern oder widerrufen</strong> über den Link <strong>„Cookies"</strong> in der Fußzeile der Website. Diese Website-Analyse (Cookies + Einwilligung) ist getrennt von der im obigen Abschnitt beschriebenen Produktanalyse der App.</p>
+    <p>Die Website wird bei <strong>Vercel Inc.</strong> (USA) als Auftragsverarbeiter gehostet; beim Laden einer Seite verarbeitet der Server kurzzeitig Ihre IP-Adresse und technische Anfrage-Header in Betriebsprotokollen (Übermittlung durch Standardvertragsklauseln abgesichert). Texte, die Tierheimliste und Hinweise lädt die Website ohne personenbezogene Daten aus Firebase (Google).</p>
 
     <p>Die konkreten Cookies und Speicherungen, die diese Website verwendet:</p>
     <table>
@@ -70,7 +74,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     </table>
 
     <h2>Aufbewahrung</h2>
-    <p>Lokale Daten verbleiben auf Ihrem Gerät, bis Sie die App löschen oder zurücksetzen. Die Cloud-Sicherung (Konto) bewahren wir für die Dauer Ihres Kontos auf; sobald Sie <strong>Ihr Konto löschen</strong>, entfernen wir sie. <strong>Produktanalysedaten</strong> bewahren wir höchstens <strong>14 Monate</strong> und <strong>Fehlerdiagnosedaten (Sentry)</strong> höchstens <strong>90 Tage</strong> auf, danach werden sie gelöscht. Support-E-Mails werden für die Dauer der Bearbeitung und einen angemessenen Zeitraum danach aufbewahrt.</p>
+    <p>Lokale Daten verbleiben auf Ihrem Gerät, bis Sie die App löschen oder zurücksetzen. Die Cloud-Sicherung (Konto) bewahren wir für die Dauer Ihres Kontos auf; sobald Sie <strong>Ihr Konto löschen</strong>, entfernen wir sie. <strong>Produktanalysedaten</strong> bewahren wir höchstens <strong>14 Monate</strong> und <strong>Fehlerdiagnosedaten (Sentry)</strong> höchstens <strong>90 Tage</strong> auf, danach werden sie gelöscht. Support-E-Mails werden für die Dauer der Bearbeitung und einen angemessenen Zeitraum danach aufbewahrt. Nach dem Löschen des Kontos bleiben nur anonyme Statistiken (bis zum Ablauf der 14 Monate) und der Kaufbeleg bei Apple oder Google.</p>
 
     <h2>Ihre Rechte (DSGVO)</h2>
     <p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch. <strong>Sie können Ihr Konto und die Cloud-Sicherung direkt in der App löschen</strong> (Konto → Konto löschen). Falls Sie die App bereits deinstalliert haben, schreiben Sie eine E-Mail an <a href="mailto:hello@trypup.life">hello@trypup.life</a> und wir löschen Ihre Daten. Sie können die Produktanalyse jederzeit in den App-Einstellungen deaktivieren (Widerspruchsrecht).</p>
@@ -78,9 +82,9 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 
     <h2>Kinder und Minderjährige</h2>
     <p>Beim ersten Start fragt die App nach der Altersgruppe der nutzenden Person („16 Jahre oder älter" / „unter 16 Jahren"). <strong>Die Antwort verbleibt ausschließlich auf Ihrem Gerät und wird niemals übermittelt.</strong></p>
-    <p>Für Nutzer <strong>unter 16 Jahren</strong> ist die Erfassung von Analysedaten <strong>vollständig deaktiviert</strong> — unabhängig von der In-App-Einstellung — und es werden <strong>keine Kaufoptionen angezeigt</strong>. Die Altersgrenze von 16 Jahren entspricht der strengsten Einwilligungsaltersgrenze nach der DSGVO (Art. 8). Wir erheben wissentlich keine personenbezogenen Daten von Kindern. Wenn Sie der Ansicht sind, dass uns ein Kind unter 16 Jahren personenbezogene Daten mitgeteilt hat, kontaktieren Sie uns unter <a href="mailto:hello@trypup.life">hello@trypup.life</a> und wir werden diese löschen.</p>
+    <p>Bei Nutzern <strong>unter 16 Jahren</strong> ist die Analyseerfassung <strong>vollständig abgeschaltet</strong> – unabhängig von der Einstellung in der App – und <strong>Kaufoptionen werden nicht angezeigt</strong>. Die Grenze von 16 Jahren entspricht dem strengsten Einwilligungsalter nach der DSGVO (Art. 8). Die App funktioniert ohne Konto; <strong>ein Nutzer unter 16 darf ein Konto nur mit Zustimmung eines Elternteils anlegen</strong> (z. B. für die gemeinsame Pflege mit der Familie) – wir verarbeiten dann nur die E-Mail für die Anmeldung und das Spiel-Backup, ohne Analyse und ohne Käufe. Ein Elternteil kann jederzeit unter <a href="mailto:hello@trypup.life">hello@trypup.life</a> die Löschung des Kontos des Kindes verlangen; wenn Sie glauben, dass uns ein Kind ohne Zustimmung personenbezogene Daten übermittelt hat, schreiben Sie uns und wir löschen sie.</p>
 
     <h2>Änderungen dieser Richtlinie</h2>
-    <p>Wesentliche Änderungen kündigen wir in der App und hier an. Sobald wir die Anmeldung über soziale Netzwerke (Apple/Google) einführen, werden wir diese Anbieter als Auftragsverarbeiter aufführen.</p>
+    <p>Über wesentliche Änderungen informieren wir in der App (Neuigkeiten) und hier; das Datum der letzten Änderung steht in der Kopfzeile.</p>
   </section>
 </Base>

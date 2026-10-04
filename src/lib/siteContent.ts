@@ -106,7 +106,7 @@ export const CMS_FIELDS: CmsField[] = [
   // ─────────────────────────── O aplikaci (CZ) ───────────────────────────
   { key: 'about.cs.title', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis', default: 'O aplikaci' },
   { key: 'about.cs.meta', group: 'O aplikaci CZ', type: 'text', label: 'Meta řádek', default: 'Pes na zkoušku · zodpovědné rozhodnutí' },
-  { key: 'about.cs.intro', group: 'O aplikaci CZ', type: 'textarea', label: 'Úvodní odstavec', default: 'Trypup je edukativní simulátor péče o psa pro dospělé, kteří vážně uvažují o pořízení skutečného psa. Cílem je snížit počty psů v útulcích tím, že lidi přiměje přemýšlet PŘED rozhodnutím — ne po něm.' },
+  { key: 'about.cs.intro', group: 'O aplikaci CZ', type: 'textarea', label: 'Úvodní odstavec', default: 'Trypup je edukativní simulátor péče o psa pro každého, kdo vážně uvažuje o pořízení skutečného psa — pro dospělé i rodiny s dětmi. Cílem je snížit počty psů v útulcích tím, že lidi přiměje přemýšlet PŘED rozhodnutím — ne po něm.' },
   { key: 'about.cs.whyTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Proč vznikl"', default: 'Proč Trypup vznikl' },
   { key: 'about.cs.whyText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Proč vznikl"', default: 'Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí — čas, peníze, bydlení, životní změny. Trypup vás každodenní rutinou provede nanečisto, bez následků pro živé zvíře.' },
   { key: 'about.cs.breedsTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Plemena"', default: 'Plemena' },
@@ -118,7 +118,7 @@ export const CMS_FIELDS: CmsField[] = [
   // ─────────────────────────── O aplikaci (EN) ───────────────────────────
   { key: 'about.en.title', group: 'O aplikaci EN', type: 'text', label: 'Title', default: 'About the app' },
   { key: 'about.en.meta', group: 'O aplikaci EN', type: 'text', label: 'Meta line', default: 'A dog on trial · a responsible decision' },
-  { key: 'about.en.intro', group: 'O aplikaci EN', type: 'textarea', label: 'Intro paragraph', default: 'Trypup is an educational dog-care simulator for adults seriously considering getting a real dog. The goal is to reduce the number of dogs in shelters by getting people to think BEFORE the decision — not after.' },
+  { key: 'about.en.intro', group: 'O aplikaci EN', type: 'textarea', label: 'Intro paragraph', default: 'Trypup is an educational dog-care simulator for anyone seriously considering getting a real dog — adults and families with children alike. The goal is to reduce the number of dogs in shelters by getting people to think BEFORE the decision — not after.' },
   { key: 'about.en.whyTitle', group: 'O aplikaci EN', type: 'text', label: '„Why" title', default: 'Why Trypup exists' },
   { key: 'about.en.whyText', group: 'O aplikaci EN', type: 'textarea', label: '„Why" text', default: 'Dogs mostly end up in shelters not because of their temperament, but because of their owners\' circumstances — time, money, housing, life changes. Trypup walks you through the daily routine as a dry run, with no consequences for a living animal.' },
   { key: 'about.en.breedsTitle', group: 'O aplikaci EN', type: 'text', label: '„Breeds" title', default: 'Breeds' },

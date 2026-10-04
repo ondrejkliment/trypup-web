@@ -5,7 +5,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 <Base title="Privacy Policy — Trypup" description="How Trypup handles data. The app works without an account; an optional account enables cloud backup of your progress (Firebase, EU)." lang="en" alt="/zasady-ochrany/" pageKey="privacy">
   <section class="section wrap prose">
     <h1>Privacy Policy</h1>
-    <p class="meta">Updated 15 Jul 2026 · Controller: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+    <p class="meta">Updated 4 Oct 2026 · Controller: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
     <p><strong>Trypup works fully without an account — in that case all data stays on your device only.</strong> Optionally you can create an account, which enables <strong>cloud backup of your saved progress</strong> and syncing across devices. We process only the data necessary to provide the service.</p>
 
@@ -14,31 +14,34 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h2>What data we process</h2>
     <h3>Always (locally on your device)</h3>
     <ul>
-      <li><strong>Location (GPS)</strong> — measuring walk route and distance + anti-cheat. Processed ephemerally, does not leave the device. Optional.</li>
-      <li><strong>Motion sensors</strong> — verifying the walk is real. Local, not persisted.</li>
-      <li><strong>Notifications</strong> — locally scheduled care reminders. Optional.</li>
-      <li><strong>Photos / camera</strong> — optional dog photo. Local only.</li>
-      <li><strong>Apple Health / Google Fit</strong> — optional write of a completed walk. We only write, we don't read.</li>
-      <li><strong>Game state</strong> (dog name, breed, stats, progress) — local storage.</li>
+      <li><strong>Location (GPS)</strong> — measuring the route and length of a walk and verifying that you really went outside. During a walk the route is stored temporarily on the device only (so an interrupted walk can be finished); afterwards the device keeps just the length and time. Coordinates never leave your phone and are not part of the cloud backup. The “always” location permission exists only so the walk keeps running with the screen off. Optional.</li>
+      <li><strong>Notifications</strong> — care reminders scheduled on the device itself (no push servers). Optional.</li>
+      <li><strong>Game state</strong> (dog name, breed, stats, progress, your age-category answer) — local storage.</li>
     </ul>
     <h3>Only if you create an account</h3>
     <ul>
-      <li><strong>Email address</strong> — for sign-in and account management.</li>
+      <li><strong>Email address</strong> — for sign-in and account management. You can sign in <strong>with email and password, with your Apple account or with your Google account</strong>. From Apple or Google we receive your email address (with Apple possibly a hidden relay address) and your name if you choose to share it; we read nothing else from those accounts.</li>
       <li><strong>User identifier</strong> (account ID) — a technical identifier assigned by the authentication provider.</li>
       <li><strong>Saved-progress backup</strong> (dog, training, daily progress, purchased features) — stored in the cloud so it can be restored on another device.</li>
+      <li><strong>Display name</strong> in shared care — the part of your email before the @ (or your first name with a hidden Apple address), see below.</li>
     </ul>
-    <p>Your password is stored only in secure (hashed) form by the authentication provider; we have no access to it.</p>
+    <p>Your password is stored only in secure (hashed) form by the authentication provider; we have no access to it. When you sign in with Apple or Google, those companies process your data as independent controllers under their own policies.</p>
+
+    <h3>Shared dog care (“Together”)</h3>
+    <p>When you share a dog with your family, every member sees the dog's state, which tasks were completed by whom and when, and your <strong>display name</strong>. Sharing starts with a six-character invite code; the dog's owner can remove members at any time and a member can leave at any time. This data lives in the same cloud database as the backup (EU). Deleting your account removes your membership, name and invites.</p>
 
     <h2>Purposes and legal basis (GDPR Art. 6)</h2>
     <ul>
       <li><strong>Account and cloud backup</strong> — performance of a contract (Art. 6(1)(b)).</li>
       <li><strong>Walk measurement (GPS)</strong> — a feature you explicitly request (Art. 6(1)(b)); processing is local.</li>
-      <li><strong>Product analytics and error diagnostics</strong> — our legitimate interest (Art. 6(1)(f)); you can turn them off anytime in the app Settings (right to object).</li>
+      <li><strong>Shared care</strong> — performance of a contract (Art. 6(1)(b)); you turn sharing on explicitly with an invite.</li>
+      <li><strong>Product analytics</strong> — our legitimate interest (Art. 6(1)(f)); you can turn it off anytime in the app Settings (right to object).</li>
+      <li><strong>Error diagnostics</strong> — our legitimate interest in a working app (Art. 6(1)(f)); technical data without name or email, you can object by email.</li>
     </ul>
 
     <h2>Processors and data location</h2>
     <p>For the account and cloud backup we use <strong>Google (Firebase — Authentication and Firestore)</strong> as a processor, under the <em>Firebase Data Processing and Security Terms</em>. The backup (Firestore) is stored in <strong>EU data centers (region europe / eur3)</strong>. The Authentication service may process part of the data outside the EU; such transfers are covered by <strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission.</p>
-    <p>We also use the processors <strong>Sentry</strong> (app error diagnostics) and <strong>RevenueCat</strong> (subscription management). Premium purchases are processed by <strong>Apple</strong> and <strong>Google</strong> as independent controllers under their own terms. For transfers of personal data outside the EU/EEA we rely on the <strong>EU–US Data Privacy Framework</strong> adequacy decision (for certified recipients), otherwise on <strong>Standard Contractual Clauses (SCCs)</strong> with supplementary measures (encryption, access controls).</p>
+    <p>We also use the processors <strong>Sentry</strong> (app error diagnostics, hosted in the EU) and <strong>RevenueCat</strong> (purchase verification — it works with a random app identifier and the store receipt, without your email). Premium purchases and sign-in with Apple or Google are processed by <strong>Apple</strong> and <strong>Google</strong> as independent controllers under their own terms. For transfers of personal data outside the EU/EEA we rely on the <strong>EU–US Data Privacy Framework</strong> adequacy decision (for certified recipients), otherwise on <strong>Standard Contractual Clauses (SCCs)</strong> with supplementary measures (encryption, access controls).</p>
 
     <h2>Data sharing</h2>
     <p>We do <strong>not</strong> sell or share your data with third parties for their own purposes. Google acts as our processor (on our instructions), not as an independent recipient. Shelters listed in the app are just links to public websites.</p>
@@ -47,17 +50,18 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h3>Product analytics</h3>
     <p>To improve the app, we process anonymized data about how it is used:</p>
     <ul>
-      <li><strong>What:</strong> a pseudonymous installation identifier (not linked to a person), technical device context (model, OS version, language) and usage events (screens visited, completed walks) — no personal data.</li>
+      <li><strong>What:</strong> a pseudonymous installation identifier (not linked to a person), technical device context (model, type, OS version, app version, app and device language) and usage events (screens visited, tasks done, completed walks, kind of purchase without the amount) — no personal data.</li>
       <li><strong>Where:</strong> Google Firebase / Cloud Firestore (processor Google Ireland Ltd.), stored in the EU.</li>
       <li><strong>Legal basis:</strong> our legitimate interest (Art. 6(1)(f) GDPR) in improving and measuring app usage. Collection is purely first-party traffic measurement — we do not share the data with third parties, do not link it to your account, and do not use it for advertising or cross-app tracking.</li>
       <li><strong>Your choice:</strong> you can turn collection off anytime in the app Settings (right to object, Art. 21 GDPR). We do not collect analytics from users under 16.</li>
       <li>This runs regardless of whether you create an account.</li>
     </ul>
     <h3>Error diagnostics (Sentry)</h3>
-    <p>For stability we use <strong>Sentry</strong> (crash reporting + performance) — technical diagnostics without personal data, based on our legitimate interest in the app's functionality.</p>
+    <p>For stability we use <strong>Sentry</strong> (crash and performance reporting, servers in the EU — Frankfurt). A report contains a pseudonymous installation identifier, device model, OS and app version, language and the technical trace of the error — never your name or email. The IP address is used only for delivery and to derive the country, and is not stored. Diagnostics cannot be turned off in the app (legitimate interest in a working app, Art. 6(1)(f)); you can object at <a href="mailto:hello@trypup.life">hello@trypup.life</a>.</p>
 
     <h2>Cookies and website analytics (trypup.life)</h2>
     <p>This website uses <strong>Google Analytics 4</strong> (Google Ireland Ltd.) to anonymously measure traffic so we can improve the site. Analytics cookies and measurement only start <strong>after you give consent</strong> in the cookie bar (legal basis: consent, Art. 6(1)(a)). Until you consent, Google Analytics runs in a <strong>cookieless</strong> mode (Google Consent Mode). Google acts as a processor and may process part of the data <strong>outside the EU</strong>, covered by <strong>Standard Contractual Clauses (SCCs)</strong>. You can <strong>change or withdraw consent at any time</strong> via the <strong>"Cookies"</strong> link in the site footer. This website analytics (cookies + consent) is separate from the app's product analytics described in the section above.</p>
+    <p>The website is hosted by <strong>Vercel Inc.</strong> (USA) as a processor; when a page loads, the server briefly processes your IP address and technical request headers in operational logs (transfer covered by standard contractual clauses). Texts, the shelter list and notices are loaded from Firebase (Google) without personal data.</p>
 
     <p>The specific cookies and storage this website uses:</p>
     <table>
@@ -70,7 +74,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     </table>
 
     <h2>Retention</h2>
-    <p>Local data stays on your device until you delete the app or reset it. We keep the cloud backup (account) for the lifetime of your account; once you <strong>delete your account</strong>, we remove it. We keep <strong>product analytics</strong> for at most <strong>14 months</strong> and <strong>error diagnostics (Sentry)</strong> for at most <strong>90 days</strong>, after which they are deleted. Support emails are kept for the duration of handling and a reasonable period afterward.</p>
+    <p>Local data stays on your device until you delete the app or reset it. We keep the cloud backup (account) for the lifetime of your account; once you <strong>delete your account</strong>, we remove it, including shared-care memberships and invites. After deletion only anonymous statistics (until the 14 months expire) and the purchase record held by Apple or Google remain. We keep <strong>product analytics</strong> for at most <strong>14 months</strong> and <strong>error diagnostics (Sentry)</strong> for at most <strong>90 days</strong>, after which they are deleted. Support emails are kept for the duration of handling and a reasonable period afterward.</p>
 
     <h2>Your rights (GDPR)</h2>
     <p>You have the right to access, rectification, erasure, restriction, portability and objection. <strong>You can delete your account and cloud backup directly in the app</strong> (Account → Delete account). If you have uninstalled the app, email <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete your data. You can turn off product analytics anytime in the app Settings (right to object).</p>
@@ -78,9 +82,9 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 
     <h2>Children and minors</h2>
     <p>On first launch the app asks for the user's age category ("16 or older" / "under 16"). <strong>The answer stays on your device only and is never sent anywhere.</strong></p>
-    <p>For users <strong>under 16</strong>, analytics collection is <strong>completely disabled</strong> — regardless of the in-app setting — and <strong>purchase options are not shown</strong>. The 16-year threshold matches the strictest age of consent under the GDPR (Art. 8). We do not knowingly collect any personal data from children. If you believe a child under 16 has provided us with personal data, contact us at <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete it.</p>
+    <p>For users <strong>under 16</strong>, analytics collection is <strong>completely disabled</strong> — regardless of the in-app setting — and <strong>purchase options are not shown</strong>. The 16-year threshold matches the strictest age of consent under the GDPR (Art. 8). The app works without an account; <strong>a user under 16 may create an account only with a parent's consent</strong> (for example for shared care with the family) — we then process only the email for sign-in and the game backup, with no analytics and no purchases. A parent can request deletion of the child's account at any time at <a href="mailto:hello@trypup.life">hello@trypup.life</a>; if you believe a child has provided us with personal data without consent, write to us and we will delete it.</p>
 
     <h2>Changes to this policy</h2>
-    <p>We will announce material changes in the app and here. When we add social sign-in (Apple/Google) we will list those providers as processors.</p>
+    <p>We will announce material changes in the app (News) and here; the date of the last change is in the header.</p>
   </section>
 </Base>

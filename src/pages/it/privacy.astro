@@ -5,7 +5,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 <Base title="Informativa sulla privacy — Trypup" description="Come Trypup gestisce i dati. L'app funziona senza account; un account facoltativo consente il backup cloud dei tuoi progressi (Firebase, UE)." lang="it" alt="/en/privacy/" pageKey="privacy">
   <section class="section wrap prose">
     <h1>Informativa sulla privacy</h1>
-    <p class="meta">Aggiornato il 15 luglio 2026 · Titolare del trattamento: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+    <p class="meta">Aggiornato il 4 ottobre 2026 · Titolare del trattamento: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
     <p><strong>Trypup funziona completamente senza account: in questo caso tutti i dati restano esclusivamente sul tuo dispositivo.</strong> Facoltativamente puoi creare un account, che consente il <strong>backup cloud dei progressi salvati</strong> e la sincronizzazione tra dispositivi. Trattiamo solo i dati necessari per fornire il servizio.</p>
 
@@ -14,31 +14,34 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h2>Quali dati trattiamo</h2>
     <h3>Sempre (localmente sul tuo dispositivo)</h3>
     <ul>
-      <li><strong>Posizione (GPS)</strong> — misurazione del percorso e della distanza della passeggiata + anti-cheat. Trattata in modo effimero, non lascia il dispositivo. Facoltativa.</li>
-      <li><strong>Sensori di movimento</strong> — verifica che la passeggiata sia reale. Locale, non memorizzata in modo permanente.</li>
-      <li><strong>Notifiche</strong> — promemoria di cura pianificati localmente. Facoltative.</li>
-      <li><strong>Foto / fotocamera</strong> — foto facoltativa del cane. Solo locale.</li>
-      <li><strong>Apple Health / Google Fit</strong> — scrittura facoltativa di una passeggiata completata. Scriviamo soltanto, non leggiamo.</li>
-      <li><strong>Stato di gioco</strong> (nome del cane, razza, statistiche, progressi) — archiviazione locale.</li>
+      <li><strong>Posizione (GPS)</strong> — misurazione del percorso e della durata della passeggiata e verifica che tu sia davvero uscito. Durante la passeggiata il percorso viene salvato temporaneamente solo sul dispositivo (per poter completare una passeggiata interrotta); dopo, il dispositivo conserva solo distanza e tempo. Le coordinate non lasciano mai il telefono e non fanno parte del backup cloud. Il permesso di posizione «sempre» serve solo a far continuare la passeggiata a schermo spento. Facoltativo.</li>
+      <li><strong>Notifiche</strong> — promemoria di cura pianificati direttamente sul dispositivo (nessun server push). Facoltativo.</li>
+      <li><strong>Stato di gioco</strong> (nome del cane, razza, statistiche, progressi, risposta sulla fascia d’età) — archiviazione locale.</li>
     </ul>
     <h3>Solo se crei un account</h3>
     <ul>
-      <li><strong>Indirizzo e-mail</strong> — per l'accesso e la gestione dell'account.</li>
-      <li><strong>Identificativo utente</strong> (ID account) — un identificativo tecnico assegnato dal fornitore del servizio di autenticazione.</li>
-      <li><strong>Backup dei progressi salvati</strong> (cane, addestramento, progressi giornalieri, funzionalità acquistate) — archiviato nel cloud per poter essere ripristinato su un altro dispositivo.</li>
+      <li><strong>Indirizzo e-mail</strong> — per l’accesso e la gestione dell’account. Puoi accedere <strong>con e-mail e password, con il tuo account Apple o con il tuo account Google</strong>. Da Apple o Google riceviamo il tuo indirizzo e-mail (con Apple, eventualmente un indirizzo di inoltro nascosto) e il tuo nome se scegli di condividerlo; non leggiamo altro da quegli account.</li>
+      <li><strong>Identificativo utente</strong> (ID account) — identificativo tecnico assegnato dal fornitore di autenticazione.</li>
+      <li><strong>Backup dei progressi</strong> (cane, addestramento, progressi giornalieri, funzioni acquistate) — salvato nel cloud per poterlo ripristinare su un altro dispositivo.</li>
+      <li><strong>Nome visualizzato</strong> nella cura condivisa — la parte della tua e-mail prima della @ (o il tuo nome con un indirizzo Apple nascosto), vedi sotto.</li>
     </ul>
-    <p>La tua password è memorizzata dal fornitore del servizio di autenticazione solo in forma sicura (con hashing); non vi abbiamo accesso.</p>
+    <p>La password è conservata esclusivamente in forma sicura (con hash) presso il fornitore di autenticazione; noi non vi abbiamo accesso. Quando accedi con Apple o Google, queste società trattano i tuoi dati come titolari autonomi secondo le proprie informative.</p>
+
+    <h3>Cura condivisa del cane («Insieme»)</h3>
+    <p>Quando condividi un cane con la tua famiglia, tutti i membri vedono lo stato del cane, quali compiti sono stati completati da chi e quando, e il tuo <strong>nome visualizzato</strong>. La condivisione inizia con un codice di invito di sei caratteri; il proprietario del cane può rimuovere i membri in qualsiasi momento e un membro può uscire quando vuole. Questi dati si trovano nello stesso database cloud del backup (UE). Eliminando l’account vengono rimossi la tua appartenenza, il nome e gli inviti.</p>
 
     <h2>Finalità e base giuridica (art. 6 GDPR)</h2>
     <ul>
       <li><strong>Account e backup cloud</strong> — esecuzione di un contratto (art. 6(1)(b)).</li>
       <li><strong>Misurazione della passeggiata (GPS)</strong> — una funzionalità richiesta esplicitamente da te (art. 6(1)(b)); il trattamento è locale.</li>
-      <li><strong>Analisi del prodotto e diagnostica degli errori</strong> — il nostro legittimo interesse (art. 6(1)(f)); puoi disattivarle in qualsiasi momento nelle Impostazioni dell'app (diritto di opposizione).</li>
+      <li><strong>Cura condivisa</strong> — esecuzione del contratto (art. 6, par. 1, lett. b); attivi la condivisione espressamente con un invito.</li>
+      <li><strong>Analisi di prodotto</strong> — nostro legittimo interesse (art. 6, par. 1, lett. f); puoi disattivarla in qualsiasi momento nelle Impostazioni dell’app (diritto di opposizione).</li>
+      <li><strong>Diagnostica degli errori</strong> — nostro legittimo interesse a un’app funzionante (art. 6, par. 1, lett. f); dati tecnici senza nome né e-mail, puoi opporti via e-mail.</li>
     </ul>
 
     <h2>Responsabili del trattamento e ubicazione dei dati</h2>
     <p>Per l'account e il backup cloud utilizziamo <strong>Google (Firebase — Authentication e Firestore)</strong> come responsabile del trattamento, secondo i <em>Firebase Data Processing and Security Terms</em>. Il backup (Firestore) è archiviato in <strong>data center nell'UE (regione europe / eur3)</strong>. Il servizio Authentication può trattare parte dei dati al di fuori dell'UE; tali trasferimenti sono coperti dalle <strong>clausole contrattuali tipo (SCC)</strong> approvate dalla Commissione Europea.</p>
-    <p>Utilizziamo inoltre i responsabili del trattamento <strong>Sentry</strong> (diagnostica degli errori dell'app) e <strong>RevenueCat</strong> (gestione degli abbonamenti). Gli acquisti Premium sono trattati da <strong>Apple</strong> e <strong>Google</strong> come titolari autonomi del trattamento, secondo i rispettivi termini. Per i trasferimenti di dati personali al di fuori dell'UE/SEE ci basiamo sulla decisione di adeguatezza dell'<strong>EU-US Data Privacy Framework</strong> (per i destinatari certificati), oppure, in alternativa, sulle <strong>clausole contrattuali tipo (SCC)</strong> con misure supplementari (crittografia, controlli degli accessi).</p>
+    <p>Usiamo inoltre i responsabili <strong>Sentry</strong> (diagnostica degli errori dell’app, ospitato nell’UE) e <strong>RevenueCat</strong> (verifica degli acquisti — lavora con un identificativo casuale dell’app e la ricevuta dello store, senza la tua e-mail). Gli acquisti Premium e l’accesso con Apple o Google sono trattati da <strong>Apple</strong> e <strong>Google</strong> come titolari autonomi secondo le loro condizioni. Per i trasferimenti di dati personali fuori da UE/SEE ci basiamo sulla <strong>decisione di adeguatezza del Data Privacy Framework UE–USA</strong> (presso destinatari certificati), altrimenti su <strong>clausole contrattuali standard (SCC)</strong> con misure aggiuntive (cifratura, controllo degli accessi).</p>
 
     <h2>Condivisione dei dati</h2>
     <p>Non <strong>vendiamo</strong> né condividiamo i tuoi dati con terzi per finalità proprie di questi ultimi. Google agisce come nostro responsabile del trattamento (su nostre istruzioni), non come destinatario autonomo. I rifugi elencati nell'app sono semplicemente link a siti web pubblici.</p>
@@ -47,17 +50,18 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h3>Analisi del prodotto</h3>
     <p>Per migliorare l'app, trattiamo dati anonimizzati sul suo utilizzo:</p>
     <ul>
-      <li><strong>Cosa:</strong> un identificativo di installazione pseudonimo (non collegato a una persona), il contesto tecnico del dispositivo (modello, versione del sistema operativo, lingua) ed eventi di utilizzo (schermate visitate, passeggiate completate) — nessun dato personale.</li>
+      <li><strong>Cosa:</strong> un identificativo pseudonimo dell’installazione (non collegato a una persona), contesto tecnico del dispositivo (modello, tipo, versione del sistema, versione dell’app, lingua dell’app e del dispositivo) ed eventi d’uso (schermate visitate, compiti svolti, passeggiate completate, tipo di acquisto senza importo) — nessun dato personale.</li>
       <li><strong>Dove:</strong> Google Firebase / Cloud Firestore (responsabile del trattamento Google Ireland Ltd.), archiviati nell'UE.</li>
       <li><strong>Base giuridica:</strong> il nostro legittimo interesse (art. 6(1)(f) GDPR) a migliorare e misurare l'utilizzo dell'app. La raccolta consiste esclusivamente in una misurazione del traffico in qualità di prima parte — non condividiamo i dati con terzi, non li colleghiamo al tuo account e non li utilizziamo per pubblicità o tracciamento tra app.</li>
       <li><strong>La tua scelta:</strong> puoi disattivare la raccolta in qualsiasi momento nelle Impostazioni dell'app (diritto di opposizione, art. 21 GDPR). Non raccogliamo dati analitici dagli utenti minori di 16 anni.</li>
       <li>Questo trattamento avviene indipendentemente dalla creazione di un account.</li>
     </ul>
     <h3>Diagnostica degli errori (Sentry)</h3>
-    <p>Per la stabilità utilizziamo <strong>Sentry</strong> (segnalazione dei crash + prestazioni) — diagnostica tecnica priva di dati personali, basata sul nostro legittimo interesse al corretto funzionamento dell'app.</p>
+    <p>Per la stabilità usiamo <strong>Sentry</strong> (segnalazione di crash e prestazioni, server nell’UE — Francoforte). Una segnalazione contiene un identificativo pseudonimo dell’installazione, il modello del dispositivo, la versione del sistema e dell’app, la lingua e l’andamento tecnico dell’errore — mai il tuo nome né la tua e-mail. L’indirizzo IP serve solo alla consegna e a dedurre il paese e non viene conservato. La diagnostica non può essere disattivata nell’app (legittimo interesse a un’app funzionante, art. 6, par. 1, lett. f); puoi opporti scrivendo a <a href="mailto:hello@trypup.life">hello@trypup.life</a>.</p>
 
     <h2>Cookie e analisi del sito web (trypup.life)</h2>
     <p>Questo sito web utilizza <strong>Google Analytics 4</strong> (Google Ireland Ltd.) per misurare in modo anonimo il traffico e poter così migliorare il sito. I cookie di analisi e la misurazione si attivano solo <strong>dopo aver prestato il consenso</strong> nel banner dei cookie (base giuridica: consenso, art. 6(1)(a)). Finché non presti il consenso, Google Analytics funziona in modalità <strong>senza cookie</strong> (Google Consent Mode). Google agisce come responsabile del trattamento e può trattare parte dei dati <strong>al di fuori dell'UE</strong>, nell'ambito delle <strong>clausole contrattuali tipo (SCC)</strong>. Puoi <strong>modificare o revocare il consenso in qualsiasi momento</strong> tramite il link <strong>"Cookie"</strong> nel footer del sito. Questa analisi del sito web (cookie + consenso) è distinta dall'analisi del prodotto dell'app descritta nella sezione precedente.</p>
+    <p>Il sito è ospitato presso <strong>Vercel Inc.</strong> (USA) come responsabile; al caricamento di una pagina il server tratta brevemente il tuo indirizzo IP e le intestazioni tecniche della richiesta nei log operativi (trasferimento coperto da clausole contrattuali standard). Testi, elenco dei canili e avvisi sono caricati da Firebase (Google) senza dati personali.</p>
 
     <p>I cookie e le memorizzazioni specifiche utilizzati da questo sito web:</p>
     <table>
@@ -70,7 +74,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     </table>
 
     <h2>Conservazione dei dati</h2>
-    <p>I dati locali restano sul tuo dispositivo finché non elimini o reimposti l'app. Conserviamo il backup cloud (account) per tutta la durata del tuo account; una volta <strong>eliminato l'account</strong>, lo rimuoviamo. Conserviamo l'<strong>analisi del prodotto</strong> per al massimo <strong>14 mesi</strong> e la <strong>diagnostica degli errori (Sentry)</strong> per al massimo <strong>90 giorni</strong>, trascorsi i quali vengono cancellate. Le e-mail di assistenza sono conservate per la durata della gestione della richiesta e per un periodo ragionevole successivo.</p>
+    <p>I dati locali restano sul tuo dispositivo finché non elimini o reimposti l'app. Conserviamo il backup cloud (account) per tutta la durata del tuo account; una volta <strong>eliminato l'account</strong>, lo rimuoviamo. Conserviamo l'<strong>analisi del prodotto</strong> per al massimo <strong>14 mesi</strong> e la <strong>diagnostica degli errori (Sentry)</strong> per al massimo <strong>90 giorni</strong>, trascorsi i quali vengono cancellate. Le e-mail di assistenza sono conservate per la durata della gestione della richiesta e per un periodo ragionevole successivo. Dopo l’eliminazione dell’account restano solo statistiche anonime (fino alla scadenza dei 14 mesi) e la registrazione dell’acquisto presso Apple o Google.</p>
 
     <h2>I tuoi diritti (GDPR)</h2>
     <p>Hai diritto di accesso, rettifica, cancellazione, limitazione, portabilità e opposizione. <strong>Puoi eliminare il tuo account e il backup cloud direttamente nell'app</strong> (Account → Elimina account). Se hai disinstallato l'app, scrivi a <a href="mailto:hello@trypup.life">hello@trypup.life</a> e cancelleremo i tuoi dati. Puoi disattivare l'analisi del prodotto in qualsiasi momento nelle Impostazioni dell'app (diritto di opposizione).</p>
@@ -78,9 +82,9 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 
     <h2>Bambini e minori</h2>
     <p>Al primo avvio l'app chiede la fascia di età dell'utente ("16 anni o più" / "meno di 16 anni"). <strong>La risposta resta esclusivamente sul tuo dispositivo e non viene mai inviata altrove.</strong></p>
-    <p>Per gli utenti <strong>minori di 16 anni</strong>, la raccolta di dati analitici è <strong>completamente disattivata</strong> — indipendentemente dall'impostazione nell'app — e <strong>le opzioni di acquisto non vengono mostrate</strong>. La soglia dei 16 anni corrisponde all'età di consenso più restrittiva prevista dal GDPR (art. 8). Non raccogliamo consapevolmente alcun dato personale dei minori. Se ritieni che un minore di 16 anni ci abbia fornito dati personali, contattaci all'indirizzo <a href="mailto:hello@trypup.life">hello@trypup.life</a> e li cancelleremo.</p>
+    <p>Per gli utenti <strong>sotto i 16 anni</strong> la raccolta analitica è <strong>completamente disattivata</strong> — indipendentemente dall’impostazione nell’app — e <strong>non vengono mostrate opzioni di acquisto</strong>. La soglia dei 16 anni corrisponde all’età di consenso più rigorosa del GDPR (art. 8). L’app funziona senza account; <strong>un utente sotto i 16 anni può creare un account solo con il consenso di un genitore</strong> (ad esempio per la cura condivisa in famiglia) — trattiamo allora solo l’e-mail per l’accesso e il backup del gioco, senza analisi né acquisti. Un genitore può chiedere in qualsiasi momento l’eliminazione dell’account del minore a <a href="mailto:hello@trypup.life">hello@trypup.life</a>; se ritieni che un minore ci abbia fornito dati personali senza consenso, scrivici e li elimineremo.</p>
 
     <h2>Modifiche alla presente informativa</h2>
-    <p>Comunicheremo le modifiche sostanziali nell'app e qui. Quando aggiungeremo l'accesso tramite social login (Apple/Google) elencheremo tali fornitori come responsabili del trattamento.</p>
+    <p>Annunceremo le modifiche sostanziali nell’app (Novità) e qui; la data dell’ultima modifica è nell’intestazione.</p>
   </section>
 </Base>

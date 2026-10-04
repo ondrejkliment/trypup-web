@@ -5,7 +5,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 <Base title="Política de Privacidade — Trypup" description="Como a Trypup trata os dados. A aplicação funciona sem conta; uma conta opcional permite cópia de segurança na nuvem do seu progresso (Firebase, UE)." lang="pt" alt="/en/privacy/" pageKey="privacy">
   <section class="section wrap prose">
     <h1>Política de Privacidade</h1>
-    <p class="meta">Atualização a 15 de julho de 2026 · Responsável pelo tratamento: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+    <p class="meta">Atualização a 4 de outubro de 2026 · Responsável pelo tratamento: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
     <p><strong>A Trypup funciona integralmente sem conta — nesse caso, todos os dados permanecem apenas no seu dispositivo.</strong> Opcionalmente, pode criar uma conta, que permite a <strong>cópia de segurança na nuvem do progresso guardado</strong> e a sincronização entre dispositivos. Só tratamos os dados necessários para prestar o serviço.</p>
 
@@ -14,31 +14,34 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h2>Que dados tratamos</h2>
     <h3>Sempre (localmente, no seu dispositivo)</h3>
     <ul>
-      <li><strong>Localização (GPS)</strong> — medição do percurso e da distância do passeio, e deteção de fraude. Processada de forma efémera, não sai do dispositivo. Opcional.</li>
-      <li><strong>Sensores de movimento</strong> — verificação de que o passeio é real. Local, não é guardado.</li>
-      <li><strong>Notificações</strong> — lembretes de cuidados agendados localmente. Opcional.</li>
-      <li><strong>Fotografias / câmara</strong> — fotografia do cão, opcional. Apenas local.</li>
-      <li><strong>Apple Health / Google Fit</strong> — registo opcional de um passeio concluído. Apenas escrevemos, não lemos.</li>
-      <li><strong>Estado do jogo</strong> (nome do cão, raça, estatísticas, progresso) — armazenamento local.</li>
+      <li><strong>Localização (GPS)</strong> — medição do percurso e da duração do passeio e verificação de que saiu mesmo à rua. Durante o passeio o percurso é guardado temporariamente apenas no dispositivo (para se poder terminar um passeio interrompido); depois o dispositivo guarda apenas a distância e o tempo. As coordenadas nunca saem do seu telemóvel e não fazem parte da cópia na nuvem. A permissão de localização «sempre» serve apenas para o passeio continuar com o ecrã apagado. Opcional.</li>
+      <li><strong>Notificações</strong> — lembretes de cuidados agendados no próprio dispositivo (sem servidores push). Opcional.</li>
+      <li><strong>Estado do jogo</strong> (nome do cão, raça, estatísticas, progresso, resposta sobre a faixa etária) — armazenamento local.</li>
     </ul>
     <h3>Apenas se criar uma conta</h3>
     <ul>
-      <li><strong>Endereço de email</strong> — para iniciar sessão e gerir a conta.</li>
-      <li><strong>Identificador de utilizador</strong> (ID da conta) — um identificador técnico atribuído pelo fornecedor de autenticação.</li>
-      <li><strong>Cópia de segurança do progresso guardado</strong> (cão, treino, progresso diário, funcionalidades adquiridas) — armazenada na nuvem para poder ser restaurada noutro dispositivo.</li>
+      <li><strong>Endereço de e-mail</strong> — para iniciar sessão e gerir a conta. Pode iniciar sessão <strong>com e-mail e palavra-passe, com a sua conta Apple ou com a sua conta Google</strong>. Da Apple ou da Google recebemos o seu e-mail (na Apple, eventualmente um endereço de reencaminhamento oculto) e o seu nome, se o partilhar; não lemos mais nada dessas contas.</li>
+      <li><strong>Identificador de utilizador</strong> (ID da conta) — identificador técnico atribuído pelo fornecedor de autenticação.</li>
+      <li><strong>Cópia de segurança do progresso</strong> (cão, treino, progresso diário, funções compradas) — guardada na nuvem para poder ser reposta noutro dispositivo.</li>
+      <li><strong>Nome apresentado</strong> nos cuidados partilhados — a parte do seu e-mail antes do @ (ou o seu primeiro nome com um endereço Apple oculto), ver abaixo.</li>
     </ul>
-    <p>A sua palavra-passe é armazenada apenas de forma segura (com hash) pelo fornecedor de autenticação; não temos acesso a ela.</p>
+    <p>A palavra-passe é guardada exclusivamente de forma segura (com hash) no fornecedor de autenticação; não temos acesso a ela. Ao iniciar sessão com a Apple ou a Google, essas empresas tratam os seus dados como responsáveis independentes segundo as suas políticas.</p>
+
+    <h3>Cuidados partilhados do cão («Juntos»)</h3>
+    <p>Quando partilha um cão com a família, todos os membros veem o estado do cão, que tarefas foram feitas por quem e quando, e o seu <strong>nome apresentado</strong>. A partilha começa com um código de convite de seis caracteres; o dono do cão pode remover membros a qualquer momento e um membro pode sair quando quiser. Estes dados ficam na mesma base de dados na nuvem que a cópia de segurança (UE). Eliminar a conta remove a sua participação, o nome e os convites.</p>
 
     <h2>Finalidades e base jurídica (art. 6.º do RGPD)</h2>
     <ul>
       <li><strong>Conta e cópia de segurança na nuvem</strong> — execução de um contrato (art. 6.º, n.º 1, alínea b)).</li>
       <li><strong>Medição do passeio (GPS)</strong> — uma funcionalidade que solicita expressamente (art. 6.º, n.º 1, alínea b)); o tratamento é local.</li>
-      <li><strong>Análise do produto e diagnóstico de erros</strong> — o nosso interesse legítimo (art. 6.º, n.º 1, alínea f)); pode desativá-los a qualquer momento nas Definições da aplicação (direito de oposição).</li>
+      <li><strong>Cuidados partilhados</strong> — execução do contrato (art. 6.º, n.º 1, al. b); ativa a partilha expressamente com um convite.</li>
+      <li><strong>Análise de produto</strong> — o nosso interesse legítimo (art. 6.º, n.º 1, al. f); pode desativá-la a qualquer momento nas Definições da app (direito de oposição).</li>
+      <li><strong>Diagnóstico de erros</strong> — o nosso interesse legítimo numa app funcional (art. 6.º, n.º 1, al. f); dados técnicos sem nome nem e-mail, pode opor-se por e-mail.</li>
     </ul>
 
     <h2>Subcontratantes e localização dos dados</h2>
     <p>Para a conta e a cópia de segurança na nuvem, utilizamos a <strong>Google (Firebase — Authentication e Firestore)</strong> como subcontratante, ao abrigo dos <em>Firebase Data Processing and Security Terms</em>. A cópia de segurança (Firestore) é armazenada em <strong>centros de dados na UE (região europe / eur3)</strong>. O serviço Authentication pode tratar parte dos dados fora da UE; essas transferências estão cobertas por <strong>Cláusulas Contratuais-Tipo (CCT)</strong> aprovadas pela Comissão Europeia.</p>
-    <p>Também utilizamos os subcontratantes <strong>Sentry</strong> (diagnóstico de erros da aplicação) e <strong>RevenueCat</strong> (gestão de subscrições). As compras Premium são processadas pela <strong>Apple</strong> e pela <strong>Google</strong> como responsáveis independentes, nos termos das respetivas condições. Para transferências de dados pessoais fora da UE/EEE, baseamo-nos na decisão de adequação do <strong>EU–US Data Privacy Framework</strong> (para destinatários certificados) ou, nos restantes casos, em <strong>Cláusulas Contratuais-Tipo (CCT)</strong> com medidas suplementares (encriptação, controlos de acesso).</p>
+    <p>Usamos ainda os subcontratantes <strong>Sentry</strong> (diagnóstico de erros da app, alojado na UE) e <strong>RevenueCat</strong> (verificação de compras — trabalha com um identificador aleatório da app e o recibo da loja, sem o seu e-mail). As compras Premium e o início de sessão com Apple ou Google são tratados pela <strong>Apple</strong> e pela <strong>Google</strong> como responsáveis independentes segundo as suas condições. Nas transferências de dados pessoais para fora da UE/EEE baseamo-nos na <strong>decisão de adequação do Data Privacy Framework UE–EUA</strong> (junto de destinatários certificados) e, nos restantes casos, em <strong>cláusulas contratuais-tipo (SCC)</strong> com medidas adicionais (cifragem, controlo de acessos).</p>
 
     <h2>Partilha de dados</h2>
     <p>Não <strong>vendemos</strong> nem partilhamos os seus dados com terceiros para fins próprios destes. A Google atua como nosso subcontratante (segundo as nossas instruções), e não como destinatário independente. Os abrigos listados na aplicação são apenas ligações a sites públicos.</p>
@@ -47,17 +50,18 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h3>Análise do produto</h3>
     <p>Para melhorar a aplicação, tratamos dados anonimizados sobre a forma como é utilizada:</p>
     <ul>
-      <li><strong>O quê:</strong> um identificador de instalação pseudonimizado (não associado a uma pessoa), o contexto técnico do dispositivo (modelo, versão do sistema operativo, idioma) e eventos de utilização (ecrãs visitados, passeios concluídos) — sem dados pessoais.</li>
+      <li><strong>O quê:</strong> um identificador pseudónimo da instalação (não associado a uma pessoa), contexto técnico do dispositivo (modelo, tipo, versão do sistema, versão da app, idioma da app e do dispositivo) e eventos de utilização (ecrãs visitados, tarefas feitas, passeios concluídos, tipo de compra sem valor) — sem dados pessoais.</li>
       <li><strong>Onde:</strong> Google Firebase / Cloud Firestore (subcontratante Google Ireland Ltd.), armazenados na UE.</li>
       <li><strong>Base jurídica:</strong> o nosso interesse legítimo (art. 6.º, n.º 1, alínea f), do RGPD) em melhorar e medir a utilização da aplicação. A recolha é exclusivamente medição de tráfego em primeira parte — não partilhamos os dados com terceiros, não os associamos à sua conta e não os utilizamos para publicidade ou rastreio entre aplicações.</li>
       <li><strong>A sua escolha:</strong> pode desativar a recolha a qualquer momento nas Definições da aplicação (direito de oposição, art. 21.º do RGPD). Não recolhemos dados analíticos de utilizadores com menos de 16 anos.</li>
       <li>Isto acontece independentemente de criar ou não uma conta.</li>
     </ul>
     <h3>Diagnóstico de erros (Sentry)</h3>
-    <p>Para garantir a estabilidade, utilizamos o <strong>Sentry</strong> (relatórios de falhas + desempenho) — diagnóstico técnico sem dados pessoais, com base no nosso interesse legítimo no funcionamento da aplicação.</p>
+    <p>Para a estabilidade usamos o <strong>Sentry</strong> (relatórios de falhas e desempenho, servidores na UE — Frankfurt). Um relatório contém um identificador pseudónimo da instalação, o modelo do dispositivo, a versão do sistema e da app, o idioma e o percurso técnico do erro — nunca o seu nome nem e-mail. O endereço IP serve apenas para a entrega e para deduzir o país, e não é guardado. O diagnóstico não pode ser desativado na app (interesse legítimo numa app funcional, art. 6.º, n.º 1, al. f); pode opor-se em <a href="mailto:hello@trypup.life">hello@trypup.life</a>.</p>
 
     <h2>Cookies e análise do site (trypup.life)</h2>
     <p>Este site utiliza o <strong>Google Analytics 4</strong> (Google Ireland Ltd.) para medir o tráfego de forma anónima, para podermos melhorar o site. Os cookies analíticos e a medição só começam <strong>depois de dar o seu consentimento</strong> na barra de cookies (base jurídica: consentimento, art. 6.º, n.º 1, alínea a)). Até dar o consentimento, o Google Analytics funciona em modo <strong>sem cookies</strong> (Google Consent Mode). A Google atua como subcontratante e pode tratar parte dos dados <strong>fora da UE</strong>, ao abrigo de <strong>Cláusulas Contratuais-Tipo (CCT)</strong>. Pode <strong>alterar ou retirar o consentimento a qualquer momento</strong> através da ligação <strong>"Cookies"</strong> no rodapé do site. Esta análise do site (cookies + consentimento) é distinta da análise do produto da aplicação, descrita na secção acima.</p>
+    <p>O site está alojado na <strong>Vercel Inc.</strong> (EUA) como subcontratante; ao carregar uma página, o servidor trata brevemente o seu endereço IP e os cabeçalhos técnicos do pedido em registos operacionais (transferência coberta por cláusulas contratuais-tipo). Os textos, a lista de abrigos e os avisos são carregados do Firebase (Google) sem dados pessoais.</p>
 
     <p>Os cookies e o armazenamento específicos utilizados por este site:</p>
     <table>
@@ -70,7 +74,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     </table>
 
     <h2>Conservação dos dados</h2>
-    <p>Os dados locais permanecem no seu dispositivo até eliminar a aplicação ou a repor. Mantemos a cópia de segurança na nuvem (conta) durante o tempo de vida da sua conta; assim que <strong>eliminar a conta</strong>, removemo-la. Mantemos a <strong>análise do produto</strong> durante, no máximo, <strong>14 meses</strong>, e o <strong>diagnóstico de erros (Sentry)</strong> durante, no máximo, <strong>90 dias</strong>, após os quais são eliminados. Os emails de apoio são conservados durante o tratamento e por um período razoável depois disso.</p>
+    <p>Os dados locais permanecem no seu dispositivo até eliminar a aplicação ou a repor. Mantemos a cópia de segurança na nuvem (conta) durante o tempo de vida da sua conta; assim que <strong>eliminar a conta</strong>, removemo-la. Mantemos a <strong>análise do produto</strong> durante, no máximo, <strong>14 meses</strong>, e o <strong>diagnóstico de erros (Sentry)</strong> durante, no máximo, <strong>90 dias</strong>, após os quais são eliminados. Os emails de apoio são conservados durante o tratamento e por um período razoável depois disso. Após eliminar a conta ficam apenas estatísticas anónimas (até expirarem os 14 meses) e o registo de compra na Apple ou na Google.</p>
 
     <h2>Os seus direitos (RGPD)</h2>
     <p>Tem direito de acesso, retificação, apagamento, limitação do tratamento, portabilidade e oposição. <strong>Pode eliminar a sua conta e a cópia de segurança na nuvem diretamente na aplicação</strong> (Conta → Eliminar conta). Se já desinstalou a aplicação, envie um email para <a href="mailto:hello@trypup.life">hello@trypup.life</a> e eliminaremos os seus dados. Pode desativar a análise do produto a qualquer momento nas Definições da aplicação (direito de oposição).</p>
@@ -78,9 +82,9 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 
     <h2>Crianças e menores</h2>
     <p>No primeiro arranque, a aplicação pergunta a categoria etária do utilizador ("16 anos ou mais" / "menos de 16 anos"). <strong>A resposta fica apenas no seu dispositivo e nunca é enviada para lado nenhum.</strong></p>
-    <p>Para utilizadores <strong>com menos de 16 anos</strong>, a recolha de dados analíticos é <strong>completamente desativada</strong> — independentemente da definição na aplicação — e as <strong>opções de compra não são apresentadas</strong>. O limite de 16 anos corresponde à idade de consentimento mais rigorosa prevista no RGPD (art. 8.º). Não recolhemos intencionalmente quaisquer dados pessoais de crianças. Se acredita que uma criança com menos de 16 anos nos forneceu dados pessoais, contacte-nos através de <a href="mailto:hello@trypup.life">hello@trypup.life</a> e eliminá-los-emos.</p>
+    <p>Para utilizadores <strong>com menos de 16 anos</strong> a recolha analítica está <strong>completamente desativada</strong> — independentemente da definição na app — e <strong>não são mostradas opções de compra</strong>. O limite de 16 anos corresponde à idade de consentimento mais rigorosa do RGPD (art. 8.º). A app funciona sem conta; <strong>um utilizador com menos de 16 anos só pode criar conta com o consentimento de um dos pais</strong> (por exemplo para os cuidados partilhados em família) — tratamos então apenas o e-mail para iniciar sessão e a cópia do jogo, sem análise nem compras. Um dos pais pode pedir a qualquer momento a eliminação da conta da criança em <a href="mailto:hello@trypup.life">hello@trypup.life</a>; se achar que uma criança nos forneceu dados pessoais sem consentimento, escreva-nos e eliminamo-los.</p>
 
     <h2>Alterações a esta política</h2>
-    <p>Anunciaremos alterações materiais na aplicação e aqui. Quando adicionarmos início de sessão social (Apple/Google), incluiremos esses fornecedores como subcontratantes.</p>
+    <p>Anunciaremos alterações relevantes na app (Novidades) e aqui; a data da última alteração está no cabeçalho.</p>
   </section>
 </Base>
