@@ -1,7 +1,13 @@
 ---
 // Trypup — skrytý editor oznámení v aplikaci („Novinky a akce"). Píše do Firestore
 // `app_notice/current`, pole `items: Notice[]`; app to čte při startu
-// (@stores/appNoticeStore). ŽÁDNÝ push — doručení je „při dalším otevření aplikace".
+// (@stores/appNoticeStore) — doručení je „při dalším otevření aplikace".
+//
+// PUSH (od 10/2026, pawprint-mobile/docs/PUSH_PLAN.md): ke zveřejněné zprávě jde poslat
+// segmentované push oznámení. Admin tu jen založí dokument `push_campaigns/{id}`
+// (status queued) — segment vyhodnotí a rozešle Cloud Function `onPushCampaignCreated`
+// (FCM + APNs), výsledek zapíše zpět a tahle stránka ho sleduje přes onSnapshot.
+// Tokeny zařízení (`push_devices`) prohlížeč NIKDY nečte (rules) — počty dává dry-run.
 //
 // Tvar zápisu MUSÍ sedět na `isValidNotice` ve storu, jinak aplikace zprávu TIŠE zahodí.
 // Proto je validace níž zkopírovaná 1:1 ze storu a běží před každým uložením.
@@ -72,6 +78,19 @@
     .badge.live { background:#17351f; color:#7dd39a; border:1px solid #2c5c39; }
     .badge.gone { background:#2f2a33; color:var(--muted); border:1px solid var(--line); }
     .badge.bad  { background:#3a1c1c; color:#ff8a8a; border:1px solid #6a2f2f; }
+    .badge.push { background:#1c2f3a; color:#8fd0e8; border:1px solid #2f5668; }
+
+    /* --- push --- */
+    .push-panel { border:1px solid #2f5668; }
+    .push-panel h2 { color:#8fd0e8; }
+    .seg { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .seg .field { margin:0; }
+    .stat { display:inline-block; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin:4px 6px 4px 0; font-size:12.5px; }
+    .stat b { font-size:16px; display:block; color:#fff; }
+    .hist { border:1px solid var(--line); border-radius:12px; padding:10px 14px; margin:0 0 8px; background:var(--bg); font-size:12.5px; }
+    .hist .h-top { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .hist .h-meta { color:var(--muted); font-size:11.5px; margin-top:4px; line-height:1.6; }
+    .st-queued, .st-counting, .st-sending { color:#e8c46a; } .st-done, .st-dry { color:#7dd39a; } .st-failed { color:#ff8a8a; }
 
     @media(max-width:680px){ .cols, .cols3 { grid-template-columns:1fr; } }
   </style>
@@ -155,6 +174,78 @@
       </div>
     </div>
 
+    <!-- === PUSH (skryté, dokud se u zprávy neklikne „Poslat push") === -->
+    <div class="panel push-panel hidden" id="push-panel">
+      <h2>Push oznámení <span class="muted" id="push-for"></span></h2>
+      <p class="hint" style="margin:0 0 12px">Push dostanou jen zařízení, která mají povolené notifikace a v Nastavení zapnuté „Novinky a akce push".
+        Klepnutí otevře v aplikaci Novinky a akce — tam musí být zpráva, ke které push patří. Text pushe drž krátký (titulek ≤ 50, text ≤ 140 znaků).</p>
+      <div class="cols">
+        <div id="push-cs-box">
+          <div class="field"><label><span class="flag">🇨🇿 Titulek pushe</span><span class="count" id="c-p-cs-title"></span></label><input id="p-cs-title" maxlength="120" /></div>
+          <div class="field"><label><span class="flag">🇨🇿 Text pushe</span><span class="count" id="c-p-cs-body"></span></label><textarea id="p-cs-body" rows="3" maxlength="300"></textarea></div>
+        </div>
+        <div id="push-en-box">
+          <div class="field"><label><span class="flag">🇬🇧 Titulek pushe</span><span class="count" id="c-p-en-title"></span></label><input id="p-en-title" maxlength="120" /></div>
+          <div class="field"><label><span class="flag">🇬🇧 Text pushe</span><span class="count" id="c-p-en-body"></span></label><textarea id="p-en-body" rows="3" maxlength="300"></textarea></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Jazyk aplikace příjemce</label>
+        <div class="chips" id="p-langs"></div>
+        <p class="hint">Kdo má aplikaci v jazyce bez vlastního textu, dostane anglickou verzi (a bez ní první vyplněnou).</p>
+      </div>
+      <div class="field">
+        <label>Země zařízení</label>
+        <div class="chips" id="p-countries"></div>
+      </div>
+      <div class="seg">
+        <div class="field">
+          <label>Platforma</label>
+          <div class="chips">
+            <label class="chip on"><input type="checkbox" id="p-ios" checked /><span>iOS</span></label>
+            <label class="chip on"><input type="checkbox" id="p-android" checked /><span>Android</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Aktivita</label>
+          <select id="p-activity">
+            <option value="">Všichni</option>
+            <option value="active:7">Aktivní za posledních 7 dní</option>
+            <option value="active:30">Aktivní za posledních 30 dní</option>
+            <option value="inactive:3">Neaktivní 3 a více dní</option>
+            <option value="inactive:7">Neaktivní 7 a více dní</option>
+            <option value="inactive:30">Neaktivní 30 a více dní</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Neposílat tomu, kdo dostal push za posledních</label>
+          <select id="p-quiet">
+            <option value="">— bez omezení —</option>
+            <option value="1">1 den</option>
+            <option value="3" selected>3 dny</option>
+            <option value="7">7 dní</option>
+            <option value="14">14 dní</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Strop příjemců</label>
+          <input id="p-max" type="number" min="1" max="200000" value="20000" />
+        </div>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>Jen testovací zařízení <span class="muted">(ID zařízení z Nastavení aplikace, oddělená čárkou — ostatní filtry platí dál)</span></label>
+        <input id="p-devices" placeholder="a3f1c2d4, 9b8e7f6a" />
+      </div>
+      <div class="toolbar" style="margin-top:6px">
+        <button id="p-count" class="ghost">Spočítat příjemce</button>
+        <button id="p-send">Odeslat push</button>
+        <button id="p-close" class="ghost">Zavřít</button>
+        <span id="p-msg" class="muted"></span>
+      </div>
+      <div id="p-result" style="margin-top:10px"></div>
+    </div>
+
     <!-- === SEZNAM === -->
     <div class="panel">
       <h2>Zveřejněné zprávy <span id="cnt" class="muted"></span></h2>
@@ -169,7 +260,20 @@
         <em>sundat z banneru</em> i lidem, co ji už mají, použij <strong>„Ukončit teď"</strong>
         (nastaví expiraci na teď a app si opravu stáhne). „Smazat" ji jen přestane rozesílat dál.
       </p>
-      <p class="hint">Aplikace si drží posledních 30 zpráv. Nové zprávy se u lidí objeví při dalším otevření aplikace (žádné push).</p>
+      <p class="hint">Aplikace si drží posledních 30 zpráv. Nové zprávy se u lidí objeví při dalším otevření aplikace — nebo hned, když k nim pošleš push („Poslat push" u zprávy).</p>
+    </div>
+
+    <!-- === HISTORIE PUSHŮ === -->
+    <div class="panel">
+      <h2>Push kampaně <span id="h-cnt" class="muted"></span></h2>
+      <div class="toolbar" style="margin-bottom:10px">
+        <button id="h-devices" class="ghost sm">Přehled registrovaných zařízení</button>
+        <span id="h-msg" class="muted"></span>
+      </div>
+      <div id="h-devices-out"></div>
+      <div id="hist"></div>
+      <p class="hint">Ostrá kampaň jde nejvýš jednou za hodinu (pojistka proti dvojkliku); testovací rozeslání na konkrétní zařízení je z toho vyňaté.
+        Neplatné tokeny (odinstalovaná aplikace) funkce po rozeslání sama maže.</p>
     </div>
   </div>
 
@@ -177,12 +281,15 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-    import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, addDoc, query, orderBy, limit, onSnapshot }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const ADMIN_EMAIL = 'o.kliment@gmail.com';
     const COLLECTION = 'app_notice';
     const DOC_ID = 'current';
+    const CAMPAIGNS = 'push_campaigns';
+    /** Jazyky aplikace (musí sedět na SUPPORTED_LANGUAGES v src/locales/index.ts). */
+    const APP_LANGS = ['cs','en','sk','pl','de','es','fr','it','nl','pt','uk','bg'];
 
     // Země, kam aplikace reálně míří (kopíruje 12 jazyků + sousední trhy). ISO-3166-1 alpha-2.
     const COUNTRIES = [
@@ -237,6 +344,7 @@
         $('login').classList.add('hidden'); $('app').classList.remove('hidden');
         $('who').textContent = '· ' + user.email;
         load();
+        watchHistory();
       } else if (user) {
         $('login-err').textContent = 'Účet ' + user.email + ' nemá přístup.'; signOut(auth);
       } else {
@@ -413,6 +521,12 @@
         edit.onclick = () => startEdit(n);
         acts.appendChild(edit);
         if (!expired) {
+          if (ok) {
+            const pushBtn = document.createElement('button');
+            pushBtn.className = 'sm'; pushBtn.textContent = 'Poslat push';
+            pushBtn.onclick = () => openPush(n);
+            acts.appendChild(pushBtn);
+          }
           const end = document.createElement('button');
           end.className = 'ghost sm'; end.textContent = 'Ukončit teď';
           end.onclick = () => endNow(n);
@@ -598,6 +712,185 @@
         msg
       );
       if (ok) clearForm();
+    };
+
+    // ======================================================================
+    // PUSH kampaně (pawprint-mobile/docs/PUSH_PLAN.md)
+    // ======================================================================
+    let pushNotice = null;      // zpráva, ke které push skládáme
+    let pushUnsub = null;       // onSnapshot běžící kampaně
+    let lastCount = null;       // poslední dry-run pro AKTUÁLNÍ nastavení (otisk + výsledek)
+
+    /** Chipy s možností „Všechny" (stejná logika jako země u zprávy). */
+    function buildChips(boxId, allLabel, options, allId) {
+      const box = $(boxId); box.innerHTML = '';
+      const mk = (name, cls) => {
+        const l = document.createElement('label'); l.className = 'chip' + (cls ? ' ' + cls : '');
+        const cb = document.createElement('input'); cb.type = 'checkbox';
+        const sp = document.createElement('span'); sp.textContent = name;
+        l.appendChild(cb); l.appendChild(sp); box.appendChild(l); return cb;
+      };
+      const all = mk(allLabel, 'all'); all.id = allId; all.checked = true;
+      const ones = () => [...box.querySelectorAll('input.one')];
+      const paint = () => box.querySelectorAll('.chip').forEach((l) => l.classList.toggle('on', l.querySelector('input').checked));
+      all.onchange = () => { if (all.checked) ones().forEach((c) => { c.checked = false; }); else if (!ones().some((c) => c.checked)) all.checked = true; paint(); };
+      options.forEach((o) => { const cb = mk(o.name); cb.className = 'one'; cb.value = o.code; cb.onchange = () => { all.checked = !ones().some((c) => c.checked); paint(); }; });
+      paint();
+      return {
+        set(values) { const v = Array.isArray(values) ? values : []; ones().forEach((c) => { c.checked = v.includes(c.value); }); all.checked = !v.length; paint(); },
+        get() { return all.checked ? null : ones().filter((c) => c.checked).map((c) => c.value); },
+      };
+    }
+    const pLangs = buildChips('p-langs', 'Všechny jazyky', APP_LANGS.map((l) => ({ code: l, name: l })), 'p-l-all');
+    const pCountries = buildChips('p-countries', 'Všechny země', COUNTRIES, 'p-c-all');
+    ['p-ios', 'p-android'].forEach((id) => { $(id).onchange = () => $(id).closest('.chip').classList.toggle('on', $(id).checked); });
+    counter('p-cs-title', 'c-p-cs-title', 50); counter('p-cs-body', 'c-p-cs-body', 140);
+    counter('p-en-title', 'c-p-en-title', 50); counter('p-en-body', 'c-p-en-body', 140);
+
+    const shorten = (t, n) => { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'; };
+
+    function openPush(n) {
+      pushNotice = n; lastCount = null;
+      if (pushUnsub) { pushUnsub(); pushUnsub = null; }
+      $('push-for').textContent = '· k zprávě „' + ((n.text?.cs?.title) || (n.text?.en?.title) || n.id) + '"';
+      const hasCs = !!n.text?.cs, hasEn = !!n.text?.en;
+      $('push-cs-box').classList.toggle('hidden', !hasCs);
+      $('push-en-box').classList.toggle('hidden', !hasEn);
+      $('p-cs-title').value = hasCs ? shorten(n.text.cs.title, 50) : '';
+      $('p-cs-body').value = hasCs ? shorten(n.text.cs.body, 140) : '';
+      $('p-en-title').value = hasEn ? shorten(n.text.en.title, 50) : '';
+      $('p-en-body').value = hasEn ? shorten(n.text.en.body, 140) : '';
+      ['p-cs-title','p-cs-body','p-en-title','p-en-body'].forEach((id) => $(id).dispatchEvent(new Event('input')));
+      // Jazyky: s angličtinou míří zpráva na všechny (fallback), jen česká jen na cs.
+      pLangs.set(hasEn ? [] : ['cs']);
+      pCountries.set(Array.isArray(n.countries) ? n.countries : []);
+      $('p-ios').checked = true; $('p-android').checked = true;
+      ['p-ios', 'p-android'].forEach((id) => $(id).closest('.chip').classList.add('on'));
+      $('p-activity').value = ''; $('p-quiet').value = '3'; $('p-max').value = '20000'; $('p-devices').value = '';
+      $('p-msg').textContent = ''; $('p-result').innerHTML = '';
+      $('push-panel').classList.remove('hidden');
+      $('push-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    $('p-close').onclick = () => { $('push-panel').classList.add('hidden'); pushNotice = null; if (pushUnsub) { pushUnsub(); pushUnsub = null; } };
+
+    /** Složí kampaň z formuláře. Vrací { campaign } nebo { error }. */
+    function buildCampaign(dryRun) {
+      if (!pushNotice) return { error: 'Není vybraná zpráva.' };
+      const text = {};
+      if (!$('push-cs-box').classList.contains('hidden') && $('p-cs-title').value.trim()) text.cs = { title: $('p-cs-title').value.trim(), body: $('p-cs-body').value.trim() };
+      if (!$('push-en-box').classList.contains('hidden') && $('p-en-title').value.trim()) text.en = { title: $('p-en-title').value.trim(), body: $('p-en-body').value.trim() };
+      if (!Object.keys(text).length) return { error: 'Push potřebuje aspoň jeden titulek.' };
+      const platforms = [$('p-ios').checked ? 'ios' : null, $('p-android').checked ? 'android' : null].filter(Boolean);
+      if (!platforms.length) return { error: 'Vyber aspoň jednu platformu.' };
+      const segment = {};
+      const langs = pLangs.get(); if (langs) segment.langs = langs;
+      const countries = pCountries.get(); if (countries) segment.countries = countries;
+      if (platforms.length < 2) segment.platforms = platforms;
+      const act = $('p-activity').value;
+      if (act.startsWith('active:')) segment.activeWithinDays = Number(act.split(':')[1]);
+      if (act.startsWith('inactive:')) segment.inactiveForDays = Number(act.split(':')[1]);
+      if ($('p-quiet').value) segment.notPushedWithinDays = Number($('p-quiet').value);
+      const max = Number($('p-max').value); if (Number.isFinite(max) && max > 0) segment.maxRecipients = Math.floor(max);
+      const devices = $('p-devices').value.split(/[\s,;]+/).map((x) => x.trim()).filter(Boolean);
+      if (devices.length) {
+        if (devices.some((d) => d.length < 8)) return { error: 'ID zařízení musí mít aspoň 8 znaků (tolik ukazuje aplikace).' };
+        segment.deviceIds = devices;
+      }
+      return { campaign: {
+        status: 'queued', dryRun: !!dryRun, createdBy: ADMIN_EMAIL, createdAt: serverTimestamp(),
+        noticeId: pushNotice.id, noticeTitle: (pushNotice.text?.cs?.title) || (pushNotice.text?.en?.title) || '',
+        text, segment,
+      } };
+    }
+    /** Otisk nastavení — „Odeslat" bez čerstvého dry-runu se zeptá navíc. */
+    const settingsKey = (c) => JSON.stringify({ t: c.text, s: c.segment });
+
+    function renderResult(c) {
+      const r = c.result || {};
+      const st = c.status;
+      const line = (label, v) => `<span class="stat"><b>${v ?? '–'}</b>${label}</span>`;
+      let html = `<p class="st-${st}" style="margin:0 0 6px;font-weight:700">${({ queued: 'Zařazeno…', counting: 'Počítám…', sending: 'Rozesílám…', dry: 'Spočítáno', done: 'Odesláno', failed: 'Selhalo' })[st] || st}${c.error ? ' — ' + c.error : ''}</p>`;
+      if (st === 'dry' || st === 'done') {
+        html += line('odpovídá segmentu', r.matched) + (r.capped ? line('po stropu', r.recipients) : '');
+        if (st === 'done') html += line('doručeno do služby', r.sent) + line('selhalo', r.failed) + line('smazaných tokenů', r.pruned);
+        html += line('zařízení celkem', r.totalDevices);
+        const dict = (o) => Object.entries(o || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(' · ') || '–';
+        html += `<p class="hint">platforma: ${dict(r.byPlatform)}<br/>jazyk: ${dict(r.byLang)}<br/>země: ${dict(r.byCountry)}` +
+          (r.failures && Object.keys(r.failures).length ? `<br/>chyby: ${dict(r.failures)}` : '') + '</p>';
+      }
+      return html;
+    }
+
+    async function launch(dryRun) {
+      const msg = $('p-msg'); msg.textContent = '';
+      const built = buildCampaign(dryRun);
+      if (built.error) { msg.innerHTML = `<span class="err">${built.error}</span>`; return; }
+      const c = built.campaign;
+      if (!dryRun) {
+        const key = settingsKey(c);
+        const fresh = lastCount && lastCount.key === key ? lastCount.result : null;
+        const kolik = fresh ? `${fresh.recipients} zařízení` : 'NEZNÁMÝ počet zařízení (nejdřív „Spočítat příjemce")';
+        if (!confirm(`Odeslat push „${(c.text.cs || c.text.en).title}" na ${kolik}?\n\nTohle už nejde vzít zpět.`)) return;
+        if (!fresh && !confirm('Opravdu bez spočítání? Pojistkou je jen strop příjemců.')) return;
+      }
+      msg.textContent = dryRun ? 'Počítám…' : 'Zakládám kampaň…';
+      $('p-count').disabled = true; $('p-send').disabled = true;
+      try {
+        const ref = await addDoc(collection(db, CAMPAIGNS), c);
+        if (pushUnsub) pushUnsub();
+        pushUnsub = onSnapshot(doc(db, CAMPAIGNS, ref.id), (snap) => {
+          const d = snap.data(); if (!d) return;
+          $('p-result').innerHTML = renderResult(d);
+          if (['dry', 'done', 'failed'].includes(d.status)) {
+            $('p-count').disabled = false; $('p-send').disabled = false;
+            msg.textContent = '';
+            if (d.status === 'dry') lastCount = { key: settingsKey(c), result: d.result || {} };
+            if (d.status === 'done') lastCount = null;
+          }
+        });
+      } catch (e) {
+        msg.innerHTML = `<span class="err">Chyba: ${e.message}</span>`;
+        $('p-count').disabled = false; $('p-send').disabled = false;
+      }
+    }
+    $('p-count').onclick = () => launch(true);
+    $('p-send').onclick = () => launch(false);
+
+    // Historie + přehled zařízení (dry-run bez filtru = kolik zařízení je registrovaných).
+    function watchHistory() {
+      const q = query(collection(db, CAMPAIGNS), orderBy('createdAt', 'desc'), limit(20));
+      onSnapshot(q, (snap) => {
+        const box = $('hist'); box.innerHTML = '';
+        $('h-cnt').textContent = snap.size ? `(posledních ${snap.size})` : '';
+        if (!snap.size) { box.innerHTML = '<p class="muted">Zatím žádná kampaň.</p>'; return; }
+        snap.forEach((d) => {
+          const c = d.data(); const r = c.result || {};
+          const el = document.createElement('div'); el.className = 'hist';
+          const when = c.createdAt && typeof c.createdAt.toMillis === 'function' ? fmt(c.createdAt.toMillis()) : '…';
+          const seg = c.segment || {};
+          const segBits = [
+            seg.langs ? 'jazyk ' + seg.langs.join(',') : 'všechny jazyky',
+            seg.countries ? 'země ' + seg.countries.join(',') : 'všechny země',
+            seg.platforms ? seg.platforms.join('+') : 'iOS+Android',
+            seg.activeWithinDays ? `aktivní ${seg.activeWithinDays} d` : '', seg.inactiveForDays ? `neaktivní ${seg.inactiveForDays}+ d` : '',
+            seg.notPushedWithinDays ? `bez pushe ${seg.notPushedWithinDays} d` : '', seg.deviceIds ? `TEST ${seg.deviceIds.length} zař.` : '',
+          ].filter(Boolean).join(' · ');
+          const title = (c.text?.cs?.title) || (c.text?.en?.title) || c.noticeTitle || '(bez titulku)';
+          el.innerHTML = `<div class="h-top"><div><strong>${c.dryRun ? '🔍 ' : '📣 '}${title}</strong> <span class="st-${c.status}">${c.status}</span>${c.error ? ` <span class="err">${c.error}</span>` : ''}</div><div class="muted">${when}</div></div>
+            <div class="h-meta">${segBits}<br/>${c.dryRun ? `odpovídá: ${r.matched ?? '–'}` : `odesláno ${r.sent ?? '–'} · selhalo ${r.failed ?? '–'} · smazané tokeny ${r.pruned ?? '–'} · segment ${r.matched ?? '–'}`} · zařízení celkem ${r.totalDevices ?? '–'}${c.noticeId ? ` · zpráva ${c.noticeId}` : ''}</div>`;
+          box.appendChild(el);
+        });
+      }, (e) => { $('h-msg').innerHTML = `<span class="err">Historie: ${e.message}</span>`; });
+    }
+    $('h-devices').onclick = async () => {
+      $('h-msg').textContent = 'Počítám…'; $('h-devices').disabled = true;
+      try {
+        const ref = await addDoc(collection(db, CAMPAIGNS), { status: 'queued', dryRun: true, createdBy: ADMIN_EMAIL, createdAt: serverTimestamp(), noticeId: null, noticeTitle: 'Přehled zařízení', text: { en: { title: 'inventory', body: '' } }, segment: {} });
+        const un = onSnapshot(doc(db, CAMPAIGNS, ref.id), (snap) => {
+          const d = snap.data(); if (!d) return;
+          if (['dry', 'failed'].includes(d.status)) { un(); $('h-msg').textContent = ''; $('h-devices').disabled = false; $('h-devices-out').innerHTML = renderResult(d); }
+        });
+      } catch (e) { $('h-msg').innerHTML = `<span class="err">${e.message}</span>`; $('h-devices').disabled = false; }
     };
 
     // --- init ---------------------------------------------------------------
