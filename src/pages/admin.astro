@@ -78,6 +78,15 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     .quick { display:inline-flex; gap:4px; }
     .quick button { padding:6px 10px; font-size:12px; }
     .quick button.on { background:var(--water); }
+    .tgl { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); cursor:pointer; user-select:none; }
+    .tgl input { accent-color:var(--apricot); }
+    table.inst { width:100%; border-collapse:collapse; font-size:12px; }
+    table.inst th, table.inst td { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); white-space:nowrap; }
+    table.inst th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
+    table.inst tr.tester td { opacity:.55; }
+    .tag { display:inline-block; border-radius:10px; padding:1px 7px; font-size:10.5px; font-weight:700; background:var(--bg); border:1px solid var(--line); }
+    .tag.auto { color:#e8c46a; } .tag.manual { color:#ff8a8a; } .tag.store { color:#7dd39a; }
+    .note { color:var(--muted); font-size:12px; margin:4px 0 12px; line-height:1.5; }
     table { width:100%; border-collapse:collapse; }
     td,th { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); font-size:12.5px; }
     th { color:var(--muted); font-weight:600; }
@@ -136,6 +145,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         </span>
         <input id="f-from" type="date" title="Od" />
         <input id="f-to" type="date" title="Do" />
+        <label class="tgl" title="Simulátory, emulátory, vývojové buildy, Expo Go a ručně označená zařízení"><input type="checkbox" id="f-testers" /> včetně testerů</label>
         <span class="count" id="count"></span>
       </div>
     </div>
@@ -144,6 +154,12 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     <!-- TAB: PŘEHLED -->
     <div id="tab-prehled" class="tabpane">
+      <h2>Uživatelé <span id="u-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <div class="cards" id="u-kpis"></div>
+      <div class="grid2" id="u-panels" style="margin-top:12px"></div>
+      <p class="note">Zdroj: ledger instalací (<code>install_platforms</code>, každé zařízení jednou, bez testerů — přepínač „včetně testerů“ nahoře).
+        Počet <strong>stažení z obchodů</strong> (App Store / Google Play, po zemích) se připravuje: App Store Analytics Reports jsou objednané (data od 5.–6. 10.), Google Play čeká na oprávnění service accountu.</p>
+      <h2>Eventy (načtené dávky)</h2>
       <div class="cards" id="kpis"></div>
       <h2>Funnely (kolik instalací dojde k…)</h2>
       <div class="grid2" id="funnels"></div>
@@ -173,6 +189,9 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <div class="grid2" id="t-devices"></div>
       <h2>Kvalita & chyby</h2>
       <div class="grid2" id="t-quality"></div>
+      <h2>Instalace (ledger) — označení testerů <span id="i-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <p class="note">Simulátor / emulátor / vývojový build / Expo Go se poznají samy (<span class="tag auto">auto</span>). TestFlight a interní testování Play vypadají jako obchod → označ je ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi tester, moje zařízení. Označení platí okamžitě pro všechny záložky i pro <code>/api/stats.json</code>.</p>
+      <div class="panel" style="overflow:auto"><table class="inst" id="inst"></table></div>
       <h2>Poslední aktivita (drill log)</h2>
       <div class="panel"><div class="feed" id="feed"></div></div>
     </div>
@@ -182,7 +201,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs }
+    import { getFirestore, collection, query, orderBy, limit, startAfter, getDocs, doc, setDoc, deleteDoc, serverTimestamp }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const ADMIN_EMAIL = 'o.kliment@gmail.com';
@@ -256,11 +275,32 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       } finally { loading = false; }
     }
 
+    // --- Ledger instalací + testeři (docs/ANALYTICS_DASHBOARD_PLAN.md) ---
+    let INSTALLS = [];                 // [{id, platform, firstMs, lastMs, locale, deviceLocale, region, installKind, model, os, osVersion, appBuild}]
+    let MANUAL_TESTERS = new Map();    // installId → note
+    const AUTO_TESTER_KINDS = new Set(['simulator', 'emulator', 'development', 'ad_hoc', 'enterprise', 'expo_go']);
+    const tsMs = (v) => (v && typeof v.toMillis === 'function') ? v.toMillis() : (typeof v === 'number' ? v : null);
+    const isTester = (iid, kind) => MANUAL_TESTERS.has(iid) || AUTO_TESTER_KINDS.has(kind || installKindOf(iid));
+    const KIND_BY_ID = new Map();
+    const installKindOf = (iid) => KIND_BY_ID.get(iid) || 'unknown';
+    async function loadInstalls() {
+      const [inst, testers] = await Promise.all([getDocs(collection(db, 'install_platforms')), getDocs(collection(db, 'tester_installs'))]);
+      INSTALLS = inst.docs.map((d) => { const x = d.data(); return { id: d.id, platform: x.platform || null, firstMs: tsMs(x.firstSeenAt), lastMs: tsMs(x.lastSeenAt), locale: x.locale, deviceLocale: x.deviceLocale, region: x.region, installKind: x.installKind || 'unknown', model: x.model, os: x.os, osVersion: x.osVersion, appBuild: x.appBuild }; });
+      KIND_BY_ID.clear(); INSTALLS.forEach((i) => KIND_BY_ID.set(i.id, i.installKind));
+      MANUAL_TESTERS = new Map(testers.docs.map((d) => [d.id, (d.data() || {}).note || '']));
+    }
+    async function setTester(iid, on) {
+      if (on) { const note = prompt('Poznámka k testerovi (např. „můj iPhone“):', MANUAL_TESTERS.get(iid) || '') ; if (note === null) return; await setDoc(doc(db, 'tester_installs', iid), { note, at: serverTimestamp() }); MANUAL_TESTERS.set(iid, note); }
+      else { await deleteDoc(doc(db, 'tester_installs', iid)); MANUAL_TESTERS.delete(iid); }
+      render();
+    }
+
     async function firstLoad() {
       RAW = []; lastDoc = null; batches = 0; exhausted = false;
       $('status').classList.remove('hidden');
       $('status').textContent = 'Načítám…';
       try {
+        await loadInstalls().catch((e) => console.warn('ledger instalací nenačten', e));
         await fetchPage();
         buildFilterOptions();
         render();
@@ -285,7 +325,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     };
 
     // --- Filtry ---
-    const FILTERS = { text:'', installId:'', event:'', platform:'', locale:'', build:'', type:'', from:'', to:'' };
+    const FILTERS = { text:'', installId:'', event:'', platform:'', locale:'', build:'', type:'', from:'', to:'', testers:false };
+    $('f-testers').onchange = (ev) => { FILTERS.testers = ev.target.checked; render(); };
 
     function buildFilterOptions() {
       const fill = (id, vals, label) => {
@@ -309,6 +350,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const toTs = FILTERS.to ? new Date(FILTERS.to).getTime() + 86400000 : null; // celý „do" den včetně
       return arr.filter((e) => {
         if (!Number.isFinite(e.ts)) return false;
+        if (!FILTERS.testers && isTester(e.installId, e.dev && e.dev.installKind)) return false;
         if (FILTERS.event && e.name !== FILTERS.event) return false;
         if (FILTERS.platform && e.dev.platform !== FILTERS.platform) return false;
         if (FILTERS.locale && e.dev.locale !== FILTERS.locale) return false;
@@ -405,7 +447,38 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       else renderTech(ev);
     }
 
+    function renderUsers() {
+      const now = Date.now(); const DAY = 86400000;
+      const all = INSTALLS.filter((i) => i.platform === 'ios' || i.platform === 'android');
+      const testers = all.filter((i) => isTester(i.id, i.installKind));
+      const users = FILTERS.testers ? all : all.filter((i) => !isTester(i.id, i.installKind));
+      const within = (ms, d) => ms !== null && now - ms <= d * DAY;
+      const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
+      const ios = users.filter((i) => i.platform === 'ios').length, and = users.length - ios;
+      $('u-sub').textContent = (FILTERS.testers ? 'včetně ' : 'bez ') + testers.length + ' testerů · ' + all.length + ' zařízení v ledgeru';
+      $('u-kpis').innerHTML = [
+        k('zařízení celkem', users.length, `iOS ${ios} · Android ${and}`),
+        k('aktivní 7 dní', users.filter((i) => within(i.lastMs, 7)).length, `30 dní ${users.filter((i) => within(i.lastMs, 30)).length}`),
+        k('nové 7 dní', users.filter((i) => within(i.firstMs, 7)).length, `30 dní ${users.filter((i) => within(i.firstMs, 30)).length}`),
+        k('nové 24 h', users.filter((i) => within(i.firstMs, 1)).length),
+      ].join('');
+      const byDay = new Map();
+      for (let d = 29; d >= 0; d--) byDay.set(new Date(now - d * DAY).toLocaleDateString('cs-CZ'), 0);
+      users.forEach((i) => { if (within(i.firstMs, 30)) { const key = new Date(i.firstMs).toLocaleDateString('cs-CZ'); byDay.set(key, (byDay.get(key) || 0) + 1); } });
+      const regionName = (c) => { try { return c && c !== 'none' ? new Intl.DisplayNames(['cs'], { type: 'region' }).of(c) + ' (' + c + ')' : '— nehlásí (starší build)'; } catch { return c; } };
+      const langName = (c) => { try { return c ? new Intl.DisplayNames(['cs'], { type: 'language' }).of(c) + ' (' + c + ')' : '—'; } catch { return c; } };
+      $('u-panels').innerHTML = [
+        barPanel('Nová zařízení za den (30 dní)', [...byDay.entries()], 'var(--apricot)'),
+        barPanel('Jazyk aplikace', countBy(users, (i) => langName(i.locale)), 'var(--water)', 12, 'z nastavení aplikace'),
+        barPanel('Země zařízení', countBy(users, (i) => regionName(i.region)), 'var(--plum)', 12, 'z nastavení telefonu; sbírá se od OTA build281'),
+        barPanel('Jazyk telefonu', countBy(users, (i) => langName(i.deviceLocale === 'none' ? null : i.deviceLocale)), null, 12, 'co má člověk v systému'),
+        barPanel('Build aplikace', countBy(users, (i) => i.appBuild != null ? 'build' + i.appBuild : '?'), null, 10, 'podle poslední dávky'),
+        barPanel('Druh instalace', countBy(all, (i) => i.installKind), null, 8, 'app_store/device = běžní uživatelé'),
+      ].join('');
+    }
+
     function renderOverview(ev) {
+      renderUsers();
       const tsList = ev.map((e) => e.ts).filter(Boolean);
       const sessions = new Set(ev.map((e) => e.installId + ':' + e.session)).size;
       const span = tsList.length ? Math.round((Math.max(...tsList) - Math.min(...tsList)) / 86400000) : 0;
@@ -523,6 +596,23 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         barPanel('GPS odmítnuto', countBy(evByName(ev, 'gps_denied'), () => 'gps_denied'), '#ff8a8a'),
         barPanel('Fail-state (pes do útulku) dle dne', countBy(evByName(ev, 'fail_state'), (e) => 'den ' + (e.props.day ?? '?')), '#ff8a8a'),
       ].join('');
+
+      // Ledger instalací s označením testerů (řazeno podle poslední aktivity).
+      const iidFilter = FILTERS.installId.trim();
+      const rows = [...INSTALLS]
+        .filter((i) => !iidFilter || i.id.startsWith(iidFilter))
+        .sort((a, b) => (b.lastMs || 0) - (a.lastMs || 0))
+        .slice(0, 300);
+      $('i-sub').textContent = rows.length + ' z ' + INSTALLS.length;
+      $('inst').innerHTML = `<tr><th>installId</th><th>platforma</th><th>model</th><th>OS</th><th>jazyk</th><th>země</th><th>build</th><th>první</th><th>poslední</th><th>druh</th><th></th></tr>` +
+        rows.map((i) => {
+          const manual = MANUAL_TESTERS.has(i.id); const auto = AUTO_TESTER_KINDS.has(i.installKind);
+          const tag = manual ? `<span class="tag manual" title="${esc(MANUAL_TESTERS.get(i.id) || '')}">tester</span>` : auto ? `<span class="tag auto">auto</span>` : `<span class="tag store">${esc(i.installKind)}</span>`;
+          return `<tr class="${manual || auto ? 'tester' : ''}"><td><span class="iid" data-iid="${esc(i.id)}" style="cursor:pointer">${esc(i.id.slice(0, 10))}</span></td><td>${esc(i.platform || '?')}</td><td>${esc(i.model || '')}</td><td>${esc((i.os || '') + ' ' + (i.osVersion || ''))}</td><td>${esc(i.locale || '')}${i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + esc(i.deviceLocale) + ')</span>' : ''}</td><td>${esc(i.region && i.region !== 'none' ? i.region : '')}</td><td>${i.appBuild ?? ''}</td><td>${i.firstMs ? fmt(i.firstMs) : ''}</td><td>${i.lastMs ? fmt(i.lastMs) : ''}</td><td>${tag}</td>
+            <td><button class="ghost" style="padding:3px 8px;font-size:11px" data-tester="${esc(i.id)}" data-on="${manual ? '0' : '1'}">${manual ? 'zrušit' : 'tester'}</button></td></tr>`;
+        }).join('');
+      $('inst').querySelectorAll('button[data-tester]').forEach((b) => b.onclick = () => setTester(b.dataset.tester, b.dataset.on === '1').catch((e) => alert('Nepodařilo se uložit: ' + e.message)));
+      $('inst').querySelectorAll('.iid').forEach((el) => el.onclick = () => { FILTERS.installId = el.dataset.iid; $('f-iid').value = el.dataset.iid; render(); });
 
       const recent = [...ev].sort((a, b) => b.ts - a.ts).slice(0, 80);
       $('feed').innerHTML = recent.map((e) => `<div class="row">
