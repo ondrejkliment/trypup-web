@@ -15,7 +15,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h3>Always (locally on your device)</h3>
     <ul>
       <li><strong>Location (GPS)</strong> — measuring the route and length of a walk and verifying that you really went outside. During a walk the route is stored temporarily on the device only (so an interrupted walk can be finished); afterwards the device keeps just the length and time. Coordinates never leave your phone and are not part of the cloud backup. The “always” location permission exists only so the walk keeps running with the screen off. Optional.</li>
-      <li><strong>Notifications</strong> — care reminders scheduled on the device itself (no push servers). Optional.</li>
+      <li><strong>Notifications</strong> — care reminders scheduled directly on the device; optional push notices about news are described below. Optional.</li>
       <li><strong>Game state</strong> (dog name, breed, stats, progress, your age-category answer) — local storage.</li>
     </ul>
     <h3>Only if you create an account</h3>
@@ -30,6 +30,9 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <h3>Shared dog care (“Together”)</h3>
     <p>When you share a dog with your family, every member sees the dog's state, which tasks were completed by whom and when, and your <strong>display name</strong>. Sharing starts with a six-character invite code; the dog's owner can remove members at any time and a member can leave at any time. This data lives in the same cloud database as the backup (EU). Deleting your account removes your membership, name and invites.</p>
 
+    <h3>Push notices about news and events</h3>
+    <p>If notifications are allowed on your phone, we may occasionally send you a <strong>push notice about app news and dog events</strong> — even when the app is not open. Notices are targeted only by app language, device country and platform, never by your in-game behaviour. To deliver them we store a <strong>push token</strong> (a technical delivery identifier issued by Apple or Google), the <strong>app language, device country and time zone, app version, a random installation identifier</strong> and the <strong>time of last use</strong>; for signed-in users also the account ID. Delivery is handled by Apple (APNs) and Google (Firebase Cloud Messaging); the device record is kept in our database in the EU. You can switch push notices off at any time in the app Settings (“News & events push”) or by revoking the notification permission — we then delete the device record; we also delete it after <strong>12 months</strong> without using the app. We do not send push notices to users under 16.</p>
+
     <h2>Purposes and legal basis (GDPR Art. 6)</h2>
     <ul>
       <li><strong>Account and cloud backup</strong> — performance of a contract (Art. 6(1)(b)).</li>
@@ -37,10 +40,11 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
       <li><strong>Shared care</strong> — performance of a contract (Art. 6(1)(b)); you turn sharing on explicitly with an invite.</li>
       <li><strong>Product analytics</strong> — our legitimate interest (Art. 6(1)(f)); you can turn it off anytime in the app Settings (right to object).</li>
       <li><strong>Error diagnostics</strong> — our legitimate interest in a working app (Art. 6(1)(f)); technical data without name or email, you can object by email.</li>
+      <li><strong>Push notices about news</strong> — our legitimate interest in informing users about the service (Art. 6(1)(f)); sent only when notifications are allowed, and you can switch them off at any time in the app Settings (right to object).</li>
     </ul>
 
     <h2>Processors and data location</h2>
-    <p>For the account and cloud backup we use <strong>Google (Firebase — Authentication and Firestore)</strong> as a processor, under the <em>Firebase Data Processing and Security Terms</em>. The backup (Firestore) is stored in <strong>EU data centers (region europe / eur3)</strong>. The Authentication service may process part of the data outside the EU; such transfers are covered by <strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission.</p>
+    <p>For the account and cloud backup we use <strong>Google (Firebase — Authentication and Firestore)</strong> as a processor, under the <em>Firebase Data Processing and Security Terms</em>. The backup (Firestore) is stored in <strong>EU data centers (region europe / eur3)</strong>. The Authentication service may process part of the data outside the EU; such transfers are covered by <strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission. For push delivery we use <strong>Google (Firebase Cloud Messaging)</strong> as a processor and the <strong>Apple Push Notification service</strong>; push tokens are stored in Firestore in the EU.</p>
     <p>We also use the processors <strong>Sentry</strong> (app error diagnostics, hosted in the EU) and <strong>RevenueCat</strong> (purchase verification — it works with a random app identifier and the store receipt, without your email). Premium purchases and sign-in with Apple or Google are processed by <strong>Apple</strong> and <strong>Google</strong> as independent controllers under their own terms. For transfers of personal data outside the EU/EEA we rely on the <strong>EU–US Data Privacy Framework</strong> adequacy decision (for certified recipients), otherwise on <strong>Standard Contractual Clauses (SCCs)</strong> with supplementary measures (encryption, access controls).</p>
 
     <h2>Data sharing</h2>
@@ -74,7 +78,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     </table>
 
     <h2>Retention</h2>
-    <p>Local data stays on your device until you delete the app or reset it. We keep the cloud backup (account) for the lifetime of your account; once you <strong>delete your account</strong>, we remove it, including shared-care memberships and invites. After deletion only anonymous statistics (until the 14 months expire) and the purchase record held by Apple or Google remain. We keep <strong>product analytics</strong> for at most <strong>14 months</strong> and <strong>error diagnostics (Sentry)</strong> for at most <strong>90 days</strong>, after which they are deleted. Support emails are kept for the duration of handling and a reasonable period afterward.</p>
+    <p>Local data stays on your device until you delete the app or reset it. We keep the cloud backup (account) for the lifetime of your account; once you <strong>delete your account</strong>, we remove it, including shared-care memberships and invites. After deletion only anonymous statistics (until the 14 months expire) and the purchase record held by Apple or Google remain. We keep <strong>product analytics</strong> for at most <strong>14 months</strong> and <strong>error diagnostics (Sentry)</strong> for at most <strong>90 days</strong>, after which they are deleted. Support emails are kept for the duration of handling and a reasonable period afterward. We delete the <strong>device record for push notices</strong> when you switch them off in Settings, when the token becomes invalid (e.g. after uninstalling) and at the latest after <strong>12 months</strong> without using the app.</p>
 
     <h2>Your rights (GDPR)</h2>
     <p>You have the right to access, rectification, erasure, restriction, portability and objection. <strong>You can delete your account and cloud backup directly in the app</strong> (Account → Delete account). If you have uninstalled the app, email <a href="mailto:hello@trypup.life">hello@trypup.life</a> and we will delete your data. You can turn off product analytics anytime in the app Settings (right to object).</p>
@@ -82,7 +86,7 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 
     <h2>Children and minors</h2>
     <p>On first launch the app asks for the user's age category ("16 or older" / "under 16"). <strong>The answer stays on your device only and is never sent anywhere.</strong></p>
-    <p>For users <strong>under 16</strong>, analytics collection is <strong>completely disabled</strong> — regardless of the in-app setting — and <strong>purchase options are not shown</strong>. The 16-year threshold matches the strictest age of consent under the GDPR (Art. 8). The app works without an account; <strong>a user under 16 may create an account only with a parent's consent</strong> (for example for shared care with the family) — we then process only the email for sign-in and the game backup, with no analytics and no purchases. A parent can request deletion of the child's account at any time at <a href="mailto:hello@trypup.life">hello@trypup.life</a>; if you believe a child has provided us with personal data without consent, write to us and we will delete it.</p>
+    <p>For users <strong>under 16</strong>, analytics collection is <strong>completely disabled</strong> — regardless of the in-app setting — and <strong>purchase options are not shown</strong>. The 16-year threshold matches the strictest age of consent under the GDPR (Art. 8). The app works without an account; <strong>a user under 16 may create an account only with a parent's consent</strong> (for example for shared care with the family) — we then process only the email for sign-in and the game backup, with no analytics and no purchases. A parent can request deletion of the child's account at any time at <a href="mailto:hello@trypup.life">hello@trypup.life</a>; if you believe a child has provided us with personal data without consent, write to us and we will delete it. We do not send push notices to users under 16 either.</p>
 
     <h2>Changes to this policy</h2>
     <p>We will announce material changes in the app (News) and here; the date of the last change is in the header.</p>

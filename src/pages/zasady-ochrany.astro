@@ -15,7 +15,7 @@ import OperatorBlock from '../components/OperatorBlock.astro';
     <h3>Vždy (lokálně na zařízení)</h3>
     <ul>
       <li><strong>Poloha (GPS)</strong> — měření trasy a délky procházky a ověření, že jste opravdu šli ven. Trasa se během procházky dočasně ukládá jen v zařízení (aby šla po přerušení dokončit); po dokončení si zařízení pamatuje jen délku a čas. Souřadnice nikdy neopouštějí telefon a nejsou součástí cloudové zálohy. Oprávnění k poloze „i na pozadí“ slouží jen k tomu, aby procházka pokračovala při zhasnutém displeji. Volitelné.</li>
-      <li><strong>Notifikace</strong> — připomínky péče plánované přímo v zařízení (žádné push servery). Volitelné.</li>
+      <li><strong>Notifikace</strong> — připomínky péče plánované přímo v zařízení; volitelná push oznámení o novinkách viz níže. Volitelné.</li>
       <li><strong>Herní stav</strong> (jméno psa, plemeno, statistiky, pokrok, odpověď na věkovou kategorii) — lokální úložiště.</li>
     </ul>
     <h3>Pouze pokud si založíte účet</h3>
@@ -30,6 +30,9 @@ import OperatorBlock from '../components/OperatorBlock.astro';
     <h3>Společná péče o psa („Spolu“)</h3>
     <p>Když psa sdílíte s rodinou, vidí všichni členové stav psa, které úkoly kdo splnil a kdy, a vaše <strong>zobrazované jméno</strong>. Sdílení vzniká šestimístným pozvánkovým kódem; majitel psa může členy kdykoli odebrat a člen může sdílení opustit. Tato data leží ve stejné cloudové databázi jako záloha (EU). Smazání účtu odstraní vaše členství, jméno i pozvánky.</p>
 
+    <h3>Push oznámení o novinkách a akcích</h3>
+    <p>Pokud máte v telefonu povolené notifikace, můžeme vám občas poslat <strong>push oznámení o novinkách v aplikaci a psích akcích</strong> — i když aplikaci zrovna nemáte otevřenou. Oznámení cílíme jen podle jazyka aplikace, země a platformy zařízení, nikdy podle vašeho chování ve hře. Abychom je mohli doručit, ukládáme <strong>push token</strong> (technický identifikátor pro doručování, který vydává Apple nebo Google), <strong>jazyk aplikace, zemi a časové pásmo zařízení, verzi aplikace, náhodný identifikátor instalace</strong> a <strong>čas posledního použití</strong>; u přihlášených uživatelů také ID účtu. Doručení zajišťují služby Apple (APNs) a Google (Firebase Cloud Messaging), záznam o zařízení leží v naší databázi v EU. Push oznámení kdykoli vypnete v Nastavení aplikace („Novinky a akce push“) nebo odebráním oprávnění k notifikacím — záznam o zařízení pak smažeme; smažeme ho také po <strong>12 měsících</strong> bez použití aplikace. Uživatelům do 16 let push oznámení neposíláme.</p>
+
     <h2>Účely a právní základ (GDPR čl. 6)</h2>
     <ul>
       <li><strong>Účet a cloud záloha</strong> — plnění smlouvy o poskytnutí služby (čl. 6 odst. 1 písm. b).</li>
@@ -37,10 +40,11 @@ import OperatorBlock from '../components/OperatorBlock.astro';
       <li><strong>Společná péče</strong> — plnění smlouvy (čl. 6 odst. 1 písm. b); sdílení si výslovně zapínáte pozvánkou.</li>
       <li><strong>Produktová analytika</strong> — náš oprávněný zájem (čl. 6 odst. 1 písm. f); můžete ji kdykoli vypnout v Nastavení aplikace (právo vznést námitku).</li>
       <li><strong>Diagnostika chyb</strong> — náš oprávněný zájem na funkční aplikaci (čl. 6 odst. 1 písm. f); jde o technické údaje bez jména či e-mailu, námitku můžete vznést e-mailem.</li>
+      <li><strong>Push oznámení o novinkách</strong> — náš oprávněný zájem informovat uživatele o službě (čl. 6 odst. 1 písm. f); posíláme je jen při povolených notifikacích a kdykoli je vypnete v Nastavení aplikace (právo vznést námitku).</li>
     </ul>
 
     <h2>Zpracovatelé a umístění dat</h2>
-    <p>Pro účet a cloud zálohu využíváme <strong>Google (Firebase — Authentication a Firestore)</strong> jako zpracovatele, na základě <em>Firebase Data Processing and Security Terms</em>. Záloha (Firestore) je uložena v <strong>datacentrech v EU (region europe / eur3)</strong>. Ověřovací služba (Authentication) může část zpracování provádět mimo EU; přenos je krytý <strong>standardními smluvními doložkami (SCC)</strong> schválenými Evropskou komisí.</p>
+    <p>Pro účet a cloud zálohu využíváme <strong>Google (Firebase — Authentication a Firestore)</strong> jako zpracovatele, na základě <em>Firebase Data Processing and Security Terms</em>. Záloha (Firestore) je uložena v <strong>datacentrech v EU (region europe / eur3)</strong>. Ověřovací služba (Authentication) může část zpracování provádět mimo EU; přenos je krytý <strong>standardními smluvními doložkami (SCC)</strong> schválenými Evropskou komisí. Pro doručení push oznámení využíváme <strong>Google (Firebase Cloud Messaging)</strong> jako zpracovatele a službu <strong>Apple Push Notification service</strong>; push tokeny ukládáme ve Firestore v EU.</p>
     <p>Dále využíváme zpracovatele <strong>Sentry</strong> (diagnostika chyb aplikace, hostováno v EU) a <strong>RevenueCat</strong> (ověření nákupů — pracuje s náhodným identifikátorem aplikace a účtenkou z obchodu, bez vašeho e-mailu). Nákupy Premium a přihlášení účtem Apple či Google zpracovávají <strong>Apple</strong> a <strong>Google</strong> jako samostatní správci dle svých podmínek. U předávání osobních údajů mimo EU/EHP se opíráme o <strong>rozhodnutí o odpovídající ochraně EU–US Data Privacy Framework</strong> (u certifikovaných příjemců), jinak o <strong>standardní smluvní doložky (SCC)</strong> s doplňkovými opatřeními (šifrování, řízení přístupů).</p>
 
     <h2>Sdílení dat</h2>
@@ -74,7 +78,7 @@ import OperatorBlock from '../components/OperatorBlock.astro';
     </table>
 
     <h2>Doba uchování</h2>
-    <p>Lokální data zůstávají na zařízení, dokud aplikaci nesmažete nebo neprovedete reset. Cloud zálohu (účet) uchováváme po dobu existence účtu; po <strong>smazání účtu</strong> ji odstraníme, včetně členství ve společné péči a pozvánek. Po smazání účtu zůstávají jen anonymní statistiky (do uplynutí 14 měsíců) a záznam o nákupu u Apple či Google. <strong>Produktovou analytiku</strong> uchováváme nejdéle <strong>14 měsíců</strong>, <strong>diagnostiku chyb (Sentry)</strong> nejdéle <strong>90 dní</strong>, poté se maže. E‑maily podpory uchováváme po dobu vyřízení a přiměřenou dobu poté.</p>
+    <p>Lokální data zůstávají na zařízení, dokud aplikaci nesmažete nebo neprovedete reset. Cloud zálohu (účet) uchováváme po dobu existence účtu; po <strong>smazání účtu</strong> ji odstraníme, včetně členství ve společné péči a pozvánek. Po smazání účtu zůstávají jen anonymní statistiky (do uplynutí 14 měsíců) a záznam o nákupu u Apple či Google. <strong>Produktovou analytiku</strong> uchováváme nejdéle <strong>14 měsíců</strong>, <strong>diagnostiku chyb (Sentry)</strong> nejdéle <strong>90 dní</strong>, poté se maže. E‑maily podpory uchováváme po dobu vyřízení a přiměřenou dobu poté. <strong>Záznam zařízení pro push oznámení</strong> mažeme při vypnutí v Nastavení, při neplatném tokenu (např. po odinstalaci) a nejpozději po <strong>12 měsících</strong> bez použití aplikace.</p>
 
     <h2>Vaše práva (GDPR)</h2>
     <p>Máte právo na přístup, opravu, výmaz, omezení zpracování, přenositelnost a vznesení námitky. <strong>Účet i cloud zálohu smažete přímo v aplikaci</strong> (Účet → Smazat účet). Pokud jste aplikaci odinstalovali, napište na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a údaje smažeme. Sběr produktové analytiky můžete kdykoli vypnout v Nastavení aplikace (právo vznést námitku).</p>
@@ -82,7 +86,7 @@ import OperatorBlock from '../components/OperatorBlock.astro';
 
     <h2>Děti a mladiství</h2>
     <p>Aplikace se při prvním spuštění ptá na věkovou kategorii uživatele („16 a více" / „méně než 16"). <strong>Odpověď zůstává pouze v zařízení a nikam se neodesílá.</strong></p>
-    <p>U uživatelů <strong>mladších 16 let</strong> je sběr analytických dat <strong>zcela vypnutý</strong> — nezávisle na nastavení v aplikaci — a <strong>nezobrazují se možnosti nákupu</strong>. Hranice 16 let odpovídá nejpřísnějšímu věku souhlasu podle GDPR (čl. 8). Aplikace funguje bez účtu; <strong>účet si uživatel mladší 16 let může založit jen se souhlasem rodiče</strong> (např. pro společnou péči s rodinou) — zpracováváme pak jen e-mail pro přihlášení a zálohu hry, bez analytiky a nákupů. Rodič může kdykoli požádat o smazání účtu dítěte na <a href="mailto:hello@trypup.life">hello@trypup.life</a>; pokud se domníváte, že nám dítě poskytlo osobní údaje bez souhlasu, napište nám a údaje odstraníme.</p>
+    <p>U uživatelů <strong>mladších 16 let</strong> je sběr analytických dat <strong>zcela vypnutý</strong> — nezávisle na nastavení v aplikaci — a <strong>nezobrazují se možnosti nákupu</strong>. Hranice 16 let odpovídá nejpřísnějšímu věku souhlasu podle GDPR (čl. 8). Aplikace funguje bez účtu; <strong>účet si uživatel mladší 16 let může založit jen se souhlasem rodiče</strong> (např. pro společnou péči s rodinou) — zpracováváme pak jen e-mail pro přihlášení a zálohu hry, bez analytiky a nákupů. Rodič může kdykoli požádat o smazání účtu dítěte na <a href="mailto:hello@trypup.life">hello@trypup.life</a>; pokud se domníváte, že nám dítě poskytlo osobní údaje bez souhlasu, napište nám a údaje odstraníme. Uživatelům do 16 let neposíláme ani push oznámení.</p>
 
     <h2>Změny zásad</h2>
     <p>O podstatných změnách těchto zásad budeme informovat v aplikaci (Novinky) i zde; datum poslední změny je v záhlaví.</p>
