@@ -7,7 +7,7 @@ const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 ).slice(0, 3);
 
-// Ikony per oblast → `featureIcons` (sdílené, 1:1 z appky). Pořadí musí sedět.
+// Ikony per oblast → `featureIcons` (sdílené, 1:1 z aplikace). Pořadí musí sedět.
 const features = [
   { title: 'GPS procházky', text: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdete ven.' },
   { title: 'Denní péče', text: 'Krmení, hra, čištění, odpočinek. Statistiky reagují na to, jak se staráte.' },
@@ -23,7 +23,7 @@ const features = [
     <h1 data-cms="home.cs.hero.title">Pes na zkoušku</h1>
     <p class="lead" data-cms="home.cs.hero.lead">Vyzkoušejte si na vlastní kůži, co péče o psa obnáší — <strong>dřív, než si pořídíte toho skutečného</strong>.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="#stahnout" data-cms="home.cs.hero.ctaPrimary">Stáhnout appku</a>
+      <a class="btn btn-primary" href="#stahnout" data-cms="home.cs.hero.ctaPrimary">Stáhnout aplikaci</a>
       <a class="btn btn-ghost" href="#jak-to-funguje" data-cms="home.cs.hero.ctaGhost">Jak to funguje</a>
     </div>
   </section>
@@ -46,7 +46,7 @@ const features = [
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title" data-cms="home.cs.feat.title">Co appka umí</h2>
+    <h2 class="section-title" data-cms="home.cs.feat.title">Co aplikace umí</h2>
     <p class="section-sub" data-cms="home.cs.feat.sub">Realistická simulace péče — od procházek po náklady.</p>
     <div class="grid">
       {features.map((f, i) => (
@@ -77,7 +77,7 @@ const features = [
 
   <section id="stahnout" class="section wrap center">
     <h2 class="section-title" data-cms="home.cs.dl.title">Stáhnout Trypup</h2>
-    <p class="section-sub" data-cms="home.cs.dl.sub">Trypup je venku pro Android i iPhone. Stáhněte si appku a vyzkoušejte si psa na zkoušku.</p>
+    <p class="section-sub" data-cms="home.cs.dl.sub">Trypup je venku pro Android i iPhone. Stáhněte si aplikaci a vyzkoušejte si psa na zkoušku.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />

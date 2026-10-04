@@ -1,9 +1,9 @@
 ---
-// Trypup — skrytý editor oznámení v appce („Novinky a akce"). Píše do Firestore
+// Trypup — skrytý editor oznámení v aplikaci („Novinky a akce"). Píše do Firestore
 // `app_notice/current`, pole `items: Notice[]`; app to čte při startu
-// (@stores/appNoticeStore). ŽÁDNÝ push — doručení je „při dalším otevření appky".
+// (@stores/appNoticeStore). ŽÁDNÝ push — doručení je „při dalším otevření aplikace".
 //
-// Tvar zápisu MUSÍ sedět na `isValidNotice` ve storu, jinak appka zprávu TIŠE zahodí.
+// Tvar zápisu MUSÍ sedět na `isValidNotice` ve storu, jinak aplikace zprávu TIŠE zahodí.
 // Proto je validace níž zkopírovaná 1:1 ze storu a běží před každým uložením.
 // Zároveň se nikam neposílá `undefined` (Firestore ho odmítá) — volitelná pole se
 // do objektu vůbec nepřidávají.
@@ -80,7 +80,7 @@
   <div id="login" class="center">
     <img src="/icon.png" class="logo" alt="Trypup" />
     <h1>Trypup · Oznámení</h1>
-    <p class="muted" style="max-width:340px">Skrytý editor novinek a akcí v appce. Přihlas se admin účtem Google.</p>
+    <p class="muted" style="max-width:340px">Skrytý editor novinek a akcí v aplikaci. Přihlas se admin účtem Google.</p>
     <button id="signin">Přihlásit přes Google</button>
     <p id="login-err" class="err"></p>
   </div>
@@ -143,7 +143,7 @@
       <div class="field">
         <label>Komu zprávu ukázat (země zařízení)</label>
         <div class="chips" id="countries"></div>
-        <p class="hint">Appka zemi bere z nastavení telefonu a nikam ji neposílá — filtruje se na zařízení.
+        <p class="hint">Aplikace zemi bere z nastavení telefonu a nikam ji neposílá — filtruje se na zařízení.
           Když zařízení zemi nehlásí, cílená zpráva se <strong>nezobrazí</strong> (proto „Všem" u obecných novinek).</p>
       </div>
 
@@ -164,12 +164,12 @@
         <span id="listmsg" class="muted"></span>
       </div>
       <p class="hint">
-        <strong>Smazání ≠ stažení zprávy.</strong> Kdo appku už otevřel, má zprávu v archivu
+        <strong>Smazání ≠ stažení zprávy.</strong> Kdo aplikaci už otevřel, má zprávu v archivu
         (Nastavení → Novinky a akce) a smazání z remote ji odtud neodebere. Chceš-li zprávu
         <em>sundat z banneru</em> i lidem, co ji už mají, použij <strong>„Ukončit teď"</strong>
         (nastaví expiraci na teď a app si opravu stáhne). „Smazat" ji jen přestane rozesílat dál.
       </p>
-      <p class="hint">Appka si drží posledních 30 zpráv. Nové zprávy se u lidí objeví při dalším otevření appky (žádné push).</p>
+      <p class="hint">Aplikace si drží posledních 30 zpráv. Nové zprávy se u lidí objeví při dalším otevření aplikace (žádné push).</p>
     </div>
   </div>
 
@@ -184,7 +184,7 @@
     const COLLECTION = 'app_notice';
     const DOC_ID = 'current';
 
-    // Země, kam appka reálně míří (kopíruje 12 jazyků + sousední trhy). ISO-3166-1 alpha-2.
+    // Země, kam aplikace reálně míří (kopíruje 12 jazyků + sousední trhy). ISO-3166-1 alpha-2.
     const COUNTRIES = [
       { code:'CZ', name:'🇨🇿 Česko' },   { code:'SK', name:'🇸🇰 Slovensko' }, { code:'PL', name:'🇵🇱 Polsko' },
       { code:'DE', name:'🇩🇪 Německo' }, { code:'AT', name:'🇦🇹 Rakousko' },  { code:'CH', name:'🇨🇭 Švýcarsko' },
@@ -204,7 +204,7 @@
     // ------------------------------------------------------------------
     // Validace — KOPIE 1:1 z @stores/appNoticeStore.isValidNotice.
     // Když se store změní, změň i tohle. Zpráva, která tudy neprojde, by se
-    // v appce tiše zahodila, takže ji radši vůbec neuložíme.
+    // v aplikaci tiše zahodila, takže ji radši vůbec neuložíme.
     // ------------------------------------------------------------------
     function isValidText(t) {
       return !!t && typeof t.title === 'string' && !!t.title.trim() && typeof t.body === 'string';
@@ -332,7 +332,7 @@
     async function persist(next, okMsg, target) {
       const bad = next.find((n) => !isValidNotice(n));
       if (bad) {
-        target.innerHTML = `<span class="err">Uložení zastaveno: zpráva „${(bad.id || '?')}" nesplňuje tvar, který appka přijímá.</span>`;
+        target.innerHTML = `<span class="err">Uložení zastaveno: zpráva „${(bad.id || '?')}" nesplňuje tvar, který aplikace přijímá.</span>`;
         return false;
       }
       target.textContent = 'Ukládám…';
@@ -383,7 +383,7 @@
       title.textContent = (n.text?.cs?.title) || (n.text?.en?.title) || '(bez titulku)';
       const badge = document.createElement('span');
       badge.className = 'badge ' + (stazena ? 'gone' : !ok ? 'bad' : expired ? 'gone' : 'live');
-      badge.textContent = stazena ? 'staženo — mizí z archivů' : !ok ? 'appka zahodí' : expired ? 'ukončeno' : 'aktivní';
+      badge.textContent = stazena ? 'staženo — mizí z archivů' : !ok ? 'aplikace zahodí' : expired ? 'ukončeno' : 'aktivní';
       title.appendChild(badge);
       left.appendChild(title);
 
@@ -448,7 +448,7 @@
     async function retract(n) {
       if (!confirm('Stáhnout zprávu „' + ((n.text?.cs?.title) || n.id) + '" úplně?\n\nZmizí i z archivu lidem, kterým se už stáhla — jako by nikdy nebyla.\n\nZprávu tu nech aspoň pár dní, ať se stažení stihne rozšířit; teprve pak ji smaž nadobro.')) return;
       const next = items.map((x) => (x.id === n.id ? { ...x, retracted: true } : x));
-      await persist(next, 'Zpráva stažena. Z archivů zmizí lidem při dalším otevření appky.', $('listmsg'));
+      await persist(next, 'Zpráva stažena. Z archivů zmizí lidem při dalším otevření aplikace.', $('listmsg'));
     }
 
     /** Smazání z remote — nová zařízení ji už nedostanou, stará si ji nechají v archivu. */
@@ -538,10 +538,10 @@
       const cs = { title: $('cs-title').value.trim(), body: $('cs-body').value.trim() };
       const en = { title: $('en-title').value.trim(), body: $('en-body').value.trim() };
 
-      // Titulek bez textu appka zobrazí (body smí být prázdné), ale titulek je povinný.
+      // Titulek bez textu aplikace zobrazí (body smí být prázdné), ale titulek je povinný.
       if (!cs.title && !en.title) return fail('Vyplň aspoň jeden titulek (česky nebo anglicky).');
-      if (cs.body && !cs.title) return fail('Český text má prázdný titulek — appka by celou zprávu zahodila.');
-      if (en.body && !en.title) return fail('Anglický text má prázdný titulek — appka by celou zprávu zahodila.');
+      if (cs.body && !cs.title) return fail('Český text má prázdný titulek — aplikace by celou zprávu zahodila.');
+      if (en.body && !en.title) return fail('Anglický text má prázdný titulek — aplikace by celou zprávu zahodila.');
 
       const eventAt = toMs($('eventAt').value);
       const expiresAt = toMs($('expiresAt').value);
@@ -562,7 +562,7 @@
         return fail('Expirace je v minulosti — zpráva by se nikomu neukázala.');
 
       const url = $('url').value.trim();
-      if (url && !/^https:\/\//i.test(url)) return fail('Odkaz musí začínat https:// (http ani jiné schéma appka nepřijme).');
+      if (url && !/^https:\/\//i.test(url)) return fail('Odkaz musí začínat https:// (http ani jiné schéma aplikace nepřijme).');
 
       const countries = pickedCountries();
 
@@ -579,7 +579,7 @@
       if (url) notice.url = url;
       if (countries.length) notice.countries = countries;
 
-      if (!isValidNotice(notice)) return fail('Zpráva neprošla kontrolou tvaru — appka by ji tiše zahodila. Zkontroluj titulky, odkaz a data.');
+      if (!isValidNotice(notice)) return fail('Zpráva neprošla kontrolou tvaru — aplikace by ji tiše zahodila. Zkontroluj titulky, odkaz a data.');
 
       const slovesoQ = puvodni ? 'Uložit?' : 'Zveřejnit?';
       if (!notice.text.en && !confirm('Zpráva nemá anglickou verzi.\n\nUvidí ji jen lidé s češtinou — ostatní jazyky padají na angličtinu, a ta chybí. ' + slovesoQ)) return;
@@ -593,8 +593,8 @@
       const ok = await persist(
         next,
         puvodni
-          ? 'Změny uloženy. Opravená verze se lidem propíše při dalším otevření appky.'
-          : 'Zveřejněno. Lidem se to ukáže při dalším otevření appky.',
+          ? 'Změny uloženy. Opravená verze se lidem propíše při dalším otevření aplikace.'
+          : 'Zveřejněno. Lidem se to ukáže při dalším otevření aplikace.',
         msg
       );
       if (ok) clearForm();

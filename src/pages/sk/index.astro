@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { featureIcons } from '../../lib/featureIcons';
 
-// Ikony per oblasť → `featureIcons` (zdieľané, 1:1 z appky). Poradie musí sedieť.
+// Ikony per oblasť → `featureIcons` (zdieľané, 1:1 z aplikácie). Poradie musí sedieť.
 const features = [
   { title: 'GPS prechádzky', text: 'Skutočné trasy s časom, vzdialenosťou a kontrolou proti podvádzaniu, že ste naozaj vyšli von.' },
   { title: 'Denná starostlivosť', text: 'Kŕmenie, hra, starostlivosť o srsť, odpočinok. Štatistiky reagujú na to, ako dobre sa staráte.' },
@@ -23,7 +23,7 @@ const features = [
     <h1>Pes na skúšku</h1>
     <p class="lead">Vyskúšajte si na vlastnej koži, čo starostlivosť o psa naozaj obnáša — <strong>skôr než si zadovážite skutočného</strong>.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="#get">Stiahnuť appku</a>
+      <a class="btn btn-primary" href="#get">Stiahnuť aplikáciu</a>
       <a class="btn btn-ghost" href="#how-it-works">Ako to funguje</a>
     </div>
   </section>
@@ -46,7 +46,7 @@ const features = [
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">Čo appka ponúka</h2>
+    <h2 class="section-title">Čo aplikácia ponúka</h2>
     <p class="section-sub">Realistická simulácia starostlivosti — od prechádzok až po náklady.</p>
     <div class="grid">
       {features.map((f, i) => (
@@ -61,7 +61,7 @@ const features = [
 
   <section id="get" class="section wrap center">
     <h2 class="section-title">Získajte Trypup</h2>
-    <p class="section-sub">Trypup je teraz dostupný pre Android aj iPhone. Stiahnite si appku a vyskúšajte si psa na skúšku.</p>
+    <p class="section-sub">Trypup je teraz dostupný pre Android aj iPhone. Stiahnite si aplikáciu a vyskúšajte si psa na skúšku.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />

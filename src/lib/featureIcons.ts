@@ -1,7 +1,7 @@
 /**
- * Ikony sekce „Co appka umí" / „What the app does".
+ * Ikony sekce „Co aplikace umí" / „What the app does".
  *
- * 1:1 přeneseno z mobilní appky — Lucide v0.460.0, mapování dle `BrandIcon.tsx`
+ * 1:1 přeneseno z mobilní aplikace — Lucide v0.460.0, mapování dle `BrandIcon.tsx`
  * (sémantické jméno → lucide ikona). Pořadí odpovídá feature kartám na landingu:
  *
  *   1. Procházky        → walk      → Footprints
@@ -12,7 +12,7 @@
  *   6. Spoluvlastnictví  → social    → Users
  *
  * `stroke-width=2.2` = default `BrandIcon`u. `currentColor` → barvu řídí CSS
- * (`.card .feat-icon`). Když appka ikonu pro oblast změní, srovnej i tady.
+ * (`.card .feat-icon`). Když aplikace ikonu pro oblast změní, srovnej i tady.
  */
 export const featureIcons: string[] = [
   // Footprints (procházky)

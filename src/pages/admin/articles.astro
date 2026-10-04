@@ -1,11 +1,11 @@
 ---
 // Trypup — knihovna vzdělávacích článků SE ZDROJI (jen ke čtení).
-// Čte Firestore `article_library` — texty článků z appky a ke každému tvrzení zdroj.
-// Zdroje NEJSOU veřejné: v appce ani na webu se neukazují, slouží jako podklad, kdyby
+// Čte Firestore `article_library` — texty článků z aplikace a ke každému tvrzení zdroj.
+// Zdroje NEJSOU veřejné: v aplikaci ani na webu se neukazují, slouží jako podklad, kdyby
 // někdo tvrzení zpochybnil. Proto v téhle stránce nejsou zapečené (statický web je
 // veřejný i bez přihlášení) — načtou se z databáze až po přihlášení admina a pravidla
 // Firestore je nikomu jinému nevydají.
-// Obsah se sem dostává skriptem v repu appky: `node scripts/publish-article-library.js`
+// Obsah se sem dostává skriptem v repu aplikace: `node scripts/publish-article-library.js`
 // (zdroj pravdy: src/locales/cs.ts + docs/content/article-sources.json).
 // Skryté pro roboty (noindex + robots.txt Disallow /admin).
 ---
@@ -79,7 +79,7 @@
   <div id="login" class="center">
     <img src="/icon.png" class="logo" alt="Trypup" />
     <h1>Trypup · Články a zdroje</h1>
-    <p class="muted" style="max-width:360px">Vzdělávací články z appky a ke každému tvrzení zdroj. Neveřejné — přihlas se admin účtem Google.</p>
+    <p class="muted" style="max-width:360px">Vzdělávací články z aplikace a ke každému tvrzení zdroj. Neveřejné — přihlas se admin účtem Google.</p>
     <button id="signin">Přihlásit přes Google</button>
     <p id="login-err" class="err"></p>
   </div>
@@ -115,7 +115,7 @@
             <ul id="removed" class="removed"></ul>
           </details>
         </div>
-        <p class="muted" style="margin-top:14px">Jen ke čtení. Texty článků se mění v appce, zdroje v souboru <code>docs/content/article-sources.json</code>; sem se obojí nahrává příkazem <code>node scripts/publish-article-library.js</code>.</p>
+        <p class="muted" style="margin-top:14px">Jen ke čtení. Texty článků se mění v aplikaci, zdroje v souboru <code>docs/content/article-sources.json</code>; sem se obojí nahrává příkazem <code>node scripts/publish-article-library.js</code>.</p>
       </main>
     </div>
   </div>
@@ -150,7 +150,7 @@
         ARTICLES = []; META = null;
         snap.forEach((d) => { if (d.id === '_meta') META = d.data(); else ARTICLES.push(d.data()); });
         ARTICLES.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        if (!ARTICLES.length) { $('state').innerHTML = '<span class="err">Knihovna je prázdná — spusť v repu appky <code>node scripts/publish-article-library.js</code>.</span>'; return; }
+        if (!ARTICLES.length) { $('state').innerHTML = '<span class="err">Knihovna je prázdná — spusť v repu aplikace <code>node scripts/publish-article-library.js</code>.</span>'; return; }
         const when = META?.updatedAt ? new Date(META.updatedAt).toLocaleString('cs-CZ') : '?';
         $('state').innerHTML = `<span class="ok">${ARTICLES.length} článků · ${META?.claimCount ?? '?'} tvrzení se zdrojem · ${META?.sourceCount ?? '?'} zdrojů</span> · nahráno ${esc(when)}`;
         renderSide(); renderRemoved(); renderOther();
@@ -165,7 +165,7 @@
       $('side').querySelectorAll('.item').forEach((b) => { b.onclick = () => { $('search').value = ''; filter(''); show(b.dataset.id); }; });
     }
 
-    // Stejná konvence jako v appce (src/data/articleFormat.ts): **nadpis**, „- “ odrážka, ✓ / ✗, „1. “.
+    // Stejná konvence jako v aplikaci (src/data/articleFormat.ts): **nadpis**, „- “ odrážka, ✓ / ✗, „1. “.
     function articleHtml(content) {
       const out = []; let list = [];
       const flush = () => { if (list.length) { out.push('<ul>' + list.join('') + '</ul>'); list = []; } };

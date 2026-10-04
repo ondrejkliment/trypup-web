@@ -32,11 +32,11 @@ const site = Astro.site ?? new URL('https://trypup.life');
 const canonical = new URL(Astro.url.pathname, site).href;
 
 // Banner teď míří na sekci "Stáhnout" (obě platformy), NE přímo na jeden konkrétní
-// obchod — dřív odkazoval jen na Google Play a musel se kvůli Apple 2.3.10 (appka
-// nesmí odkazovat na jinou platformu) schovávat na stránkách linkovaných z iOS appky.
-// Neutrální odkaz na "kde appku získat" tenhle problém neřeší jen na 6 stránkách,
+// obchod — dřív odkazoval jen na Google Play a musel se kvůli Apple 2.3.10 (aplikace
+// nesmí odkazovat na jinou platformu) schovávat na stránkách linkovaných z iOS aplikace.
+// Neutrální odkaz na "kde aplikaci získat" tenhle problém neřeší jen na 6 stránkách,
 // řeší ho úplně — banner je teď bezpečné zobrazit všude. Od 11. 9. má homepage +
-// About vlastní verzi ve všech 12 jazycích appky (dřív jen cs+en, ostatní mířily do
+// About vlastní verzi ve všech 12 jazycích aplikace (dřív jen cs+en, ostatní mířily do
 // /en/ — matlo to, viz "Über uns" → anglická stránka). Blog zůstává JEN cs+en —
 // roste a nemá stejný právní tlak jako Zásady/Podmínky/Podpora, plošný překlad
 // zatím neplánujeme.
@@ -243,15 +243,15 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#FDF4EF" />
     <!-- Favicon = samotná hlava psa na PRŮHLEDNÉM pozadí (2. 10. 2026, třetí pokus).
-         Proč ne dlaždice appky: Safari 26 v tmavém režimu vyhodnotí tmavou (švestkovou)
+         Proč ne dlaždice aplikace: Safari 26 v tmavém režimu vyhodnotí tmavou (švestkovou)
          ikonu jako málo kontrastní a podloží ji vlastní bílou destičkou → bílý rámeček
          kolem ikony na záložce. Stalo se u čtverce i u zaoblené dlaždice. Hlava bez pozadí
          je dost světlá, takže destičku nedostane.
          Dvě barevnosti přes `media`: ve světlém režimu uši tmavě švestkové jako logo (#4A2B45),
-         v tmavém švestková z pozadí ikony appky (#8B6182, volba zakladatele 2. 10.) — tmavé by
+         v tmavém švestková z pozadí ikony aplikace (#8B6182, volba zakladatele 2. 10.) — tmavé by
          na tmavé liště zmizely. Záložní favicon.ico / favicon-192.png (prohlížeče bez `media`)
          mají střední odstín. Jen PNG — SVG odkaz Safari bralo přednostně.
-         apple-touch-icon zůstává plná dlaždice appky (iOS si ji zaoblí sám).
+         apple-touch-icon zůstává plná dlaždice aplikace (iOS si ji zaoblí sám).
          Zdroje: scripts/favicon-head-{light,dark,fallback}.svg. -->
     <link rel="icon" href="/favicon.ico?v=5" sizes="32x32" />
     <link rel="icon" type="image/png" href="/favicon-192.png?v=5" sizes="192x192" />

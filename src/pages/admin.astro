@@ -422,7 +422,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
       $('overview-events').innerHTML = [
         barPanel('Eventy dle typu', countBy(ev, (e) => e.name), 'var(--water)', 30),
-        barPanel('Otevření appky dle dne', countBy(evByName(ev, 'app_open'), (e) => new Date(e.ts).toLocaleDateString('cs-CZ')), 'var(--apricot)', 21),
+        barPanel('Otevření aplikace dle dne', countBy(evByName(ev, 'app_open'), (e) => new Date(e.ts).toLocaleDateString('cs-CZ')), 'var(--apricot)', 21),
       ].join('');
     }
 
@@ -513,7 +513,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         barPanel('Model zařízení', countBy(ev, (e) => e.dev.model), null, 12),
         barPanel('OS verze', countBy(ev, (e) => (e.dev.os || '') + ' ' + (e.dev.osVersion || '')), null, 10),
         barPanel('Typ', countBy(ev, (e) => e.dev.type), 'var(--plum)'),
-        barPanel('Build appky', countBy(ev, (e) => e.dev.appBuild != null ? 'build' + e.dev.appBuild : '?')),
+        barPanel('Build aplikace', countBy(ev, (e) => e.dev.appBuild != null ? 'build' + e.dev.appBuild : '?')),
         barPanel('Jazyk', countBy(ev, (e) => e.dev.locale), 'var(--apricot)'),
       ].join('');
 
