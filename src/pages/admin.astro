@@ -145,7 +145,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         </span>
         <input id="f-from" type="date" title="Od" />
         <input id="f-to" type="date" title="Do" />
-        <label class="tgl" title="Simulátory, emulátory, vývojové buildy, Expo Go a ručně označená zařízení"><input type="checkbox" id="f-testers" /> včetně testerů</label>
+        <label class="tgl" title="Testeři (simulátory, vývojové buildy, Expo Go, ručně označená zařízení) a roboti (Google Play pre-launch report: sdk_gphone*, OnePlus8Pro/Android 11 s krátkou aktivitou)"><input type="checkbox" id="f-testers" /> včetně testerů a robotů</label>
         <span class="count" id="count"></span>
       </div>
     </div>
@@ -190,7 +190,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <h2>Kvalita & chyby</h2>
       <div class="grid2" id="t-quality"></div>
       <h2>Instalace (ledger) — označení testerů <span id="i-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
-      <p class="note">Simulátor / emulátor / vývojový build / Expo Go se poznají samy (<span class="tag auto">auto</span>). TestFlight a interní testování Play vypadají jako obchod → označ je ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi tester, moje zařízení. Označení platí okamžitě pro všechny záložky i pro <code>/api/stats.json</code>.</p>
+      <p class="note"><span class="tag auto">robot (auto)</span> = Google Play pre-launch report (emulátory <code>sdk_gphone*</code>, OnePlus8Pro na Androidu 11 s aktivitou pod hodinu) — pravidla v <code>functions/installClass.js</code>. <span class="tag auto">tester (auto)</span> = simulátor / vývojový build / Expo Go. TestFlight a interní testování Play vypadají jako obchod → označ ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi tester. „není robot“ vypne automatiku pro konkrétní zařízení (skutečný majitel OnePlus 8 Pro). Platí hned pro všechny záložky i <code>/api/stats.json</code>.</p>
       <div class="panel" style="overflow:auto"><table class="inst" id="inst"></table></div>
       <h2>Poslední aktivita (drill log)</h2>
       <div class="panel"><div class="feed" id="feed"></div></div>
@@ -276,23 +276,57 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     }
 
     // --- Ledger instalací + testeři (docs/ANALYTICS_DASHBOARD_PLAN.md) ---
-    let INSTALLS = [];                 // [{id, platform, firstMs, lastMs, locale, deviceLocale, region, installKind, model, os, osVersion, appBuild}]
-    let MANUAL_TESTERS = new Map();    // installId → note
-    const AUTO_TESTER_KINDS = new Set(['simulator', 'emulator', 'development', 'ad_hoc', 'enterprise', 'expo_go']);
+    let INSTALLS = [];                 // [{id, platform, firstMs, lastMs, locale, deviceLocale, region, installKind, model, os, osVersion, appBuild, cls}]
+    let OVERRIDES = new Map();         // installId → {kind: 'tester'|'robot'|'real', note}
+    const CLS_BY_ID = new Map();       // installId → 'real' | 'tester' | 'robot'
     const tsMs = (v) => (v && typeof v.toMillis === 'function') ? v.toMillis() : (typeof v === 'number' ? v : null);
-    const isTester = (iid, kind) => MANUAL_TESTERS.has(iid) || AUTO_TESTER_KINDS.has(kind || installKindOf(iid));
-    const KIND_BY_ID = new Map();
-    const installKindOf = (iid) => KIND_BY_ID.get(iid) || 'unknown';
-    async function loadInstalls() {
-      const [inst, testers] = await Promise.all([getDocs(collection(db, 'install_platforms')), getDocs(collection(db, 'tester_installs'))]);
-      INSTALLS = inst.docs.map((d) => { const x = d.data(); return { id: d.id, platform: x.platform || null, firstMs: tsMs(x.firstSeenAt), lastMs: tsMs(x.lastSeenAt), locale: x.locale, deviceLocale: x.deviceLocale, region: x.region, installKind: x.installKind || 'unknown', model: x.model, os: x.os, osVersion: x.osVersion, appBuild: x.appBuild }; });
-      KIND_BY_ID.clear(); INSTALLS.forEach((i) => KIND_BY_ID.set(i.id, i.installKind));
-      MANUAL_TESTERS = new Map(testers.docs.map((d) => [d.id, (d.data() || {}).note || '']));
+    // ── Klasifikace = ZRCADLO functions/installClass.js (pawprint-mobile). Při změně upravit obě místa.
+    //    Robot = Google Play pre-launch report (Firebase Test Lab): emulátory sdk_gphone* a OnePlus8Pro
+    //    na Androidu 11 s krátkou aktivitou (< 60 min). Tester = simulátor / vývoj / Expo Go / ručně.
+    const TESTER_KINDS = new Set(['simulator', 'development', 'ad_hoc', 'enterprise', 'expo_go']);
+    const ROBOT_KINDS = new Set(['emulator', 'test_lab']);
+    const ROBOT_RULES = [
+      { id: 'kind', test: (d) => ROBOT_KINDS.has(String(d.installKind || '')) },
+      { id: 'sdk_gphone', test: (d) => /^sdk_gphone/i.test(String(d.model || '')) },
+      { id: 'oneplus8pro_android11_short', test: (d, span) => String(d.model || '') === 'OnePlus8Pro' && (/^11(\.|$)/.test(String(d.osVersion || '')) || /android\s*11\b/i.test(String(d.osVersion || ''))) && span !== null && span < 60 },
+    ];
+    const TESTER_RULES = [
+      { id: 'kind', test: (d) => TESTER_KINDS.has(String(d.installKind || '')) },
+      { id: 'ios_simulator_model', test: (d) => /simulator/i.test(String(d.model || '')) },
+    ];
+    function classifyInstall(d, o) {
+      if (o) return { kind: o.kind === 'robot' ? 'robot' : o.kind === 'real' ? 'real' : 'tester', source: 'manual', rule: null };
+      const span = (d.firstMs !== null && d.lastMs !== null) ? Math.max(0, Math.round((d.lastMs - d.firstMs) / 60000)) : null;
+      for (const r of ROBOT_RULES) if (r.test(d, span)) return { kind: 'robot', source: 'auto', rule: r.id };
+      for (const r of TESTER_RULES) if (r.test(d, span)) return { kind: 'tester', source: 'auto', rule: r.id };
+      return { kind: 'real', source: 'none', rule: null };
     }
-    async function setTester(iid, on) {
-      if (on) { const note = prompt('Poznámka k testerovi (např. „můj iPhone“):', MANUAL_TESTERS.get(iid) || '') ; if (note === null) return; await setDoc(doc(db, 'tester_installs', iid), { note, at: serverTimestamp() }); MANUAL_TESTERS.set(iid, note); }
-      else { await deleteDoc(doc(db, 'tester_installs', iid)); MANUAL_TESTERS.delete(iid); }
-      render();
+    const clsOf = (iid) => CLS_BY_ID.get(iid) || 'real';
+    // Eventy bez záznamu v ledgeru (čerstvá dávka) posuzujeme podle device kontextu dávky.
+    const isExcluded = (iid, dev) => {
+      const k = CLS_BY_ID.get(iid);
+      if (k) return k !== 'real';
+      return dev ? classifyInstall({ installKind: dev.installKind, model: dev.model, osVersion: dev.osVersion, firstMs: null, lastMs: null }, null).kind !== 'real' : false;
+    };
+    const isTester = (iid, kind) => isExcluded(iid, kind ? { installKind: kind } : null);
+    function reclassify() {
+      CLS_BY_ID.clear();
+      INSTALLS.forEach((i) => { i.cls = classifyInstall(i, OVERRIDES.get(i.id) || null); CLS_BY_ID.set(i.id, i.cls.kind); });
+    }
+    async function loadInstalls() {
+      const [inst, over] = await Promise.all([getDocs(collection(db, 'install_platforms')), getDocs(collection(db, 'tester_installs'))]);
+      INSTALLS = inst.docs.map((d) => { const x = d.data(); return { id: d.id, platform: x.platform || null, firstMs: tsMs(x.firstSeenAt), lastMs: tsMs(x.lastSeenAt), locale: x.locale, deviceLocale: x.deviceLocale, region: x.region, installKind: x.installKind || 'unknown', model: x.model, os: x.os, osVersion: x.osVersion, appBuild: x.appBuild }; });
+      OVERRIDES = new Map(over.docs.map((d) => [d.id, d.data() || {}]));
+      reclassify();
+    }
+    /** kind: 'tester' | 'robot' | 'real' (ruční přepis) | null (zrušit přepis → automatika). */
+    async function setOverride(iid, kind) {
+      if (kind) {
+        const note = prompt(kind === 'real' ? 'Poznámka (proč není robot/tester):' : 'Poznámka (např. „můj iPhone“):', (OVERRIDES.get(iid) || {}).note || '');
+        if (note === null) return;
+        await setDoc(doc(db, 'tester_installs', iid), { kind, note, at: serverTimestamp() }); OVERRIDES.set(iid, { kind, note });
+      } else { await deleteDoc(doc(db, 'tester_installs', iid)); OVERRIDES.delete(iid); }
+      reclassify(); render();
     }
 
     async function firstLoad() {
@@ -350,7 +384,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const toTs = FILTERS.to ? new Date(FILTERS.to).getTime() + 86400000 : null; // celý „do" den včetně
       return arr.filter((e) => {
         if (!Number.isFinite(e.ts)) return false;
-        if (!FILTERS.testers && isTester(e.installId, e.dev && e.dev.installKind)) return false;
+        if (!FILTERS.testers && isExcluded(e.installId, e.dev)) return false;
         if (FILTERS.event && e.name !== FILTERS.event) return false;
         if (FILTERS.platform && e.dev.platform !== FILTERS.platform) return false;
         if (FILTERS.locale && e.dev.locale !== FILTERS.locale) return false;
@@ -450,12 +484,13 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     function renderUsers() {
       const now = Date.now(); const DAY = 86400000;
       const all = INSTALLS.filter((i) => i.platform === 'ios' || i.platform === 'android');
-      const testers = all.filter((i) => isTester(i.id, i.installKind));
-      const users = FILTERS.testers ? all : all.filter((i) => !isTester(i.id, i.installKind));
+      const testers = all.filter((i) => i.cls.kind === 'tester');
+      const robots = all.filter((i) => i.cls.kind === 'robot');
+      const users = FILTERS.testers ? all : all.filter((i) => i.cls.kind === 'real');
       const within = (ms, d) => ms !== null && now - ms <= d * DAY;
       const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
       const ios = users.filter((i) => i.platform === 'ios').length, and = users.length - ios;
-      $('u-sub').textContent = (FILTERS.testers ? 'včetně ' : 'bez ') + testers.length + ' testerů · ' + all.length + ' zařízení v ledgeru';
+      $('u-sub').textContent = (FILTERS.testers ? 'včetně ' : 'bez ') + testers.length + ' testerů a ' + robots.length + ' robotů · ' + all.length + ' zařízení v ledgeru';
       $('u-kpis').innerHTML = [
         k('zařízení celkem', users.length, `iOS ${ios} · Android ${and}`),
         k('aktivní 7 dní', users.filter((i) => within(i.lastMs, 7)).length, `30 dní ${users.filter((i) => within(i.lastMs, 30)).length}`),
@@ -473,7 +508,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         barPanel('Země zařízení', countBy(users, (i) => regionName(i.region)), 'var(--plum)', 12, 'z nastavení telefonu; sbírá se od OTA build281'),
         barPanel('Jazyk telefonu', countBy(users, (i) => langName(i.deviceLocale === 'none' ? null : i.deviceLocale)), null, 12, 'co má člověk v systému'),
         barPanel('Build aplikace', countBy(users, (i) => i.appBuild != null ? 'build' + i.appBuild : '?'), null, 10, 'podle poslední dávky'),
-        barPanel('Druh instalace', countBy(all, (i) => i.installKind), null, 8, 'app_store/device = běžní uživatelé'),
+        barPanel('Druh instalace', countBy(all, (i) => i.installKind), null, 8, 'app_store/device = běžní uživatelé; unknown = před build281'),
+        barPanel('Klasifikace', countBy(all, (i) => i.cls.kind + (i.cls.rule ? ' · ' + i.cls.rule : i.cls.source === 'manual' ? ' · ručně' : '')), 'var(--water)', 10, 'real = počítá se do uživatelů'),
       ].join('');
     }
 
@@ -606,12 +642,20 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       $('i-sub').textContent = rows.length + ' z ' + INSTALLS.length;
       $('inst').innerHTML = `<tr><th>installId</th><th>platforma</th><th>model</th><th>OS</th><th>jazyk</th><th>země</th><th>build</th><th>první</th><th>poslední</th><th>druh</th><th></th></tr>` +
         rows.map((i) => {
-          const manual = MANUAL_TESTERS.has(i.id); const auto = AUTO_TESTER_KINDS.has(i.installKind);
-          const tag = manual ? `<span class="tag manual" title="${esc(MANUAL_TESTERS.get(i.id) || '')}">tester</span>` : auto ? `<span class="tag auto">auto</span>` : `<span class="tag store">${esc(i.installKind)}</span>`;
-          return `<tr class="${manual || auto ? 'tester' : ''}"><td><span class="iid" data-iid="${esc(i.id)}" style="cursor:pointer">${esc(i.id.slice(0, 10))}</span></td><td>${esc(i.platform || '?')}</td><td>${esc(i.model || '')}</td><td>${esc((i.os || '') + ' ' + (i.osVersion || ''))}</td><td>${esc(i.locale || '')}${i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + esc(i.deviceLocale) + ')</span>' : ''}</td><td>${esc(i.region && i.region !== 'none' ? i.region : '')}</td><td>${i.appBuild ?? ''}</td><td>${i.firstMs ? fmt(i.firstMs) : ''}</td><td>${i.lastMs ? fmt(i.lastMs) : ''}</td><td>${tag}</td>
-            <td><button class="ghost" style="padding:3px 8px;font-size:11px" data-tester="${esc(i.id)}" data-on="${manual ? '0' : '1'}">${manual ? 'zrušit' : 'tester'}</button></td></tr>`;
+          const c = i.cls; const o = OVERRIDES.get(i.id);
+          const title = o ? esc(o.note || '') : (c.rule || '');
+          const tag = c.kind === 'robot' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">robot${c.source === 'auto' ? ' (auto)' : ''}</span>`
+            : c.kind === 'tester' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">tester${c.source === 'auto' ? ' (auto)' : ''}</span>`
+            : `<span class="tag store" title="${title}">${o ? 'real (ručně)' : esc(i.installKind)}</span>`;
+          const btns = o
+            ? `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="">zrušit přepis</button>`
+            : c.kind === 'real'
+              ? `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="tester">tester</button> <button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="robot">robot</button>`
+              : `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="real">není ${c.kind}</button>`;
+          return `<tr class="${c.kind !== 'real' ? 'tester' : ''}"><td><span class="iid" data-iid="${esc(i.id)}" style="cursor:pointer">${esc(i.id.slice(0, 10))}</span></td><td>${esc(i.platform || '?')}</td><td>${esc(i.model || '')}</td><td>${esc((i.os || '') + ' ' + (i.osVersion || ''))}</td><td>${esc(i.locale || '')}${i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + esc(i.deviceLocale) + ')</span>' : ''}</td><td>${esc(i.region && i.region !== 'none' ? i.region : '')}</td><td>${i.appBuild ?? ''}</td><td>${i.firstMs ? fmt(i.firstMs) : ''}</td><td>${i.lastMs ? fmt(i.lastMs) : ''}</td><td>${tag}</td>
+            <td style="white-space:nowrap">${btns}</td></tr>`;
         }).join('');
-      $('inst').querySelectorAll('button[data-tester]').forEach((b) => b.onclick = () => setTester(b.dataset.tester, b.dataset.on === '1').catch((e) => alert('Nepodařilo se uložit: ' + e.message)));
+      $('inst').querySelectorAll('button[data-ov]').forEach((b) => b.onclick = () => setOverride(b.dataset.ov, b.dataset.kind || null).catch((e) => alert('Nepodařilo se uložit: ' + e.message)));
       $('inst').querySelectorAll('.iid').forEach((el) => el.onclick = () => { FILTERS.installId = el.dataset.iid; $('f-iid').value = el.dataset.iid; render(); });
 
       const recent = [...ev].sort((a, b) => b.ts - a.ts).slice(0, 80);
