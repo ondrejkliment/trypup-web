@@ -1,0 +1,240 @@
+---
+// Cíl magic linku z pozvánky ke spoluvlastnictví: https://trypup.life/[<jazyk>/]join?c=KÓD
+// Statická stránka — kód čte klientský skript z query parametru. Tlačítko
+// „Otevřít v aplikaci" vede na deep link trypup://join/KÓD (zpracuje aplikace).
+import Base from '../layouts/Base.astro';
+import type { Lang } from '../lib/operator';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const APP_STORE = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135';
+const PLAY = 'https://play.google.com/store/apps/details?id=app.trypup.mobile&pcampaignid=web_trypup';
+
+type JoinStrings = {
+  title: string; description: string; h1: string; meta: string; codeLabel: string;
+  copy: string; copied: string; openApp: string; noApp: string; fallback: string; noCode: string;
+  path: string;
+};
+
+// [as]…[/as] = odkaz do App Storu, [gp]…[/gp] = Google Play, [code] = kód z URL, [path] = cesta
+// v aplikaci. `path` musí sedět s aplikací: nav.friends → friends.join v pawprint-mobile/src/locales.
+// cs: titulek a popis zůstávají dvojjazyčné — starší verze aplikace posílají /join všem jazykům.
+const T: Record<Lang, JoinStrings> = {
+  cs: {
+    title: 'trypup 🐾 pozvánka · invite',
+    description: 'Připojte se ke společné péči o psa. · Join shared dog care in Trypup.',
+    h1: '🐾 Pozvánka ke společné péči',
+    meta: 'Někdo vás zve, abyste se spolu starali o psa v Trypup.',
+    codeLabel: 'Váš kód', copy: '📋 Zkopírovat kód', copied: '✓ Zkopírováno',
+    openApp: 'Otevřít v aplikaci Trypup',
+    noApp: 'Nemáte aplikaci? Stáhněte si ji z [as]App Storu[/as] nebo [gp]Google Play[/gp]. Pak se vraťte sem, nebo kód [code] zadejte v aplikaci na záložce [path].',
+    fallback: 'Vypadá to, že Trypup ještě nemáte nainstalovaný. Zkopírujte si kód výše a zadejte ho v aplikaci na záložce [path]. Aplikaci získáte v [as]App Storu[/as] nebo na [gp]Google Play[/gp].',
+    noCode: 'Odkaz nemá platný kód — požádejte o nové pozvání.',
+    path: 'Spolu → Připojit se',
+  },
+  en: {
+    title: 'trypup 🐾 invite',
+    description: 'Join shared dog care in Trypup.',
+    h1: '🐾 Invitation to care together',
+    meta: 'Someone is inviting you to look after a dog together in Trypup.',
+    codeLabel: 'Your code', copy: '📋 Copy code', copied: '✓ Copied',
+    openApp: 'Open in the Trypup app',
+    noApp: "Don't have the app? Get it from the [as]App Store[/as] or [gp]Google Play[/gp]. Then come back here, or enter the code [code] in the app under [path].",
+    fallback: "It looks like Trypup isn't installed yet. Copy the code above and enter it in the app under [path]. You can get the app from the [as]App Store[/as] or [gp]Google Play[/gp].",
+    noCode: 'This link has no valid code — ask for a new invitation.',
+    path: 'Together → Join',
+  },
+  de: {
+    title: 'trypup 🐾 Einladung',
+    description: 'Kümmern Sie sich in Trypup gemeinsam um einen Hund.',
+    h1: '🐾 Einladung zur gemeinsamen Pflege',
+    meta: 'Jemand lädt Sie ein, sich in Trypup gemeinsam um einen Hund zu kümmern.',
+    codeLabel: 'Ihr Code', copy: '📋 Code kopieren', copied: '✓ Kopiert',
+    openApp: 'In der Trypup-App öffnen',
+    noApp: 'Sie haben die App noch nicht? Laden Sie sie im [as]App Store[/as] oder bei [gp]Google Play[/gp] herunter. Kommen Sie dann hierher zurück oder geben Sie den Code [code] in der App unter [path] ein.',
+    fallback: 'Trypup scheint noch nicht installiert zu sein. Kopieren Sie den Code oben und geben Sie ihn in der App unter [path] ein. Die App erhalten Sie im [as]App Store[/as] oder bei [gp]Google Play[/gp].',
+    noCode: 'Dieser Link enthält keinen gültigen Code — bitten Sie um eine neue Einladung.',
+    path: 'Gemeinsam → Beitreten',
+  },
+  fr: {
+    title: 'trypup 🐾 invitation',
+    description: 'Occupez-vous d’un chien ensemble dans Trypup.',
+    h1: '🐾 Invitation à prendre soin d’un chien ensemble',
+    meta: 'Quelqu’un vous invite à vous occuper ensemble d’un chien dans Trypup.',
+    codeLabel: 'Votre code', copy: '📋 Copier le code', copied: '✓ Copié',
+    openApp: 'Ouvrir dans l’application Trypup',
+    noApp: 'Vous n’avez pas l’application ? Téléchargez-la sur l’[as]App Store[/as] ou sur [gp]Google Play[/gp]. Revenez ensuite ici, ou saisissez le code [code] dans l’application, sous [path].',
+    fallback: 'Il semble que Trypup ne soit pas encore installé. Copiez le code ci-dessus et saisissez-le dans l’application, sous [path]. Vous pouvez obtenir l’application sur l’[as]App Store[/as] ou sur [gp]Google Play[/gp].',
+    noCode: 'Ce lien ne contient pas de code valide — demandez une nouvelle invitation.',
+    path: 'Ensemble → Rejoindre',
+  },
+  pl: {
+    title: 'trypup 🐾 zaproszenie',
+    description: 'Dołącz do wspólnej opieki nad psem w Trypup.',
+    h1: '🐾 Zaproszenie do wspólnej opieki',
+    meta: 'Ktoś zaprasza Cię do wspólnej opieki nad psem w Trypup.',
+    codeLabel: 'Twój kod', copy: '📋 Skopiuj kod', copied: '✓ Skopiowano',
+    openApp: 'Otwórz w aplikacji Trypup',
+    noApp: 'Nie masz aplikacji? Pobierz ją z [as]App Store[/as] lub [gp]Google Play[/gp]. Potem wróć tutaj albo wpisz kod [code] w aplikacji w zakładce [path].',
+    fallback: 'Wygląda na to, że nie masz jeszcze zainstalowanej aplikacji Trypup. Skopiuj kod powyżej i wpisz go w aplikacji w zakładce [path]. Aplikację pobierzesz z [as]App Store[/as] lub [gp]Google Play[/gp].',
+    noCode: 'Ten link nie zawiera prawidłowego kodu — poproś o nowe zaproszenie.',
+    path: 'Razem → Dołącz',
+  },
+  es: {
+    title: 'trypup 🐾 invitación',
+    description: 'Únase al cuidado compartido de un perro en Trypup.',
+    h1: '🐾 Invitación para cuidar juntos',
+    meta: 'Alguien le invita a cuidar juntos de un perro en Trypup.',
+    codeLabel: 'Su código', copy: '📋 Copiar código', copied: '✓ Copiado',
+    openApp: 'Abrir en la aplicación Trypup',
+    noApp: '¿No tiene la aplicación? Descárguela en el [as]App Store[/as] o en [gp]Google Play[/gp]. Después vuelva aquí o introduzca el código [code] en la aplicación, en [path].',
+    fallback: 'Parece que aún no tiene instalada la aplicación Trypup. Copie el código de arriba e introdúzcalo en la aplicación, en [path]. Puede obtener la aplicación en el [as]App Store[/as] o en [gp]Google Play[/gp].',
+    noCode: 'Este enlace no tiene un código válido: pida una nueva invitación.',
+    path: 'Juntos → Unirse',
+  },
+  it: {
+    title: 'trypup 🐾 invito',
+    description: 'Unisciti alla cura condivisa di un cane in Trypup.',
+    h1: '🐾 Invito a prendersi cura insieme',
+    meta: 'Qualcuno ti invita a prenderti cura di un cane insieme in Trypup.',
+    codeLabel: 'Il tuo codice', copy: '📋 Copia il codice', copied: '✓ Copiato',
+    openApp: "Apri nell'app Trypup",
+    noApp: "Non hai l'app? Scaricala dall'[as]App Store[/as] o da [gp]Google Play[/gp]. Poi torna qui, oppure inserisci il codice [code] nell'app, in [path].",
+    fallback: "Sembra che l'app Trypup non sia ancora installata. Copia il codice qui sopra e inseriscilo nell'app, in [path]. Puoi scaricare l'app dall'[as]App Store[/as] o da [gp]Google Play[/gp].",
+    noCode: 'Questo link non contiene un codice valido: chiedi un nuovo invito.',
+    path: 'Insieme → Unisciti',
+  },
+  nl: {
+    title: 'trypup 🐾 uitnodiging',
+    description: 'Zorg in Trypup samen voor een hond.',
+    h1: '🐾 Uitnodiging om samen te zorgen',
+    meta: 'Iemand nodigt u uit om in Trypup samen voor een hond te zorgen.',
+    codeLabel: 'Uw code', copy: '📋 Code kopiëren', copied: '✓ Gekopieerd',
+    openApp: 'Openen in de Trypup-app',
+    noApp: 'Heeft u de app nog niet? Download hem in de [as]App Store[/as] of via [gp]Google Play[/gp]. Kom daarna hier terug, of voer de code [code] in de app in onder [path].',
+    fallback: 'Het lijkt erop dat Trypup nog niet is geïnstalleerd. Kopieer de code hierboven en voer die in de app in onder [path]. U kunt de app downloaden in de [as]App Store[/as] of via [gp]Google Play[/gp].',
+    noCode: 'Deze link bevat geen geldige code — vraag om een nieuwe uitnodiging.',
+    path: 'Samen → Deelnemen',
+  },
+  pt: {
+    title: 'trypup 🐾 convite',
+    description: 'Junte-se ao cuidado partilhado de um cão na Trypup.',
+    h1: '🐾 Convite para cuidar em conjunto',
+    meta: 'Alguém o convida a cuidar de um cão em conjunto na Trypup.',
+    codeLabel: 'O seu código', copy: '📋 Copiar código', copied: '✓ Copiado',
+    openApp: 'Abrir na aplicação Trypup',
+    noApp: 'Ainda não tem a aplicação? Descarregue-a na [as]App Store[/as] ou no [gp]Google Play[/gp]. Depois volte aqui, ou introduza o código [code] na aplicação, em [path].',
+    fallback: 'Parece que a Trypup ainda não está instalada. Copie o código acima e introduza-o na aplicação, em [path]. Pode obter a aplicação na [as]App Store[/as] ou no [gp]Google Play[/gp].',
+    noCode: 'Esta ligação não tem um código válido — peça um novo convite.',
+    path: 'Juntos → Juntar-se',
+  },
+  sk: {
+    title: 'trypup 🐾 pozvánka',
+    description: 'Pripojte sa k spoločnej starostlivosti o psa v Trypupe.',
+    h1: '🐾 Pozvánka k spoločnej starostlivosti',
+    meta: 'Niekto vás pozýva, aby ste sa spolu starali o psa v Trypupe.',
+    codeLabel: 'Váš kód', copy: '📋 Skopírovať kód', copied: '✓ Skopírované',
+    openApp: 'Otvoriť v aplikácii Trypup',
+    noApp: 'Nemáte aplikáciu? Stiahnite si ju z [as]App Store[/as] alebo [gp]Google Play[/gp]. Potom sa vráťte sem alebo kód [code] zadajte v aplikácii na karte [path].',
+    fallback: 'Vyzerá to, že Trypup ešte nemáte nainštalovaný. Skopírujte si kód vyššie a zadajte ho v aplikácii na karte [path]. Aplikáciu získate v [as]App Store[/as] alebo na [gp]Google Play[/gp].',
+    noCode: 'Odkaz nemá platný kód — požiadajte o nové pozvanie.',
+    path: 'Spolu → Pripojiť sa',
+  },
+  bg: {
+    title: 'trypup 🐾 покана',
+    description: 'Присъединете се към общата грижа за куче в Trypup.',
+    h1: '🐾 Покана за обща грижа',
+    meta: 'Някой ви кани да се грижите заедно за куче в Trypup.',
+    codeLabel: 'Вашият код', copy: '📋 Копиране на кода', copied: '✓ Копирано',
+    openApp: 'Отваряне в приложението Trypup',
+    noApp: 'Нямате приложението? Изтеглете го от [as]App Store[/as] или [gp]Google Play[/gp]. След това се върнете тук или въведете кода [code] в приложението в раздел [path].',
+    fallback: 'Изглежда, че Trypup все още не е инсталирано. Копирайте кода по-горе и го въведете в приложението в раздел [path]. Приложението можете да изтеглите от [as]App Store[/as] или [gp]Google Play[/gp].',
+    noCode: 'Връзката няма валиден код — поискайте нова покана.',
+    path: 'Заедно → Присъединяване',
+  },
+  uk: {
+    title: 'trypup 🐾 запрошення',
+    description: 'Долучайтеся до спільного догляду за собакою в Trypup.',
+    h1: '🐾 Запрошення до спільного догляду',
+    meta: 'Хтось запрошує вас разом доглядати за собакою в Trypup.',
+    codeLabel: 'Ваш код', copy: '📋 Скопіювати код', copied: '✓ Скопійовано',
+    openApp: 'Відкрити в застосунку Trypup',
+    noApp: 'Немає застосунку? Завантажте його з [as]App Store[/as] або [gp]Google Play[/gp]. Потім поверніться сюди або введіть код [code] у застосунку в розділі [path].',
+    fallback: 'Схоже, Trypup ще не встановлено. Скопіюйте код вище та введіть його в застосунку в розділі [path]. Застосунок можна завантажити з [as]App Store[/as] або [gp]Google Play[/gp].',
+    noCode: 'Посилання не містить дійсного коду — попросіть нове запрошення.',
+    path: 'Разом → Приєднатися',
+  },
+};
+
+const t = T[lang];
+const link = (href: string, text: string) => `<a href="${href.replace(/&/g, '&amp;')}" style="color:#F2784B;font-weight:600;">${text}</a>`;
+const fill = (s: string, withCode: boolean) => s
+  .replace(/\[as\](.*?)\[\/as\]/g, (_m, x) => link(APP_STORE, x))
+  .replace(/\[gp\](.*?)\[\/gp\]/g, (_m, x) => link(PLAY, x))
+  .replace('[code]', withCode ? '<span id="code-inline" style="font-weight:700;"></span>' : '')
+  .replace(/\[path\]/g, `<strong>${t.path}</strong>`);
+const alt = lang === 'en' ? '/join/' : '/en/join/';
+---
+<Base title={t.title} description={t.description} lang={lang} alt={alt} pageKey="join">
+  <section class="section wrap" style="text-align:center; max-width: 560px; margin-inline: auto;">
+    <h1 style="margin-bottom: 0.4rem;">{t.h1}</h1>
+    <p class="meta" style="margin-bottom: 2rem;">{t.meta}</p>
+
+    <div id="code-card" style="background: #FDF4EF; border: 2px solid #F2784B; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
+      <div style="font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: #4A2B45; opacity: .7; margin-bottom: .4rem;">{t.codeLabel}</div>
+      <div id="code" style="font-size: 2.6rem; font-weight: 800; letter-spacing: .35em; color: #4A2B45;">······</div>
+      <button id="copy" data-copied={t.copied} style="margin-top: 1rem; background: none; border: 1px solid #F2784B; color: #F2784B; border-radius: 999px; padding: .5rem 1.2rem; font-size: .95rem; cursor: pointer;">{t.copy}</button>
+    </div>
+
+    <a id="open-app" href="#" style="display: inline-block; background: #F2784B; color: #fff; border-radius: 999px; padding: .9rem 2rem; font-weight: 700; text-decoration: none; margin-bottom: 1rem;">{t.openApp}</a>
+
+    <p style="font-size: .9rem; opacity: .75; line-height: 1.5;" set:html={fill(t.noApp, true)} />
+    <p id="install-fallback" hidden style="background:#FDF4EF; border:1px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.9rem; color:#4A2B45; line-height:1.5;" set:html={fill(t.fallback, false)} />
+    <p id="no-code" hidden style="color: #B91C1C; font-weight: 600;">{t.noCode}</p>
+  </section>
+</Base>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const raw = (params.get('c') ?? params.get('code') ?? '').trim().toUpperCase();
+  const valid = /^[A-Z2-9]{6}$/.test(raw);
+  const codeEl = document.getElementById('code');
+  const inlineEl = document.getElementById('code-inline');
+  const openEl = document.getElementById('open-app') as HTMLAnchorElement | null;
+  const copyEl = document.getElementById('copy');
+  if (valid && codeEl && openEl) {
+    codeEl.textContent = raw;
+    if (inlineEl) inlineEl.textContent = raw;
+    openEl.href = `trypup://join/${raw}`;
+    // Přepnutí jazyka musí kód zachovat, jinak by stránka v jiném jazyce ukázala „neplatný kód".
+    document.querySelectorAll<HTMLAnchorElement>('.lang-menu a').forEach((a) => {
+      try {
+        const u = new URL(a.getAttribute('href') ?? '', location.href);
+        u.searchParams.set('c', raw);
+        a.setAttribute('href', u.pathname + u.search + u.hash);
+      } catch {}
+    });
+    // Když aplikace NENÍ nainstalovaná, custom scheme jen hodí systémovou chybu
+    // („Aplikaci nelze otevřít"). Zkusíme aplikaci otevřít a když se po chvíli nic
+    // nestane (stránka zůstane viditelná), ukážeme nenápadný návod pro stažení.
+    openEl.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      let opened = false;
+      const onHide = () => { opened = true; };
+      document.addEventListener('visibilitychange', onHide, { once: true });
+      window.addEventListener('pagehide', onHide, { once: true });
+      try { window.location.href = `trypup://join/${raw}`; } catch {}
+      setTimeout(() => {
+        if (!opened && !document.hidden) document.getElementById('install-fallback')?.removeAttribute('hidden');
+      }, 1400);
+    });
+    copyEl?.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(raw); if (copyEl) copyEl.textContent = copyEl.dataset.copied ?? '✓'; } catch {}
+    });
+  } else {
+    document.getElementById('code-card')?.setAttribute('hidden', '');
+    openEl?.setAttribute('hidden', '');
+    document.getElementById('no-code')?.removeAttribute('hidden');
+  }
+</script>
