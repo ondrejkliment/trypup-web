@@ -284,7 +284,26 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
         wait_for_update: 500,
       });
       gtag('js', new Date());
-      gtag('config', 'G-8MWP5X5RPR');
+      gtag('config', 'G-8MWP5X5RPR', (function () {
+        // Kód pozvánky (/join?c=…) je přístupový token ke psovi → nesmí do Google ani
+        // v cookieless pingu (ani jako referrer další stránky). utm_* zůstávají — z nich
+        // GA4 čte kampaň sdílení z aplikace.
+        function strip(href) {
+          try {
+            var u = new URL(href);
+            if (u.origin !== location.origin || !(u.searchParams.has('c') || u.searchParams.has('code'))) return null;
+            u.searchParams.delete('c');
+            u.searchParams.delete('code');
+            return u.href;
+          } catch (e) { return null; }
+        }
+        var cfg = {};
+        var loc = strip(location.href);
+        var ref = document.referrer && strip(document.referrer);
+        if (loc) cfg.page_location = loc;
+        if (ref) cfg.page_referrer = ref;
+        return cfg;
+      })());
     </script>
   </head>
   <body>
@@ -369,10 +388,39 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
         var saved = null;
         try { saved = localStorage.getItem(KEY); } catch (e) {}
         if (!saved && bar) bar.removeAttribute('hidden');
+
+        // Kampaň ze sdíleného odkazu (utm_*) se ztratí, když návštěvník souhlasí až na další
+        // stránce — cookieless hity z předchozích stránek GA4 s ním nepropojí. Dokud
+        // nerozhodl, nesou proto interní odkazy stejné utm_* (jen štítek kampaně, žádné ID
+        // ani úložiště); po volbě se vrátí na původní adresu.
+        var carried = [];
+        if (!saved) {
+          var utm = [];
+          try { new URLSearchParams(location.search).forEach(function (v, k) { if (/^utm_/.test(k)) utm.push([k, v]); }); } catch (e) {}
+          if (utm.length) {
+            document.querySelectorAll('a[href]').forEach(function (a) {
+              var raw = a.getAttribute('href');
+              if (!raw || raw.charAt(0) === '#') return;
+              var u;
+              try { u = new URL(raw, location.href); } catch (e) { return; }
+              if (u.origin !== location.origin) return;
+              utm.forEach(function (p) { if (!u.searchParams.has(p[0])) u.searchParams.set(p[0], p[1]); });
+              var carriedHref = u.pathname + u.search + u.hash;
+              a.setAttribute('href', carriedHref);
+              carried.push([a, raw, carriedHref]);
+            });
+          }
+        }
+
         function decide(v) {
           try { localStorage.setItem(KEY, v); } catch (e) {}
+          // Žádný ruční page_view: cookieless hity z TÉTO stránky GA4 po souhlasu započte sám
+          // (i s utm_*), ruční page_view by je zdvojil.
           if (typeof gtag === 'function') gtag('consent', 'update', { analytics_storage: v === 'granted' ? 'granted' : 'denied' });
           if (bar) bar.setAttribute('hidden', '');
+          // Vrátit jen odkazy, které mezitím nepřepsal jiný skript (mobilní CTA do obchodu).
+          carried.forEach(function (c) { if (c[0].getAttribute('href') === c[2]) c[0].setAttribute('href', c[1]); });
+          carried = [];
         }
         var a = document.getElementById('cookie-accept');
         var r = document.getElementById('cookie-reject');
