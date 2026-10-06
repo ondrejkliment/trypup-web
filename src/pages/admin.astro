@@ -157,8 +157,12 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <h2>Uživatelé <span id="u-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
       <div class="cards" id="u-kpis"></div>
       <div class="grid2" id="u-panels" style="margin-top:12px"></div>
+      <h2>Stažení z obchodů <span id="st-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <div class="cards" id="st-kpis"></div>
+      <div class="grid2" id="st-panels" style="margin-top:12px"></div>
+      <p class="note">Zdroj: App Store Analytics Reports (první stažení, od 5. 10. 2026) a Google Play hromadné přehledy (nové instalace uživatelů, měsíční CSV — Google je vydává se zpožděním několika dní). Kolekce <code>store_stats</code>, plní funkce <code>syncStoreStats</code> denně v 6:40. Jen součty po dnech a zemích, žádná data o lidech.</p>
       <p class="note">Zdroj: ledger instalací (<code>install_platforms</code>, každé zařízení jednou, bez testerů — přepínač „včetně testerů“ nahoře).
-        Počet <strong>stažení z obchodů</strong> (App Store / Google Play, po zemích) se připravuje: App Store Analytics Reports jsou objednané (data od 5.–6. 10.), Google Play čeká na oprávnění service accountu.</p>
+        Skutečná <strong>stažení z obchodů</strong> jsou v bloku níž.</p>
       <h2>Eventy (načtené dávky)</h2>
       <div class="cards" id="kpis"></div>
       <h2>Funnely (kolik instalací dojde k…)</h2>
@@ -313,6 +317,41 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       CLS_BY_ID.clear();
       INSTALLS.forEach((i) => { i.cls = classifyInstall(i, OVERRIDES.get(i.id) || null); CLS_BY_ID.set(i.id, i.cls.kind); });
     }
+    let STORE = [];
+    async function loadStoreStats() {
+      const snap = await getDocs(collection(db, 'store_stats'));
+      STORE = snap.docs.map((d) => d.data()).filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
+    }
+    function renderStoreStats() {
+      if (!$('st-kpis')) return;
+      if (!STORE.length) { $('st-sub').textContent = '· zatím žádná data'; $('st-kpis').innerHTML = ''; $('st-panels').innerHTML = ''; return; }
+      const n = (x) => x.platform === 'ios' ? (x.firstTime || 0) : (x.installs || 0);
+      const today = new Date(); const DAY = 86400000;
+      const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+      const since = (d) => iso(today.getTime() - d * DAY);
+      const sum = (rows) => rows.reduce((a, x) => a + n(x), 0);
+      const ios = STORE.filter((x) => x.platform === 'ios'), and = STORE.filter((x) => x.platform === 'android');
+      const last = (rows) => rows.map((x) => x.date).sort().slice(-1)[0] || '—';
+      const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
+      $('st-sub').textContent = `· App Store data do ${last(ios)} · Google Play do ${last(and)}`;
+      $('st-kpis').innerHTML = [
+        k('stažení celkem', sum(STORE), `App Store ${sum(ios)} · Google Play ${sum(and)}`),
+        k('za 30 dní', sum(STORE.filter((x) => x.date >= since(30))), `7 dní ${sum(STORE.filter((x) => x.date >= since(7)))}`),
+        k('odinstalace Google Play', and.reduce((a, x) => a + (x.uninstalls || 0), 0), 'celkem'),
+      ].join('');
+      const byDay = new Map();
+      for (let d = 29; d >= 0; d--) byDay.set(iso(today.getTime() - d * DAY), 0);
+      STORE.forEach((x) => { if (byDay.has(x.date)) byDay.set(x.date, byDay.get(x.date) + n(x)); });
+      const regionName = (c) => { try { return new Intl.DisplayNames(['cs'], { type: 'region' }).of(c) + ' (' + c + ')'; } catch { return c; } };
+      const country = new Map();
+      STORE.forEach((x) => { for (const [c, v] of Object.entries(x.platform === 'ios' ? (x.byTerritory || {}) : (x.byCountry || {}))) country.set(regionName(c), (country.get(regionName(c)) || 0) + v); });
+      const plat = [['App Store', sum(ios)], ['Google Play', sum(and)]];
+      $('st-panels').innerHTML = [
+        barPanel('Stažení za den (30 dní, oba obchody)', [...byDay.entries()].map(([d, v]) => [d.slice(5).split('-').reverse().join('. ') + '.', v]), 'var(--apricot)'),
+        barPanel('Země (oba obchody, celkem)', [...country.entries()].sort((a, b) => b[1] - a[1]), 'var(--plum)', 12),
+        barPanel('Obchod', plat, 'var(--water)'),
+      ].join('');
+    }
     async function loadInstalls() {
       const [inst, over] = await Promise.all([getDocs(collection(db, 'install_platforms')), getDocs(collection(db, 'tester_installs'))]);
       INSTALLS = inst.docs.map((d) => { const x = d.data(); return { id: d.id, platform: x.platform || null, firstMs: tsMs(x.firstSeenAt), lastMs: tsMs(x.lastSeenAt), locale: x.locale, deviceLocale: x.deviceLocale, region: x.region, installKind: x.installKind || 'unknown', model: x.model, os: x.os, osVersion: x.osVersion, appBuild: x.appBuild }; });
@@ -335,6 +374,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       $('status').textContent = 'Načítám…';
       try {
         await loadInstalls().catch((e) => console.warn('ledger instalací nenačten', e));
+        await loadStoreStats().catch((e) => console.warn('store_stats nenačteny', e));
         await fetchPage();
         buildFilterOptions();
         render();
@@ -538,6 +578,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     function renderOverview(ev) {
       renderUsers();
+      renderStoreStats();
       const tsList = ev.map((e) => e.ts).filter(Boolean);
       const sessions = new Set(ev.map((e) => e.installId + ':' + e.session)).size;
       const span = tsList.length ? Math.round((Math.max(...tsList) - Math.min(...tsList)) / 86400000) : 0;
