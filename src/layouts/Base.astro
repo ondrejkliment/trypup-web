@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { operator, operatorLabels, type Lang } from '../lib/operator';
+import { ALL_LANGS, pagePath, hreflangSet, CS_EN_PAIRS, SITE, type LocalizedPage } from '../lib/routes';
 
 type PageKey = 'home' | 'about' | 'privacy' | 'terms' | 'support' | 'join';
 
@@ -37,33 +38,27 @@ const canonical = new URL(Astro.url.pathname, site).href;
 // Neutrální odkaz na "kde aplikaci získat" tenhle problém neřeší jen na 6 stránkách,
 // řeší ho úplně — banner je teď bezpečné zobrazit všude. Od 11. 9. má homepage +
 // About vlastní verzi ve všech 12 jazycích aplikace (dřív jen cs+en, ostatní mířily do
-// /en/ — matlo to, viz "Über uns" → anglická stránka). Blog zůstává JEN cs+en —
-// roste a nemá stejný právní tlak jako Zásady/Podmínky/Podpora, plošný překlad
-// zatím neplánujeme.
+// /en/ — matlo to, viz "Über uns" → anglická stránka). Blog je JEN česky
+// (anglický neexistuje, /en/blog/ = 404) — roste a nemá stejný právní tlak jako
+// Zásady/Podmínky/Podpora, plošný překlad zatím neplánujeme.
 const dlAnchor = lang === 'cs' ? '/#stahnout' : `/${lang}/#get`;
 const resolvedImage = image ?? '/og-default.png?v=1';
 const ogImage = new URL(resolvedImage, site).href;
-const altHref = alt ? new URL(alt, site).href : null;
-
-// hreflang pair — zatím jen cs/en (marketingový pár). Ostatních 10 jazyků má od
-// 11. 9. vlastní homepage/about, ale nemá vzájemně provázané `alt` na KAŽDÉ stránce
-// (jen legal stránky a teď home/about); plný 12jazyčný hreflang graf je budoucí
-// vylepšení, ne regrese — bez tagů Google prostě stránku indexuje samostatně.
-const csHref = lang === 'cs' ? canonical : (lang === 'en' ? altHref : null);
-const enHref = lang === 'en' ? canonical : (lang === 'cs' ? altHref : null);
 
 type Strings = {
   howItWorks: string; about: string; blog: string; privacy: string; terms: string; support: string; contact: string;
   switchLabel: string; switchHref: string;
-  howHref: string; aboutHref: string; blogHref: string; privacyHref: string; termsHref: string; supportHref: string; joinHref: string; homeHref: string;
+  howHref: string; aboutHref: string; blogHref: string | null; privacyHref: string; termsHref: string; supportHref: string; joinHref: string; homeHref: string;
   ogLocale: string;
   announcePre: string; announcePost: string; announceBoth: string;
   cookieText: string; cookieAccept: string; cookieReject: string; cookieSettings: string;
 };
 
 // Nav na home/about míří do VLASTNÍHO jazyka (od 11. 9. má všech 12 jazyků svou
-// verzi); blogHref zůstává /blog/ pro každého — blog má jen cs+en.
-const enNav = { howHref: '/en/#how-it-works', aboutHref: '/en/about/', blogHref: '/blog/', homeHref: '/en/' };
+// verzi). Blog je JEN česky → odkaz Blog se v hlavičce i patičce ukazuje jen na cs
+// a sk stránkách (Slováci češtině rozumí; rozhodnutí zakladatele 11. 10. 2026).
+// Jinde blogHref = null (dřív vedl /en/, /de/… na český blog).
+const enNav = { howHref: '/en/#how-it-works', aboutHref: '/en/about/', blogHref: null, homeHref: '/en/' };
 const csNav = { howHref: '/#jak-to-funguje', aboutHref: '/o-aplikaci/', blogHref: '/blog/', homeHref: '/' };
 
 const STRINGS: Record<Lang, Strings> = {
@@ -91,7 +86,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Wie es funktioniert', about: 'Über uns', blog: 'Blog',
     privacy: 'Datenschutz', terms: 'Nutzungsbedingungen', support: 'Support', contact: 'Kontakt',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/de/#how-it-works', aboutHref: '/de/about/', blogHref: '/blog/', homeHref: '/de/',
+    howHref: '/de/#how-it-works', aboutHref: '/de/about/', blogHref: null, homeHref: '/de/',
     privacyHref: '/de/privacy/', termsHref: '/de/terms/', supportHref: '/de/support/', joinHref: '/de/join/',
     ogLocale: 'de_DE',
     announcePre: '📱 Trypup ist jetzt verfügbar für ', announcePost: '! Folge uns auf ', announceBoth: 'iPhone und Android',
@@ -102,7 +97,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Comment ça marche', about: 'À propos', blog: 'Blog',
     privacy: 'Confidentialité', terms: 'Conditions d’utilisation', support: 'Assistance', contact: 'Contact',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/fr/#how-it-works', aboutHref: '/fr/about/', blogHref: '/blog/', homeHref: '/fr/',
+    howHref: '/fr/#how-it-works', aboutHref: '/fr/about/', blogHref: null, homeHref: '/fr/',
     privacyHref: '/fr/privacy/', termsHref: '/fr/terms/', supportHref: '/fr/support/', joinHref: '/fr/join/',
     ogLocale: 'fr_FR',
     announcePre: '📱 Trypup est maintenant disponible sur ', announcePost: ' ! Suivez ', announceBoth: 'iPhone et Android',
@@ -113,7 +108,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Jak to działa', about: 'O aplikacji', blog: 'Blog',
     privacy: 'Prywatność', terms: 'Warunki użytkowania', support: 'Pomoc', contact: 'Kontakt',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/pl/#how-it-works', aboutHref: '/pl/about/', blogHref: '/blog/', homeHref: '/pl/',
+    howHref: '/pl/#how-it-works', aboutHref: '/pl/about/', blogHref: null, homeHref: '/pl/',
     privacyHref: '/pl/privacy/', termsHref: '/pl/terms/', supportHref: '/pl/support/', joinHref: '/pl/join/',
     ogLocale: 'pl_PL',
     announcePre: '📱 Trypup jest już dostępny na ', announcePost: '! Śledź nas ', announceBoth: 'iPhone i Androida',
@@ -124,7 +119,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Cómo funciona', about: 'Acerca de', blog: 'Blog',
     privacy: 'Privacidad', terms: 'Términos de uso', support: 'Soporte', contact: 'Contacto',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/es/#how-it-works', aboutHref: '/es/about/', blogHref: '/blog/', homeHref: '/es/',
+    howHref: '/es/#how-it-works', aboutHref: '/es/about/', blogHref: null, homeHref: '/es/',
     privacyHref: '/es/privacy/', termsHref: '/es/terms/', supportHref: '/es/support/', joinHref: '/es/join/',
     ogLocale: 'es_ES',
     announcePre: '📱 Trypup ya está disponible en ', announcePost: '. Síguenos en ', announceBoth: 'iPhone y Android',
@@ -135,7 +130,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Come funziona', about: 'Chi siamo', blog: 'Blog',
     privacy: 'Privacy', terms: 'Termini di utilizzo', support: 'Assistenza', contact: 'Contatto',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/it/#how-it-works', aboutHref: '/it/about/', blogHref: '/blog/', homeHref: '/it/',
+    howHref: '/it/#how-it-works', aboutHref: '/it/about/', blogHref: null, homeHref: '/it/',
     privacyHref: '/it/privacy/', termsHref: '/it/terms/', supportHref: '/it/support/', joinHref: '/it/join/',
     ogLocale: 'it_IT',
     announcePre: '📱 Trypup è ora disponibile su ', announcePost: '! Seguici su ', announceBoth: 'iPhone e Android',
@@ -146,7 +141,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Hoe het werkt', about: 'Over', blog: 'Blog',
     privacy: 'Privacy', terms: 'Gebruiksvoorwaarden', support: 'Ondersteuning', contact: 'Contact',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/nl/#how-it-works', aboutHref: '/nl/about/', blogHref: '/blog/', homeHref: '/nl/',
+    howHref: '/nl/#how-it-works', aboutHref: '/nl/about/', blogHref: null, homeHref: '/nl/',
     privacyHref: '/nl/privacy/', termsHref: '/nl/terms/', supportHref: '/nl/support/', joinHref: '/nl/join/',
     ogLocale: 'nl_NL',
     announcePre: '📱 Trypup is nu beschikbaar voor ', announcePost: '! Volg ', announceBoth: 'iPhone en Android',
@@ -157,7 +152,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Como funciona', about: 'Sobre', blog: 'Blog',
     privacy: 'Privacidade', terms: 'Termos de utilização', support: 'Suporte', contact: 'Contacto',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/pt/#how-it-works', aboutHref: '/pt/about/', blogHref: '/blog/', homeHref: '/pt/',
+    howHref: '/pt/#how-it-works', aboutHref: '/pt/about/', blogHref: null, homeHref: '/pt/',
     privacyHref: '/pt/privacy/', termsHref: '/pt/terms/', supportHref: '/pt/support/', joinHref: '/pt/join/',
     ogLocale: 'pt_PT',
     announcePre: '📱 O Trypup já está disponível para ', announcePost: '! Siga-nos em ', announceBoth: 'iPhone e Android',
@@ -179,7 +174,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Как работи', about: 'За приложението', blog: 'Блог',
     privacy: 'Поверителност', terms: 'Условия за ползване', support: 'Поддръжка', contact: 'Контакт',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/bg/#how-it-works', aboutHref: '/bg/about/', blogHref: '/blog/', homeHref: '/bg/',
+    howHref: '/bg/#how-it-works', aboutHref: '/bg/about/', blogHref: null, homeHref: '/bg/',
     privacyHref: '/bg/privacy/', termsHref: '/bg/terms/', supportHref: '/bg/support/', joinHref: '/bg/join/',
     ogLocale: 'bg_BG',
     announcePre: '📱 Trypup вече е достъпен за ', announcePost: '! Последвайте ', announceBoth: 'iPhone и Android',
@@ -190,7 +185,7 @@ const STRINGS: Record<Lang, Strings> = {
     howItWorks: 'Як це працює', about: 'Про застосунок', blog: 'Блог',
     privacy: 'Конфіденційність', terms: 'Умови використання', support: 'Підтримка', contact: 'Контакти',
     switchLabel: 'EN', switchHref: alt ?? '/en/',
-    howHref: '/uk/#how-it-works', aboutHref: '/uk/about/', blogHref: '/blog/', homeHref: '/uk/',
+    howHref: '/uk/#how-it-works', aboutHref: '/uk/about/', blogHref: null, homeHref: '/uk/',
     privacyHref: '/uk/privacy/', termsHref: '/uk/terms/', supportHref: '/uk/support/', joinHref: '/uk/join/',
     ogLocale: 'uk_UA',
     announcePre: '📱 Trypup вже доступний для ', announcePost: '! Підписуйтесь на ', announceBoth: 'iPhone і Android',
@@ -211,11 +206,67 @@ const opRegistry = operator.spisovaZnacka[lang];
 // plný název jazyka v sobě samém, zobrazený v rozbalené nabídce. „uk" (ISO kód pro
 // ukrajinštinu) se v pilulce záměrně zobrazuje jako „UA" — „UK" by čtenáři splynulo
 // se zkratkou United Kingdom.
-const ALL_LANGS: Lang[] = ['cs', 'en', 'de', 'fr', 'pl', 'es', 'it', 'nl', 'pt', 'sk', 'bg', 'uk'];
 const LANG_CODE: Record<Lang, string> = { cs: 'CZ', en: 'EN', de: 'DE', fr: 'FR', pl: 'PL', es: 'ES', it: 'IT', nl: 'NL', pt: 'PT', sk: 'SK', bg: 'BG', uk: 'UA' };
 const LANG_NAME: Record<Lang, string> = { cs: 'Čeština', en: 'English', de: 'Deutsch', fr: 'Français', pl: 'Polski', es: 'Español', it: 'Italiano', nl: 'Nederlands', pt: 'Português', sk: 'Slovenčina', bg: 'Български', uk: 'Українська' };
 const PAGE_HREF_KEY: Record<PageKey, keyof Strings> = { home: 'homeHref', about: 'aboutHref', privacy: 'privacyHref', terms: 'termsHref', support: 'supportHref', join: 'joinHref' };
-const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[code], href: STRINGS[code][PAGE_HREF_KEY[pageKey]] })) : null;
+const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[code], href: STRINGS[code][PAGE_HREF_KEY[pageKey]] as string })) : null;
+
+// hreflang: stránky ve všech 12 jazycích dostanou plnou sadu + x-default (= /en/),
+// stránky jen cs+en (smazání účtu) pár, ostatní (blog, join, admin) nic.
+// `join` záměrně ne — robots.txt ho zakazuje (kód pozvánky v URL).
+const LOCALIZED: LocalizedPage[] = ['home', 'about', 'privacy', 'terms', 'support'];
+let hreflangLinks: { hreflang: string; href: string }[] = [];
+if (pageKey && (LOCALIZED as string[]).includes(pageKey)) {
+  const page = pageKey as LocalizedPage;
+  // Pojistka proti rozjetí navigace a hreflang/sitemap: build spadne, když se cesty liší.
+  for (const code of ALL_LANGS) {
+    if (STRINGS[code][PAGE_HREF_KEY[page]] !== pagePath(page, code)) {
+      throw new Error(`routes.ts × Base.astro STRINGS: ${page}/${code} se liší`);
+    }
+  }
+  hreflangLinks = hreflangSet(page);
+} else {
+  const pair = CS_EN_PAIRS.find(([cs, en]) => Astro.url.pathname === cs || Astro.url.pathname === en);
+  if (pair) hreflangLinks = [
+    { hreflang: 'cs', href: SITE + pair[0] },
+    { hreflang: 'en', href: SITE + pair[1] },
+    { hreflang: 'x-default', href: SITE + pair[1] },
+  ];
+}
+
+// schema.org (jen úvodní stránky): provozovatel, web a aplikace. BEZ aggregateRating —
+// hodnocení zatím nejsou reprezentativní ani vidět na stránce (Google to vyžaduje).
+const appStoreClean = 'https://apps.apple.com/app/id6775990135';
+const playClean = 'https://play.google.com/store/apps/details?id=app.trypup.mobile';
+const jsonLd = pageKey === 'home' ? {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'Organization', '@id': `${SITE}/#org`, name: operator.firma, url: `${SITE}/`, email: operator.email },
+    { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'Trypup', url: `${SITE}/`, inLanguage: lang, publisher: { '@id': `${SITE}/#org` } },
+    {
+      '@type': 'MobileApplication',
+      '@id': `${SITE}/#app`,
+      name: 'Trypup',
+      alternateName: 'Trypup: Try a Dog First',
+      description,
+      url: canonical,
+      image: `${SITE}/icon.png`,
+      operatingSystem: 'iOS, Android',
+      applicationCategory: 'EducationalApplication',
+      applicationSubCategory: 'Simulation',
+      publisher: { '@id': `${SITE}/#org` },
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: lang === 'cs' ? 'CZK' : 'EUR',
+        description: lang === 'cs'
+          ? 'Ke stažení zdarma, volitelné nákupy v aplikaci (Premium, jednotlivá plemena).'
+          : 'Free to download, optional in-app purchases (Premium, individual breeds).',
+      },
+      sameAs: [appStoreClean, playClean],
+    },
+  ],
+} : null;
 ---
 <!doctype html>
 <html lang={lang}>
@@ -225,9 +276,7 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {csHref && <link rel="alternate" hreflang="cs" href={csHref} />}
-    {enHref && <link rel="alternate" hreflang="en" href={enHref} />}
-    {csHref && <link rel="alternate" hreflang="x-default" href={csHref} />}
+    {hreflangLinks.map((l) => <link rel="alternate" hreflang={l.hreflang} href={l.href} />)}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
@@ -242,6 +291,7 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#FDF4EF" />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
     <!-- Favicon = samotná hlava psa na PRŮHLEDNÉM pozadí (2. 10. 2026, třetí pokus).
          Proč ne dlaždice aplikace: Safari 26 v tmavém režimu vyhodnotí tmavou (švestkovou)
          ikonu jako málo kontrastní a podloží ji vlastní bílou destičkou → bílý rámeček
@@ -330,7 +380,7 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
         <nav class="nav">
           <a href={t.howHref}>{t.howItWorks}</a>
           <a href={t.aboutHref}>{t.about}</a>
-          <a href={t.blogHref}>{t.blog}</a>
+          {t.blogHref && <a href={t.blogHref}>{t.blog}</a>}
           {langLinks ? (
             <details class="lang-switch">
               <summary aria-label="Language">{LANG_CODE[lang]}</summary>
@@ -356,7 +406,7 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
         <div>© {year} Trypup · {operator.firma}</div>
         <div class="links">
           <a href={t.aboutHref}>{t.about}</a>
-          <a href={t.blogHref}>{t.blog}</a>
+          {t.blogHref && <a href={t.blogHref}>{t.blog}</a>}
           <a href={t.privacyHref}>{t.privacy}</a>
           <a href={t.termsHref}>{t.terms}</a>
           <a href={t.supportHref}>{t.support}</a>

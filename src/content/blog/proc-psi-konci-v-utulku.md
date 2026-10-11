@@ -11,7 +11,7 @@ Tenhle článek není o strašení. Je o tom, jak si dopřát poctivou příprav
 
 ## Do útulku psy nejčastěji nepřivede jejich povaha
 
-Když si představíme psa v útulku, mnozí z nás si automaticky domyslí, že s ním „něco bylo" — že kousal, utíkal nebo byl nezvladatelný. Skutečnost bývá jiná a mnohem lidštější. Studie i zkušenosti lidí z útulků shodně ukazují, že většina psů se do útulku dostane kvůli okolnostem na straně člověka, ne kvůli chování zvířete: kvůli stěhování do bytu, kde psi nesmějí, kvůli nedostatku času, financím, rozchodu, nemoci nebo nově příchozímu miminku.
+Když si představíme psa v útulku, mnozí z nás si automaticky domyslí, že s ním „něco bylo" — že kousal, utíkal nebo byl nezvladatelný. Skutečnost bývá jiná a mnohem lidštější. Řada studií i zkušenosti lidí z útulků ukazují, že většina psů se do útulku dostane kvůli okolnostem na straně člověka, ne kvůli chování zvířete: kvůli stěhování do bytu, kde psi nesmějí, kvůli nedostatku času, financím, rozchodu, nemoci nebo nově příchozímu miminku.
 
 Jinými slovy: nejčastější příčinou není „špatný pes", ale změna v životě člověka, na kterou nebyl nikdo připravený. To je dobrá zpráva. Znamená to totiž, že řadě těch příběhů se dá předejít ještě dřív, než pes vůbec přijde domů — poctivým zvážením toho, co péče každý den obnáší.
 
@@ -57,7 +57,7 @@ Trypup je právě teď dostupný pro Android i iPhone.
 <div class="app-cta">
   <div>
     <strong>Pes na zkoušku — nanečisto ve vašem telefonu</strong>
-    <p>Projděte si týden péče o virtuálního psa a zjistěte, jestli na to reálně máte — bez následků pro živé zvíře. Trypup je teď venku pro Android i iPhone.</p>
+    <p>Projděte si 30denní výzvu s virtuálním psem a zjistěte, jestli na to reálně máte — bez následků pro živé zvíře. Trypup je teď venku pro Android i iPhone.</p>
     <div class="app-cta-badges">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=blog" target="_blank" rel="noopener">
         <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />
@@ -82,3 +82,8 @@ Trypup je právě teď dostupný pro Android i iPhone.
 ## Závěr
 
 Dobrý domov pro psa nezačíná v den, kdy si ho přinesete. Začíná dřív — poctivou otázkou, jestli na něj máte. Ta otázka není projev pochybnosti, ale odpovědnosti. Když si na ni odpovíte upřímně, uděláte tu nejdůležitější věc pro to, aby váš pes nikdy nepoznal kotec útulku: dáte svému rozhodnutí základ, který vydrží i všední den. A to je nakonec ta největší laskavost, kterou pro budoucího psa můžete udělat.
+
+## Zdroje
+
+- Jensen J. B. H., Sandøe P., Nielsen S. S. (2020): *Owner-Related Reasons Matter more than Behavioural Problems — A Study of Why Owners Relinquished Dogs and Cats to a Danish Animal Shelter from 1996 to 2017.* Animals 10(6):1064. [pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC7341242/)
+- Salman M. D. a kol. (1998): *Human and Animal Factors Related to Relinquishment of Dogs and Cats in 12 Selected Animal Shelters in the United States.* Journal of Applied Animal Welfare Science 1(3):207–226. [doi.org](https://doi.org/10.1207/s15327604jaws0103_2)

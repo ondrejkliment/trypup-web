@@ -28,7 +28,7 @@ export const CMS_FIELDS: CmsField[] = [
   // ─────────────────────────── Domů (CZ) ───────────────────────────
   { key: 'home.cs.hero.badge', group: 'Domů CZ · Hero', type: 'text', label: 'Štítek nad nadpisem', default: '🐾 Edukativní simulátor péče' },
   { key: 'home.cs.hero.title', group: 'Domů CZ · Hero', type: 'text', label: 'Hlavní nadpis', default: 'Pes na zkoušku' },
-  { key: 'home.cs.hero.lead', group: 'Domů CZ · Hero', type: 'textarea', label: 'Podnadpis (lead)', default: 'Vyzkoušej si na vlastní kůži, co péče o psa obnáší — dřív, než si pořídíš toho skutečného.' },
+  { key: 'home.cs.hero.lead', group: 'Domů CZ · Hero', type: 'textarea', label: 'Podnadpis (lead)', default: 'Vyzkoušejte si na vlastní kůži, co péče o psa obnáší — dřív, než si pořídíte toho skutečného.' },
   { key: 'home.cs.hero.ctaPrimary', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 1 (text)', default: 'Stáhnout aplikaci' },
   { key: 'home.cs.hero.ctaGhost', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 2 (text)', default: 'Jak to funguje' },
 
@@ -36,33 +36,31 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.cs.stat.sub', group: 'Domů CZ · Statistika', type: 'textarea', label: 'Doplněk pod výrokem', default: 'Trypup vám ukáže, co pes obnáší, ještě před rozhodnutím — ne po něm.' },
 
   { key: 'home.cs.how.title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Nadpis sekce', default: 'Jak to funguje' },
-  { key: 'home.cs.how.sub', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Podnadpis sekce', default: 'Tři kroky, jako kdyby ses staral doopravdy.' },
-  { key: 'home.cs.how.step1title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 1 — tučně', default: 'Vyber plemeno a pojmenuj psa.' },
-  { key: 'home.cs.how.step1text', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 1 — text', default: 'Dotazník ti doporučí, co k tobě sedí.' },
-  { key: 'home.cs.how.step2title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 2 — tučně', default: 'Starej se každý den.' },
+  { key: 'home.cs.how.sub', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Podnadpis sekce', default: 'Tři kroky, jako byste se starali doopravdy.' },
+  { key: 'home.cs.how.step1title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 1 — tučně', default: 'Vyberte plemeno a pojmenujte psa.' },
+  { key: 'home.cs.how.step1text', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 1 — text', default: 'Dotazník vám doporučí, co k vám sedí.' },
+  { key: 'home.cs.how.step2title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 2 — tučně', default: 'Starejte se každý den.' },
   { key: 'home.cs.how.step2text', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 2 — text', default: 'Procházky, krmení, výcvik, veterina. Nic se nedá odbýt.' },
-  { key: 'home.cs.how.step3title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 3 — tučně', default: 'Zjisti pravdu o sobě.' },
-  { key: 'home.cs.how.step3text', group: 'Domů CZ · Jak to funguje', type: 'textarea', label: 'Krok 3 — text', default: 'Zvládneš rutinu i ve dnech, kdy se ti nechce? Pokud psa zanedbáš, odejde do útulku — bez následků pro živé zvíře.' },
+  { key: 'home.cs.how.step3title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 3 — tučně', default: 'Zjistěte pravdu o sobě.' },
+  { key: 'home.cs.how.step3text', group: 'Domů CZ · Jak to funguje', type: 'textarea', label: 'Krok 3 — text', default: 'Zvládnete rutinu i ve dnech, kdy se vám nechce? Pokud psa zanedbáte, odejde do útulku — bez následků pro živé zvíře.' },
 
   { key: 'home.cs.feat.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Nadpis sekce', default: 'Co aplikace umí' },
   { key: 'home.cs.feat.sub', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Podnadpis sekce', default: 'Realistická simulace péče — od procházek po náklady.' },
   { key: 'home.cs.feat1.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 1 — nadpis', default: 'GPS procházky' },
-  { key: 'home.cs.feat1.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 1 — text', default: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdeš ven.' },
+  { key: 'home.cs.feat1.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 1 — text', default: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdete ven.' },
   { key: 'home.cs.feat2.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 2 — nadpis', default: 'Denní péče' },
-  { key: 'home.cs.feat2.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 2 — text', default: 'Krmení, hra, čištění, odpočinek. Statistiky reagují na to, jak se staráš.' },
+  { key: 'home.cs.feat2.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 2 — text', default: 'Krmení, hra, čištění, odpočinek. Statistiky reagují na to, jak se staráte.' },
   { key: 'home.cs.feat3.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 3 — nadpis', default: 'Výcvik' },
   { key: 'home.cs.feat3.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 3 — text', default: '9 povelů s postupným odemykáním. Každé plemeno se učí jinak rychle.' },
   { key: 'home.cs.feat4.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 4 — nadpis', default: 'Zdraví & náklady' },
   { key: 'home.cs.feat4.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 4 — text', default: 'Očkovací kalendář a reálné měsíční i roční náklady na psa.' },
   { key: 'home.cs.feat5.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 5 — nadpis', default: 'Vzdělávání' },
-  { key: 'home.cs.feat5.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 5 — text', default: 'Články o adopci, výběru útulku a otázkách, které si polož předem.' },
+  { key: 'home.cs.feat5.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 5 — text', default: 'Články o adopci, výběru útulku a otázkách, které si položíte předem.' },
   { key: 'home.cs.feat6.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 6 — nadpis', default: 'Spoluvlastnictví' },
-  { key: 'home.cs.feat6.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 6 — text', default: 'Sdílej péči s rodinou — každý vidí, co udělal ten druhý.' },
+  { key: 'home.cs.feat6.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 6 — text', default: 'Sdílejte péči s rodinou — každý vidí, co udělal ten druhý.' },
 
-  { key: 'home.cs.dl.title', group: 'Domů CZ · Stažení', type: 'text', label: 'Nadpis sekce', default: 'Pes na zkoušku' },
+  { key: 'home.cs.dl.title', group: 'Domů CZ · Stažení', type: 'text', label: 'Nadpis sekce', default: 'Stáhnout Trypup' },
   { key: 'home.cs.dl.sub', group: 'Domů CZ · Stažení', type: 'textarea', label: 'Podnadpis sekce', default: 'Trypup je venku pro Android i iPhone. Stáhněte si aplikaci a vyzkoušejte si psa na zkoušku.' },
-  { key: 'home.cs.dl.ctaPrimary', group: 'Domů CZ · Stažení', type: 'text', label: 'Tlačítko 1 (text)', default: 'O aplikaci' },
-  { key: 'home.cs.dl.ctaGhost', group: 'Domů CZ · Stažení', type: 'text', label: 'Tlačítko 2 (text)', default: 'Číst blog' },
 
   // ─────────────────────────── Domů (EN) ───────────────────────────
   { key: 'home.en.hero.badge', group: 'Domů EN · Hero', type: 'text', label: 'Badge', default: '🐾 Educational care simulator' },
@@ -98,10 +96,8 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.en.feat6.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 6 — title', default: 'Co-ownership' },
   { key: 'home.en.feat6.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 6 — text', default: 'Share care with family — everyone sees what the other one did.' },
 
-  { key: 'home.en.dl.title', group: 'Domů EN · Get', type: 'text', label: 'Section title', default: 'A dog on trial' },
-  { key: 'home.en.dl.sub', group: 'Domů EN · Get', type: 'textarea', label: 'Section sub', default: 'Coming soon to the App Store and Google Play. For now, take a look at what it\'s about.' },
-  { key: 'home.en.dl.ctaPrimary', group: 'Domů EN · Get', type: 'text', label: 'Button 1', default: 'About the app' },
-  { key: 'home.en.dl.ctaGhost', group: 'Domů EN · Get', type: 'text', label: 'Button 2', default: 'Read the blog' },
+  { key: 'home.en.dl.title', group: 'Domů EN · Get', type: 'text', label: 'Section title', default: 'Get Trypup' },
+  { key: 'home.en.dl.sub', group: 'Domů EN · Get', type: 'textarea', label: 'Section sub', default: 'Trypup is out now for Android and iPhone. Download the app and try a dog on for size.' },
 
   // ─────────────────────────── O aplikaci (CZ) ───────────────────────────
   { key: 'about.cs.title', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis', default: 'O aplikaci' },
@@ -112,7 +108,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.cs.breedsTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Plemena"', default: 'Plemena' },
   { key: 'about.cs.breedsText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Plemena"', default: 'Čtyři plemena zdarma — jedno od každého vzrůstu (malé, střední, velké) a navíc voříšek z útulku — a další jako Premium (Border kolie, Sibiřský husky, Německý ovčák, Zlatý retrívr, Bernský salašnický pes a další).' },
   { key: 'about.cs.commitTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Náš závazek"', default: 'Náš závazek' },
-  { key: 'about.cs.commitText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Náš závazek"', default: 'Část výnosů věnujeme partnerským útulkům. Trypup není hra na výhru — je to upřímná zkouška, jestli na psa máš.' },
+  { key: 'about.cs.commitText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Náš závazek"', default: 'Část výnosů věnujeme psím útulkům. Trypup není hra na výhru — je to upřímná zkouška, jestli na psa máte.' },
   { key: 'about.cs.cta', group: 'O aplikaci CZ', type: 'text', label: 'Tlačítko dole', default: 'Vyzkoušet Trypup' },
 
   // ─────────────────────────── O aplikaci (EN) ───────────────────────────
@@ -128,8 +124,6 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.en.cta', group: 'O aplikaci EN', type: 'text', label: 'Bottom button', default: 'Try Trypup' },
 
   // ─────────────────────────── Společné (lišta) ───────────────────────────
-  { key: 'common.cs.announce', group: 'Společné · Oznamovací lišta', type: 'text', label: 'Lišta nahoře (CZ) — text před odkazem', default: '🚧 Trypup je ve vývoji — spustíme už brzy. Sleduj ' },
-  { key: 'common.en.announce', group: 'Společné · Oznamovací lišta', type: 'text', label: 'Lišta nahoře (EN) — text před odkazem', default: '🚧 Trypup is in development — launching soon. Follow ' },
   { key: 'common.social.instagram', group: 'Společné · Odkazy', type: 'url', label: 'Instagram URL (lišta)', default: 'https://www.instagram.com/trypupapp/' },
 ];
 

@@ -5,7 +5,7 @@ date: 2026-06-01
 tag: "Adopce"
 ---
 
-Každý rok skončí v českých útulcích tisíce psů. Většinou ne kvůli své povaze: podle studií o odevzdávání psů převažují důvody **na straně člověka** — bydlení, čas, náklady, životní změny — nad chováním psa. Část z toho se přitom dá odhadnout předem. Lidé často podcení, kolik času, peněz a energie pes opravdu spotřebuje.
+Každý rok skončí v českých útulcích tisíce psů. Většinou ne kvůli své povaze: podle studií o odevzdávání psů (např. Jensen a kol. 2020; Salman a kol. 1998) převažují důvody **na straně člověka** — bydlení, čas, náklady, životní změny — nad chováním psa. Část z toho se přitom dá odhadnout předem. Lidé často podcení, kolik času, peněz a energie pes opravdu spotřebuje.
 
 A přesně proti tomu jsme postavili Trypup.
 
@@ -40,3 +40,8 @@ Trypup je simulátor, který vás nechá zažít rutinu péče **nanečisto**:
 10. Proč ho vlastně chcete — doopravdy?
 
 Pokud jste si na všechny odpověděli upřímně a pořád psa chcete — skvělé. Jste připraveni. A pokud si nejste jistí, **vyzkoušejte si to napřed v Trypup.**
+
+## Zdroje
+
+- Jensen J. B. H., Sandøe P., Nielsen S. S. (2020): *Owner-Related Reasons Matter more than Behavioural Problems — A Study of Why Owners Relinquished Dogs and Cats to a Danish Animal Shelter from 1996 to 2017.* Animals 10(6):1064. [pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC7341242/)
+- Salman M. D. a kol. (1998): *Human and Animal Factors Related to Relinquishment of Dogs and Cats in 12 Selected Animal Shelters in the United States.* Journal of Applied Animal Welfare Science 1(3):207–226. [doi.org](https://doi.org/10.1207/s15327604jaws0103_2)
