@@ -9,7 +9,7 @@ const features = [
   { title: 'Training', text: '9 commands with progressive unlocks. Each breed learns at its own pace.' },
   { title: 'Health & costs', text: 'Vaccination schedule and realistic monthly and yearly dog costs.' },
   { title: 'Education', text: 'Articles on adoption, choosing a shelter and the questions to ask yourself first.' },
-  { title: 'Co-ownership', text: 'Share care with family — everyone sees what the other one did.' },
+  { title: 'Co-ownership', text: 'Share care with family — everyone sees what the other one did. Starting it is Premium, joining is free.' },
 ];
 ---
 <Base
@@ -21,7 +21,7 @@ const features = [
   <section class="hero wrap">
     <span class="badge" data-cms="home.en.hero.badge">🐾 Educational care simulator</span>
     <h1 data-cms="home.en.hero.title">A dog on trial</h1>
-    <p class="lead" data-cms="home.en.hero.lead">Feel for yourself what caring for a dog really takes — <strong>before you get a real one</strong>.</p>
+    <p class="lead" data-cms="home.en.hero.lead">Spend 30 days finding out what caring for a dog really takes — <strong>before you get a real one</strong>.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="#get" data-cms="home.en.hero.ctaPrimary">Get the app</a>
       <a class="btn btn-ghost" href="#how-it-works" data-cms="home.en.hero.ctaGhost">How it works</a>
@@ -41,7 +41,22 @@ const features = [
     <div class="steps" style="max-width:680px;margin:0 auto">
       <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step1title">Pick a breed and name your dog.</strong> <span data-cms="home.en.how.step1text">A questionnaire recommends what fits you.</span></div></div>
       <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step2title">Care for it every day.</strong> <span data-cms="home.en.how.step2text">Walks, feeding, training, vet. Nothing can be skipped.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step3title">Learn the truth about yourself.</strong> <span data-cms="home.en.how.step3text">Can you keep the routine even on days you don't feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step3title">Learn the truth about yourself.</strong> <span data-cms="home.en.how.step3text">After 30 days you get an evaluation and a short final quiz. Can you keep the routine even on days you don't feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">See it in the app</h2>
+    <p class="section-sub">Real screens from the Trypup app.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/en-home-300.webp" srcset="/screens/en-home-300.webp 300w, /screens/en-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Trypup home screen: Rex the dog, challenge day 4 of 30 and the list of daily tasks" />
+        <figcaption>Home: daily tasks and your 30-day challenge progress</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/en-walk-300.webp" srcset="/screens/en-walk-300.webp 300w, /screens/en-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Trypup walk screen: time, distance walked and goal reached" />
+        <figcaption>Walk: a real route measured by GPS</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -56,6 +71,64 @@ const features = [
           <p data-cms={`home.en.feat${i + 1}.text`}>{f.text}</p>
         </div>
       ))}
+    </div>
+  </section>
+
+  <section id="free" class="section wrap">
+    <h2 class="section-title">What's free and what's Premium</h2>
+    <p class="section-sub">You can complete the whole 30-day challenge for free. Premium is optional.</p>
+    <div class="plans">
+      <div class="card plan">
+        <h3>Free</h3>
+        <ul>
+          <li>The full 30-day challenge, including the evaluation and final quiz</li>
+          <li>4 breeds: Dachshund, Beagle, Labrador Retriever and Shelter Mix</li>
+          <li>GPS walks, daily care and training with 9 commands</li>
+          <li>Vaccination schedule and an overview of dog costs</li>
+          <li>9 of 12 articles, plus quizzes</li>
+          <li>Joining a shared dog (shared care)</li>
+        </ul>
+      </div>
+      <div class="card plan plan-premium">
+        <h3>Premium <span class="plan-tag">optional</span></h3>
+        <ul>
+          <li>10 more breeds — Border Collie, Siberian Husky, German Shepherd and others. You can also buy just one breed.</li>
+          <li>Starting shared care: one dog for up to 4 people, the others join for free</li>
+          <li>3 premium articles on socialization, training and vet care (a 7-day care streak unlocks them too)</li>
+          <li>Care timeline: milestones and vaccinations in one place</li>
+        </ul>
+      </div>
+    </div>
+    <p class="plans-note">You'll see current Premium prices in the App Store or on Google Play; they vary by country.</p>
+  </section>
+
+  <section id="faq" class="section wrap">
+    <h2 class="section-title">Frequently asked questions</h2>
+    <div class="faq">
+      <details>
+        <summary>Is Trypup free?</summary>
+        <p>Yes. The app is free to download and you can complete the whole 30-day challenge, including the evaluation, without paying. Premium is optional: it adds more breeds, starting shared care, three premium articles and the care timeline.</p>
+      </details>
+      <details>
+        <summary>Do I really have to go outside? Does it work without location?</summary>
+        <p>Walks are real: the app measures them with GPS and your route stays on your phone. If you don't allow location, or someone else walks the dog, you can log the walk manually — the dog gets its walk, it just isn't measured by GPS.</p>
+      </details>
+      <details>
+        <summary>Is Trypup suitable for children?</summary>
+        <p>Trypup is for anyone seriously thinking about getting a dog, including families deciding together. We recommend that younger children play together with a parent. If you choose "Under 16" on first launch, the app collects no analytics, offers no purchases and sends no push notifications.</p>
+      </details>
+      <details>
+        <summary>What happens if I don't take care of the dog?</summary>
+        <p>The dog never dies in the app. If it goes without care for several days, it goes to a shelter and the app explains what it was missing. Then you can start again — with no consequences for a living animal.</p>
+      </details>
+      <details>
+        <summary>Do I need an account?</summary>
+        <p>No. Trypup works without an account, and your dog and progress then stay only on your phone. An account is optional: it backs up your progress to the cloud in the EU and is needed for shared care with your family.</p>
+      </details>
+      <details>
+        <summary>What if I want to keep going after 30 days?</summary>
+        <p>You can. After the evaluation and final quiz, you simply keep caring for your dog. And if you'd rather skip the challenge, choose Classic care ("For life") when you set up your dog: it grows up with you at its own pace, with no final quiz. Both options are free.</p>
+      </details>
     </div>
   </section>
 
