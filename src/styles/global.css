@@ -164,3 +164,25 @@ p.section-sub { text-align: center; color: var(--muted); max-width: 600px; margi
 
 .center { text-align: center; }
 .mt { margin-top: 28px; }
+
+/* Snímky z aplikace (B8) — rámeček telefonu čistě v CSS, žádný obrázek navíc */
+.screens { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
+.screen { margin: 0; width: 260px; max-width: 70vw; text-align: center; }
+.screen .phone { width: 100%; height: auto; border-radius: 34px; border: 8px solid var(--ink); background: #fff; box-shadow: 0 14px 34px rgba(74,43,69,.18); }
+.screen figcaption { margin-top: 12px; color: var(--muted); font-size: 14px; font-weight: 600; }
+
+/* Zdarma vs Premium (B8) */
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; max-width: 820px; margin: 0 auto; }
+.plan h3 { margin: 0 0 10px; font-size: 20px; }
+.plan ul { padding-left: 20px; color: #374151; font-size: 15px; }
+.plan li { margin-bottom: 6px; }
+.plan-premium { border-color: var(--orange); }
+.plan-tag { font-size: 12px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .05em; margin-left: 6px; }
+.plans-note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 16px; }
+
+/* Časté otázky (B8) — nativní <details>, funguje bez JS */
+.faq { max-width: 720px; margin: 0 auto; display: grid; gap: 10px; }
+.faq details { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; }
+.faq summary { cursor: pointer; font-weight: 700; color: var(--ink); }
+.faq details[open] summary { margin-bottom: 8px; }
+.faq p { color: #374151; font-size: 15px; }

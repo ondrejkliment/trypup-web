@@ -28,7 +28,7 @@ export const CMS_FIELDS: CmsField[] = [
   // ─────────────────────────── Domů (CZ) ───────────────────────────
   { key: 'home.cs.hero.badge', group: 'Domů CZ · Hero', type: 'text', label: 'Štítek nad nadpisem', default: '🐾 Edukativní simulátor péče' },
   { key: 'home.cs.hero.title', group: 'Domů CZ · Hero', type: 'text', label: 'Hlavní nadpis', default: 'Pes na zkoušku' },
-  { key: 'home.cs.hero.lead', group: 'Domů CZ · Hero', type: 'textarea', label: 'Podnadpis (lead)', default: 'Vyzkoušejte si na vlastní kůži, co péče o psa obnáší — dřív, než si pořídíte toho skutečného.' },
+  { key: 'home.cs.hero.lead', group: 'Domů CZ · Hero', type: 'textarea', label: 'Podnadpis (lead)', default: 'Vyzkoušejte si na 30 dní, co péče o psa obnáší — dřív, než si pořídíte toho skutečného.' },
   { key: 'home.cs.hero.ctaPrimary', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 1 (text)', default: 'Stáhnout aplikaci' },
   { key: 'home.cs.hero.ctaGhost', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 2 (text)', default: 'Jak to funguje' },
 
@@ -42,7 +42,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.cs.how.step2title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 2 — tučně', default: 'Starejte se každý den.' },
   { key: 'home.cs.how.step2text', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 2 — text', default: 'Procházky, krmení, výcvik, veterina. Nic se nedá odbýt.' },
   { key: 'home.cs.how.step3title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 3 — tučně', default: 'Zjistěte pravdu o sobě.' },
-  { key: 'home.cs.how.step3text', group: 'Domů CZ · Jak to funguje', type: 'textarea', label: 'Krok 3 — text', default: 'Zvládnete rutinu i ve dnech, kdy se vám nechce? Pokud psa zanedbáte, odejde do útulku — bez následků pro živé zvíře.' },
+  { key: 'home.cs.how.step3text', group: 'Domů CZ · Jak to funguje', type: 'textarea', label: 'Krok 3 — text', default: 'Po 30 dnech dostanete vyhodnocení a krátký závěrečný test. Zvládnete rutinu i ve dnech, kdy se vám nechce? Pokud psa zanedbáte, odejde do útulku — bez následků pro živé zvíře.' },
 
   { key: 'home.cs.feat.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Nadpis sekce', default: 'Co aplikace umí' },
   { key: 'home.cs.feat.sub', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Podnadpis sekce', default: 'Realistická simulace péče — od procházek po náklady.' },
@@ -57,7 +57,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.cs.feat5.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 5 — nadpis', default: 'Vzdělávání' },
   { key: 'home.cs.feat5.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 5 — text', default: 'Články o adopci, výběru útulku a otázkách, které si položíte předem.' },
   { key: 'home.cs.feat6.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 6 — nadpis', default: 'Spoluvlastnictví' },
-  { key: 'home.cs.feat6.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 6 — text', default: 'Sdílejte péči s rodinou — každý vidí, co udělal ten druhý.' },
+  { key: 'home.cs.feat6.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 6 — text', default: 'Sdílejte péči s rodinou — každý vidí, co udělal ten druhý. Založení je v Premium, připojit se můžete zdarma.' },
 
   { key: 'home.cs.dl.title', group: 'Domů CZ · Stažení', type: 'text', label: 'Nadpis sekce', default: 'Stáhnout Trypup' },
   { key: 'home.cs.dl.sub', group: 'Domů CZ · Stažení', type: 'textarea', label: 'Podnadpis sekce', default: 'Trypup je venku pro Android i iPhone. Stáhněte si aplikaci a vyzkoušejte si psa na zkoušku.' },
@@ -65,7 +65,7 @@ export const CMS_FIELDS: CmsField[] = [
   // ─────────────────────────── Domů (EN) ───────────────────────────
   { key: 'home.en.hero.badge', group: 'Domů EN · Hero', type: 'text', label: 'Badge', default: '🐾 Educational care simulator' },
   { key: 'home.en.hero.title', group: 'Domů EN · Hero', type: 'text', label: 'Headline', default: 'A dog on trial' },
-  { key: 'home.en.hero.lead', group: 'Domů EN · Hero', type: 'textarea', label: 'Lead', default: 'Feel for yourself what caring for a dog really takes — before you get a real one.' },
+  { key: 'home.en.hero.lead', group: 'Domů EN · Hero', type: 'textarea', label: 'Lead', default: 'Spend 30 days finding out what caring for a dog really takes — before you get a real one.' },
   { key: 'home.en.hero.ctaPrimary', group: 'Domů EN · Hero', type: 'text', label: 'Button 1', default: 'Get the app' },
   { key: 'home.en.hero.ctaGhost', group: 'Domů EN · Hero', type: 'text', label: 'Button 2', default: 'How it works' },
 
@@ -79,7 +79,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.en.how.step2title', group: 'Domů EN · How it works', type: 'text', label: 'Step 2 — bold', default: 'Care for it every day.' },
   { key: 'home.en.how.step2text', group: 'Domů EN · How it works', type: 'text', label: 'Step 2 — text', default: 'Walks, feeding, training, vet. Nothing can be skipped.' },
   { key: 'home.en.how.step3title', group: 'Domů EN · How it works', type: 'text', label: 'Step 3 — bold', default: 'Learn the truth about yourself.' },
-  { key: 'home.en.how.step3text', group: 'Domů EN · How it works', type: 'textarea', label: 'Step 3 — text', default: 'Can you keep the routine even on days you don\'t feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.' },
+  { key: 'home.en.how.step3text', group: 'Domů EN · How it works', type: 'textarea', label: 'Step 3 — text', default: 'After 30 days you get an evaluation and a short final quiz. Can you keep the routine even on days you don\'t feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.' },
 
   { key: 'home.en.feat.title', group: 'Domů EN · What it does', type: 'text', label: 'Section title', default: 'What the app does' },
   { key: 'home.en.feat.sub', group: 'Domů EN · What it does', type: 'text', label: 'Section sub', default: 'A realistic care simulation — from walks to costs.' },
@@ -94,7 +94,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.en.feat5.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 5 — title', default: 'Education' },
   { key: 'home.en.feat5.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 5 — text', default: 'Articles on adoption, choosing a shelter and the questions to ask yourself first.' },
   { key: 'home.en.feat6.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 6 — title', default: 'Co-ownership' },
-  { key: 'home.en.feat6.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 6 — text', default: 'Share care with family — everyone sees what the other one did.' },
+  { key: 'home.en.feat6.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 6 — text', default: 'Share care with family — everyone sees what the other one did. Starting it is Premium, joining is free.' },
 
   { key: 'home.en.dl.title', group: 'Domů EN · Get', type: 'text', label: 'Section title', default: 'Get Trypup' },
   { key: 'home.en.dl.sub', group: 'Domů EN · Get', type: 'textarea', label: 'Section sub', default: 'Trypup is out now for Android and iPhone. Download the app and try a dog on for size.' },

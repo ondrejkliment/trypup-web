@@ -14,14 +14,14 @@ const features = [
   { title: 'Výcvik', text: '9 povelů s postupným odemykáním. Každé plemeno se učí jinak rychle.' },
   { title: 'Zdraví & náklady', text: 'Očkovací kalendář a reálné měsíční i roční náklady na psa.' },
   { title: 'Vzdělávání', text: 'Články o adopci, výběru útulku a otázkách, které si položíte předem.' },
-  { title: 'Spoluvlastnictví', text: 'Sdílejte péči s rodinou — každý vidí, co udělal ten druhý.' },
+  { title: 'Spoluvlastnictví', text: 'Sdílejte péči s rodinou — každý vidí, co udělal ten druhý. Založení je v Premium, připojit se můžete zdarma.' },
 ];
 ---
 <Base alt="/en/" pageKey="home">
   <section class="hero wrap">
     <span class="badge" data-cms="home.cs.hero.badge">🐾 Edukativní simulátor péče</span>
     <h1 data-cms="home.cs.hero.title">Pes na zkoušku</h1>
-    <p class="lead" data-cms="home.cs.hero.lead">Vyzkoušejte si na vlastní kůži, co péče o psa obnáší — <strong>dřív, než si pořídíte toho skutečného</strong>.</p>
+    <p class="lead" data-cms="home.cs.hero.lead">Vyzkoušejte si na 30 dní, co péče o psa obnáší — <strong>dřív, než si pořídíte toho skutečného</strong>.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="#stahnout" data-cms="home.cs.hero.ctaPrimary">Stáhnout aplikaci</a>
       <a class="btn btn-ghost" href="#jak-to-funguje" data-cms="home.cs.hero.ctaGhost">Jak to funguje</a>
@@ -41,7 +41,23 @@ const features = [
     <div class="steps" style="max-width:680px;margin:0 auto">
       <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step1title">Vyberte plemeno a pojmenujte psa.</strong> <span data-cms="home.cs.how.step1text">Dotazník vám doporučí, co k vám sedí.</span></div></div>
       <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step2title">Starejte se každý den.</strong> <span data-cms="home.cs.how.step2text">Procházky, krmení, výcvik, veterina. Nic se nedá odbýt.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step3title">Zjistěte pravdu o sobě.</strong> <span data-cms="home.cs.how.step3text">Zvládnete rutinu i ve dnech, kdy se vám nechce? Pokud psa zanedbáte, odejde do útulku — bez následků pro živé zvíře.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.cs.how.step3title">Zjistěte pravdu o sobě.</strong> <span data-cms="home.cs.how.step3text">Po 30 dnech dostanete vyhodnocení a krátký závěrečný test. Zvládnete rutinu i ve dnech, kdy se vám nechce? Pokud psa zanedbáte, odejde do útulku — bez následků pro živé zvíře.</span></div></div>
+    </div>
+  </section>
+
+  {/* NÁVRH (B8) — snímky z aplikace. 3. snímek (vyhodnocení výzvy) doplnit až po úpravě výsledku výzvy. */}
+  <section class="section wrap">
+    <h2 class="section-title">Jak to vypadá v aplikaci</h2>
+    <p class="section-sub">Skutečné obrazovky z aplikace Trypup.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/cs-home-300.webp" srcset="/screens/cs-home-300.webp 300w, /screens/cs-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Obrazovka Domů v aplikaci Trypup: pes Rex, výzva den 4 z 30 a seznam denních úkolů" />
+        <figcaption>Domů: denní úkoly a průběh 30denní výzvy</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/cs-walk-300.webp" srcset="/screens/cs-walk-300.webp 300w, /screens/cs-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Obrazovka procházky v aplikaci Trypup: čas, ušlá vzdálenost a splněný cíl" />
+        <figcaption>Procházka: skutečná trasa měřená přes GPS</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -56,6 +72,66 @@ const features = [
           <p data-cms={`home.cs.feat${i + 1}.text`}>{f.text}</p>
         </div>
       ))}
+    </div>
+  </section>
+
+  {/* NÁVRH (B8) — co je zdarma a co Premium. Bez cen (liší se podle země, Podmínky odkazují na obchod). */}
+  <section id="zdarma" class="section wrap">
+    <h2 class="section-title">Co je zdarma a co v Premium</h2>
+    <p class="section-sub">Celou 30denní výzvu projdete zdarma. Premium je volitelné.</p>
+    <div class="plans">
+      <div class="card plan">
+        <h3>Zdarma</h3>
+        <ul>
+          <li>Celá 30denní výzva včetně vyhodnocení a závěrečného testu</li>
+          <li>4 plemena: Jezevčík, Bígl, Labradorský retrívr a voříšek z útulku</li>
+          <li>GPS procházky, denní péče a výcvik 9 povelů</li>
+          <li>Očkovací kalendář a přehled nákladů na psa</li>
+          <li>9 z 12 článků a kvízy</li>
+          <li>Připojení ke sdílenému psovi (společná péče)</li>
+        </ul>
+      </div>
+      <div class="card plan plan-premium">
+        <h3>Premium <span class="plan-tag">volitelné</span></h3>
+        <ul>
+          <li>Dalších 10 plemen — Border kolie, Sibiřský husky, Německý ovčák a další. Koupit jde i jen jedno plemeno.</li>
+          <li>Založení společné péče: jeden pes až pro 4 lidi, ostatní se připojí zdarma</li>
+          <li>3 prémiové články o socializaci, výcviku a péči u veterináře (odemkne je i 7 dní péče v řadě)</li>
+          <li>Časová osa péče: milníky a očkování na jednom místě</li>
+        </ul>
+      </div>
+    </div>
+    <p class="plans-note">Aktuální ceny Premium uvidíte v App Storu nebo na Google Play, liší se podle země.</p>
+  </section>
+
+  {/* NÁVRH (B8) — časté otázky. Odpovědi ověřené proti aplikaci (viz spec). */}
+  <section id="otazky" class="section wrap">
+    <h2 class="section-title">Časté otázky</h2>
+    <div class="faq">
+      <details>
+        <summary>Je Trypup zdarma?</summary>
+        <p>Ano. Aplikaci stáhnete zdarma a celou 30denní výzvu včetně vyhodnocení projdete bez placení. Premium je volitelné: přidá další plemena, založení společné péče, tři prémiové články a časovou osu péče.</p>
+      </details>
+      <details>
+        <summary>Musím opravdu chodit ven? Funguje Trypup i bez polohy?</summary>
+        <p>Procházky jsou skutečné: aplikace je měří přes GPS a trasa zůstává jen ve vašem telefonu. Pokud polohu nepovolíte nebo procházku ujde někdo jiný, můžete ji zaznamenat ručně — pes ji dostane, jen ji neměří GPS.</p>
+      </details>
+      <details>
+        <summary>Je Trypup vhodný pro děti?</summary>
+        <p>Trypup je pro každého, kdo o psovi vážně přemýšlí, a hodí se i pro rodiny, které se rozhodují společně. Mladším dětem doporučujeme hrát spolu s rodičem. Když při prvním spuštění zvolíte „Méně než 16 let“, aplikace nesbírá analytická data, nenabízí žádné nákupy a neposílá push oznámení.</p>
+      </details>
+      <details>
+        <summary>Co se stane, když se o psa nepostarám?</summary>
+        <p>Pes v aplikaci nikdy neumře. Když o něj několik dní nebudete pečovat, odejde do útulku a aplikace vám vysvětlí, co mu chybělo. Pak můžete začít znovu — bez následků pro živé zvíře.</p>
+      </details>
+      <details>
+        <summary>Potřebuji účet?</summary>
+        <p>Ne. Trypup funguje i bez účtu a váš pes i pokrok pak zůstávají jen ve vašem telefonu. Účet je volitelný: zálohuje pokrok do cloudu v EU a je potřeba pro společnou péči s rodinou.</p>
+      </details>
+      <details>
+        <summary>Co když chci pokračovat i po 30&nbsp;dnech?</summary>
+        <p>Můžete. Po vyhodnocení a závěrečném testu se o svého psa staráte dál. A pokud o výzvu nestojíte, zvolte při založení psa klasickou péči „Na celý život“: pes s vámi vyrůstá vlastním tempem a bez závěrečného testu. Obě možnosti jsou zdarma.</p>
+      </details>
     </div>
   </section>
 
