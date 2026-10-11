@@ -5,9 +5,9 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 <Base title="Zásady ochrany osobných údajov — Trypup" description="Ako Trypup zaobchádza s údajmi. Aplikácia funguje aj bez účtu; voliteľný účet umožňuje zálohu pokroku do cloudu (Firebase, EÚ)." lang="sk" alt="/en/privacy/" pageKey="privacy">
   <section class="section wrap prose">
     <h1>Zásady ochrany osobných údajov</h1>
-    <p class="meta">Aktualizované 4. októbra 2026 · Prevádzkovateľ: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
+    <p class="meta">Aktualizované 11. októbra 2026 · Prevádzkovateľ: OndysLab s.r.o., <a href="mailto:hello@trypup.life">hello@trypup.life</a></p>
 
-    <p><strong>Trypup funguje plnohodnotne aj bez účtu — v takom prípade všetky údaje zostávajú iba vo vašom zariadení.</strong> Voliteľne si môžete vytvoriť účet, ktorý umožní <strong>zálohu uloženého pokroku do cloudu</strong> a jeho synchronizáciu medzi zariadeniami. Spracúvame len údaje nevyhnutné na poskytovanie služby.</p>
+    <p><strong>Trypup funguje plnohodnotne aj bez účtu — v takom prípade váš pes, stav hry a pokrok zostávajú iba vo vašom zariadení.</strong> Voliteľne si môžete vytvoriť účet, ktorý umožní <strong>zálohu uloženého pokroku do cloudu</strong> a jeho synchronizáciu medzi zariadeniami. Spracúvame len údaje nevyhnutné na poskytovanie služby.</p>
 
     <OperatorBlock lang="sk" heading="Prevádzkovateľ údajov" />
 
@@ -52,9 +52,9 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
 
     <h2>Produktová analytika a diagnostika chýb (aplikácia)</h2>
     <h3>Produktová analytika</h3>
-    <p>Na zlepšovanie aplikácie spracúvame anonymizované údaje o jej používaní:</p>
+    <p>Na zlepšovanie aplikácie spracúvame pseudonymizované údaje o jej používaní:</p>
     <ul>
-      <li><strong>Čo:</strong> pseudonymný identifikátor inštalácie (nenaviazaný na osobu), technický kontext zariadenia (model, typ, verzia systému, verzia aplikácie, jazyk aplikácie a zariadenia, krajina nastavená v telefóne a druh inštalácie — obchod, alebo vývojová verzia) a udalosti používania (navštívené obrazovky, splnené úlohy, dokončené prechádzky, druh nákupu bez sumy) — bez osobných údajov.</li>
+      <li><strong>Čo:</strong> pseudonymný identifikátor inštalácie (nenaviazaný na osobu), technický kontext zariadenia (model, typ, verzia systému, verzia aplikácie, jazyk aplikácie a zariadenia, krajina nastavená v telefóne a druh inštalácie — obchod, alebo vývojová verzia) a udalosti používania (navštívené obrazovky, splnené úlohy, dokončené prechádzky, druh nákupu bez sumy) — bez mena, e-mailu a polohy.</li>
       <li><strong>Kam:</strong> Google Firebase / Cloud Firestore (sprostredkovateľ Google Ireland Ltd.), uložené v EÚ.</li>
       <li><strong>Právny základ:</strong> náš oprávnený záujem (čl. 6 ods. 1 písm. f GDPR) na zlepšovaní a meraní používania aplikácie. Zber prebieha výhradne ako first-party meranie návštevnosti — údaje nezdieľame s tretími stranami, neprepájame ich s vaším účtom ani nepoužívame na reklamu či sledovanie naprieč aplikáciami.</li>
       <li><strong>Vaša voľba:</strong> zber môžete kedykoľvek vypnúť v Nastaveniach aplikácie (právo namietať, čl. 21 GDPR). Analytiku nezbierame od používateľov mladších ako 16 rokov.</li>
@@ -64,21 +64,21 @@ import OperatorBlock from '../../components/OperatorBlock.astro';
     <p>Pre stabilitu používame <strong>Sentry</strong> (hlásenie pádov a výkonu, servery v EÚ — Frankfurt). Hlásenie obsahuje pseudonymný identifikátor inštalácie, model zariadenia, verziu systému a aplikácie, jazyk a technický priebeh chyby — nikdy meno ani e-mail. IP adresa slúži len na doručenie a odvodenie krajiny a neukladá sa. Diagnostiku nie je možné v aplikácii vypnúť (oprávnený záujem na funkčnej aplikácii, čl. 6 ods. 1 písm. f); námietku môžete vzniesť na <a href="mailto:hello@trypup.life">hello@trypup.life</a>.</p>
 
     <h2>Cookies a analytika webu (trypup.life)</h2>
-    <p>Táto webová stránka používa <strong>Google Analytics 4</strong> (Google Ireland Ltd.) na anonymné meranie návštevnosti, aby sme mohli stránku vylepšovať. Analytické cookies a meranie sa spustia <strong>až po vašom súhlase</strong> v cookie lište (právny základ: súhlas, čl. 6 ods. 1 písm. a). Kým súhlas neudelíte, Google Analytics beží v režime <strong>bez cookies</strong> (Google Consent Mode). Google vystupuje ako sprostredkovateľ a časť spracúvania môže vykonávať <strong>mimo EÚ</strong>, čo je kryté <strong>štandardnými zmluvnými doložkami (SCC)</strong>. Súhlas môžete <strong>kedykoľvek zmeniť alebo odvolať</strong> cez odkaz <strong>„Cookies"</strong> v päte stránky. Táto webová analytika (cookies + súhlas) je oddelená od produktovej analytiky v aplikácii, popísanej v sekcii vyššie.</p>
-    <p>Web je hostovaný u <strong>Vercel Inc.</strong> (USA) ako sprostredkovateľa; server pri načítaní stránky krátkodobo spracúva IP adresu a technické hlavičky požiadavky v prevádzkových záznamoch (prenos krytý štandardnými zmluvnými doložkami). Texty, zoznam útulkov a oznámenia web načítava z Firebase (Google) bez osobných údajov.</p>
+    <p>Táto webová stránka používa <strong>Google Analytics 4</strong> (Google Ireland Ltd.) na meranie návštevnosti pomocou pseudonymného identifikátora (bez mena a e-mailu), aby sme mohli stránku vylepšovať. Analytické cookies a meranie sa spustia <strong>až po vašom súhlase</strong> v cookie lište (právny základ: súhlas, čl. 6 ods. 1 písm. a). Kým súhlas neudelíte, Google Analytics beží v režime <strong>bez cookies</strong> (Google Consent Mode). Google vystupuje ako sprostredkovateľ a časť spracúvania môže vykonávať <strong>mimo EÚ</strong>, čo je kryté <strong>štandardnými zmluvnými doložkami (SCC)</strong>. Súhlas môžete <strong>kedykoľvek zmeniť alebo odvolať</strong> cez odkaz <strong>„Cookies"</strong> v päte stránky. Táto webová analytika (cookies + súhlas) je oddelená od produktovej analytiky v aplikácii, popísanej v sekcii vyššie.</p>
+    <p>Web je hostovaný u <strong>Vercel Inc.</strong> (USA) ako sprostredkovateľa; server pri načítaní stránky krátkodobo spracúva IP adresu a technické hlavičky požiadavky v prevádzkových záznamoch (prenos krytý štandardnými zmluvnými doložkami). Texty, zoznam útulkov a oznámenia web načítava z Firebase (Google) bez odosielania vášho mena, e-mailu či polohy.</p>
 
     <p>Konkrétne cookies a úložiská, ktoré táto webová stránka používa:</p>
     <table>
       <thead><tr><th>Názov</th><th>Účel</th><th>Trvanie</th></tr></thead>
       <tbody>
-        <tr><td><code>_ga</code></td><td>Google Analytics — rozlišuje návštevníkov na účely anonymnej štatistiky. Nastaví sa <strong>až po vašom súhlase</strong>.</td><td>2 roky</td></tr>
+        <tr><td><code>_ga</code></td><td>Google Analytics — rozlišuje návštevníkov pomocou pseudonymného identifikátora na účely štatistiky návštevnosti. Nastaví sa <strong>až po vašom súhlase</strong>.</td><td>2 roky</td></tr>
         <tr><td><code>_ga_8MWP5X5RPR</code></td><td>Google Analytics — udržiava stav relácie. Nastaví sa <strong>až po vašom súhlase</strong>.</td><td>2 roky</td></tr>
         <tr><td><code>trypup-consent</code><br><small>(localStorage)</small></td><td>Zapamätá si vašu voľbu súhlasu s analytikou. Nevyhnutné pre fungovanie cookie lišty; bez súhlasu sa neukladá nič iné.</td><td>Do vymazania údajov prehliadača</td></tr>
       </tbody>
     </table>
 
     <h2>Doba uchovávania</h2>
-    <p>Lokálne údaje zostávajú vo vašom zariadení, kým aplikáciu neodinštalujete alebo neresetujete. Cloudovú zálohu (účet) uchovávame počas trvania vášho účtu; po <strong>vymazaní účtu</strong> ju odstránime. <strong>Produktovú analytiku</strong> uchovávame najviac <strong>14 mesiacov</strong> a <strong>diagnostiku chýb (Sentry)</strong> najviac <strong>90 dní</strong>, potom sa vymažú. E-maily podpory uchovávame počas ich vybavovania a primeranú dobu potom. Po zmazaní účtu zostávajú len anonymné štatistiky (do uplynutia 14 mesiacov) a záznam o nákupe u Apple či Google. <strong>Záznam zariadenia pre push oznámenia</strong> mažeme pri vypnutí v Nastaveniach, pri neplatnom tokene (napr. po odinštalovaní) a najneskôr po <strong>12 mesiacoch</strong> bez použitia aplikácie.</p>
+    <p>Lokálne údaje zostávajú vo vašom zariadení, kým aplikáciu neodinštalujete alebo neresetujete. Cloudovú zálohu (účet) uchovávame počas trvania vášho účtu; po <strong>vymazaní účtu</strong> ju odstránime. <strong>Produktovú analytiku</strong> uchovávame najviac <strong>14 mesiacov</strong> a <strong>diagnostiku chýb (Sentry)</strong> najviac <strong>90 dní</strong>, potom sa vymažú. E-maily podpory uchovávame počas ich vybavovania a primeranú dobu potom. Po zmazaní účtu zostávajú len pseudonymizované štatistiky (do uplynutia 14 mesiacov) a záznam o nákupe u Apple či Google. <strong>Záznam zariadenia pre push oznámenia</strong> mažeme pri vypnutí v Nastaveniach, pri neplatnom tokene (napr. po odinštalovaní) a najneskôr po <strong>12 mesiacoch</strong> bez použitia aplikácie.</p>
 
     <h2>Vaše práva (GDPR)</h2>
     <p>Máte právo na prístup, opravu, vymazanie, obmedzenie spracúvania, prenosnosť a namietanie. <strong>Účet aj cloudovú zálohu môžete vymazať priamo v aplikácii</strong> (Účet → Vymazať účet). Ak ste aplikáciu odinštalovali, napíšte na <a href="mailto:hello@trypup.life">hello@trypup.life</a> a vaše údaje vymažeme. Produktovú analytiku môžete kedykoľvek vypnúť v Nastaveniach aplikácie (právo namietať).</p>
