@@ -82,6 +82,12 @@ img { max-width: 100%; display: block; }
 .hero h1 { font-size: clamp(34px, 6vw, 56px); font-weight: 850; letter-spacing: -1px; line-height: 1.05; }
 .hero p.lead { font-size: clamp(17px, 2.4vw, 21px); color: var(--muted); max-width: 620px; margin: 18px auto 0; }
 .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+/* Zmínka o reportáži ČT24 pod tlačítky v hero (jen cs) */
+.tv-mention { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 8px 16px 8px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 14px; line-height: 1.35; text-align: left; }
+.tv-mention:hover { text-decoration: none; border-color: var(--orange); }
+.tv-mention strong { font-weight: 700; }
+@media (max-width: 600px) { .tv-mention strong { display: block; } .tv-sep { display: none; } }
+.tv-play { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--orange); color: #fff; }
 .btn { display: inline-block; font-weight: 700; padding: 14px 26px; border-radius: 999px; font-size: 16px; }
 .btn-primary { background: var(--orange); color: #fff; }
 .btn-primary:hover { text-decoration: none; opacity: .92; }
