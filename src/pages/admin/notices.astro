@@ -829,7 +829,9 @@
         html += line('odpovídá segmentu', r.matched) + (r.capped ? line('po stropu', r.recipients) : '');
         if (st === 'done') html += line('doručeno do služby', r.sent) + line('selhalo', r.failed) + line('smazaných tokenů', r.pruned);
         html += line('zařízení celkem', r.totalDevices);
-        const dict = (o) => Object.entries(o || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(' · ') || '–';
+        // Klíče (jazyk, země, verze, chyba) pocházejí ze zařízení, do innerHTML jen escapované.
+        const escK = (x) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const dict = (o) => Object.entries(o || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${escK(k)} ${escK(v)}`).join(' · ') || '–';
         html += `<p class="hint">platforma: ${dict(r.byPlatform)}<br/>jazyk: ${dict(r.byLang)}<br/>země: ${dict(r.byCountry)}` +
           (r.byVersion ? `<br/>verze aplikace: ${dict(r.byVersion)}` : '') +
           (r.failures && Object.keys(r.failures).length ? `<br/>chyby: ${dict(r.failures)}` : '') + '</p>';
