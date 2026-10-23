@@ -845,6 +845,15 @@
       if (!dryRun) {
         const key = settingsKey(c);
         const fresh = lastCount && lastCount.key === key ? lastCount.result : null;
+        // Minimální verze: funkce nasazená PŘED tímhle adminem neznámý klíč segmentu tiše
+        // zahodí → push by šel všem verzím. Jen nová funkce vrací v souhrnu `byVersion`,
+        // proto se s minimální verzí odesílá jen po čerstvém přepočtu, který ho obsahuje.
+        if (c.segment.minAppVersion && !(fresh && fresh.byVersion)) {
+          msg.innerHTML = `<span class="err">${fresh
+            ? 'Funkce na serveru filtr verze ještě nezná (přepočet nevrátil počty podle verze). Push by šel všem verzím, nejdřív nasaď functions.'
+            : 'S minimální verzí nejdřív „Spočítat příjemce“ (ověří i, že funkce na serveru filtr verze zná).'}</span>`;
+          return;
+        }
         const kolik = fresh ? `${fresh.recipients} zařízení` : 'NEZNÁMÝ počet zařízení (nejdřív „Spočítat příjemce")';
         if (!confirm(`Odeslat push „${(c.text.cs || c.text.en).title}" na ${kolik}?\n\nTohle už nejde vzít zpět.`)) return;
         if (!fresh && !confirm('Opravdu bez spočítání? Pojistkou je jen strop příjemců.')) return;
