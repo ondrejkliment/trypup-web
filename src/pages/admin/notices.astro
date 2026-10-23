@@ -234,6 +234,12 @@
         </div>
       </div>
       <div class="field" style="margin-top:12px">
+        <label for="p-minver">Minimální verze aplikace <span class="muted">(volitelné, např. 2.0.0)</span></label>
+        <input id="p-minver" placeholder="2.0.0" maxlength="20" autocomplete="off" spellcheck="false" />
+        <p class="hint">Push dostanou jen zařízení s touto nebo vyšší verzí aplikace (porovnává se číselně, takže 1.10 je víc než 1.9).
+          Zařízení, které verzi nehlásí, push <strong>nedostane</strong>. Prázdné = všechny verze. Novou verzi zařízení nahlásí, až v ní uživatel aplikaci otevře.</p>
+      </div>
+      <div class="field" style="margin-top:12px">
         <label>Jen testovací zařízení <span class="muted">(ID zařízení z Nastavení aplikace, oddělená čárkou — ostatní filtry platí dál)</span></label>
         <input id="p-devices" placeholder="a3f1c2d4, 9b8e7f6a" />
       </div>
@@ -766,7 +772,7 @@
       pCountries.set(Array.isArray(n.countries) ? n.countries : []);
       $('p-ios').checked = true; $('p-android').checked = true;
       ['p-ios', 'p-android'].forEach((id) => $(id).closest('.chip').classList.add('on'));
-      $('p-activity').value = ''; $('p-quiet').value = '3'; $('p-max').value = '20000'; $('p-devices').value = '';
+      $('p-activity').value = ''; $('p-quiet').value = '3'; $('p-max').value = '20000'; $('p-devices').value = ''; $('p-minver').value = '';
       $('p-msg').textContent = ''; $('p-result').innerHTML = '';
       $('push-panel').classList.remove('hidden');
       $('push-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -791,6 +797,15 @@
       if (act.startsWith('inactive:')) segment.inactiveForDays = Number(act.split(':')[1]);
       if ($('p-quiet').value) segment.notPushedWithinDays = Number($('p-quiet').value);
       const max = Number($('p-max').value); if (Number.isFinite(max) && max > 0) segment.maxRecipients = Math.floor(max);
+      // Stejné pravidlo jako parseVersion ve functions/push.js (jen čísla s tečkami, ne samé nuly).
+      // Funkce by neplatnou verzi odmítla taky, tady to admin uvidí hned.
+      const minVer = $('p-minver').value.trim();
+      if (minVer) {
+        if (!/^\d{1,6}(?:\.\d{1,6}){0,3}$/.test(minVer) || !minVer.split('.').some((x) => Number(x) > 0)) {
+          return { error: 'Minimální verze musí být čísla oddělená tečkou, např. 2.0.0.' };
+        }
+        segment.minAppVersion = minVer;
+      }
       const devices = $('p-devices').value.split(/[\s,;]+/).map((x) => x.trim()).filter(Boolean);
       if (devices.length) {
         if (devices.some((d) => d.length < 8)) return { error: 'ID zařízení musí mít aspoň 8 znaků (tolik ukazuje aplikace).' };
@@ -816,6 +831,7 @@
         html += line('zařízení celkem', r.totalDevices);
         const dict = (o) => Object.entries(o || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(' · ') || '–';
         html += `<p class="hint">platforma: ${dict(r.byPlatform)}<br/>jazyk: ${dict(r.byLang)}<br/>země: ${dict(r.byCountry)}` +
+          (r.byVersion ? `<br/>verze aplikace: ${dict(r.byVersion)}` : '') +
           (r.failures && Object.keys(r.failures).length ? `<br/>chyby: ${dict(r.failures)}` : '') + '</p>';
       }
       return html;
@@ -873,7 +889,8 @@
             seg.countries ? 'země ' + seg.countries.join(',') : 'všechny země',
             seg.platforms ? seg.platforms.join('+') : 'iOS+Android',
             seg.activeWithinDays ? `aktivní ${seg.activeWithinDays} d` : '', seg.inactiveForDays ? `neaktivní ${seg.inactiveForDays}+ d` : '',
-            seg.notPushedWithinDays ? `bez pushe ${seg.notPushedWithinDays} d` : '', seg.deviceIds ? `TEST ${seg.deviceIds.length} zař.` : '',
+            seg.notPushedWithinDays ? `bez pushe ${seg.notPushedWithinDays} d` : '', seg.minAppVersion ? `verze ≥ ${seg.minAppVersion}` : '',
+            seg.deviceIds ? `TEST ${seg.deviceIds.length} zař.` : '',
           ].filter(Boolean).join(' · ');
           const title = (c.text?.cs?.title) || (c.text?.en?.title) || c.noticeTitle || '(bez titulku)';
           el.innerHTML = `<div class="h-top"><div><strong>${c.dryRun ? '🔍 ' : '📣 '}${title}</strong> <span class="st-${c.status}">${c.status}</span>${c.error ? ` <span class="err">${c.error}</span>` : ''}</div><div class="muted">${when}</div></div>
