@@ -19,7 +19,7 @@ const clientData = CS_NAMES.map((n) => (n.reason ? [n.name, n.sex[0], n.date, n.
 const clientJson = JSON.stringify(clientData).replace(/</g, '\\u003c');
 
 const title = 'Jména pro psa a psí jmeniny | Trypup';
-const description = `${total} jmen pro psa i fenu a u každého datum psích jmenin. Podívej se, kdo dnes slaví, a nech si vylosovat tři návrhy jména pro svého psa.`;
+const description = `${total} jmen pro psa i fenu a u každého datum psích jmenin. Podívejte se, kdo dnes slaví, a nechte si vylosovat tři návrhy jména pro svého psa.`;
 const playUrl = 'https://play.google.com/store/apps/details?id=app.trypup.mobile&pcampaignid=web_jmena';
 const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135';
 ---
@@ -28,7 +28,7 @@ const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990
     <section class="hero wrap nm-hero">
       <span class="badge">Jména a jmeniny</span>
       <h1>Jména pro psa a psí jmeniny</h1>
-      <p class="lead">Vybíráš jméno pro štěně nebo pro psa z&nbsp;útulku? Máme pro tebe {total}&nbsp;jmen pro psa i&nbsp;fenu a&nbsp;u&nbsp;každého datum psích jmenin. Nech si vylosovat návrhy, nebo projdi celý seznam.</p>
+      <p class="lead">Vybíráte jméno pro štěně nebo pro psa z&nbsp;útulku? Máme pro vás {total}&nbsp;jmen pro psa i&nbsp;fenu a&nbsp;u&nbsp;každého datum psích jmenin. Nechte si vylosovat návrhy, nebo projděte celý seznam.</p>
     </section>
 
     <section class="wrap nm-top">
@@ -36,7 +36,7 @@ const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990
         <h2>Dnes slaví psí jmeniny</h2>
         <p class="nm-today-date" id="nm-today-date"></p>
         <div class="nm-today-body" id="nm-today-body">
-          <p>Kdo dnes slaví, najdeš v&nbsp;<a href="#kalendar">kalendáři psích jmenin</a> níže.</p>
+          <p>Kdo dnes slaví, najdete v&nbsp;<a href="#kalendar">kalendáři psích jmenin</a> níže.</p>
         </div>
         <p class="nm-fine">Psí jmeniny jsou naše doporučení pro radost, ne oficiální kalendář.</p>
       </div>
@@ -44,7 +44,7 @@ const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990
       <div class="card nm-card nm-suggest">
         <h2 id="nm-suggest-title">Náhodné návrhy</h2>
         <fieldset class="nm-seg" id="nm-sex" hidden>
-          <legend class="nm-sr">Pro koho hledáš jméno</legend>
+          <legend class="nm-sr">Pro koho hledáte jméno</legend>
           <label><input type="radio" name="nm-sex" value="all" checked /><span>Obojí</span></label>
           <label><input type="radio" name="nm-sex" value="m" /><span>Pes</span></label>
           <label><input type="radio" name="nm-sex" value="f" /><span>Fena</span></label>
@@ -161,7 +161,7 @@ const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990
 
     <section id="jmena" class="section wrap">
       <h2 class="section-title">Všechna jména od A do Z</h2>
-      <p class="section-sub">Rozklikni písmeno a&nbsp;u&nbsp;každého jména uvidíš datum psích jmenin.</p>
+      <p class="section-sub">Rozklikněte písmeno a&nbsp;u&nbsp;každého jména uvidíte datum psích jmenin.</p>
       <div class="nm-acc">
         {letters.map((g) => (
           <details>
@@ -183,7 +183,7 @@ const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990
 
     <section id="kalendar" class="section wrap nm-cal-section">
       <h2 class="section-title">Kalendář psích jmenin</h2>
-      <p class="section-sub">Rozklikni měsíc a&nbsp;podívej se, kdo kdy slaví.</p>
+      <p class="section-sub">Rozklikněte měsíc a&nbsp;podívejte se, kdo kdy slaví.</p>
       <div class="nm-acc">
         {months.map((m) => (
           <details data-month={m.month}>
@@ -227,8 +227,8 @@ const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990
 
       <div class="app-cta nm-cta">
         <div>
-          <strong>Jména a&nbsp;jmeniny najdeš i&nbsp;v&nbsp;aplikaci Trypup</strong>
-          <p>V&nbsp;aplikaci jsou v&nbsp;Nastavení v&nbsp;části „Jména a&nbsp;jmeniny“. Když napíšeš jméno, které tu není, aplikace ti k&nbsp;němu spočítá datum psích jmenin. A&nbsp;pokud o&nbsp;psovi teprve přemýšlíš, vyzkoušej si s&nbsp;Trypupem péči o&nbsp;něj nanečisto.</p>
+          <strong>Jména a&nbsp;jmeniny najdete i&nbsp;v&nbsp;aplikaci Trypup</strong>
+          <p>V&nbsp;aplikaci jsou v&nbsp;Nastavení v&nbsp;části „Jména a&nbsp;jmeniny“. Když napíšete jméno, které tu není, aplikace vám k&nbsp;němu spočítá datum psích jmenin. A&nbsp;pokud o&nbsp;psovi teprve přemýšlíte, vyzkoušejte si s&nbsp;Trypupem péči o&nbsp;něj nanečisto.</p>
           <div class="app-cta-badges">
             <a class="store-badge gp" href={playUrl} target="_blank" rel="noopener">
               <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />
