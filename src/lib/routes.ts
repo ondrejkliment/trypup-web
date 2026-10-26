@@ -30,3 +30,6 @@ export function hreflangSet(page: LocalizedPage): { hreflang: string; href: stri
 
 /** Stránky jen v cs + en (smazání účtu). */
 export const CS_EN_PAIRS: [string, string][] = [['/smazat-ucet/', '/en/delete-account/']];
+
+/** Stránky jen česky (bez hreflang), mimo blog: jména pro psa a psí jmeniny. */
+export const CS_ONLY_PAGES: string[] = ['/jmena-pro-psa/'];

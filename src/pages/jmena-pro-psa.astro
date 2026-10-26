@@ -1,0 +1,319 @@
+---
+// NÁVRH (26. 10. 2026): jména pro psa a psí jmeniny, zatím jen česky.
+// Data = snímek databáze jmen z aplikace (src/data/dog-names.json, scripts/gen-dog-names.mjs).
+// Web je statický, takže „Dnes slaví“ a náhodné návrhy počítá skript v prohlížeči
+// podle MÍSTNÍHO data návštěvníka. Bez JS zůstane odkaz do kalendáře a tři pevné návrhy.
+// Obsah vkládaný skriptem nedostane Astro scoped styly → styly stránky jsou is:global
+// a všechny třídy mají předponu nm-.
+import Base from '../layouts/Base.astro';
+import { CS_NAMES, MONTHS_GENITIVE, SEX_LABEL, byLetter, byMonth, formatNameDay, namesCount, seededRandom, suggestNames } from '../lib/dogNames';
+
+const total = CS_NAMES.length;
+const letters = byLetter(CS_NAMES);
+const months = byMonth(CS_NAMES);
+// Návrhy pro návštěvu bez JS (s JS je skript hned vylosuje znovu). Pevné semínko = stejný build, stejný výsledek.
+const staticSuggestions = suggestNames(CS_NAMES, 3, seededRandom(2026));
+
+// Pro skript: [jméno, pohlaví m/f/u, MM-DD, důvod data?]
+const clientData = CS_NAMES.map((n) => (n.reason ? [n.name, n.sex[0], n.date, n.reason] : [n.name, n.sex[0], n.date]));
+const clientJson = JSON.stringify(clientData).replace(/</g, '\\u003c');
+
+const title = 'Jména pro psa a psí jmeniny | Trypup';
+const description = `${total} jmen pro psa i fenu a u každého datum psích jmenin. Podívej se, kdo dnes slaví, a nech si vylosovat tři návrhy jména pro svého psa.`;
+const playUrl = 'https://play.google.com/store/apps/details?id=app.trypup.mobile&pcampaignid=web_jmena';
+const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135';
+---
+<Base title={title} description={description}>
+  <div class="nm">
+    <section class="hero wrap nm-hero">
+      <span class="badge">Jména a jmeniny</span>
+      <h1>Jména pro psa a psí jmeniny</h1>
+      <p class="lead">Vybíráš jméno pro štěně nebo pro psa z&nbsp;útulku? Máme pro tebe {total}&nbsp;jmen pro psa i&nbsp;fenu a&nbsp;u&nbsp;každého datum psích jmenin. Nech si vylosovat návrhy, nebo projdi celý seznam.</p>
+    </section>
+
+    <section class="wrap nm-top">
+      <div class="card nm-card nm-today">
+        <h2>Dnes slaví psí jmeniny</h2>
+        <p class="nm-today-date" id="nm-today-date"></p>
+        <div class="nm-today-body" id="nm-today-body">
+          <p>Kdo dnes slaví, najdeš v&nbsp;<a href="#kalendar">kalendáři psích jmenin</a> níže.</p>
+        </div>
+        <p class="nm-fine">Psí jmeniny jsou naše doporučení pro radost, ne oficiální kalendář.</p>
+      </div>
+
+      <div class="card nm-card nm-suggest">
+        <h2 id="nm-suggest-title">Náhodné návrhy</h2>
+        <fieldset class="nm-seg" id="nm-sex" hidden>
+          <legend class="nm-sr">Pro koho hledáš jméno</legend>
+          <label><input type="radio" name="nm-sex" value="all" checked /><span>Obojí</span></label>
+          <label><input type="radio" name="nm-sex" value="m" /><span>Pes</span></label>
+          <label><input type="radio" name="nm-sex" value="f" /><span>Fena</span></label>
+        </fieldset>
+        <ul class="nm-sugg-list" id="nm-suggest-list" aria-live="polite" aria-labelledby="nm-suggest-title">
+          {staticSuggestions.map((n) => (
+            <li class="nm-sugg">
+              <span class="nm-sugg-name">{n.name}</span>
+              <span class="nm-sugg-meta">{SEX_LABEL[n.sex]} · jmeniny {formatNameDay(n.date)}</span>
+              {n.reason && <span class="nm-sugg-reason">{n.reason}</span>}
+            </li>
+          ))}
+        </ul>
+        <button type="button" class="btn btn-ghost nm-more" id="nm-more" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+          Další návrhy
+        </button>
+      </div>
+    </section>
+
+    <script is:inline type="application/json" id="nm-data" set:html={clientJson}></script>
+    <script is:inline define:vars={{ MONTHS: MONTHS_GENITIVE, SEX: { m: SEX_LABEL.male, f: SEX_LABEL.female, u: SEX_LABEL.unisex } }}>
+      (function () {
+        var N;
+        try { N = JSON.parse(document.getElementById('nm-data').textContent); } catch (e) { return; }
+        var DAYS = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
+        function pad(n) { return (n < 10 ? '0' : '') + n; }
+        function md(d) { return pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+        function fmt(m) { var p = m.split('-'); return Number(p[1]) + '.\u00a0' + MONTHS[Number(p[0]) - 1]; }
+        function on(m) { return N.filter(function (e) { return e[2] === m; }); }
+        function and(list) { return list.length > 1 ? list.slice(0, -1).join(', ') + ' a\u00a0' + list[list.length - 1] : list.join(''); }
+        function el(tag, cls, text) {
+          var x = document.createElement(tag);
+          if (cls) x.className = cls;
+          if (text != null) x.textContent = text;
+          return x;
+        }
+
+        // Dnes slaví: místní datum návštěvníka. Když dnes nikdo, ukáže nejbližší další den se jmény.
+        var now = new Date();
+        var today = md(now);
+        var dateEl = document.getElementById('nm-today-date');
+        var body = document.getElementById('nm-today-body');
+        if (dateEl && body) {
+          var wd = DAYS[now.getDay()];
+          dateEl.textContent = wd.charAt(0).toUpperCase() + wd.slice(1) + ' ' + fmt(today);
+          body.textContent = '';
+          var list = on(today);
+          if (list.length) {
+            var ul = el('ul', 'nm-today-names');
+            list.forEach(function (e) { ul.appendChild(el('li', null, e[0])); });
+            body.appendChild(ul);
+            list.forEach(function (e) { if (e[3]) body.appendChild(el('p', 'nm-reason', e[3])); });
+          } else {
+            body.appendChild(el('p', 'nm-today-none', 'Dnes z\u00a0našeho seznamu nikdo neslaví.'));
+            for (var i = 1; i <= 366; i++) {
+              var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+              var next = on(md(d));
+              if (next.length) {
+                body.appendChild(el('p', 'nm-today-next', 'Příští psí jmeniny slaví ' + fmt(md(d)) + ' ' + and(next.map(function (e) { return e[0]; })) + '.'));
+                break;
+              }
+            }
+          }
+          var cal = el('p', 'nm-today-cal');
+          var a = el('a', null, 'Celý kalendář psích jmenin');
+          a.href = '#kalendar';
+          cal.appendChild(a);
+          body.appendChild(cal);
+        }
+
+        // Náhodné návrhy jako v aplikaci (suggestNames): minulá várka jde až na konec,
+        // takže „Další návrhy“ ukáže pokaždé jiná jména. Bez JS ovládání zůstane skryté.
+        var listEl = document.getElementById('nm-suggest-list');
+        var btn = document.getElementById('nm-more');
+        var seg = document.getElementById('nm-sex');
+        if (!listEl || !btn || !seg) return;
+        var shown = [];
+        function pool() {
+          var c = seg.querySelector('input:checked');
+          var s = c ? c.value : 'all';
+          return N.filter(function (e) { return s === 'all' || e[1] === 'u' || e[1] === s; });
+        }
+        function take(list, count) {
+          var arr = list.slice();
+          var n = Math.min(count, arr.length);
+          for (var i = 0; i < n; i++) {
+            var j = i + Math.floor(Math.random() * (arr.length - i));
+            var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+          }
+          return arr.slice(0, n);
+        }
+        function render() {
+          var p = pool();
+          var items = take(p.filter(function (e) { return shown.indexOf(e) < 0; }), 3);
+          if (items.length < 3) items = items.concat(take(p.filter(function (e) { return shown.indexOf(e) >= 0; }), 3 - items.length));
+          listEl.textContent = '';
+          items.forEach(function (e) {
+            var li = el('li', 'nm-sugg');
+            li.appendChild(el('span', 'nm-sugg-name', e[0]));
+            li.appendChild(el('span', 'nm-sugg-meta', SEX[e[1]] + ' · jmeniny ' + fmt(e[2])));
+            if (e[3]) li.appendChild(el('span', 'nm-sugg-reason', e[3]));
+            listEl.appendChild(li);
+          });
+          shown = items;
+        }
+        render();
+        btn.addEventListener('click', render);
+        seg.addEventListener('change', render);
+        seg.hidden = false;
+        btn.hidden = false;
+      })();
+    </script>
+
+    <section id="jmena" class="section wrap">
+      <h2 class="section-title">Všechna jména od A do Z</h2>
+      <p class="section-sub">Rozklikni písmeno a&nbsp;u&nbsp;každého jména uvidíš datum psích jmenin.</p>
+      <div class="nm-acc">
+        {letters.map((g) => (
+          <details>
+            <summary><span class="nm-acc-title">{g.letter}</span><span class="nm-acc-count">{namesCount(g.names.length)}</span></summary>
+            <ul class="nm-az">
+              {g.names.map((n) => (
+                <li>
+                  <span class="nm-az-name">{n.name}</span>
+                  <span class="nm-az-sex">{SEX_LABEL[n.sex]}</span>
+                  <span class="nm-az-date">{formatNameDay(n.date)}</span>
+                  {n.reason && <span class="nm-az-reason">{n.reason}</span>}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <section id="kalendar" class="section wrap nm-cal-section">
+      <h2 class="section-title">Kalendář psích jmenin</h2>
+      <p class="section-sub">Rozklikni měsíc a&nbsp;podívej se, kdo kdy slaví.</p>
+      <div class="nm-acc">
+        {months.map((m) => (
+          <details data-month={m.month}>
+            <summary><span class="nm-acc-title">{m.label}</span><span class="nm-acc-count">{namesCount(m.count)}</span></summary>
+            <dl class="nm-cal">
+              {m.days.map((d) => (
+                <div data-md={d.md}>
+                  <dt>{d.label}</dt>
+                  <dd>{d.names.join(', ')}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        ))}
+      </div>
+    </section>
+    <script is:inline>
+      (function () {
+        // Kalendář: otevřít aktuální měsíc a označit dnešní den (místní datum).
+        var n = new Date();
+        var m = n.getMonth() + 1;
+        var md = (m < 10 ? '0' : '') + m + '-' + (n.getDate() < 10 ? '0' : '') + n.getDate();
+        var det = document.querySelector('#kalendar details[data-month="' + m + '"]');
+        if (det) det.open = true;
+        var row = document.querySelector('#kalendar [data-md="' + md + '"]');
+        if (!row) return;
+        row.classList.add('nm-is-today');
+        row.setAttribute('aria-current', 'date');
+        var tag = document.createElement('span');
+        tag.className = 'nm-today-tag';
+        tag.textContent = 'dnes';
+        row.querySelector('dt').appendChild(tag);
+      })();
+    </script>
+
+    <section id="odkud" class="section wrap prose nm-note">
+      <h2>Odkud se psí jmeniny berou</h2>
+      <p>Seznam jmen i&nbsp;data psích jmenin jsme pro Trypup připravili sami. Nejde o&nbsp;oficiální kalendář, je to naše doporučení pro radost. Každé jméno dostalo den podle našeho vlastního pravidla, takže stejné jméno slaví vždycky ve stejný den.</p>
+      <p>Několik jmen slaví v&nbsp;den, který k&nbsp;nim patří. Lajka třeba 3.&nbsp;listopadu, kdy v&nbsp;roce 1957 odstartovala do vesmíru, a&nbsp;Rex na Tři krále, protože latinsky znamená „král“.</p>
+      <p>Od 24.&nbsp;do 26.&nbsp;prosince, na Silvestra a&nbsp;na Nový rok psí jmeniny nejsou. Ty dny se slaví jiné věci.</p>
+
+      <div class="app-cta nm-cta">
+        <div>
+          <strong>Jména a&nbsp;jmeniny najdeš i&nbsp;v&nbsp;aplikaci Trypup</strong>
+          <p>V&nbsp;aplikaci jsou v&nbsp;Nastavení v&nbsp;části „Jména a&nbsp;jmeniny“. Když napíšeš jméno, které tu není, aplikace ti k&nbsp;němu spočítá datum psích jmenin. A&nbsp;pokud o&nbsp;psovi teprve přemýšlíš, vyzkoušej si s&nbsp;Trypupem péči o&nbsp;něj nanečisto.</p>
+          <div class="app-cta-badges">
+            <a class="store-badge gp" href={playUrl} target="_blank" rel="noopener">
+              <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />
+            </a>
+            <a class="store-badge as" href={appStoreUrl} target="_blank" rel="noopener">
+              <img src="/badges/app-store-cs.svg" alt="Stáhnout v App Store" width="120" height="40" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style is:global>
+  /* Stránka /jmena-pro-psa/. is:global, protože část obsahu vkládá skript (Astro scoped
+     styly by ho minuly). Vše pod .nm a s předponou nm-, ať nic neprosákne jinam. */
+  .nm [hidden] { display: none !important; }
+  .nm-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+  .nm .nm-hero { padding-top: 56px; padding-bottom: 32px; }
+
+  .nm-top { display: grid; gap: 18px; }
+  @media (min-width: 760px) { .nm-top { grid-template-columns: 1fr 1fr; } }
+  .nm-card { display: flex; flex-direction: column; }
+  .nm-card h2 { font-size: 20px; font-weight: 800; line-height: 1.25; color: var(--ink); }
+
+  .nm-today-date { color: var(--blue); font-weight: 700; font-size: 14px; margin-top: 2px; }
+  .nm-today-date:empty { display: none; }
+  .nm-today-body > p { color: #374151; font-size: 15px; margin-top: 12px; }
+  .nm-today-names { list-style: none; display: flex; flex-wrap: wrap; gap: 2px 16px; margin-top: 12px; }
+  .nm-today-names li { font-size: clamp(30px, 8vw, 40px); font-weight: 850; letter-spacing: -0.5px; line-height: 1.15; color: var(--ink); }
+  .nm-today-body > .nm-today-none { font-weight: 700; color: var(--ink); }
+  .nm-today-body > .nm-reason { font-size: 14px; }
+  .nm-today-cal { font-size: 15px; }
+  .nm-today-cal a { font-weight: 700; }
+  .nm-fine { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+  .nm-today-body { margin-bottom: 16px; }
+
+  .nm-seg { border: 0; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .nm-seg label { position: relative; }
+  .nm-seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .nm-seg span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-weight: 700; font-size: 14px; cursor: pointer; }
+  .nm-seg input:checked + span { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .nm-seg input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  .nm-sugg-list { list-style: none; display: grid; gap: 10px; margin: 14px 0 16px; }
+  .nm-sugg { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; }
+  .nm-sugg-name { display: block; font-size: 22px; font-weight: 800; line-height: 1.2; color: var(--ink); }
+  .nm-sugg-meta { display: block; margin-top: 2px; font-size: 14px; font-weight: 600; color: var(--blue); }
+  .nm-sugg-reason { display: block; margin-top: 6px; font-size: 13px; line-height: 1.45; color: #374151; }
+  .nm-more { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; line-height: 1.2; cursor: pointer; }
+  .nm-more svg { color: var(--orange); flex: none; }
+  .nm-more:hover { border-color: var(--orange); }
+  .nm-more:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  @media (max-width: 600px) { .nm-more { width: 100%; } }
+
+  .nm-acc { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .nm-acc details + details { border-top: 1px solid var(--border); }
+  .nm-acc summary { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 18px; cursor: pointer; list-style: none; }
+  .nm-acc summary::-webkit-details-marker { display: none; }
+  .nm-acc summary:hover { background: var(--bg); }
+  .nm-acc summary:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .nm-acc summary::after { content: ''; flex: none; width: 8px; height: 8px; margin: -4px 4px 0; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); }
+  .nm-acc details[open] > summary::after { margin-top: 4px; transform: rotate(-135deg); }
+  .nm-acc-title { flex: 1; font-size: 17px; font-weight: 800; color: var(--ink); }
+  .nm-acc-count { font-size: 14px; color: var(--muted); }
+
+  .nm-az { list-style: none; padding: 0 18px 12px; }
+  @media (min-width: 640px) { .nm-az { columns: 2; column-gap: 28px; } }
+  .nm-az li { break-inside: avoid; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .nm-az-name { font-weight: 700; color: var(--ink); }
+  .nm-az-sex { font-size: 13px; color: #374151; }
+  .nm-az-date { margin-left: auto; font-size: 14px; font-weight: 600; color: var(--blue); white-space: nowrap; }
+  .nm-az-reason { flex-basis: 100%; font-size: 13px; line-height: 1.45; color: #374151; }
+
+  .nm .nm-cal-section { padding-top: 0; }
+  .nm-cal { padding: 0 10px 12px; }
+  .nm-cal > div { display: grid; grid-template-columns: 8.5em 1fr; gap: 10px; padding: 7px 8px; border-radius: 10px; }
+  .nm-cal dt { font-size: 15px; font-weight: 700; color: var(--blue); }
+  .nm-cal dd { font-size: 15px; color: var(--ink); }
+  .nm-cal > div.nm-is-today { background: var(--blue-soft); }
+  .nm-today-tag { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: var(--blue); color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; vertical-align: 1px; }
+
+  .nm .nm-note { padding-top: 0; }
+  .nm-note h2 { margin-top: 0; }
+  .nm-cta { margin-bottom: 0; }
+</style>
