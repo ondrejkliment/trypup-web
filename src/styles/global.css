@@ -192,3 +192,20 @@ p.section-sub { text-align: center; color: var(--muted); max-width: 600px; margi
 .faq summary { cursor: pointer; font-weight: 700; color: var(--ink); }
 .faq details[open] summary { margin-bottom: 8px; }
 .faq p { color: #374151; font-size: 15px; }
+
+/* Web 2.0 — dva režimy aplikace: Pes na zkoušku (mise) + Pes doma (majitelé psů) */
+.hero-owner { margin-top: 18px; color: var(--muted); font-size: 15px; }
+.hero-owner a { font-weight: 700; }
+p.section-kicker { text-align: center; color: var(--orange); font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+.paths { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; max-width: 820px; margin: 0 auto; }
+.card.path { display: flex; flex-direction: column; color: var(--ink); transition: border-color .15s, transform .15s; }
+.card.path:hover { text-decoration: none; border-color: var(--orange); transform: translateY(-2px); }
+.path-kicker { color: var(--muted); font-size: 14px; font-weight: 600; }
+.card.path h3 { font-size: 22px; margin: 6px 0 8px; }
+.path-more { margin-top: auto; padding-top: 14px; color: var(--blue); font-weight: 700; font-size: 15px; }
+.path-more::after { content: ' →'; }
+.owner { border-top: 1px solid var(--border); }
+.owner .screens { margin-bottom: 36px; }
+.owner-grid .card h3 { margin-top: 0; }
+.owner-note { max-width: 720px; margin: 28px auto 0; text-align: center; color: #374151; font-size: 15px; display: grid; gap: 8px; }
+.owner-note .vet-note { color: var(--muted); font-size: 14px; }

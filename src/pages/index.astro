@@ -12,9 +12,20 @@ const features = [
   { title: 'GPS procházky', text: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdete ven.' },
   { title: 'Denní péče', text: 'Krmení, hra, čištění, odpočinek. Statistiky reagují na to, jak se staráte.' },
   { title: 'Výcvik', text: '9 povelů s postupným odemykáním. Každé plemeno se učí jinak rychle.' },
-  { title: 'Zdraví & náklady', text: 'Očkovací kalendář a reálné měsíční i roční náklady na psa.' },
+  { title: 'Zdraví & náklady', text: 'Očkovací kalendář a realistické měsíční i roční náklady na psa podle českých cen.' },
   { title: 'Vzdělávání', text: 'Články o adopci, výběru útulku a otázkách, které si položíte předem.' },
-  { title: 'Spoluvlastnictví', text: 'Sdílejte péči s rodinou — každý vidí, co udělal ten druhý. Založení je v Premium, připojit se můžete zdarma.' },
+  { title: 'Spoluvlastnictví', text: 'Psa na zkoušku můžete sdílet s rodinou a každý vidí, co udělal ten druhý. Založení je v Premium, připojit se můžete zdarma.' },
+];
+
+// Pes doma (2.0.0) — jen funkce, které ve 2.0.0 opravdu jsou (bez fotek, dokumentů, PDF
+// a sdílení skutečného psa s rodinou). První pomoc má zatím jedno téma (otrava).
+const ownerFeatures = [
+  { title: 'Plán péče a připomínky', text: 'Očkování, odčervení, ochrana proti klíšťatům, preventivní prohlídka i poplatek ze psa. Aplikace vám připomene, co je na řadě, a termín si můžete přidat do kalendáře.' },
+  { title: 'Deník', text: 'Veterina, očkování, léky, váha, příznaky, procházky i výcvik. Záznamy o psovi pohromadě.' },
+  { title: 'Psí pas', text: 'Čip, údaje o psovi a kontakty pro hlídání. Digitální opis v telefonu, úřední pas nenahrazuje.' },
+  { title: 'Veterina a první pomoc', text: 'Domovskou veterinu zavoláte jedním klepnutím, nejbližší veterinu nebo pohotovost nonstop najdete na mapě. A v první pomoci je popsané, co dělat hned, když pes sní něco jedovatého.' },
+  { title: 'Sdílení jako text', text: 'Přehled pro hlídání, pro veterináře nebo celý opis pošlete komukoli.' },
+  { title: 'Jména a jmeniny', text: 'Pomocník s výběrem jména a připomínka jmenin, narozenin i výročí příchodu domů.' },
 ];
 ---
 <Base alt="/en/" pageKey="home">
@@ -26,10 +37,11 @@ const features = [
       <a class="btn btn-primary" href="#stahnout" data-cms="home.cs.hero.ctaPrimary">Stáhnout aplikaci</a>
       <a class="btn btn-ghost" href="#jak-to-funguje" data-cms="home.cs.hero.ctaGhost">Jak to funguje</a>
     </div>
+    <p class="hero-owner">Psa už máte? Režim <a href="#pes-doma">Pes doma</a> vám pohlídá očkování, odčervení i prohlídky.</p>
     <!-- Zmínka o reportáži ČT24 (17. 10. 2026). Jen text a odkaz, bez loga ČT; mimo .cta-row (mobilní skript přepisuje odkazy tlačítek na obchod). -->
     <a class="tv-mention" href="https://www.ceskatelevize.cz/porady/10441287766-studio-6-vikend/226411010121017/cast/1214781/" target="_blank" rel="noopener" title="ČT24, Studio 6 víkend, 17. 10. 2026: Lidé mohou mít psa na zkoušku díky aplikaci">
       <span class="tv-play" aria-hidden="true"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg></span>
-      <span>Natáčela o nás ČT24<span class="tv-sep"> · </span><strong>Pustit reportáž (10 min)</strong></span>
+      <span>Natáčela o nás ČT24<span class="tv-sep"> · </span><strong>Pustit reportáž (10&nbsp;min)</strong></span>
     </a>
   </section>
 
@@ -40,7 +52,28 @@ const features = [
     </div>
   </section>
 
+  {/* Rozcestí jako v aplikaci (2.0.0): mise první, majitelé psů druzí. Názvy režimů 1:1 z aplikace. */}
+  <section id="dve-cesty" class="section wrap">
+    <h2 class="section-title">Trypup umí obojí</h2>
+    <p class="section-sub">Při prvním spuštění si vyberete, čím začnete. Volbu můžete kdykoli změnit v Nastavení.</p>
+    <div class="paths">
+      <a class="card path" href="#jak-to-funguje">
+        <span class="path-kicker">Teprve o psovi přemýšlíte?</span>
+        <h3>Pes na zkoušku</h3>
+        <p>Starejte se 30 dní o virtuálního psa a zjistěte, jestli je pes pro vás. Bez následků pro živé zvíře.</p>
+        <span class="path-more">Jak to funguje</span>
+      </a>
+      <a class="card path" href="#pes-doma">
+        <span class="path-kicker">Psa už máte?</span>
+        <h3>Pes doma</h3>
+        <p>Očkování, péče, připomínky a první pomoc pro vašeho psa na jednom místě.</p>
+        <span class="path-more">Co Pes doma umí</span>
+      </a>
+    </div>
+  </section>
+
   <section id="jak-to-funguje" class="section wrap">
+    <p class="section-kicker">Pes na zkoušku</p>
     <h2 class="section-title" data-cms="home.cs.how.title">Jak to funguje</h2>
     <p class="section-sub" data-cms="home.cs.how.sub">Tři kroky, jako byste se starali doopravdy.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
@@ -50,24 +83,24 @@ const features = [
     </div>
   </section>
 
-  {/* NÁVRH (B8) — snímky z aplikace. 3. snímek (vyhodnocení výzvy) doplnit až po úpravě výsledku výzvy. */}
   <section class="section wrap">
     <h2 class="section-title">Jak to vypadá v aplikaci</h2>
     <p class="section-sub">Skutečné obrazovky z aplikace Trypup.</p>
     <div class="screens">
       <figure class="screen">
-        <img class="phone" src="/screens/cs-home-300.webp" srcset="/screens/cs-home-300.webp 300w, /screens/cs-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Obrazovka Domů v aplikaci Trypup: pes Rex, výzva den 4 z 30 a seznam denních úkolů" />
-        <figcaption>Domů: denní úkoly a průběh 30denní výzvy</figcaption>
+        <img class="phone" src="/screens/cs-trial-home-300.webp" srcset="/screens/cs-trial-home-300.webp 300w, /screens/cs-trial-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Obrazovka psa na zkoušku: pes Rex, výzva den 4 z 30, výcvik na dnes a seznam denních úkolů" />
+        <figcaption>Pes na zkoušku: denní úkoly a průběh 30denní výzvy</figcaption>
       </figure>
       <figure class="screen">
-        <img class="phone" src="/screens/cs-walk-300.webp" srcset="/screens/cs-walk-300.webp 300w, /screens/cs-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Obrazovka procházky v aplikaci Trypup: čas, ušlá vzdálenost a splněný cíl" />
+        <img class="phone" src="/screens/cs-trial-walk-300.webp" srcset="/screens/cs-trial-walk-300.webp 300w, /screens/cs-trial-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Obrazovka procházky v aplikaci Trypup: čas, ušlá vzdálenost a splněný cíl" />
         <figcaption>Procházka: skutečná trasa měřená přes GPS</figcaption>
       </figure>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title" data-cms="home.cs.feat.title">Co aplikace umí</h2>
+    <p class="section-kicker">Pes na zkoušku</p>
+    <h2 class="section-title" data-cms="home.cs.feat.title">Co si vyzkoušíte</h2>
     <p class="section-sub" data-cms="home.cs.feat.sub">Realistická simulace péče — od procházek po náklady.</p>
     <div class="grid">
       {features.map((f, i) => (
@@ -80,10 +113,40 @@ const features = [
     </div>
   </section>
 
-  {/* NÁVRH (B8) — co je zdarma a co Premium. Bez cen (liší se podle země, Podmínky odkazují na obchod). */}
+  {/* Pes doma (2.0.0). „Trypup nenahrazuje veterináře“ povinně u zdravotního obsahu; „Jeden pes je zdarma“ = schválená věta zakladatele (27. 10.). */}
+  <section id="pes-doma" class="section wrap owner">
+    <p class="section-kicker">Nově ve verzi 2.0</p>
+    <h2 class="section-title">Psa už máte? Pes doma</h2>
+    <p class="section-sub">Péče o vašeho skutečného psa na jednom místě: očkování, odčervení, prohlídky a připomínky, aby vám nic neuteklo.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/cs-owner-home-300.webp" srcset="/screens/cs-owner-home-300.webp 300w, /screens/cs-owner-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Obrazovka Pes doma: fenka Bára, co ji dnes a brzy čeká (ochrana proti klíšťatům, očkování, odčervení, prohlídka), deník, psí pas, plán péče a první pomoc" />
+        <figcaption>Dnes a brzy: co vašeho psa čeká</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/cs-owner-diary-300.webp" srcset="/screens/cs-owner-diary-300.webp 300w, /screens/cs-owner-diary-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Deník psa v režimu Pes doma: záznamy o veterině, očkování, léku, váze a procházce" />
+        <figcaption>Deník: veterina, očkování, léky, váha i procházky</figcaption>
+      </figure>
+    </div>
+    <div class="grid owner-grid">
+      {ownerFeatures.map((f) => (
+        <div class="card">
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+    <div class="owner-note">
+      <p><strong>Jeden pes je zdarma.</strong> Pro víc psů je tu Premium. Data vašich psů se nikdy nezamknou, ani po konci Premium, a s účtem se automaticky zálohují.</p>
+      <p>Režim Pes doma zapnete při prvním spuštění volbou „Psa už mám“, nebo kdykoli v Nastavení v části „Jak Trypup používáš“.</p>
+      <p class="vet-note">Trypup nenahrazuje veterináře. Při jakékoli pochybnosti o zdraví psa zavolejte své veterině.</p>
+    </div>
+  </section>
+
+  {/* Co je zdarma a co Premium. Bez cen (liší se podle země, Podmínky odkazují na obchod). */}
   <section id="zdarma" class="section wrap">
     <h2 class="section-title">Co je zdarma a co v Premium</h2>
-    <p class="section-sub">Celou 30denní výzvu projdete zdarma. Premium je volitelné.</p>
+    <p class="section-sub">Celou 30denní výzvu i jednoho psa v režimu Pes doma máte zdarma. Premium je volitelné.</p>
     <div class="plans">
       <div class="card plan">
         <h3>Zdarma</h3>
@@ -92,30 +155,44 @@ const features = [
           <li>4 plemena: Jezevčík, Bígl, Labradorský retrívr a voříšek z útulku</li>
           <li>GPS procházky, denní péče a výcvik 9 povelů</li>
           <li>Očkovací kalendář a přehled nákladů na psa</li>
-          <li>9 z 12 článků a kvízy</li>
-          <li>Připojení ke sdílenému psovi (společná péče)</li>
+          <li>Vzdělávací články a kvízy</li>
+          <li>Připojení ke sdílenému psovi na zkoušku (společná péče)</li>
+          <li>Pes doma pro jednoho psa: psí pas, deník, plán péče s připomínkami a první pomoc</li>
         </ul>
       </div>
       <div class="card plan plan-premium">
         <h3>Premium <span class="plan-tag">volitelné</span></h3>
         <ul>
           <li>Dalších 10 plemen — Border kolie, Sibiřský husky, Německý ovčák a další. Koupit jde i jen jedno plemeno.</li>
-          <li>Založení společné péče: jeden pes až pro 4 lidi, ostatní se připojí zdarma</li>
+          <li>Založení společné péče o psa na zkoušku: jeden pes až pro 4 lidi, ostatní se připojí zdarma</li>
           <li>3 prémiové články o socializaci, výcviku a péči u veterináře (odemkne je i 7 dní péče v řadě)</li>
-          <li>Časová osa péče: milníky a očkování na jednom místě</li>
+          <li>Časová osa péče o psa na zkoušku: milníky a očkování na jednom místě</li>
+          <li>Pes doma pro víc psů. Data vašich psů se nikdy nezamknou, ani po konci Premium.</li>
         </ul>
       </div>
     </div>
     <p class="plans-note">Aktuální ceny Premium uvidíte v App Storu nebo na Google Play, liší se podle země.</p>
   </section>
 
-  {/* NÁVRH (B8) — časté otázky. Odpovědi ověřené proti aplikaci (viz spec). */}
+  {/* Časté otázky. Odpovědi ověřené proti aplikaci 2.0.0. */}
   <section id="otazky" class="section wrap">
     <h2 class="section-title">Časté otázky</h2>
     <div class="faq">
       <details>
         <summary>Je Trypup zdarma?</summary>
-        <p>Ano. Aplikaci stáhnete zdarma a celou 30denní výzvu včetně vyhodnocení projdete bez placení. Premium je volitelné: přidá další plemena, založení společné péče, tři prémiové články a časovou osu péče.</p>
+        <p>Ano. Aplikaci stáhnete zdarma a celou 30denní výzvu včetně vyhodnocení projdete bez placení. V režimu Pes doma máte zdarma jednoho psa. Premium je volitelné: u psa na zkoušku přidá další plemena, založení společné péče a časovou osu péče, v režimu Pes doma další psy. Odemkne také tři prémiové články.</p>
+      </details>
+      <details>
+        <summary>Psa už mám. K čemu mi Trypup je?</summary>
+        <p>Zapněte si režim Pes doma. Najdete v něm psí pas, deník a plán péče, který vám připomene očkování, odčervení, ochranu proti klíšťatům i prohlídku. Domovskou veterinu máte na jedno klepnutí a první pomoc po ruce. Jeden pes je zdarma.</p>
+      </details>
+      <details>
+        <summary>Jak zapnu režim Pes doma?</summary>
+        <p>Při prvním spuštění zvolte „Psa už mám“. Pokud aplikaci už používáte, přepněte v Nastavení v části „Jak Trypup používáš“ na režim Pes doma. Virtuální pes mezitím počká a čas se mu zastaví, jen pes ve společné péči běží dál. Probíhající 30denní výzva skončí jako „Pes přišel domů dřív“, bez vyhodnocení. Pes doma je v aplikaci od verze 2.0. Pokud ho ještě nevidíte, aktualizujte aplikaci. Nová verze se ke všem dostává postupně.</p>
+      </details>
+      <details>
+        <summary>Nahradí Trypup veterináře?</summary>
+        <p>Ne. Trypup vám pomůže nic nezapomenout a mít záznamy o psovi po ruce, ale veterináře nenahrazuje. Při jakékoli pochybnosti o zdraví psa zavolejte své veterině.</p>
       </details>
       <details>
         <summary>Musím opravdu chodit ven? Funguje Trypup i bez polohy?</summary>
@@ -123,7 +200,7 @@ const features = [
       </details>
       <details>
         <summary>Je Trypup vhodný pro děti?</summary>
-        <p>Trypup je pro každého, kdo o psovi vážně přemýšlí, a hodí se i pro rodiny, které se rozhodují společně. Mladším dětem doporučujeme hrát spolu s rodičem. Když při prvním spuštění zvolíte „Méně než 16 let“, aplikace nesbírá analytická data, nenabízí žádné nákupy a neposílá push oznámení.</p>
+        <p>Trypup je pro každého, kdo o psovi vážně přemýšlí, a hodí se i pro rodiny, které se rozhodují společně. Aplikace je určena uživatelům od 13 let; mladším dětem doporučujeme používat ji jen spolu s rodičem. Když při prvním spuštění zvolíte „Méně než 16 let“, aplikace nesbírá analytická data, nenabízí žádné nákupy a neposílá push oznámení.</p>
       </details>
       <details>
         <summary>Co se stane, když se o psa nepostarám?</summary>
@@ -131,7 +208,7 @@ const features = [
       </details>
       <details>
         <summary>Potřebuji účet?</summary>
-        <p>Ne. Trypup funguje i bez účtu a váš pes i pokrok pak zůstávají jen ve vašem telefonu. Účet je volitelný: zálohuje pokrok do cloudu v EU a je potřeba pro společnou péči s rodinou.</p>
+        <p>Ne. Trypup funguje i bez účtu a vše pak zůstává jen ve vašem telefonu. Účet je volitelný: zálohuje do cloudu v EU vašeho psa na zkoušku i psy v režimu Pes doma, takže je obnovíte i v novém telefonu. Potřebujete ho také, pokud chcete o psa na zkoušku pečovat společně s rodinou.</p>
       </details>
       <details>
         <summary>Co když chci pokračovat i po 30&nbsp;dnech?</summary>
@@ -158,7 +235,7 @@ const features = [
 
   <section id="stahnout" class="section wrap center">
     <h2 class="section-title" data-cms="home.cs.dl.title">Stáhnout Trypup</h2>
-    <p class="section-sub" data-cms="home.cs.dl.sub">Trypup je venku pro Android i iPhone. Stáhněte si aplikaci a vyzkoušejte si psa na zkoušku.</p>
+    <p class="section-sub" data-cms="home.cs.dl.sub">Trypup je pro Android i iPhone. Vyzkoušejte si péči o psa nanečisto, nebo si v režimu Pes doma hlídejte očkování, odčervení a další termíny svého psa.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />

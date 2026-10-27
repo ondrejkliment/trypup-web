@@ -19,7 +19,7 @@ interface Props {
 }
 const {
   title = 'Trypup — pes na zkoušku',
-  description = 'Trypup je pes na zkoušku — realistický simulátor péče. Vyzkoušejte si procházky, krmení, výcvik i náklady, dřív než si pořídíte opravdového psa.',
+  description = 'Pes na zkoušku: vyzkoušejte si péči o virtuálního psa, než si pořídíte skutečného. Psa už máte? Režim Pes doma vám pohlídá očkování, odčervení i prohlídky.',
   image,
   lang = 'cs',
   alt,
@@ -51,6 +51,8 @@ type Strings = {
   howHref: string; aboutHref: string; blogHref: string | null; privacyHref: string; termsHref: string; supportHref: string; joinHref: string; homeHref: string;
   ogLocale: string;
   announcePre: string; announcePost: string; announceBoth: string;
+  // Novinka 2.0 (Pes doma) — když je vyplněná, lišta nahoře ukazuje ji místo starého „je na iPhonu i Androidu“.
+  announceNew?: string; announceLink?: string;
   cookieText: string; cookieAccept: string; cookieReject: string; cookieSettings: string;
 };
 
@@ -69,6 +71,7 @@ const STRINGS: Record<Lang, Strings> = {
     ...csNav, privacyHref: '/zasady-ochrany/', termsHref: '/podminky/', supportHref: '/podpora/', joinHref: '/join/',
     ogLocale: 'cs_CZ',
     announcePre: '📱 Trypup je teď na ', announcePost: '! Sledujte ', announceBoth: 'iPhonu i Androidu',
+    announceNew: 'Nově v aplikaci: režim Pes doma pro všechny, kdo už psa mají.', announceLink: 'Co umí',
     cookieText: 'Používáme cookies pro měření návštěvnosti (Google Analytics), abychom Trypup vylepšovali. Analytika běží jen s vaším souhlasem — kdykoli ho změníte přes odkaz Cookies v patičce.',
     cookieAccept: 'Přijmout', cookieReject: 'Odmítnout', cookieSettings: 'Cookies',
   },
@@ -260,7 +263,7 @@ const jsonLd = pageKey === 'home' ? {
         price: '0',
         priceCurrency: lang === 'cs' ? 'CZK' : 'EUR',
         description: lang === 'cs'
-          ? 'Ke stažení zdarma, volitelné nákupy v aplikaci (Premium, jednotlivá plemena).'
+          ? 'Ke stažení zdarma, volitelné nákupy v aplikaci (Premium včetně dalších psů v režimu Pes doma, jednotlivá plemena).'
           : 'Free to download, optional in-app purchases (Premium, individual breeds).',
       },
       sameAs: [appStoreClean, playClean],
@@ -357,7 +360,9 @@ const jsonLd = pageKey === 'home' ? {
     </script>
   </head>
   <body>
-    <div class="announce">{t.announcePre}<a href={dlAnchor} class="announce-play">{t.announceBoth}</a>{t.announcePost}<a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener" data-cms-href="common.social.instagram">@trypupapp</a></div>
+    {t.announceNew
+      ? <div class="announce">{t.announceNew} <a href={`${t.homeHref}#pes-doma`} class="announce-new">{t.announceLink}</a></div>
+      : <div class="announce">{t.announcePre}<a href={dlAnchor} class="announce-play">{t.announceBoth}</a>{t.announcePost}<a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener" data-cms-href="common.social.instagram">@trypupapp</a></div>}
     <header class="site-header">
       <div class="wrap">
         <a class="brand" href={t.homeHref} aria-label="trypup">
@@ -412,6 +417,7 @@ const jsonLd = pageKey === 'home' ? {
           <a href={t.termsHref}>{t.terms}</a>
           <a href={t.supportHref}>{t.support}</a>
           <a href="mailto:hello@trypup.life">{t.contact}</a>
+          <a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener" data-cms-href="common.social.instagram">Instagram</a>
           <a href="#" id="cookie-settings">{t.cookieSettings}</a>
         </div>
         <div class="legal-id">{operator.sidlo} · {opL.ico} {operator.ico}{operator.dic ? ` · ${opL.dic} ${operator.dic}` : ''} · {opRegistry}</div>

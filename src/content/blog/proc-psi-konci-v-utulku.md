@@ -1,6 +1,6 @@
 ---
 title: "Než si přinesete štěně domů: proč psi končí v útulku"
-description: "Většina psů se do útulku nedostane kvůli své povaze, ale kvůli okolnostem u lidí. Poradíme, jak se na psa poctivě připravit ještě předtím, než ho pořídíte."
+description: "Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí. Poradíme, jak se na psa poctivě připravit ještě předtím, než ho pořídíte."
 date: 2026-07-24
 tag: "Připravenost"
 ---
@@ -11,9 +11,9 @@ Tenhle článek není o strašení. Je o tom, jak si dopřát poctivou příprav
 
 ## Do útulku psy nejčastěji nepřivede jejich povaha
 
-Když si představíme psa v útulku, mnozí z nás si automaticky domyslí, že s ním „něco bylo" — že kousal, utíkal nebo byl nezvladatelný. Skutečnost bývá jiná a mnohem lidštější. Řada studií i zkušenosti lidí z útulků ukazují, že většina psů se do útulku dostane kvůli okolnostem na straně člověka, ne kvůli chování zvířete: kvůli stěhování do bytu, kde psi nesmějí, kvůli nedostatku času, financím, rozchodu, nemoci nebo nově příchozímu miminku.
+Když si představíme psa v útulku, mnozí z nás si automaticky domyslí, že s ním „něco bylo" — že kousal, utíkal nebo byl nezvladatelný. Skutečnost bývá jiná a mnohem lidštější. Studie z Dánska a USA (Jensen 2020, Salman 1998) ukazují, že psi bývají odevzdáni většinou kvůli okolnostem na straně lidí, ne kvůli svému chování: kvůli stěhování do bytu, kde psi nesmějí, kvůli nedostatku času, financím, rozchodu, nemoci nebo nově příchozímu miminku.
 
-Jinými slovy: nejčastější příčinou není „špatný pes", ale změna v životě člověka, na kterou nebyl nikdo připravený. To je dobrá zpráva. Znamená to totiž, že řadě těch příběhů se dá předejít ještě dřív, než pes vůbec přijde domů — poctivým zvážením toho, co péče každý den obnáší.
+Jinými slovy: častěji než „špatný pes" za tím bývá změna v životě člověka, na kterou nebyl nikdo připravený. To je dobrá zpráva. Znamená to totiž, že řadě těch příběhů se dá předejít ještě dřív, než pes vůbec přijde domů — poctivým zvážením toho, co péče každý den obnáší.
 
 ## Co lidé před pořízením psa nejvíc podcení
 
@@ -46,11 +46,11 @@ Cílem není najít důvod, proč si psa nepořídit. Cílem je pořídit si ho 
 
 ## Adopce z útulku není náhradní volba
 
-Když už jste připravení, zvažte adopci. V útulcích čekají skvělí psi všech povah i věku — a jak jsme psali výše, většina se tam ocitla kvůli lidským okolnostem, ne kvůli sobě. Dospělý pes má navíc jednu nedocenitelnou výhodu: jeho povaha, velikost i temperament jsou už čitelné. Lidé v útulku vám poradí a pomůžou najít psa, který sedne k vašemu životu. Dát domov psovi, který ho ztratil, patří k tomu nejhezčímu, co pro zvíře můžete udělat.
+Když už jste připravení, zvažte adopci. V útulcích čekají skvělí psi všech povah i věku — a jak jsme psali výše, většinou se tam ocitli kvůli lidským okolnostem, ne kvůli sobě. Dospělý pes má navíc jednu nedocenitelnou výhodu: jeho povaha, velikost i temperament jsou už čitelné. Lidé v útulku vám poradí a pomůžou najít psa, který sedne k vašemu životu. Dát domov psovi, který ho ztratil, patří k tomu nejhezčímu, co pro zvíře můžete udělat.
 
-## Vyzkoušejte si psa nanečisto, dřív než rozhodnete
+## Vyzkoušejte si péči o psa nanečisto, dřív než se rozhodnete
 
-Většinu toho, o čem je tenhle článek, si dnes můžete osahat, aniž byste riskovali osud živého zvířete. Trypup je edukativní simulátor péče o psa — „pes na zkoušku" v telefonu. Nanečisto vás provede každodenní rutinou: venčením, krmením, návštěvami veterináře i výdaji, které se sčítají. Nejde o hru na výhru, ale o upřímné zrcadlo, které vám ukáže, jestli na tenhle závazek máte čas, peníze i výdrž — bez následků pro skutečného psa. A pokud zjistíte, že ano, budete připravení mnohem líp než většina lidí, kteří si psa přinesli domů ze dne na den.
+Většinu toho, o čem je tenhle článek, si dnes můžete osahat, aniž byste riskovali osud živého zvířete. Trypup je edukativní simulátor péče o psa — „pes na zkoušku" v telefonu. Nanečisto vás provede každodenní rutinou: venčením, krmením, návštěvami veterináře i výdaji, které se sčítají. Nejde o hru na výhru, ale o upřímné zrcadlo, které vám ukáže, jestli na tenhle závazek máte čas, peníze i výdrž — bez následků pro skutečného psa. A pokud zjistíte, že ano, budete připravení mnohem líp, než kdybyste si psa přinesli domů ze dne na den.
 
 Trypup je právě teď dostupný pro Android i iPhone.
 

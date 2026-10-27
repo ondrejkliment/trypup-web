@@ -23,7 +23,7 @@ Trypup je simulátor, který vás nechá zažít rutinu péče **nanečisto**:
 
 - denní úkoly (procházky, krmení, hra, hygiena), které se nedají odbýt;
 - reálné GPS procházky s časem a vzdáleností;
-- skutečné náklady podle plemene;
+- orientační náklady podle plemene (z reálných českých cen);
 - a důsledky — když psa zanedbáte, „odejde do útulku". Bez bolesti pro živé zvíře, zato s jasným poselstvím.
 
 ## 10 otázek, než si pořídíte psa
@@ -39,7 +39,7 @@ Trypup je simulátor, který vás nechá zažít rutinu péče **nanečisto**:
 9. Berete psa jako závazek, ne jako věc?
 10. Proč ho vlastně chcete — doopravdy?
 
-Pokud jste si na všechny odpověděli upřímně a pořád psa chcete — skvělé. Jste připraveni. A pokud si nejste jistí, **vyzkoušejte si to napřed v Trypup.**
+Pokud jste si na všechny odpověděli upřímně a pořád psa chcete — skvělé. Jste připraveni. A pokud si nejste jistí, **vyzkoušejte si péči o psa napřed v Trypupu.**
 
 ## Zdroje
 

@@ -44,7 +44,7 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.cs.how.step3title', group: 'Domů CZ · Jak to funguje', type: 'text', label: 'Krok 3 — tučně', default: 'Zjistěte pravdu o sobě.' },
   { key: 'home.cs.how.step3text', group: 'Domů CZ · Jak to funguje', type: 'textarea', label: 'Krok 3 — text', default: 'Po 30 dnech dostanete vyhodnocení a krátký závěrečný test. Zvládnete rutinu i ve dnech, kdy se vám nechce? Pokud psa zanedbáte, odejde do útulku — bez následků pro živé zvíře.' },
 
-  { key: 'home.cs.feat.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Nadpis sekce', default: 'Co aplikace umí' },
+  { key: 'home.cs.feat.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Nadpis sekce', default: 'Co si vyzkoušíte' },
   { key: 'home.cs.feat.sub', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Podnadpis sekce', default: 'Realistická simulace péče — od procházek po náklady.' },
   { key: 'home.cs.feat1.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 1 — nadpis', default: 'GPS procházky' },
   { key: 'home.cs.feat1.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 1 — text', default: 'Reálné trasy s časem, vzdáleností a anti-cheat kontrolou, že fakt jdete ven.' },
@@ -53,14 +53,14 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.cs.feat3.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 3 — nadpis', default: 'Výcvik' },
   { key: 'home.cs.feat3.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 3 — text', default: '9 povelů s postupným odemykáním. Každé plemeno se učí jinak rychle.' },
   { key: 'home.cs.feat4.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 4 — nadpis', default: 'Zdraví & náklady' },
-  { key: 'home.cs.feat4.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 4 — text', default: 'Očkovací kalendář a reálné měsíční i roční náklady na psa.' },
+  { key: 'home.cs.feat4.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 4 — text', default: 'Očkovací kalendář a realistické měsíční i roční náklady na psa podle českých cen.' },
   { key: 'home.cs.feat5.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 5 — nadpis', default: 'Vzdělávání' },
   { key: 'home.cs.feat5.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 5 — text', default: 'Články o adopci, výběru útulku a otázkách, které si položíte předem.' },
   { key: 'home.cs.feat6.title', group: 'Domů CZ · Co aplikace umí', type: 'text', label: 'Karta 6 — nadpis', default: 'Spoluvlastnictví' },
-  { key: 'home.cs.feat6.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 6 — text', default: 'Sdílejte péči s rodinou — každý vidí, co udělal ten druhý. Založení je v Premium, připojit se můžete zdarma.' },
+  { key: 'home.cs.feat6.text', group: 'Domů CZ · Co aplikace umí', type: 'textarea', label: 'Karta 6 — text', default: 'Psa na zkoušku můžete sdílet s rodinou a každý vidí, co udělal ten druhý. Založení je v Premium, připojit se můžete zdarma.' },
 
   { key: 'home.cs.dl.title', group: 'Domů CZ · Stažení', type: 'text', label: 'Nadpis sekce', default: 'Stáhnout Trypup' },
-  { key: 'home.cs.dl.sub', group: 'Domů CZ · Stažení', type: 'textarea', label: 'Podnadpis sekce', default: 'Trypup je venku pro Android i iPhone. Stáhněte si aplikaci a vyzkoušejte si psa na zkoušku.' },
+  { key: 'home.cs.dl.sub', group: 'Domů CZ · Stažení', type: 'textarea', label: 'Podnadpis sekce', default: 'Trypup je pro Android i iPhone. Vyzkoušejte si péči o psa nanečisto, nebo si v režimu Pes doma hlídejte očkování, odčervení a další termíny svého psa.' },
 
   // ─────────────────────────── Domů (EN) ───────────────────────────
   { key: 'home.en.hero.badge', group: 'Domů EN · Hero', type: 'text', label: 'Badge', default: '🐾 Educational care simulator' },
@@ -101,12 +101,12 @@ export const CMS_FIELDS: CmsField[] = [
 
   // ─────────────────────────── O aplikaci (CZ) ───────────────────────────
   { key: 'about.cs.title', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis', default: 'O aplikaci' },
-  { key: 'about.cs.meta', group: 'O aplikaci CZ', type: 'text', label: 'Meta řádek', default: 'Pes na zkoušku · zodpovědné rozhodnutí' },
-  { key: 'about.cs.intro', group: 'O aplikaci CZ', type: 'textarea', label: 'Úvodní odstavec', default: 'Trypup je edukativní simulátor péče o psa pro každého, kdo vážně uvažuje o pořízení skutečného psa — pro dospělé i rodiny s dětmi. Cílem je snížit počty psů v útulcích tím, že lidi přiměje přemýšlet PŘED rozhodnutím — ne po něm.' },
+  { key: 'about.cs.meta', group: 'O aplikaci CZ', type: 'text', label: 'Meta řádek', default: 'Pes na zkoušku · zodpovědné rozhodnutí · Pes doma' },
+  { key: 'about.cs.intro', group: 'O aplikaci CZ', type: 'textarea', label: 'Úvodní odstavec', default: 'Trypup je edukativní simulátor péče o psa pro každého, kdo vážně uvažuje o pořízení skutečného psa — pro dospělé i rodiny s dětmi. Cílem je snížit počty psů v útulcích tím, že lidi přiměje přemýšlet PŘED rozhodnutím — ne po něm. Od verze 2.0 pomáhá Trypup v režimu Pes doma i těm, kdo už psa mají.' },
   { key: 'about.cs.whyTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Proč vznikl"', default: 'Proč Trypup vznikl' },
   { key: 'about.cs.whyText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Proč vznikl"', default: 'Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí — čas, peníze, bydlení, životní změny. Trypup vás každodenní rutinou provede nanečisto, bez následků pro živé zvíře.' },
   { key: 'about.cs.breedsTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Plemena"', default: 'Plemena' },
-  { key: 'about.cs.breedsText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Plemena"', default: 'Čtyři plemena zdarma — jedno od každého vzrůstu (malé, střední, velké) a navíc voříšek z útulku — a další jako Premium (Border kolie, Sibiřský husky, Německý ovčák, Zlatý retrívr, Bernský salašnický pes a další).' },
+  { key: 'about.cs.breedsText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Plemena"', default: 'Pro psa na zkoušku jsou zdarma čtyři plemena — jedno od každého vzrůstu (malé, střední, velké) a navíc voříšek z útulku — a další jako Premium (Border kolie, Sibiřský husky, Německý ovčák, Zlatý retrívr, Bernský salašnický pes a další).' },
   { key: 'about.cs.commitTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Náš závazek"', default: 'Náš závazek' },
   { key: 'about.cs.commitText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Náš závazek"', default: 'Část výnosů věnujeme psím útulkům. Trypup není hra na výhru — je to upřímná zkouška, jestli na psa máte.' },
   { key: 'about.cs.cta', group: 'O aplikaci CZ', type: 'text', label: 'Tlačítko dole', default: 'Vyzkoušet Trypup' },
