@@ -70,18 +70,18 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.en.hero.ctaGhost', group: 'Domů EN · Hero', type: 'text', label: 'Button 2', default: 'How it works' },
 
   { key: 'home.en.stat.big', group: 'Domů EN · Stat', type: 'textarea', label: 'Big statement', default: 'Dogs mostly end up in shelters not because of their temperament, but because of their owners\' circumstances.' },
-  { key: 'home.en.stat.sub', group: 'Domů EN · Stat', type: 'textarea', label: 'Sub', default: 'Trypup lets you find out what a dog really takes before the decision — not after.' },
+  { key: 'home.en.stat.sub', group: 'Domů EN · Stat', type: 'textarea', label: 'Sub', default: 'Trypup lets you find out what a dog really takes before you decide — not after.' },
 
   { key: 'home.en.how.title', group: 'Domů EN · How it works', type: 'text', label: 'Section title', default: 'How it works' },
   { key: 'home.en.how.sub', group: 'Domů EN · How it works', type: 'text', label: 'Section sub', default: 'Three steps, just like caring for a real dog.' },
   { key: 'home.en.how.step1title', group: 'Domů EN · How it works', type: 'text', label: 'Step 1 — bold', default: 'Pick a breed and name your dog.' },
   { key: 'home.en.how.step1text', group: 'Domů EN · How it works', type: 'text', label: 'Step 1 — text', default: 'A questionnaire recommends what fits you.' },
   { key: 'home.en.how.step2title', group: 'Domů EN · How it works', type: 'text', label: 'Step 2 — bold', default: 'Care for it every day.' },
-  { key: 'home.en.how.step2text', group: 'Domů EN · How it works', type: 'text', label: 'Step 2 — text', default: 'Walks, feeding, training, vet. Nothing can be skipped.' },
+  { key: 'home.en.how.step2text', group: 'Domů EN · How it works', type: 'text', label: 'Step 2 — text', default: 'Walks, feeding, training, vet. No cutting corners.' },
   { key: 'home.en.how.step3title', group: 'Domů EN · How it works', type: 'text', label: 'Step 3 — bold', default: 'Learn the truth about yourself.' },
   { key: 'home.en.how.step3text', group: 'Domů EN · How it works', type: 'textarea', label: 'Step 3 — text', default: 'After 30 days you get an evaluation and a short final quiz. Can you keep the routine even on days you don\'t feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.' },
 
-  { key: 'home.en.feat.title', group: 'Domů EN · What it does', type: 'text', label: 'Section title', default: 'What the app does' },
+  { key: 'home.en.feat.title', group: 'Domů EN · What it does', type: 'text', label: 'Section title', default: 'What you\'ll try out' },
   { key: 'home.en.feat.sub', group: 'Domů EN · What it does', type: 'text', label: 'Section sub', default: 'A realistic care simulation — from walks to costs.' },
   { key: 'home.en.feat1.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 1 — title', default: 'GPS walks' },
   { key: 'home.en.feat1.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 1 — text', default: 'Real routes with time, distance and an anti-cheat check that you actually went out.' },
@@ -90,14 +90,14 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.en.feat3.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 3 — title', default: 'Training' },
   { key: 'home.en.feat3.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 3 — text', default: '9 commands with progressive unlocks. Each breed learns at its own pace.' },
   { key: 'home.en.feat4.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 4 — title', default: 'Health & costs' },
-  { key: 'home.en.feat4.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 4 — text', default: 'Vaccination schedule and realistic monthly and yearly dog costs.' },
+  { key: 'home.en.feat4.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 4 — text', default: 'Vaccination schedule and estimated monthly and yearly dog costs, based on Czech prices (converted).' },
   { key: 'home.en.feat5.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 5 — title', default: 'Education' },
   { key: 'home.en.feat5.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 5 — text', default: 'Articles on adoption, choosing a shelter and the questions to ask yourself first.' },
   { key: 'home.en.feat6.title', group: 'Domů EN · What it does', type: 'text', label: 'Card 6 — title', default: 'Co-ownership' },
-  { key: 'home.en.feat6.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 6 — text', default: 'Share care with family — everyone sees what the other one did. Starting it is Premium, joining is free.' },
+  { key: 'home.en.feat6.text', group: 'Domů EN · What it does', type: 'textarea', label: 'Card 6 — text', default: 'You can share the dog on trial with your family, and everyone sees what the others have done. Starting it is Premium, joining is free.' },
 
   { key: 'home.en.dl.title', group: 'Domů EN · Get', type: 'text', label: 'Section title', default: 'Get Trypup' },
-  { key: 'home.en.dl.sub', group: 'Domů EN · Get', type: 'textarea', label: 'Section sub', default: 'Trypup is out now for Android and iPhone. Download the app and try a dog on for size.' },
+  { key: 'home.en.dl.sub', group: 'Domů EN · Get', type: 'textarea', label: 'Section sub', default: 'Trypup is available for Android and iPhone. Try out dog care for practice, or use Dog at home mode to keep track of your dog\'s vaccinations, deworming and other dates.' },
 
   // ─────────────────────────── O aplikaci (CZ) ───────────────────────────
   { key: 'about.cs.title', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis', default: 'O aplikaci' },
@@ -113,12 +113,12 @@ export const CMS_FIELDS: CmsField[] = [
 
   // ─────────────────────────── O aplikaci (EN) ───────────────────────────
   { key: 'about.en.title', group: 'O aplikaci EN', type: 'text', label: 'Title', default: 'About the app' },
-  { key: 'about.en.meta', group: 'O aplikaci EN', type: 'text', label: 'Meta line', default: 'A dog on trial · a responsible decision' },
-  { key: 'about.en.intro', group: 'O aplikaci EN', type: 'textarea', label: 'Intro paragraph', default: 'Trypup is an educational dog-care simulator for anyone seriously considering getting a real dog — adults and families with children alike. The goal is to reduce the number of dogs in shelters by getting people to think BEFORE the decision — not after.' },
+  { key: 'about.en.meta', group: 'O aplikaci EN', type: 'text', label: 'Meta line', default: 'Dog on trial · a responsible decision · Dog at home' },
+  { key: 'about.en.intro', group: 'O aplikaci EN', type: 'textarea', label: 'Intro paragraph', default: 'Trypup is an educational dog-care simulator for anyone seriously considering getting a real dog — adults and families with children alike. The goal is to reduce the number of dogs in shelters by getting people to think BEFORE they decide — not after. Since version 2.0, Trypup also helps people who already have a dog, in Dog at home mode.' },
   { key: 'about.en.whyTitle', group: 'O aplikaci EN', type: 'text', label: '„Why" title', default: 'Why Trypup exists' },
   { key: 'about.en.whyText', group: 'O aplikaci EN', type: 'textarea', label: '„Why" text', default: 'Dogs mostly end up in shelters not because of their temperament, but because of their owners\' circumstances — time, money, housing, life changes. Trypup walks you through the daily routine as a dry run, with no consequences for a living animal.' },
   { key: 'about.en.breedsTitle', group: 'O aplikaci EN', type: 'text', label: '„Breeds" title', default: 'Breeds' },
-  { key: 'about.en.breedsText', group: 'O aplikaci EN', type: 'textarea', label: '„Breeds" text', default: 'Four breeds free — one of each size (small, medium, large) plus a shelter mutt — and more as Premium (Border Collie, Siberian Husky, German Shepherd, Golden Retriever, Bernese Mountain Dog and others).' },
+  { key: 'about.en.breedsText', group: 'O aplikaci EN', type: 'textarea', label: '„Breeds" text', default: 'For the dog on trial, four breeds are free — one of each size (small, medium, large) plus the Shelter Mix — and more are available as Premium (Border Collie, Siberian Husky, German Shepherd, Golden Retriever, Bernese Mountain Dog and others).' },
   { key: 'about.en.commitTitle', group: 'O aplikaci EN', type: 'text', label: '„Commitment" title', default: 'Our commitment' },
   { key: 'about.en.commitText', group: 'O aplikaci EN', type: 'textarea', label: '„Commitment" text', default: 'Trypup isn\'t a game you win — it\'s an honest test of whether you\'re ready for a dog.' },
   { key: 'about.en.cta', group: 'O aplikaci EN', type: 'text', label: 'Bottom button', default: 'Try Trypup' },

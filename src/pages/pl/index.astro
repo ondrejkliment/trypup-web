@@ -4,28 +4,40 @@ import { featureIcons } from '../../lib/featureIcons';
 
 // Ikony per oblast → `featureIcons` (sdílené, 1:1 z aplikace). Pořadí musí sedět.
 const features = [
-  { title: 'Spacery GPS', text: 'Prawdziwe trasy z czasem, dystansem i zabezpieczeniem przed oszustwem, które potwierdza, że rzeczywiście wyszedłeś/aś na spacer.' },
-  { title: 'Codzienna opieka', text: 'Karmienie, zabawa, pielęgnacja, odpoczynek. Statystyki reagują na jakość opieki.' },
+  { title: 'Spacery GPS', text: 'Prawdziwe trasy z czasem, dystansem i kontrolą, czy spacer naprawdę odbył się na dworze.' },
+  { title: 'Codzienna opieka', text: 'Karmienie, zabawa, pielęgnacja, odpoczynek. Statystyki reagują na to, jak się opiekujesz.' },
   { title: 'Trening', text: '9 komend z progresywnym odblokowywaniem. Każda rasa uczy się we własnym tempie.' },
-  { title: 'Zdrowie i koszty', text: 'Harmonogram szczepień oraz realistyczne miesięczne i roczne koszty utrzymania psa.' },
+  { title: 'Zdrowie i koszty', text: 'Kalendarz szczepień oraz orientacyjne miesięczne i roczne koszty utrzymania psa według cen w Czechach, przeliczone na Twoją walutę.' },
   { title: 'Edukacja', text: 'Artykuły o adopcji, wyborze schroniska i pytaniach, które warto zadać sobie najpierw.' },
-  { title: 'Współopieka', text: 'Dziel się opieką z rodziną – każdy widzi, co zrobił ten drugi.' },
+  { title: 'Wspólna opieka', text: 'Psem na próbę możesz opiekować się razem z rodziną, a każdy widzi, co zrobiła druga osoba. Założenie wspólnej opieki jest w Premium, dołączyć możesz za darmo.' },
+];
+
+// Pies w domu (2.0.0) – jen funkce, které ve 2.0.0 opravdu jsou (bez fotek, dokumentů, PDF
+// a sdílení skutečného psa s rodinou). První pomoc má zatím jedno téma (otrava).
+const ownerFeatures = [
+  { title: 'Plan opieki i przypomnienia', text: 'Szczepienia, odrobaczanie, ochrona przed kleszczami, badanie profilaktyczne, a nawet opłata od psa. Aplikacja przypomni Ci, co jest do zrobienia, a termin możesz dodać do kalendarza.' },
+  { title: 'Dziennik', text: 'Weterynarz, szczepienia, leki, waga, objawy, spacery i trening. Wszystkie wpisy o psie w jednym miejscu.' },
+  { title: 'Paszport psa', text: 'Czip, dane psa i kontakty dla opiekuna. Cyfrowa kopia w telefonie, nie zastępuje urzędowego paszportu.' },
+  { title: 'Lecznica i pierwsza pomoc', text: 'Do stałej lecznicy zadzwonisz jednym dotknięciem, a najbliższą lecznicę albo całodobowe pogotowie znajdziesz na mapie. W pierwszej pomocy opisaliśmy, co robić od razu, gdy pies zje coś trującego.' },
+  { title: 'Udostępnianie jako tekst', text: 'Podsumowanie dla opiekuna, dla weterynarza albo pełną kopię wyślesz, komu chcesz.' },
+  { title: 'Imiona i imieniny', text: 'Pomoc w wyborze imienia i przypomnienie o imieninach, urodzinach i rocznicy przybycia do domu.' },
 ];
 ---
 <Base
   title="Trypup – pies na próbę"
-  description="Trypup to pies na próbę – realistyczny symulator opieki nad psem. Spacery, karmienie, trening i koszty, zanim weźmiesz prawdziwego psa."
+  description="Pies na próbę: wypróbuj opiekę nad wirtualnym psem, zanim weźmiesz prawdziwego. Masz już psa? Tryb Pies w domu przypilnuje szczepień, odrobaczania i badań."
   lang="pl"
   alt="/en/"
   pageKey="home">
   <section class="hero wrap">
     <span class="badge">🐾 Edukacyjny symulator opieki</span>
     <h1>Pies na próbę</h1>
-    <p class="lead">Poczuj na własnej skórze, czym naprawdę jest opieka nad psem – <strong>zanim weźmiesz prawdziwego</strong>.</p>
+    <p class="lead">Sprawdź przez 30 dni, czym naprawdę jest opieka nad psem – <strong>zanim weźmiesz prawdziwego</strong>.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="#get">Pobierz aplikację</a>
       <a class="btn btn-ghost" href="#how-it-works">Jak to działa</a>
     </div>
+    <p class="hero-owner">Masz już psa? Tryb <a href="#dog-at-home">Pies w domu</a> przypilnuje jego szczepień, odrobaczania i wizyt u weterynarza.</p>
   </section>
 
   <section class="stat section">
@@ -35,18 +47,55 @@ const features = [
     </div>
   </section>
 
+  {/* Rozcestí jako v aplikaci (2.0.0): mise první, majitelé psů druzí. Názvy režimů 1:1 z aplikace (pl). */}
+  <section id="two-ways" class="section wrap">
+    <h2 class="section-title">Trypup potrafi jedno i drugie</h2>
+    <p class="section-sub">Wybierz, od czego zaczniesz. Tryb możesz w każdej chwili zmienić w Ustawieniach.</p>
+    <div class="paths">
+      <a class="card path" href="#how-it-works">
+        <span class="path-kicker">Dopiero myślisz o psie?</span>
+        <h3>Pies na próbę</h3>
+        <p>Opiekuj się przez 30 dni wirtualnym psem i sprawdź, czy pies jest dla Ciebie. Bez konsekwencji dla żywego zwierzęcia.</p>
+        <span class="path-more">Jak to działa</span>
+      </a>
+      <a class="card path" href="#dog-at-home">
+        <span class="path-kicker">Masz już psa?</span>
+        <h3>Pies w domu</h3>
+        <p>Szczepienia, opieka, przypomnienia i pierwsza pomoc dla Twojego psa w jednym miejscu.</p>
+        <span class="path-more">Co potrafi Pies w domu</span>
+      </a>
+    </div>
+  </section>
+
   <section id="how-it-works" class="section wrap">
+    <p class="section-kicker">Pies na próbę</p>
     <h2 class="section-title">Jak to działa</h2>
     <p class="section-sub">Trzy kroki, tak jak przy opiece nad prawdziwym psem.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
       <div class="step"><div class="num"></div><div><strong>Wybierz rasę i nadaj psu imię.</strong> <span>Kwestionariusz podpowie, co do Ciebie pasuje.</span></div></div>
       <div class="step"><div class="num"></div><div><strong>Opiekuj się nim każdego dnia.</strong> <span>Spacery, karmienie, trening, weterynarz. Niczego nie da się pominąć.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Poznaj prawdę o sobie.</strong> <span>Czy utrzymasz tę rutynę nawet w dni, gdy Ci się nie chce? Zaniedbaj psa, a trafi do schroniska – bez konsekwencji dla żywego zwierzęcia.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Poznaj prawdę o sobie.</strong> <span>Po 30 dniach dostaniesz ocenę i krótki test końcowy. Czy utrzymasz rutynę nawet w dni, gdy Ci się nie chce? Jeśli zaniedbasz psa, trafi do schroniska – bez konsekwencji dla żywego zwierzęcia.</span></div></div>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">Co potrafi aplikacja</h2>
+    <h2 class="section-title">Jak to wygląda w aplikacji</h2>
+    <p class="section-sub">Prawdziwe ekrany z aplikacji Trypup.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/pl-trial-home-300.webp" srcset="/screens/pl-trial-home-300.webp 300w, /screens/pl-trial-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Ekran psa na próbę: pies Rex, wyzwanie dzień 4 z 30, trening na dziś i lista codziennych zadań" />
+        <figcaption>Pies na próbę: codzienne zadania i postęp 30-dniowego wyzwania</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/pl-trial-walk-300.webp" srcset="/screens/pl-trial-walk-300.webp 300w, /screens/pl-trial-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Ekran spaceru w aplikacji Trypup: czas, przebyty dystans i osiągnięty cel" />
+        <figcaption>Spacer: prawdziwa trasa mierzona przez GPS</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <p class="section-kicker">Pies na próbę</p>
+    <h2 class="section-title">Co wypróbujesz</h2>
     <p class="section-sub">Realistyczna symulacja opieki – od spacerów po koszty.</p>
     <div class="grid">
       {features.map((f, i) => (
@@ -59,9 +108,113 @@ const features = [
     </div>
   </section>
 
+  {/* Pies w domu (2.0.0). „Trypup nie zastępuje weterynarza” povinně u zdravotního obsahu; „Jeden pies jest za darmo.” = schválená věta (store pl). */}
+  <section id="dog-at-home" class="section wrap owner">
+    <p class="section-kicker">Nowość w wersji 2.0</p>
+    <h2 class="section-title">Masz już psa? Pies w domu</h2>
+    <p class="section-sub">Opieka nad Twoim prawdziwym psem w jednym miejscu: szczepienia, odrobaczanie, badania profilaktyczne i przypomnienia, żeby nic Ci nie umknęło.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/pl-owner-home-300.webp" srcset="/screens/pl-owner-home-300.webp 300w, /screens/pl-owner-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Ekran Pies w domu: Kora i to, co ją czeka dziś i wkrótce (ochrona przed kleszczami i pchłami, szczepienie, odrobaczanie, badanie profilaktyczne), dziennik, paszport psa, plan opieki i pierwsza pomoc" />
+        <figcaption>Dziś i wkrótce: co czeka Twojego psa</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/pl-owner-diary-300.webp" srcset="/screens/pl-owner-diary-300.webp 300w, /screens/pl-owner-diary-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Dziennik psa w trybie Pies w domu: wpisy o wizycie u weterynarza, szczepieniu, leku, wadze i spacerze" />
+        <figcaption>Dziennik: weterynarz, szczepienia, leki, waga i spacery</figcaption>
+      </figure>
+    </div>
+    <div class="grid owner-grid">
+      {ownerFeatures.map((f) => (
+        <div class="card">
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+    <div class="owner-note">
+      <p><strong>Jeden pies jest za darmo.</strong> Dla większej liczby psów jest Premium. Dane Twoich psów nigdy nie zostaną zablokowane, nawet po zakończeniu Premium, a gdy masz konto, automatycznie trafiają do kopii zapasowej.</p>
+      <p>Tryb Pies w domu włączysz w Ustawieniach, w sekcji „Jak używasz Trypup”. Przy nowej instalacji możesz też na początku wybrać „Mam już psa”.</p>
+      <p class="vet-note">Trypup nie zastępuje weterynarza. W razie jakichkolwiek wątpliwości co do zdrowia psa zadzwoń do swojego weterynarza.</p>
+    </div>
+  </section>
+
+  {/* Co je zdarma a co Premium. Bez cen (liší se podle země, Warunki odkazují na obchod). */}
+  <section id="free" class="section wrap">
+    <h2 class="section-title">Co jest za darmo, a co w Premium</h2>
+    <p class="section-sub">Całe 30-dniowe wyzwanie i jednego psa w trybie Pies w domu masz za darmo. Premium jest opcjonalne.</p>
+    <div class="plans">
+      <div class="card plan">
+        <h3>Za darmo</h3>
+        <ul>
+          <li>Całe 30-dniowe wyzwanie z oceną i testem końcowym</li>
+          <li>4 rasy: jamnik, beagle, labrador retriever i kundelek ze schroniska</li>
+          <li>Spacery GPS, codzienna opieka i trening 9 komend</li>
+          <li>Kalendarz szczepień i przegląd kosztów utrzymania psa</li>
+          <li>Artykuły edukacyjne i quizy</li>
+          <li>Dołączenie do wspólnego psa na próbę (wspólna opieka)</li>
+          <li>Pies w domu dla jednego psa: paszport psa, dziennik, plan opieki z przypomnieniami i pierwsza pomoc</li>
+        </ul>
+      </div>
+      <div class="card plan plan-premium">
+        <h3>Premium <span class="plan-tag">opcjonalnie</span></h3>
+        <ul>
+          <li>Kolejnych 10 ras – border collie, husky syberyjski, owczarek niemiecki i inne. Można też kupić tylko jedną rasę.</li>
+          <li>Założenie wspólnej opieki nad psem na próbę: jeden pies dla maksymalnie 4 osób, pozostałe osoby dołączają za darmo</li>
+          <li>3 artykuły premium o socjalizacji, treningu i wizytach u weterynarza (odblokuje je też 7 dni opieki z rzędu)</li>
+          <li>Oś czasu opieki nad psem na próbę: kamienie milowe i szczepienia w jednym miejscu</li>
+          <li>Pies w domu dla większej liczby psów. Dane Twoich psów nigdy nie zostaną zablokowane, nawet po zakończeniu Premium.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="plans-note">Aktualne ceny Premium zobaczysz w App Store lub w Google Play – zależą od kraju.</p>
+  </section>
+
+  {/* Časté otázky. Odpovědi ověřené proti aplikaci 2.0.0 (cs master). */}
+  <section id="faq" class="section wrap">
+    <h2 class="section-title">Najczęstsze pytania</h2>
+    <div class="faq">
+      <details>
+        <summary>Czy Trypup jest darmowy?</summary>
+        <p>Tak. Aplikację pobierzesz za darmo, a całe 30-dniowe wyzwanie z oceną przejdziesz bez płacenia. W trybie Pies w domu jeden pies jest za darmo. Premium jest opcjonalne: przy psie na próbę dodaje kolejne rasy, zakładanie wspólnej opieki i oś czasu opieki, a w trybie Pies w domu kolejne psy. Odblokowuje też trzy artykuły premium.</p>
+      </details>
+      <details>
+        <summary>Mam już psa. Do czego przyda mi się Trypup?</summary>
+        <p>Włącz tryb Pies w domu. Znajdziesz w nim paszport psa, dziennik i plan opieki, który przypomni Ci o szczepieniu, odrobaczaniu, ochronie przed kleszczami i badaniu profilaktycznym. Do stałej lecznicy zadzwonisz jednym dotknięciem, a pierwszą pomoc masz zawsze pod ręką. Jeden pies jest za darmo.</p>
+      </details>
+      <details>
+        <summary>Jak włączyć tryb Pies w domu?</summary>
+        <p>W Ustawieniach, w sekcji „Jak używasz Trypup”, przełącz na tryb Pies w domu. Przy nowej instalacji możesz też na początku wybrać „Mam już psa”. Wirtualny pies w tym czasie poczeka, a jego czas się zatrzyma – nadal aktywny jest tylko wspólny pies. Trwające 30-dniowe wyzwanie zakończy się jako „Pies trafił do domu wcześniej”, bez oceny. Pies w domu jest w aplikacji od wersji 2.0. Jeśli jeszcze go nie widzisz, zaktualizuj aplikację. Nowa wersja trafia do wszystkich stopniowo.</p>
+      </details>
+      <details>
+        <summary>Czy Trypup zastąpi weterynarza?</summary>
+        <p>Nie. Trypup pomoże Ci o niczym nie zapomnieć i mieć zapiski o psie pod ręką, ale nie zastępuje weterynarza. W razie jakichkolwiek wątpliwości co do zdrowia psa zadzwoń do swojego weterynarza.</p>
+      </details>
+      <details>
+        <summary>Czy naprawdę muszę wychodzić na dwór? Czy Trypup działa bez lokalizacji?</summary>
+        <p>Spacery są prawdziwe: aplikacja mierzy je przez GPS, a trasa zostaje tylko w Twoim telefonie. Jeśli nie zezwolisz na dostęp do lokalizacji albo na spacer pójdzie ktoś inny, możesz zapisać go ręcznie – pies go zaliczy, tylko nie zmierzy go GPS.</p>
+      </details>
+      <details>
+        <summary>Czy Trypup nadaje się dla dzieci?</summary>
+        <p>Trypup jest dla każdego, kto poważnie myśli o psie, i sprawdzi się też w rodzinach, które decydują wspólnie. Aplikacja jest przeznaczona dla użytkowników od 13 lat; młodszym dzieciom polecamy korzystać z niej tylko razem z rodzicem. Gdy przy pierwszym uruchomieniu wybierzesz „Mniej niż 16 lat”, aplikacja nie zbiera danych analitycznych, nie oferuje żadnych zakupów i nie wysyła powiadomień push.</p>
+      </details>
+      <details>
+        <summary>Co się stanie, jeśli nie zadbam o psa?</summary>
+        <p>Pies w aplikacji nigdy nie umiera. Jeśli przez kilka dni nie będziesz się nim opiekować, trafi do schroniska, a aplikacja wyjaśni Ci, czego mu brakowało. Potem możesz zacząć od nowa – bez konsekwencji dla żywego zwierzęcia.</p>
+      </details>
+      <details>
+        <summary>Czy potrzebuję konta?</summary>
+        <p>Nie. Trypup działa też bez konta i wtedy wszystko zostaje tylko w Twoim telefonie. Konto jest opcjonalne: tworzy w chmurze w UE kopię zapasową Twojego psa na próbę i psów z trybu Pies w domu, dzięki czemu przywrócisz je także na nowym telefonie. Potrzebujesz go również, jeśli chcesz opiekować się psem na próbę razem z rodziną.</p>
+      </details>
+      <details>
+        <summary>A jeśli chcę kontynuować po 30&nbsp;dniach?</summary>
+        <p>Możesz. Po ocenie i teście końcowym dalej opiekujesz się swoim psem. A jeśli nie zależy Ci na wyzwaniu, przy zakładaniu psa wybierz klasyczną opiekę „Na całe życie”: pies dorasta z Tobą we własnym tempie i bez testu końcowego. Obie możliwości są za darmo.</p>
+      </details>
+    </div>
+  </section>
+
   <section id="get" class="section wrap center">
     <h2 class="section-title">Pobierz Trypup</h2>
-    <p class="section-sub">Trypup jest już dostępny na Androida i iPhone'a. Pobierz aplikację i wypróbuj psa na próbę.</p>
+    <p class="section-sub">Trypup jest dostępny na Androida i iPhone'a. Przećwicz opiekę nad psem na próbę albo pilnuj w trybie Pies w domu szczepień, odrobaczania i innych terminów swojego psa.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />

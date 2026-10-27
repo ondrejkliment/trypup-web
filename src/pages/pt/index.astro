@@ -5,49 +5,98 @@ import { featureIcons } from '../../lib/featureIcons';
 // Ícones por área → `featureIcons` (partilhados, 1:1 com a app). A ordem tem de coincidir.
 const features = [
   { title: 'Passeios com GPS', text: 'Percursos reais com tempo, distância e uma verificação anti-fraude de que saiu mesmo de casa.' },
-  { title: 'Cuidados diários', text: 'Alimentação, brincadeiras, higiene, descanso. As estatísticas reagem à qualidade dos seus cuidados.' },
+  { title: 'Cuidados diários', text: 'Alimentação, brincadeiras, higiene, descanso. As estatísticas reagem à forma como cuida do cão.' },
   { title: 'Treino', text: '9 comandos com desbloqueios progressivos. Cada raça aprende ao seu próprio ritmo.' },
-  { title: 'Saúde e custos', text: 'Calendário de vacinação e custos mensais e anuais realistas do cão.' },
-  { title: 'Educação', text: 'Artigos sobre adoção, como escolher um abrigo e as perguntas a fazer a si mesmo primeiro.' },
-  { title: 'Co-propriedade', text: 'Partilhe os cuidados com a família — todos veem o que o outro fez.' },
+  { title: 'Saúde e custos', text: 'Calendário de vacinação e custos mensais e anuais estimados do cão, com base em preços checos (convertidos).' },
+  { title: 'Aprender', text: 'Artigos sobre adoção, como escolher um abrigo e as perguntas a fazer antes de decidir.' },
+  { title: 'Cuidado partilhado', text: 'Pode partilhar o cão à experiência com a família e cada um vê o que o outro fez. Iniciar o cuidado partilhado faz parte do Premium; juntar-se é gratuito.' },
+];
+
+// Cão em casa (2.0.0) — apenas funções que existem mesmo na 2.0.0 (sem fotos, documentos, PDF
+// nem partilha do cão real com a família). Os primeiros socorros têm, para já, um tema (intoxicação).
+const ownerFeatures = [
+  { title: 'Plano de cuidados e lembretes', text: 'Vacinação, desparasitação, proteção contra carraças e pulgas, consulta de rotina e taxa do cão. A aplicação lembra-lhe o que está para breve e pode adicionar a data ao calendário.' },
+  { title: 'Diário', text: 'Veterinário, vacinas, medicamentos, peso, sintomas, passeios e treino. Os registos do seu cão todos juntos.' },
+  { title: 'Passaporte do cão', text: 'Chip, dados do cão e contactos para quem cuida dele. Uma cópia digital no telemóvel, que não substitui o passaporte oficial.' },
+  { title: 'Veterinário e primeiros socorros', text: 'Ligue ao veterinário habitual com um toque e encontre no mapa o veterinário mais próximo ou a urgência 24 horas. E, nos primeiros socorros, está explicado o que fazer de imediato se o cão comer algo tóxico.' },
+  { title: 'Partilha como texto', text: 'Envie a quem quiser um resumo para quem cuida do cão, para o veterinário ou a cópia completa.' },
+  { title: 'Nomes e dias do nome', text: 'Uma ajuda para escolher o nome e um lembrete do dia do nome, do aniversário e do dia da chegada a casa.' },
 ];
 ---
 <Base
-  title="Trypup — um cão à prova"
-  description="A Trypup é um cão à prova — um simulador de cuidados com cães realista. Passeios, alimentação, treino e custos, antes de ter um cão real."
+  title="Trypup — um cão à experiência"
+  description="Um cão à experiência: experimente cuidar de um cão virtual antes de ter um real. Já tem um cão? «Cão em casa» acompanha vacinas, desparasitação e consultas."
   lang="pt"
   alt="/en/"
   pageKey="home">
   <section class="hero wrap">
     <span class="badge">🐾 Simulador educativo de cuidados</span>
-    <h1>Um cão à prova</h1>
-    <p class="lead">Sinta na pele o que realmente é cuidar de um cão — <strong>antes de ter um cão real</strong>.</p>
+    <h1>Um cão à experiência</h1>
+    <p class="lead">Experimente durante 30 dias o que implica cuidar de um cão — <strong>antes de ter um cão de verdade</strong>.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="#get">Obter a aplicação</a>
+      <a class="btn btn-primary" href="#get">Descarregar a aplicação</a>
       <a class="btn btn-ghost" href="#how-it-works">Como funciona</a>
     </div>
+    <p class="hero-owner">Já tem um cão? O modo <a href="#dog-at-home">Cão em casa</a> acompanha as vacinas, a desparasitação e as consultas de rotina.</p>
   </section>
 
   <section class="stat section">
     <div class="wrap">
       <p class="big">Na maior parte das vezes, um cão não vai parar a um abrigo por causa do seu temperamento, mas por causa das <span>circunstâncias dos donos</span>.</p>
-      <p style="opacity:.8;margin-top:10px">A Trypup permite-lhe descobrir o que um cão realmente exige antes da decisão — não depois.</p>
+      <p style="opacity:.8;margin-top:10px">A Trypup mostra-lhe o que um cão exige antes da decisão — não depois.</p>
+    </div>
+  </section>
+
+  {/* Bifurcação como na app (2.0.0): primeiro a missão, depois quem já tem cão. Nomes dos modos 1:1 com a app. */}
+  <section id="two-ways" class="section wrap">
+    <h2 class="section-title">A Trypup faz as duas coisas</h2>
+    <p class="section-sub">Escolha por onde começar. Pode mudar esta escolha quando quiser nas Definições.</p>
+    <div class="paths">
+      <a class="card path" href="#how-it-works">
+        <span class="path-kicker">Ainda está a pensar em ter um cão?</span>
+        <h3>Um cão à experiência</h3>
+        <p>Cuide de um cão virtual durante 30 dias e descubra se um cão é para si. Sem consequências para um animal real.</p>
+        <span class="path-more">Como funciona</span>
+      </a>
+      <a class="card path" href="#dog-at-home">
+        <span class="path-kicker">Já tem um cão?</span>
+        <h3>Cão em casa</h3>
+        <p>Vacinas, cuidados, lembretes e primeiros socorros para o seu cão, num só lugar.</p>
+        <span class="path-more">O que faz o modo Cão em casa</span>
+      </a>
     </div>
   </section>
 
   <section id="how-it-works" class="section wrap">
+    <p class="section-kicker">Um cão à experiência</p>
     <h2 class="section-title">Como funciona</h2>
-    <p class="section-sub">Três passos, tal como cuidar de um cão real.</p>
+    <p class="section-sub">Três passos, como se cuidasse de um cão a sério.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
-      <div class="step"><div class="num"></div><div><strong>Escolha uma raça e dê nome ao seu cão.</strong> <span>Um questionário recomenda o que se adapta a si.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Escolha uma raça e dê nome ao seu cão.</strong> <span>Um questionário recomenda a raça que melhor se adapta a si.</span></div></div>
       <div class="step"><div class="num"></div><div><strong>Cuide dele todos os dias.</strong> <span>Passeios, alimentação, treino, veterinário. Nada pode ser ignorado.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Descubra a verdade sobre si mesmo.</strong> <span>Consegue manter a rotina mesmo nos dias em que não lhe apetece? Negligencie o cão e ele vai parar a um abrigo — sem consequências para um animal real.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Descubra a verdade sobre si.</strong> <span>Ao fim de 30 dias, recebe uma avaliação e um breve teste final. Consegue manter a rotina mesmo nos dias em que não lhe apetece? Se descuidar o cão, ele vai para um abrigo — sem consequências para um animal real.</span></div></div>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">O que a aplicação faz</h2>
-    <p class="section-sub">Uma simulação de cuidados realista — dos passeios aos custos.</p>
+    <h2 class="section-title">Como é na aplicação</h2>
+    <p class="section-sub">Ecrãs reais da aplicação Trypup.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/pt-trial-home-300.webp" srcset="/screens/pt-trial-home-300.webp 300w, /screens/pt-trial-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Ecrã do cão à experiência: o cão Rex, desafio no dia 4 de 30, treino de hoje e lista de tarefas diárias" />
+        <figcaption>Um cão à experiência: tarefas diárias e progresso do desafio de 30 dias</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/pt-trial-walk-300.webp" srcset="/screens/pt-trial-walk-300.webp 300w, /screens/pt-trial-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Ecrã de passeio na aplicação Trypup: tempo, distância percorrida e objetivo alcançado" />
+        <figcaption>Passeio: um percurso real medido por GPS</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <p class="section-kicker">Um cão à experiência</p>
+    <h2 class="section-title">O que vai experimentar</h2>
+    <p class="section-sub">Uma simulação realista dos cuidados — dos passeios aos custos.</p>
     <div class="grid">
       {features.map((f, i) => (
         <div class="card">
@@ -59,9 +108,113 @@ const features = [
     </div>
   </section>
 
+  {/* Cão em casa (2.0.0). «A Trypup não substitui o veterinário» é obrigatório junto ao conteúdo de saúde; «Um cão é gratuito.» = frase aprovada da loja. */}
+  <section id="dog-at-home" class="section wrap owner">
+    <p class="section-kicker">Novo na versão 2.0</p>
+    <h2 class="section-title">Já tem um cão? Cão em casa</h2>
+    <p class="section-sub">Os cuidados do seu cão real num só lugar: vacinas, desparasitação, consultas de rotina e lembretes, para que nada lhe escape.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/pt-owner-home-300.webp" srcset="/screens/pt-owner-home-300.webp 300w, /screens/pt-owner-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Ecrã do modo Cão em casa: Kika, o que está previsto para hoje e em breve (proteção contra carraças e pulgas, vacinação, desparasitação, consulta de rotina), diário, passaporte do cão, plano de cuidados e primeiros socorros" />
+        <figcaption>Hoje e em breve: o que espera o seu cão</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/pt-owner-diary-300.webp" srcset="/screens/pt-owner-diary-300.webp 300w, /screens/pt-owner-diary-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Diário do cão no modo Cão em casa: registos de veterinário, vacina, medicamento, peso e passeio" />
+        <figcaption>Diário: veterinário, vacinas, medicamentos, peso e passeios</figcaption>
+      </figure>
+    </div>
+    <div class="grid owner-grid">
+      {ownerFeatures.map((f) => (
+        <div class="card">
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+    <div class="owner-note">
+      <p><strong>Um cão é gratuito.</strong> Para mais cães, existe o Premium. Os dados dos seus cães nunca ficam bloqueados, nem quando o Premium termina, e, com uma conta, ficam guardados automaticamente numa cópia de segurança.</p>
+      <p>Ative o modo «Cão em casa» nas Definições, na secção «Como usas o Trypup».</p>
+      <p class="vet-note">A Trypup não substitui o veterinário. Se tiver qualquer dúvida sobre a saúde do seu cão, ligue ao seu veterinário.</p>
+    </div>
+  </section>
+
+  {/* O que é gratuito e o que é Premium. Sem preços (variam por país; os Termos remetem para a loja). */}
+  <section id="free" class="section wrap">
+    <h2 class="section-title">O que é gratuito e o que está no Premium</h2>
+    <p class="section-sub">Todo o desafio de 30 dias e um cão no modo «Cão em casa» são gratuitos. O Premium é opcional.</p>
+    <div class="plans">
+      <div class="card plan">
+        <h3>Gratuito</h3>
+        <ul>
+          <li>Todo o desafio de 30 dias, incluindo a avaliação e o teste final</li>
+          <li>4 raças: Dachshund, Beagle, Labrador Retriever e Rafeiro de abrigo</li>
+          <li>Passeios com GPS, cuidados diários e treino de 9 comandos</li>
+          <li>Calendário de vacinação e resumo dos custos estimados do cão</li>
+          <li>Artigos e quizzes educativos</li>
+          <li>Juntar-se ao cuidado partilhado de um cão à experiência</li>
+          <li>«Cão em casa» para um cão: passaporte do cão, diário, plano de cuidados com lembretes e primeiros socorros</li>
+        </ul>
+      </div>
+      <div class="card plan plan-premium">
+        <h3>Premium <span class="plan-tag">opcional</span></h3>
+        <ul>
+          <li>Mais 10 raças — Border Collie, Husky Siberiano, Pastor Alemão e outras. Também pode comprar só uma raça.</li>
+          <li>Iniciar o cuidado partilhado do cão à experiência: um cão para até 4 pessoas, as outras juntam-se gratuitamente</li>
+          <li>3 artigos premium sobre socialização, treino e idas ao veterinário (também se desbloqueiam com 7 dias seguidos de cuidados)</li>
+          <li>Cronologia de cuidados do cão à experiência: marcos e vacinas num só lugar</li>
+          <li>«Cão em casa» para mais cães. Os dados dos seus cães nunca ficam bloqueados, nem quando o Premium termina.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="plans-note">Os preços atuais do Premium estão na App Store ou no Google Play e variam consoante o país.</p>
+  </section>
+
+  {/* Perguntas frequentes. Respostas segundo o original checo aprovado (verificado com a app 2.0.0). */}
+  <section id="faq" class="section wrap">
+    <h2 class="section-title">Perguntas frequentes</h2>
+    <div class="faq">
+      <details>
+        <summary>A Trypup é gratuita?</summary>
+        <p>Sim. Pode descarregar a aplicação gratuitamente e fazer todo o desafio de 30 dias, incluindo a avaliação, sem pagar nada. No modo «Cão em casa», um cão é gratuito. O Premium é opcional: para o cão à experiência, acrescenta mais raças, a possibilidade de iniciar o cuidado partilhado e a cronologia de cuidados; no modo «Cão em casa», mais cães. Desbloqueia também três artigos premium.</p>
+      </details>
+      <details>
+        <summary>Já tenho um cão. Para que me serve a Trypup?</summary>
+        <p>Ative o modo «Cão em casa». Nele encontra o passaporte do cão, o diário e um plano de cuidados que lhe lembra as vacinas, a desparasitação, a proteção contra carraças e a consulta de rotina. O veterinário habitual fica à distância de um toque e os primeiros socorros sempre à mão. Um cão é gratuito.</p>
+      </details>
+      <details>
+        <summary>Como ativo o modo «Cão em casa»?</summary>
+        <p>Nas Definições, na secção «Como usas o Trypup», mude para o modo «Cão em casa». Entretanto, o cão virtual fica à espera e o tempo dele fica parado; só o cão em cuidado partilhado continua. Um desafio de 30 dias em curso termina como «O cão chegou a casa mais cedo», sem avaliação. O modo «Cão em casa» existe na aplicação desde a versão 2.0. Se ainda não o vê, atualize a aplicação. A nova versão chega a todos de forma gradual.</p>
+      </details>
+      <details>
+        <summary>A Trypup substitui o veterinário?</summary>
+        <p>Não. A Trypup ajuda a não esquecer nada e a ter os registos do seu cão à mão, mas não substitui o veterinário. Se tiver qualquer dúvida sobre a saúde do seu cão, ligue ao seu veterinário.</p>
+      </details>
+      <details>
+        <summary>Tenho mesmo de sair à rua? A Trypup funciona sem localização?</summary>
+        <p>Os passeios são reais: a aplicação mede-os por GPS e o percurso fica apenas no seu telemóvel. Se não permitir o acesso à localização ou se o passeio for dado por outra pessoa, pode registá-lo manualmente — o passeio conta na mesma para o cão, só que não é medido por GPS.</p>
+      </details>
+      <details>
+        <summary>A Trypup é adequada para crianças?</summary>
+        <p>A Trypup é para qualquer pessoa que pense a sério em ter um cão e também é adequada para famílias que decidem em conjunto. A aplicação destina-se a utilizadores a partir dos 13 anos; às crianças mais novas, recomendamos que a usem apenas com um dos pais. Se, ao abrir a aplicação pela primeira vez, escolher «Menos de 16 anos», a aplicação não recolhe dados analíticos, não oferece compras e não envia notificações push.</p>
+      </details>
+      <details>
+        <summary>O que acontece se não cuidar do cão?</summary>
+        <p>O cão na aplicação nunca morre. Se não cuidar dele durante alguns dias, vai para um abrigo e a aplicação explica o que lhe faltou. Depois pode recomeçar — sem consequências para um animal real.</p>
+      </details>
+      <details>
+        <summary>Preciso de uma conta?</summary>
+        <p>Não. A Trypup funciona sem conta e, nesse caso, tudo fica apenas no seu telemóvel. A conta é opcional: guarda numa cópia de segurança na nuvem, na UE, o seu cão à experiência e os cães do modo «Cão em casa», para que os possa recuperar num telemóvel novo. Também precisa dela se quiser cuidar do cão à experiência em conjunto com a família.</p>
+      </details>
+      <details>
+        <summary>E se quiser continuar depois dos 30&nbsp;dias?</summary>
+        <p>Pode. Depois da avaliação e do teste final, continua a cuidar do seu cão. E se o desafio não for para si, ao criar o cão escolha o cuidado clássico «Para a vida»: o cão cresce consigo ao seu próprio ritmo e sem teste final. As duas opções são gratuitas.</p>
+      </details>
+    </div>
+  </section>
+
   <section id="get" class="section wrap center">
-    <h2 class="section-title">Obtenha a Trypup</h2>
-    <p class="section-sub">A Trypup já está disponível para Android e iPhone. Descarregue a aplicação e experimente ter um cão à prova.</p>
+    <h2 class="section-title">Descarregue a Trypup</h2>
+    <p class="section-sub">A Trypup está disponível para Android e iPhone. Experimente cuidar de um cão sem consequências ou acompanhe, no modo «Cão em casa», as vacinas, a desparasitação e outras datas do seu cão.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />

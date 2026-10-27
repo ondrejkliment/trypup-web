@@ -4,28 +4,40 @@ import { featureIcons } from '../../lib/featureIcons';
 
 // Ikony per oblast → `featureIcons` (sdílené, 1:1 z aplikace). Pořadí musí sedět.
 const features = [
-  { title: 'Paseos GPS', text: 'Rutas reales con tiempo, distancia y una comprobación antitrampas de que realmente ha salido.' },
-  { title: 'Cuidado diario', text: 'Alimentación, juego, aseo, descanso. Las estadísticas reaccionan a lo bien que cuide al perro.' },
-  { title: 'Entrenamiento', text: '9 comandos con desbloqueos progresivos. Cada raza aprende a su propio ritmo.' },
-  { title: 'Salud y costes', text: 'Calendario de vacunación y costes mensuales y anuales realistas del perro.' },
-  { title: 'Educación', text: 'Artículos sobre adopción, cómo elegir un refugio y las preguntas que debe hacerse antes.' },
-  { title: 'Cuidado compartido', text: 'Comparta el cuidado con la familia — todos ven lo que ha hecho el otro.' },
+  { title: 'Paseos con GPS', text: 'Rutas reales con tiempo, distancia y una comprobación antitrampas de que de verdad ha salido de casa.' },
+  { title: 'Cuidado diario', text: 'Comida, juego, aseo, descanso. Las estadísticas reaccionan a cómo cuida al perro.' },
+  { title: 'Adiestramiento', text: '9 órdenes que se desbloquean poco a poco. Cada raza aprende a su propio ritmo.' },
+  { title: 'Salud y gastos', text: 'Calendario de vacunas y una estimación de los gastos mensuales y anuales de un perro, basada en precios checos (convertidos).' },
+  { title: 'Aprender', text: 'Artículos sobre adopción, cómo elegir un refugio y las preguntas que conviene hacerse antes.' },
+  { title: 'Cuidado compartido', text: 'Puede compartir el perro a prueba con su familia, y todo el mundo ve quién ha hecho qué. Crear el cuidado compartido es parte de Premium; unirse es gratis.' },
+];
+
+// Perro en casa (2.0.0) – jen funkce, které ve 2.0.0 opravdu jsou (bez fotek, dokumentů, PDF
+// a sdílení skutečného psa s rodinou). První pomoc má zatím jedno téma (otrava).
+const ownerFeatures = [
+  { title: 'Plan de cuidados y recordatorios', text: 'Vacunas, desparasitación, protección contra garrapatas y pulgas, revisión preventiva e incluso la tasa municipal por perro. La aplicación le recuerda lo que toca, y puede añadir la fecha a su calendario.' },
+  { title: 'Diario', text: 'Veterinario, vacunas, medicamentos, peso, síntomas, paseos y adiestramiento. Todo lo de su perro, en un solo lugar.' },
+  { title: 'Pasaporte canino', text: 'Microchip, datos del perro y contactos para el cuidador. Una copia digital en su teléfono, que no sustituye al pasaporte oficial.' },
+  { title: 'Veterinario y primeros auxilios', text: 'Llame a su veterinario de cabecera con un toque y encuentre en el mapa el veterinario más cercano o las urgencias 24 h. Y en primeros auxilios se explica qué hacer enseguida si su perro ha comido algo tóxico.' },
+  { title: 'Compartir como texto', text: 'Envíe a quien quiera un resumen para el cuidador, un resumen para el veterinario o la copia completa.' },
+  { title: 'Nombres y onomásticas', text: 'Ayuda para elegir nombre y un recordatorio de la onomástica perruna, el cumpleaños y el aniversario de la llegada a casa de su perro.' },
 ];
 ---
 <Base
   title="Trypup — un perro a prueba"
-  description="Trypup es un perro a prueba — un simulador realista de cuidado de perros. Paseos, alimentación, entrenamiento y costes, antes de tener un perro de verdad."
+  description="Perro a prueba: pruebe a cuidar de un perro virtual antes de tener uno real. ¿Ya tiene perro? Perro en casa le recuerda vacunas, desparasitación y revisiones."
   lang="es"
   alt="/en/"
   pageKey="home">
   <section class="hero wrap">
     <span class="badge">🐾 Simulador educativo de cuidado</span>
     <h1>Un perro a prueba</h1>
-    <p class="lead">Descubra por sí mismo lo que realmente supone cuidar a un perro — <strong>antes de tener uno de verdad</strong>.</p>
+    <p class="lead">Pruebe durante 30 días lo que supone de verdad cuidar de un perro — <strong>antes de tener uno real</strong>.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="#get">Descargar la app</a>
       <a class="btn btn-ghost" href="#how-it-works">Cómo funciona</a>
     </div>
+    <p class="hero-owner">¿Ya tiene perro? El modo <a href="#dog-at-home">Perro en casa</a> está pendiente de las vacunas, la desparasitación y las revisiones de su perro.</p>
   </section>
 
   <section class="stat section">
@@ -35,19 +47,56 @@ const features = [
     </div>
   </section>
 
+  {/* Rozcestí jako v aplikaci (2.0.0): mise první, majitelé psů druzí. Názvy režimů 1:1 z aplikace (pesdoma mode.*). V es se volba na úvodu ukazuje až od 2. spuštění → hlavní cesta = Ajustes. */}
+  <section id="two-ways" class="section wrap">
+    <h2 class="section-title">Trypup sirve para las dos cosas</h2>
+    <p class="section-sub">Elija por dónde empezar. Puede cambiarlo cuando quiera en Ajustes.</p>
+    <div class="paths">
+      <a class="card path" href="#how-it-works">
+        <span class="path-kicker">¿Aún se está planteando tener perro?</span>
+        <h3>Perro a prueba</h3>
+        <p>Cuide de un perro virtual durante 30 días y descubra si un perro es para usted. Sin consecuencias para un animal real.</p>
+        <span class="path-more">Cómo funciona</span>
+      </a>
+      <a class="card path" href="#dog-at-home">
+        <span class="path-kicker">¿Ya tiene perro?</span>
+        <h3>Perro en casa</h3>
+        <p>Vacunas, cuidados, recordatorios y primeros auxilios para su perro, en un solo lugar.</p>
+        <span class="path-more">Qué ofrece Perro en casa</span>
+      </a>
+    </div>
+  </section>
+
   <section id="how-it-works" class="section wrap">
+    <p class="section-kicker">Perro a prueba</p>
     <h2 class="section-title">Cómo funciona</h2>
-    <p class="section-sub">Tres pasos, igual que cuidar a un perro de verdad.</p>
+    <p class="section-sub">Tres pasos, como si cuidara de un perro de verdad.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
       <div class="step"><div class="num"></div><div><strong>Elija una raza y póngale nombre a su perro.</strong> <span>Un cuestionario le recomienda lo que mejor encaja con usted.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Cuídelo cada día.</strong> <span>Paseos, alimentación, entrenamiento, veterinario. Nada se puede saltar.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Descubra la verdad sobre usted mismo.</strong> <span>¿Puede mantener la rutina incluso los días en que no le apetece? Si descuida al perro, termina en un refugio — sin consecuencias para un animal real.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Cuídelo cada día.</strong> <span>Paseos, comida, adiestramiento, veterinario. Nada se puede saltar.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Descubra la verdad sobre usted.</strong> <span>Al cabo de 30 días recibe su resultado y hace un breve test final. ¿Puede mantener la rutina incluso los días en que no le apetece? Si descuida al perro, acaba en un refugio — sin consecuencias para un animal real.</span></div></div>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">Qué hace la app</h2>
-    <p class="section-sub">Una simulación realista de cuidado — desde los paseos hasta los costes.</p>
+    <h2 class="section-title">Así se ve la aplicación</h2>
+    <p class="section-sub">Pantallas reales de la aplicación Trypup.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/es-trial-home-300.webp" srcset="/screens/es-trial-home-300.webp 300w, /screens/es-trial-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Pantalla de Perro a prueba: el perro Rex, reto día 4 de 30, adiestramiento de hoy y lista de tareas diarias" />
+        <figcaption>Perro a prueba: tareas diarias y progreso del reto de 30 días</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/es-trial-walk-300.webp" srcset="/screens/es-trial-walk-300.webp 300w, /screens/es-trial-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Pantalla de paseo en la aplicación Trypup: tiempo, distancia recorrida y meta alcanzada" />
+        <figcaption>Paseo: una ruta real medida por GPS</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <p class="section-kicker">Perro a prueba</p>
+    <h2 class="section-title">Qué va a probar</h2>
+    <p class="section-sub">Una simulación realista del cuidado — desde los paseos hasta los gastos.</p>
     <div class="grid">
       {features.map((f, i) => (
         <div class="card">
@@ -59,9 +108,113 @@ const features = [
     </div>
   </section>
 
+  {/* Perro en casa (2.0.0). „Trypup no sustituye al veterinario“ povinně u zdravotního obsahu; „Un perro está incluido gratis.“ = schválená věta ze store (es.md). */}
+  <section id="dog-at-home" class="section wrap owner">
+    <p class="section-kicker">Novedad de la versión 2.0</p>
+    <h2 class="section-title">¿Ya tiene perro? Perro en casa</h2>
+    <p class="section-sub">El cuidado de su perro de verdad en un solo lugar: vacunas, desparasitación, revisiones y recordatorios, para que no se le pase nada.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/es-owner-home-300.webp" srcset="/screens/es-owner-home-300.webp 300w, /screens/es-owner-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Pantalla de Perro en casa: la perra Lola, lo que le toca hoy y próximamente (protección contra garrapatas y pulgas, vacunación, desparasitación, revisión preventiva), diario, Pasaporte canino, plan de cuidados y primeros auxilios" />
+        <figcaption>Hoy y próximamente: lo que le toca a su perro</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/es-owner-diary-300.webp" srcset="/screens/es-owner-diary-300.webp 300w, /screens/es-owner-diary-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Diario del perro en el modo Perro en casa: entradas de veterinario, vacuna, medicamento, peso y paseo" />
+        <figcaption>Diario: veterinario, vacunas, medicamentos, peso y paseos</figcaption>
+      </figure>
+    </div>
+    <div class="grid owner-grid">
+      {ownerFeatures.map((f) => (
+        <div class="card">
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+    <div class="owner-note">
+      <p><strong>Un perro está incluido gratis.</strong> Para más perros está Premium. Los datos de sus perros nunca se bloquean, ni siquiera cuando termina Premium, y con una cuenta se guarda una copia automáticamente.</p>
+      <p>Active el modo Perro en casa cuando quiera en Ajustes, en «Cómo usas Trypup». En una instalación nueva también puede elegir «Ya tengo perro» al abrir la aplicación.</p>
+      <p class="vet-note">Trypup no sustituye al veterinario. Ante cualquier duda sobre la salud de su perro, llame a su veterinario.</p>
+    </div>
+  </section>
+
+  {/* Co je zdarma a co Premium. Bez cen (liší se podle země, Podmínky odkazují na obchod). */}
+  <section id="free" class="section wrap">
+    <h2 class="section-title">Qué es gratis y qué incluye Premium</h2>
+    <p class="section-sub">Todo el reto de 30 días y un perro en el modo Perro en casa son gratis. Premium es opcional.</p>
+    <div class="plans">
+      <div class="card plan">
+        <h3>Gratis</h3>
+        <ul>
+          <li>Todo el reto de 30 días, con el resultado y el test final</li>
+          <li>4 razas: Teckel, Beagle, Labrador Retriever y Mestizo de protectora</li>
+          <li>Paseos con GPS, cuidado diario y adiestramiento de 9 órdenes</li>
+          <li>Calendario de vacunas y resumen de los gastos de un perro</li>
+          <li>Artículos educativos y cuestionarios</li>
+          <li>Unirse a un perro a prueba compartido (cuidado compartido)</li>
+          <li>Perro en casa para un perro: Pasaporte canino, diario, plan de cuidados con recordatorios y primeros auxilios</li>
+        </ul>
+      </div>
+      <div class="card plan plan-premium">
+        <h3>Premium <span class="plan-tag">opcional</span></h3>
+        <ul>
+          <li>10 razas más — Border Collie, Husky Siberiano, Pastor Alemán y otras. También puede comprar una sola raza.</li>
+          <li>Crear un cuidado compartido del perro a prueba: un perro para hasta 4 personas, el resto se une gratis</li>
+          <li>3 artículos premium sobre socialización, adiestramiento y cuidados en el veterinario (también se desbloquean con 7 días seguidos de cuidados)</li>
+          <li>Cronología de cuidados del perro a prueba: hitos y vacunas en un solo lugar</li>
+          <li>Perro en casa para varios perros. Los datos de sus perros nunca se bloquean, ni siquiera cuando termina Premium.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="plans-note">Los precios actuales de Premium los verá en el App Store o en Google Play; varían según el país.</p>
+  </section>
+
+  {/* Preguntas frecuentes. Odpovědi ověřené proti aplikaci 2.0.0 (es popisky z locales). */}
+  <section id="faq" class="section wrap">
+    <h2 class="section-title">Preguntas frecuentes</h2>
+    <div class="faq">
+      <details>
+        <summary>¿Trypup es gratis?</summary>
+        <p>Sí. La aplicación se descarga gratis y puede completar todo el reto de 30 días, con el resultado incluido, sin pagar. En el modo Perro en casa, un perro está incluido gratis. Premium es opcional: para el perro a prueba añade más razas, la creación de un cuidado compartido y la cronología de cuidados; en el modo Perro en casa, más perros. También desbloquea tres artículos premium.</p>
+      </details>
+      <details>
+        <summary>Ya tengo perro. ¿Para qué me sirve Trypup?</summary>
+        <p>Active el modo Perro en casa. Encontrará un Pasaporte canino, un diario y un plan de cuidados que le recuerda las vacunas, la desparasitación, la protección contra garrapatas y pulgas y la revisión preventiva. Tiene a su veterinario de cabecera a un toque y los primeros auxilios siempre a mano. Un perro está incluido gratis.</p>
+      </details>
+      <details>
+        <summary>¿Cómo activo el modo Perro en casa?</summary>
+        <p>En Ajustes, en «Cómo usas Trypup», cambie al modo Perro en casa. En una instalación nueva también puede elegir «Ya tengo perro» al abrir la aplicación. Mientras esté en el modo Perro en casa, su perro virtual le espera y su tiempo se detiene; solo un perro en cuidado compartido sigue activo. Un reto de 30 días en curso termina como «El perro llegó antes de tiempo», sin valoración. Perro en casa está en la aplicación desde la versión 2.0. Si todavía no lo ve, actualice la aplicación. La nueva versión llega a todo el mundo de forma gradual.</p>
+      </details>
+      <details>
+        <summary>¿Trypup sustituye al veterinario?</summary>
+        <p>No. Trypup le ayuda a no olvidar nada y a tener a mano los datos de su perro, pero no sustituye al veterinario. Ante cualquier duda sobre la salud de su perro, llame a su veterinario.</p>
+      </details>
+      <details>
+        <summary>¿De verdad hay que salir? ¿Funciona Trypup sin ubicación?</summary>
+        <p>Los paseos son reales: la aplicación los mide por GPS y la ruta se queda solo en su teléfono. Si no permite el acceso a la ubicación o el paseo lo da otra persona, puede registrarlo a mano — el perro lo recibe igual, solo que sin medición GPS.</p>
+      </details>
+      <details>
+        <summary>¿Trypup es adecuado para niños?</summary>
+        <p>Trypup es para cualquier persona que se plantee en serio tener un perro, y también para familias que deciden juntas. La aplicación está pensada para personas a partir de 13 años; a los menores de esa edad les recomendamos usarla solo con su padre o su madre. Si la primera vez que abre la aplicación elige «Menos de 16 años», la aplicación no recoge datos analíticos, no ofrece compras ni envía notificaciones push.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa si no cuido del perro?</summary>
+        <p>El perro de la aplicación nunca muere. Si no lo cuida durante varios días, se va a un refugio y la aplicación le explica qué le faltó. Después puede empezar de nuevo — sin consecuencias para un animal real.</p>
+      </details>
+      <details>
+        <summary>¿Necesito una cuenta?</summary>
+        <p>No. Trypup funciona sin cuenta y entonces todo se queda solo en su teléfono. La cuenta es opcional: guarda una copia en la nube, en la UE, de su perro a prueba y de sus perros del modo Perro en casa, para que pueda restaurarlos en un teléfono nuevo. También la necesita si quiere cuidar del perro a prueba junto con su familia.</p>
+      </details>
+      <details>
+        <summary>¿Y si quiero seguir después de los 30&nbsp;días?</summary>
+        <p>Puede hacerlo. Después del resultado y el test final, sigue cuidando de su perro. Y si el reto no le interesa, al crear el perro elija el «Cuidado clásico» («Para toda la vida»): el perro crece con usted a su ritmo y sin test final. Ambas opciones son gratis.</p>
+      </details>
+    </div>
+  </section>
+
   <section id="get" class="section wrap center">
-    <h2 class="section-title">Consiga Trypup</h2>
-    <p class="section-sub">Trypup ya está disponible para Android y iPhone. Descargue la app y pruebe un perro a su medida.</p>
+    <h2 class="section-title">Descargue Trypup</h2>
+    <p class="section-sub">Trypup está disponible para Android y iPhone. Pruebe a cuidar de un perro antes de tener uno, o lleve en el modo Perro en casa el control de las vacunas, la desparasitación y otras fechas de su perro.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />

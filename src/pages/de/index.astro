@@ -4,28 +4,40 @@ import { featureIcons } from '../../lib/featureIcons';
 
 // Ikony per oblast → `featureIcons` (sdílené, 1:1 z aplikace). Pořadí musí sedět.
 const features = [
-  { title: 'GPS-Spaziergänge', text: 'Echte Strecken mit Zeit, Distanz und einer Anti-Cheat-Prüfung, dass Sie tatsächlich draußen waren.' },
-  { title: 'Tägliche Pflege', text: 'Füttern, Spielen, Pflege, Ruhe. Die Werte reagieren darauf, wie gut Sie sich kümmern.' },
-  { title: 'Training', text: '9 Kommandos mit fortschreitenden Freischaltungen. Jede Rasse lernt in ihrem eigenen Tempo.' },
-  { title: 'Gesundheit & Kosten', text: 'Impfplan und realistische monatliche und jährliche Hundekosten.' },
-  { title: 'Wissen', text: 'Artikel über Adoption, die Wahl eines Tierheims und die Fragen, die Sie sich zuerst stellen sollten.' },
-  { title: 'Gemeinsame Verantwortung', text: 'Teilen Sie die Pflege mit der Familie – jeder sieht, was der andere getan hat.' },
+  { title: 'GPS-Spaziergänge', text: 'Echte Strecken mit Zeit, Distanz und einer Anti-Cheat-Prüfung, ob Sie wirklich draußen sind.' },
+  { title: 'Tägliche Pflege', text: 'Füttern, Spielen, Bürsten, Ruhe. Die Werte reagieren darauf, wie Sie sich kümmern.' },
+  { title: 'Training', text: '9 Kommandos, die nach und nach freigeschaltet werden. Jede Rasse lernt unterschiedlich schnell.' },
+  { title: 'Gesundheit & Kosten', text: 'Impfkalender und geschätzte monatliche und jährliche Kosten für einen Hund, berechnet nach tschechischen Preisen und in Ihre Währung umgerechnet.' },
+  { title: 'Wissen', text: 'Artikel über Adoption, die Wahl eines Tierheims und die Fragen, die Sie sich vorher stellen sollten.' },
+  { title: 'Gemeinsame Pflege', text: 'Den Hund auf Probe können Sie mit der Familie teilen, und alle sehen, was die anderen erledigt haben. Das Erstellen gehört zu Premium, beitreten können Sie kostenlos.' },
+];
+
+// Pes doma (2.0.0) – jen funkce, které ve 2.0.0 opravdu jsou (bez fotek, dokumentů, PDF
+// a sdílení skutečného psa s rodinou). První pomoc má zatím jedno téma (otrava).
+const ownerFeatures = [
+  { title: 'Pflegeplan und Erinnerungen', text: 'Impfung, Entwurmung, Zecken- und Flohschutz, Vorsorgeuntersuchung und auch die Hundesteuer. Die App erinnert Sie daran, was ansteht, und den Termin können Sie in Ihren Kalender übernehmen.' },
+  { title: 'Tagebuch', text: 'Tierarzt, Impfungen, Medikamente, Gewicht, Symptome, Spaziergänge und Training. Alle Einträge zu Ihrem Hund an einem Ort.' },
+  { title: 'Hundepass', text: 'Chip, Angaben zum Hund und Kontakte für die Betreuung. Eine digitale Abschrift auf dem Handy, die den amtlichen Heimtierausweis nicht ersetzt.' },
+  { title: 'Tierarzt und Erste Hilfe', text: 'Ihren Stammtierarzt rufen Sie mit einem Fingertipp an, den nächsten Tierarzt oder den Notdienst rund um die Uhr finden Sie auf der Karte. Und in der Ersten Hilfe steht, was sofort zu tun ist, wenn Ihr Hund etwas Giftiges gefressen hat.' },
+  { title: 'Als Text teilen', text: 'Eine Übersicht für die Betreuung, für den Tierarzt oder die vollständige Abschrift schicken Sie, an wen Sie möchten.' },
+  { title: 'Namen und Namenstage', text: 'Hilfe bei der Namenswahl und Erinnerungen an Hunde-Namenstag, Geburtstag und den Jahrestag des Einzugs.' },
 ];
 ---
 <Base
   title="Trypup – ein Hund auf Probe"
-  description="Trypup ist ein Hund auf Probe – ein realistischer Hunde-Pflege-Simulator. Spaziergänge, Füttern, Training und Kosten, bevor Sie einen echten Hund anschaffen."
+  description="Hund auf Probe: Testen Sie die Pflege eines virtuellen Hundes, bevor ein echter einzieht. Schon einen Hund? „Hund zu Hause“ erinnert an Impfung und Entwurmung."
   lang="de"
   alt="/en/"
   pageKey="home">
   <section class="hero wrap">
     <span class="badge">🐾 Pädagogischer Pflege-Simulator</span>
-    <h1>Ein Hund auf Probe</h1>
-    <p class="lead">Erleben Sie selbst, was die Pflege eines Hundes wirklich bedeutet – <strong>bevor Sie sich einen echten anschaffen</strong>.</p>
+    <h1>Hund auf Probe</h1>
+    <p class="lead">Probieren Sie 30 Tage lang aus, was die Pflege eines Hundes bedeutet – <strong>bevor Sie sich einen echten anschaffen</strong>.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="#get">App herunterladen</a>
       <a class="btn btn-ghost" href="#how-it-works">Wie es funktioniert</a>
     </div>
+    <p class="hero-owner">Sie haben schon einen Hund? Der Modus „<a href="#dog-at-home">Hund zu Hause</a>“ behält Impfungen, Entwurmung und Vorsorgeuntersuchungen für Sie im Blick.</p>
   </section>
 
   <section class="stat section">
@@ -35,19 +47,56 @@ const features = [
     </div>
   </section>
 
+  {/* Rozcestí jako v aplikaci (2.0.0): mise první, majitelé psů druzí. Názvy režimů 1:1 z aplikace. */}
+  <section id="two-ways" class="section wrap">
+    <h2 class="section-title">Trypup kann beides</h2>
+    <p class="section-sub">Sie entscheiden, womit Sie beginnen. Wechseln können Sie jederzeit in den Einstellungen.</p>
+    <div class="paths">
+      <a class="card path" href="#how-it-works">
+        <span class="path-kicker">Sie denken über einen Hund nach?</span>
+        <h3>Hund auf Probe</h3>
+        <p>Kümmern Sie sich 30 Tage lang um einen virtuellen Hund und finden Sie heraus, ob ein Hund zu Ihnen passt. Ohne Konsequenzen für ein lebendes Tier.</p>
+        <span class="path-more">Wie es funktioniert</span>
+      </a>
+      <a class="card path" href="#dog-at-home">
+        <span class="path-kicker">Sie haben schon einen Hund?</span>
+        <h3>Hund zu Hause</h3>
+        <p>Impfungen, Pflege, Erinnerungen und Erste Hilfe für Ihren Hund an einem Ort.</p>
+        <span class="path-more">Was „Hund zu Hause“ kann</span>
+      </a>
+    </div>
+  </section>
+
   <section id="how-it-works" class="section wrap">
+    <p class="section-kicker">Hund auf Probe</p>
     <h2 class="section-title">Wie es funktioniert</h2>
-    <p class="section-sub">Drei Schritte, genau wie bei der Pflege eines echten Hundes.</p>
+    <p class="section-sub">Drei Schritte – so, als würden Sie sich wirklich um einen Hund kümmern.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
-      <div class="step"><div class="num"></div><div><strong>Wählen Sie eine Rasse und geben Sie Ihrem Hund einen Namen.</strong> <span>Ein Fragebogen empfiehlt, was zu Ihnen passt.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Kümmern Sie sich jeden Tag um ihn.</strong> <span>Spaziergänge, Füttern, Training, Tierarzt. Nichts kann übersprungen werden.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Erfahren Sie die Wahrheit über sich selbst.</strong> <span>Schaffen Sie es, die Routine auch an Tagen einzuhalten, an denen Sie keine Lust haben? Vernachlässigen Sie den Hund, kommt er ins Tierheim – ohne Konsequenzen für ein lebendes Tier.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Wählen Sie eine Rasse und geben Sie Ihrem Hund einen Namen.</strong> <span>Ein Fragebogen empfiehlt Ihnen, was zu Ihnen passt.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Kümmern Sie sich jeden Tag um ihn.</strong> <span>Spaziergänge, Füttern, Training, Tierarzt. Nichts lässt sich überspringen.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Erfahren Sie die Wahrheit über sich selbst.</strong> <span>Nach 30 Tagen erhalten Sie Ihr Ergebnis und einen kurzen Abschlusstest. Schaffen Sie die Routine auch an Tagen, an denen Sie keine Lust haben? Vernachlässigen Sie den Hund, kommt er ins Tierheim – ohne Konsequenzen für ein lebendes Tier.</span></div></div>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">Was die App bietet</h2>
-    <p class="section-sub">Eine realistische Pflegesimulation – von Spaziergängen bis zu den Kosten.</p>
+    <h2 class="section-title">So sieht es in der App aus</h2>
+    <p class="section-sub">Echte Bildschirme aus der Trypup-App.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/de-trial-home-300.webp" srcset="/screens/de-trial-home-300.webp 300w, /screens/de-trial-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Bildschirm „Hund auf Probe“: Hund Rex, Challenge Tag 4 von 30, Training für heute und die Liste der täglichen Aufgaben" />
+        <figcaption>Hund auf Probe: tägliche Aufgaben und Fortschritt der 30-Tage-Challenge</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/de-trial-walk-300.webp" srcset="/screens/de-trial-walk-300.webp 300w, /screens/de-trial-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Spaziergang in der Trypup-App: Zeit, zurückgelegte Strecke und erreichtes Ziel" />
+        <figcaption>Spaziergang: eine echte Strecke, per GPS gemessen</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <p class="section-kicker">Hund auf Probe</p>
+    <h2 class="section-title">Was Sie ausprobieren</h2>
+    <p class="section-sub">Eine realistische Simulation der Pflege – von Spaziergängen bis zu den Kosten.</p>
     <div class="grid">
       {features.map((f, i) => (
         <div class="card">
@@ -59,9 +108,113 @@ const features = [
     </div>
   </section>
 
+  {/* Pes doma (2.0.0). „Trypup ersetzt keinen Tierarzt“ povinně u zdravotního obsahu; „Ein Hund ist kostenlos.“ = schválená věta ze store popisku. */}
+  <section id="dog-at-home" class="section wrap owner">
+    <p class="section-kicker">Neu in Version 2.0</p>
+    <h2 class="section-title">Schon einen Hund? Hund zu Hause</h2>
+    <p class="section-sub">Die Pflege Ihres echten Hundes an einem Ort: Impfungen, Entwurmung, Vorsorgeuntersuchungen und Erinnerungen, damit Ihnen nichts entgeht.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/de-owner-home-300.webp" srcset="/screens/de-owner-home-300.webp 300w, /screens/de-owner-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Bildschirm „Hund zu Hause“: Hündin Frieda, was heute und demnächst ansteht (Zecken- und Flohschutz, Impfung, Entwurmung, Vorsorgeuntersuchung), Tagebuch, Hundepass, Pflegeplan und Erste Hilfe" />
+        <figcaption>Heute und demnächst: was bei Ihrem Hund ansteht</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/de-owner-diary-300.webp" srcset="/screens/de-owner-diary-300.webp 300w, /screens/de-owner-diary-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Tagebuch im Modus „Hund zu Hause“: Einträge zu Tierarzt, Impfung, Medikament, Gewicht und Spaziergang" />
+        <figcaption>Tagebuch: Tierarzt, Impfungen, Medikamente, Gewicht und Spaziergänge</figcaption>
+      </figure>
+    </div>
+    <div class="grid owner-grid">
+      {ownerFeatures.map((f) => (
+        <div class="card">
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+    <div class="owner-note">
+      <p><strong>Ein Hund ist kostenlos.</strong> Für mehrere Hunde gibt es Premium. Die Daten Ihrer Hunde werden nie gesperrt, auch nicht nach dem Ende von Premium, und mit einem Konto werden sie automatisch gesichert.</p>
+      <p>Den Modus „Hund zu Hause“ schalten Sie in den Einstellungen unter „Wie du Trypup nutzt“ ein. Bei einer neuen Installation können Sie zu Beginn auch „Ich habe schon einen Hund“ wählen.</p>
+      <p class="vet-note">Trypup ersetzt keinen Tierarzt. Rufen Sie bei jedem Zweifel an der Gesundheit Ihres Hundes Ihren Tierarzt an.</p>
+    </div>
+  </section>
+
+  {/* Co je zdarma a co Premium. Bez cen (liší se podle země, Podmínky odkazují na obchod). */}
+  <section id="free" class="section wrap">
+    <h2 class="section-title">Was kostenlos ist und was zu Premium gehört</h2>
+    <p class="section-sub">Die ganze 30-Tage-Challenge und einen Hund im Modus „Hund zu Hause“ haben Sie kostenlos. Premium ist optional.</p>
+    <div class="plans">
+      <div class="card plan">
+        <h3>Kostenlos</h3>
+        <ul>
+          <li>Die ganze 30-Tage-Challenge mit Ergebnis und Abschlusstest</li>
+          <li>4 Rassen: Dackel, Beagle, Labrador Retriever und Tierheim-Mischling</li>
+          <li>GPS-Spaziergänge, tägliche Pflege und Training mit 9 Kommandos</li>
+          <li>Impfkalender und Übersicht der Kosten für einen Hund</li>
+          <li>Artikel und Quizze zum Lernen</li>
+          <li>Beitritt zu einem geteilten Hund auf Probe (gemeinsame Pflege)</li>
+          <li>„Hund zu Hause“ für einen Hund: Hundepass, Tagebuch, Pflegeplan mit Erinnerungen und Erste Hilfe</li>
+        </ul>
+      </div>
+      <div class="card plan plan-premium">
+        <h3>Premium <span class="plan-tag">optional</span></h3>
+        <ul>
+          <li>10 weitere Rassen – Border Collie, Sibirischer Husky, Deutscher Schäferhund und weitere. Sie können auch nur eine einzelne Rasse kaufen.</li>
+          <li>Gemeinsame Pflege für den Hund auf Probe erstellen: ein Hund für bis zu 4 Personen, die anderen treten kostenlos bei</li>
+          <li>3 Premium-Artikel über Sozialisierung, Training und Gesundheitsvorsorge (sie lassen sich auch mit 7 Tagen Pflege in Folge freischalten)</li>
+          <li>Verlauf der Pflege für den Hund auf Probe: Meilensteine und Impfungen an einem Ort</li>
+          <li>„Hund zu Hause“ für mehrere Hunde. Die Daten Ihrer Hunde werden nie gesperrt, auch nicht nach dem Ende von Premium.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="plans-note">Die aktuellen Preise für Premium sehen Sie im App Store oder bei Google Play; sie unterscheiden sich je nach Land.</p>
+  </section>
+
+  {/* Časté otázky. Odpovědi ověřené proti aplikaci 2.0.0. */}
+  <section id="faq" class="section wrap">
+    <h2 class="section-title">Häufige Fragen</h2>
+    <div class="faq">
+      <details>
+        <summary>Ist Trypup kostenlos?</summary>
+        <p>Ja. Sie laden die App kostenlos herunter und absolvieren die ganze 30-Tage-Challenge samt Ergebnis, ohne zu bezahlen. Im Modus „Hund zu Hause“ ist ein Hund kostenlos. Premium ist optional: Für den Hund auf Probe bringt es weitere Rassen, das Erstellen gemeinsamer Pflege und den Verlauf der Pflege, im Modus „Hund zu Hause“ weitere Hunde. Außerdem schaltet es drei Premium-Artikel frei.</p>
+      </details>
+      <details>
+        <summary>Ich habe schon einen Hund. Wozu brauche ich Trypup?</summary>
+        <p>Schalten Sie den Modus „Hund zu Hause“ ein. Dort finden Sie Hundepass, Tagebuch und einen Pflegeplan, der Sie an Impfung, Entwurmung, Zecken- und Flohschutz und Vorsorgeuntersuchung erinnert. Ihren Stammtierarzt erreichen Sie mit einem Fingertipp, und die Erste Hilfe haben Sie griffbereit. Ein Hund ist kostenlos.</p>
+      </details>
+      <details>
+        <summary>Wie schalte ich den Modus „Hund zu Hause“ ein?</summary>
+        <p>Wechseln Sie in den Einstellungen unter „Wie du Trypup nutzt“ zu „Hund zu Hause“. Bei einer neuen Installation können Sie zu Beginn auch „Ich habe schon einen Hund“ wählen. Ihr virtueller Hund wartet in der Zwischenzeit, und die Zeit bleibt für ihn stehen; nur ein Hund in gemeinsamer Pflege bleibt aktiv. Eine laufende 30-Tage-Challenge endet als „Der Hund kam früher nach Hause“, ohne Bewertung. „Hund zu Hause“ gibt es in der App ab Version 2.0. Wenn Sie den Modus noch nicht sehen, aktualisieren Sie die App. Die neue Version wird schrittweise an alle verteilt.</p>
+      </details>
+      <details>
+        <summary>Ersetzt Trypup den Tierarzt?</summary>
+        <p>Nein. Trypup hilft Ihnen, nichts zu vergessen und die Einträge zu Ihrem Hund griffbereit zu haben, ersetzt aber keinen Tierarzt. Rufen Sie bei jedem Zweifel an der Gesundheit Ihres Hundes Ihren Tierarzt an.</p>
+      </details>
+      <details>
+        <summary>Muss ich wirklich nach draußen? Funktioniert Trypup auch ohne Standort?</summary>
+        <p>Die Spaziergänge sind echt: Die App misst sie per GPS, und die Strecke bleibt nur auf Ihrem Handy. Wenn Sie den Standort nicht freigeben oder jemand anderes mit dem Hund spazieren geht, können Sie den Spaziergang manuell eintragen – der Hund bekommt ihn trotzdem, nur misst ihn dann nicht das GPS.</p>
+      </details>
+      <details>
+        <summary>Ist Trypup für Kinder geeignet?</summary>
+        <p>Trypup ist für alle, die ernsthaft über einen Hund nachdenken, und eignet sich auch für Familien, die gemeinsam entscheiden. Die App ist für Personen ab 13 Jahren bestimmt; jüngeren Kindern empfehlen wir, sie nur zusammen mit einem Elternteil zu nutzen. Wenn Sie beim ersten Start „Jünger als 16“ wählen, erhebt die App keine Analysedaten, bietet keine Käufe an und sendet keine Push-Mitteilungen.</p>
+      </details>
+      <details>
+        <summary>Was passiert, wenn ich mich nicht um den Hund kümmere?</summary>
+        <p>Der Hund in der App stirbt nie. Wenn Sie sich mehrere Tage nicht um ihn kümmern, kommt er ins Tierheim, und die App erklärt Ihnen, was ihm gefehlt hat. Dann können Sie neu anfangen – ohne Konsequenzen für ein lebendes Tier.</p>
+      </details>
+      <details>
+        <summary>Brauche ich ein Konto?</summary>
+        <p>Nein. Trypup funktioniert auch ohne Konto; dann bleibt alles nur auf Ihrem Handy. Das Konto ist optional: Es sichert Ihren Hund auf Probe und Ihre Hunde im Modus „Hund zu Hause“ in einer Cloud in der EU, sodass Sie sie auch auf einem neuen Handy wiederherstellen können. Sie brauchen es außerdem, wenn Sie sich gemeinsam mit der Familie um den Hund auf Probe kümmern möchten.</p>
+      </details>
+      <details>
+        <summary>Was, wenn ich nach 30&nbsp;Tagen weitermachen möchte?</summary>
+        <p>Das geht. Nach dem Ergebnis und dem Abschlusstest kümmern Sie sich weiter um Ihren Hund. Und wenn Sie keine Challenge möchten, wählen Sie beim Anlegen des Hundes die klassische Pflege „Fürs Leben“: Der Hund wächst in seinem eigenen Tempo mit Ihnen auf, ohne Abschlusstest. Beides ist kostenlos.</p>
+      </details>
+    </div>
+  </section>
+
   <section id="get" class="section wrap center">
     <h2 class="section-title">Trypup herunterladen</h2>
-    <p class="section-sub">Trypup ist jetzt für Android und iPhone erhältlich. Laden Sie die App herunter und probieren Sie einen Hund zur Probe.</p>
+    <p class="section-sub">Trypup gibt es für Android und iPhone. Probieren Sie die Pflege eines Hundes zur Übung aus, oder behalten Sie im Modus „Hund zu Hause“ Impfungen, Entwurmung und weitere Termine Ihres Hundes im Blick.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />

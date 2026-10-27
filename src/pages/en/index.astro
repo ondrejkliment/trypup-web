@@ -7,14 +7,25 @@ const features = [
   { title: 'GPS walks', text: 'Real routes with time, distance and an anti-cheat check that you actually went out.' },
   { title: 'Daily care', text: 'Feeding, play, grooming, rest. Stats react to how well you care.' },
   { title: 'Training', text: '9 commands with progressive unlocks. Each breed learns at its own pace.' },
-  { title: 'Health & costs', text: 'Vaccination schedule and realistic monthly and yearly dog costs.' },
+  { title: 'Health & costs', text: 'Vaccination schedule and estimated monthly and yearly dog costs, based on Czech prices (converted).' },
   { title: 'Education', text: 'Articles on adoption, choosing a shelter and the questions to ask yourself first.' },
-  { title: 'Co-ownership', text: 'Share care with family — everyone sees what the other one did. Starting it is Premium, joining is free.' },
+  { title: 'Co-ownership', text: 'You can share the dog on trial with your family, and everyone sees what the others have done. Starting it is Premium, joining is free.' },
+];
+
+// Dog at home (2.0.0) – jen funkce, které ve 2.0.0 opravdu jsou (bez fotek, dokumentů, PDF
+// a sdílení skutečného psa s rodinou). První pomoc má zatím jedno téma (otrava).
+const ownerFeatures = [
+  { title: 'Care plan and reminders', text: 'Vaccinations, deworming, tick and flea protection, a preventive health check and the dog tax. The app reminds you what is coming up, and you can add the date to your calendar.' },
+  { title: 'Diary', text: 'Vet visits, vaccinations, medication, weight, symptoms, walks and training. Your dog\'s records in one place.' },
+  { title: 'Dog passport', text: 'Microchip, your dog\'s details and contacts for pet sitters. A digital copy on your phone; it doesn\'t replace the official passport.' },
+  { title: 'Vet and first aid', text: 'Call your home vet with one tap, and find the nearest vet or a 24/7 emergency vet on the map. First aid explains what to do right away if your dog eats something poisonous.' },
+  { title: 'Share as text', text: 'Send an overview for a pet sitter, one for a vet, or the full copy to anyone.' },
+  { title: 'Names and name days', text: 'Help choosing a name, and reminders of your dog\'s name day, birthday and the anniversary of coming home.' },
 ];
 ---
 <Base
   title="Trypup — a dog on trial"
-  description="Trypup is a dog on trial — a realistic dog-care simulator. Walks, feeding, training and costs, before you get a real dog."
+  description="Dog on trial: try caring for a virtual dog before you get a real one. Already have a dog? Dog at home keeps track of vaccinations, deworming and health checks."
   lang="en"
   alt="/"
   pageKey="home">
@@ -26,21 +37,43 @@ const features = [
       <a class="btn btn-primary" href="#get" data-cms="home.en.hero.ctaPrimary">Get the app</a>
       <a class="btn btn-ghost" href="#how-it-works" data-cms="home.en.hero.ctaGhost">How it works</a>
     </div>
+    <p class="hero-owner">Already have a dog? <a href="#dog-at-home">Dog at home</a> mode keeps track of vaccinations, deworming and health checks for you.</p>
   </section>
 
   <section class="stat section">
     <div class="wrap">
       <p class="big" data-cms="home.en.stat.big">Dogs mostly end up in shelters not because of their temperament, but because of <span>their owners' circumstances</span>.</p>
-      <p style="opacity:.8;margin-top:10px" data-cms="home.en.stat.sub">Trypup lets you find out what a dog really takes before the decision — not after.</p>
+      <p style="opacity:.8;margin-top:10px" data-cms="home.en.stat.sub">Trypup lets you find out what a dog really takes before you decide — not after.</p>
+    </div>
+  </section>
+
+  {/* Rozcestí jako v aplikaci (2.0.0): mise první, majitelé psů druzí. Názvy režimů 1:1 z aplikace (mode.trial / mode.owner). */}
+  <section id="two-ways" class="section wrap">
+    <h2 class="section-title">Trypup does both</h2>
+    <p class="section-sub">When you first open the app, you choose where to start. You can change this any time in Settings.</p>
+    <div class="paths">
+      <a class="card path" href="#how-it-works">
+        <span class="path-kicker">Still thinking about getting a dog?</span>
+        <h3>Dog on trial</h3>
+        <p>Look after a virtual dog for 30 days and find out if a dog is right for you. With no consequences for a living animal.</p>
+        <span class="path-more">How it works</span>
+      </a>
+      <a class="card path" href="#dog-at-home">
+        <span class="path-kicker">Already have a dog?</span>
+        <h3>Dog at home</h3>
+        <p>Vaccinations, care, reminders and first aid for your dog in one place.</p>
+        <span class="path-more">What Dog at home does</span>
+      </a>
     </div>
   </section>
 
   <section id="how-it-works" class="section wrap">
+    <p class="section-kicker">Dog on trial</p>
     <h2 class="section-title" data-cms="home.en.how.title">How it works</h2>
     <p class="section-sub" data-cms="home.en.how.sub">Three steps, just like caring for a real dog.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
       <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step1title">Pick a breed and name your dog.</strong> <span data-cms="home.en.how.step1text">A questionnaire recommends what fits you.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step2title">Care for it every day.</strong> <span data-cms="home.en.how.step2text">Walks, feeding, training, vet. Nothing can be skipped.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step2title">Care for it every day.</strong> <span data-cms="home.en.how.step2text">Walks, feeding, training, vet. No cutting corners.</span></div></div>
       <div class="step"><div class="num"></div><div><strong data-cms="home.en.how.step3title">Learn the truth about yourself.</strong> <span data-cms="home.en.how.step3text">After 30 days you get an evaluation and a short final quiz. Can you keep the routine even on days you don't feel like it? Neglect the dog and it goes to a shelter — with no consequences for a living animal.</span></div></div>
     </div>
   </section>
@@ -50,18 +83,19 @@ const features = [
     <p class="section-sub">Real screens from the Trypup app.</p>
     <div class="screens">
       <figure class="screen">
-        <img class="phone" src="/screens/en-home-300.webp" srcset="/screens/en-home-300.webp 300w, /screens/en-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Trypup home screen: Rex the dog, challenge day 4 of 30 and the list of daily tasks" />
-        <figcaption>Home: daily tasks and your 30-day challenge progress</figcaption>
+        <img class="phone" src="/screens/en-trial-home-300.webp" srcset="/screens/en-trial-home-300.webp 300w, /screens/en-trial-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Dog on trial screen: Rex the dog, challenge day 4 of 30, today's training and the list of daily tasks" />
+        <figcaption>Dog on trial: daily tasks and your 30-day challenge progress</figcaption>
       </figure>
       <figure class="screen">
-        <img class="phone" src="/screens/en-walk-300.webp" srcset="/screens/en-walk-300.webp 300w, /screens/en-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="652" loading="lazy" decoding="async" alt="Trypup walk screen: time, distance walked and goal reached" />
+        <img class="phone" src="/screens/en-trial-walk-300.webp" srcset="/screens/en-trial-walk-300.webp 300w, /screens/en-trial-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Walk screen in the Trypup app: time, distance walked and goal reached" />
         <figcaption>Walk: a real route measured by GPS</figcaption>
       </figure>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title" data-cms="home.en.feat.title">What the app does</h2>
+    <p class="section-kicker">Dog on trial</p>
+    <h2 class="section-title" data-cms="home.en.feat.title">What you'll try out</h2>
     <p class="section-sub" data-cms="home.en.feat.sub">A realistic care simulation — from walks to costs.</p>
     <div class="grid">
       {features.map((f, i) => (
@@ -74,9 +108,40 @@ const features = [
     </div>
   </section>
 
+  {/* Dog at home (2.0.0). „Trypup does not replace a vet“ povinně u zdravotního obsahu; „One dog is free.“ = schválená věta ze store copy (docs/store/localizations/en.md). */}
+  <section id="dog-at-home" class="section wrap owner">
+    <p class="section-kicker">New in version 2.0</p>
+    <h2 class="section-title">Already have a dog? Dog at home</h2>
+    <p class="section-sub">Care for your real dog in one place: vaccinations, deworming, health checks and reminders, so nothing slips your mind.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/en-owner-home-300.webp" srcset="/screens/en-owner-home-300.webp 300w, /screens/en-owner-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Dog at home screen: Bella, what's coming up today and soon (tick and flea protection, vaccination, deworming, health check), diary, dog passport, care plan and first aid" />
+        <figcaption>Today and soon: what's coming up for your dog</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/en-owner-diary-300.webp" srcset="/screens/en-owner-diary-300.webp 300w, /screens/en-owner-diary-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Dog diary in Dog at home mode: entries for a vet visit, vaccination, medication, weight and a walk" />
+        <figcaption>Diary: vet visits, vaccinations, medication, weight and walks</figcaption>
+      </figure>
+    </div>
+    <div class="grid owner-grid">
+      {ownerFeatures.map((f) => (
+        <div class="card">
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+    <div class="owner-note">
+      <p><strong>One dog is free.</strong> Premium is there for more dogs. Your dogs' data never gets locked, not even after Premium ends, and it's backed up automatically when you have an account.</p>
+      <p>Turn on Dog at home mode by choosing “I already have a dog” when you first open the app, or any time in Settings under “How you use Trypup”.</p>
+      <p class="vet-note">Trypup does not replace a vet. If you have any doubt about your dog's health, call your vet.</p>
+    </div>
+  </section>
+
+  {/* Co je zdarma a co Premium. Bez cen (liší se podle země, Podmínky odkazují na obchod). */}
   <section id="free" class="section wrap">
     <h2 class="section-title">What's free and what's Premium</h2>
-    <p class="section-sub">You can complete the whole 30-day challenge for free. Premium is optional.</p>
+    <p class="section-sub">The whole 30-day challenge and one dog in Dog at home mode are free. Premium is optional.</p>
     <div class="plans">
       <div class="card plan">
         <h3>Free</h3>
@@ -85,37 +150,52 @@ const features = [
           <li>4 breeds: Dachshund, Beagle, Labrador Retriever and Shelter Mix</li>
           <li>GPS walks, daily care and training with 9 commands</li>
           <li>Vaccination schedule and an overview of dog costs</li>
-          <li>9 of 12 articles, plus quizzes</li>
-          <li>Joining a shared dog (shared care)</li>
+          <li>Educational articles and quizzes</li>
+          <li>Joining a shared dog on trial (shared care)</li>
+          <li>Dog at home for one dog: dog passport, diary, care plan with reminders and first aid</li>
         </ul>
       </div>
       <div class="card plan plan-premium">
         <h3>Premium <span class="plan-tag">optional</span></h3>
         <ul>
           <li>10 more breeds — Border Collie, Siberian Husky, German Shepherd and others. You can also buy just one breed.</li>
-          <li>Starting shared care: one dog for up to 4 people, the others join for free</li>
+          <li>Starting shared care for the dog on trial: one dog for up to 4 people, the others join for free</li>
           <li>3 premium articles on socialization, training and vet care (a 7-day care streak unlocks them too)</li>
-          <li>Care timeline: milestones and vaccinations in one place</li>
+          <li>Care timeline for the dog on trial: milestones and vaccinations in one place</li>
+          <li>Dog at home for more dogs. Your dogs' data never gets locked, not even after Premium ends.</li>
         </ul>
       </div>
     </div>
     <p class="plans-note">You'll see current Premium prices in the App Store or on Google Play; they vary by country.</p>
   </section>
 
+  {/* Časté otázky. Odpovědi ověřené proti aplikaci 2.0.0 (stejné pořadí jako cs). */}
   <section id="faq" class="section wrap">
     <h2 class="section-title">Frequently asked questions</h2>
     <div class="faq">
       <details>
         <summary>Is Trypup free?</summary>
-        <p>Yes. The app is free to download and you can complete the whole 30-day challenge, including the evaluation, without paying. Premium is optional: it adds more breeds, starting shared care, three premium articles and the care timeline.</p>
+        <p>Yes. The app is free to download and you can complete the whole 30-day challenge, including the evaluation, without paying. In Dog at home mode, one dog is free. Premium is optional: for the dog on trial it adds more breeds, starting shared care and the care timeline; in Dog at home mode it adds more dogs. It also unlocks three premium articles.</p>
       </details>
       <details>
-        <summary>Do I really have to go outside? Does it work without location?</summary>
-        <p>Walks are real: the app measures them with GPS and your route stays on your phone. If you don't allow location, or someone else walks the dog, you can log the walk manually — the dog gets its walk, it just isn't measured by GPS.</p>
+        <summary>I already have a dog. How can Trypup help me?</summary>
+        <p>Turn on Dog at home mode. It gives you a dog passport, a diary and a care plan that reminds you of vaccinations, deworming, tick and flea protection and health checks. Your home vet is one tap away and first aid is always at hand. One dog is free.</p>
+      </details>
+      <details>
+        <summary>How do I turn on Dog at home mode?</summary>
+        <p>When you first open the app, choose “I already have a dog”. If you already use the app, switch to Dog at home in Settings under “How you use Trypup”. Your virtual dog waits in the meantime, with its time paused; only a dog in shared care keeps going. An ongoing 30-day challenge ends as “The dog came home early”, with no evaluation. Dog at home has been in the app since version 2.0. If you don't see it yet, update the app. The new version is rolling out to everyone gradually.</p>
+      </details>
+      <details>
+        <summary>Does Trypup replace a vet?</summary>
+        <p>No. Trypup helps you stay on top of everything and keep your dog's records at hand, but it does not replace a vet. If you have any doubt about your dog's health, call your vet.</p>
+      </details>
+      <details>
+        <summary>Do I really have to go outside? Does Trypup work without location?</summary>
+        <p>Walks are real: the app measures them with GPS and your route stays only on your phone. If you don't allow location, or someone else walks the dog, you can log the walk manually — the dog gets its walk, it just isn't measured by GPS.</p>
       </details>
       <details>
         <summary>Is Trypup suitable for children?</summary>
-        <p>Trypup is for anyone seriously thinking about getting a dog, including families deciding together. We recommend that younger children play together with a parent. If you choose "Under 16" on first launch, the app collects no analytics, offers no purchases and sends no push notifications.</p>
+        <p>Trypup is for anyone seriously thinking about getting a dog, including families deciding together. The app is intended for users aged 13 and over; we recommend that younger children use it only together with a parent. If you choose “Under 16” on first launch, the app collects no analytics, offers no purchases and sends no push notifications.</p>
       </details>
       <details>
         <summary>What happens if I don't take care of the dog?</summary>
@@ -123,18 +203,18 @@ const features = [
       </details>
       <details>
         <summary>Do I need an account?</summary>
-        <p>No. Trypup works without an account, and your dog and progress then stay only on your phone. An account is optional: it backs up your progress to the cloud in the EU and is needed for shared care with your family.</p>
+        <p>No. Trypup works without an account, and everything then stays only on your phone. An account is optional: it backs up your dog on trial and your dogs in Dog at home mode to the cloud in the EU, so you can restore them on a new phone. You also need one if you want to care for the dog on trial together with your family.</p>
       </details>
       <details>
-        <summary>What if I want to keep going after 30 days?</summary>
-        <p>You can. After the evaluation and final quiz, you simply keep caring for your dog. And if you'd rather skip the challenge, choose Classic care ("For life") when you set up your dog: it grows up with you at its own pace, with no final quiz. Both options are free.</p>
+        <summary>What if I want to keep going after 30&nbsp;days?</summary>
+        <p>You can. After the evaluation and final quiz, you simply keep caring for your dog. And if you'd rather skip the challenge, choose Classic care (“For life”) when you set up your dog: it grows up with you at its own pace, with no final quiz. Both options are free.</p>
       </details>
     </div>
   </section>
 
   <section id="get" class="section wrap center">
     <h2 class="section-title" data-cms="home.en.dl.title">Get Trypup</h2>
-    <p class="section-sub" data-cms="home.en.dl.sub">Trypup is out now for Android and iPhone. Download the app and try a dog on for size.</p>
+    <p class="section-sub" data-cms="home.en.dl.sub">Trypup is available for Android and iPhone. Try out dog care for practice, or use Dog at home mode to keep track of your dog's vaccinations, deworming and other dates.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />

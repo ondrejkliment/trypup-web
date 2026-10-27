@@ -4,50 +4,100 @@ import { featureIcons } from '../../lib/featureIcons';
 
 // Ikony per oblast → `featureIcons` (sdílené, 1:1 z aplikace). Pořadí musí sedět.
 const features = [
-  { title: 'Promenades GPS', text: 'De vrais trajets avec durée, distance et une vérification anti-triche que vous êtes vraiment sorti.' },
-  { title: 'Soins quotidiens', text: 'Alimentation, jeu, toilettage, repos. Les statistiques réagissent à la qualité de vos soins.' },
-  { title: 'Entraînement', text: '9 commandes débloquées progressivement. Chaque race apprend à son propre rythme.' },
-  { title: 'Santé et coûts', text: 'Calendrier de vaccination et coûts mensuels et annuels réalistes pour un chien.' },
-  { title: 'Éducation', text: "Des articles sur l'adoption, le choix d'un refuge et les questions à se poser avant tout." },
-  { title: 'Garde partagée', text: "Partagez les soins en famille — chacun voit ce que l'autre a fait." },
+  { title: 'Promenades GPS', text: 'De vrais trajets avec durée, distance et une vérification anti-triche que la promenade a bien eu lieu dehors.' },
+  { title: 'Soins quotidiens', text: 'Repas, jeu, toilettage, repos. Les statistiques réagissent à la façon dont vous vous occupez du chien.' },
+  { title: 'Dressage', text: '9 commandes débloquées progressivement. Chaque race apprend à son propre rythme.' },
+  { title: 'Santé et coûts', text: 'Calendrier de vaccination et estimation des coûts mensuels et annuels d’un chien, d’après les prix tchèques (convertis).' },
+  { title: 'Apprendre', text: 'Des articles sur l’adoption, le choix d’un refuge et les questions à se poser à l’avance.' },
+  { title: 'Garde partagée', text: 'Vous pouvez partager le chien à l’essai avec votre famille, et tout le monde voit qui a fait quoi. Créer une garde partagée nécessite Premium ; la rejoindre est gratuit.' },
+];
+
+// Chien à la maison (2.0.0) – jen funkce, které ve 2.0.0 opravdu jsou (bez fotek, dokumentů, PDF
+// a sdílení skutečného psa s rodinou). První pomoc má zatím jedno téma (otrava).
+// Poplatek ze psa (cs) → ve Francii nefiguruje, proto „vos propres rappels“ (carePlan.kind.custom).
+const ownerFeatures = [
+  { title: 'Plan de soins et rappels', text: 'Vaccinations, vermifuge, protection anti-puces et anti-tiques, bilan de santé et vos propres rappels. L’application vous rappelle ce qui est à prévoir, et vous pouvez ajouter la date à votre calendrier.' },
+  { title: 'Journal', text: 'Vétérinaire, vaccinations, médicaments, poids, symptômes, promenades et dressage. Tout ce qui concerne votre chien, au même endroit.' },
+  { title: 'Passeport canin', text: 'Puce, informations sur le chien et contacts pour la garde. Une copie numérique dans votre téléphone, qui ne remplace pas le passeport officiel.' },
+  { title: 'Vétérinaire et premiers secours', text: 'Appelez votre vétérinaire habituel en un clic, trouvez sur la carte le vétérinaire le plus proche ou les urgences 24 h/24. Et les premiers secours expliquent quoi faire tout de suite si votre chien a avalé quelque chose de toxique.' },
+  { title: 'Partage en texte', text: 'Envoyez à qui vous voulez un résumé pour le pet-sitter, un résumé pour le vétérinaire ou la copie complète.' },
+  { title: 'Noms et fêtes', text: 'Une aide pour choisir un nom, et un rappel de la fête de votre chien, de son anniversaire et de l’anniversaire de son arrivée à la maison.' },
 ];
 ---
 <Base
   title="Trypup — un chien à l'essai"
-  description="Trypup, c'est un chien à l'essai — un simulateur réaliste de soins pour chien. Promenades, alimentation, entraînement et coûts, avant d'adopter un chien réel."
+  description="Un chien à l’essai : prenez soin d’un chien virtuel avant d’en adopter un vrai. Déjà un chien ? Le mode Chien à la maison suit vaccins, vermifuge et visites."
   lang="fr"
   alt="/en/"
   pageKey="home">
   <section class="hero wrap">
     <span class="badge">🐾 Simulateur éducatif de soins</span>
-    <h1>Un chien à l'essai</h1>
-    <p class="lead">Découvrez par vous-même ce qu'implique vraiment le soin d'un chien — <strong>avant d'en adopter un vrai</strong>.</p>
+    <h1>Un chien à l’essai</h1>
+    <p class="lead">Pendant 30 jours, découvrez ce qu’implique vraiment s’occuper d’un chien — <strong>avant d’en adopter un vrai</strong>.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="#get">Télécharger l'app</a>
+      <a class="btn btn-primary" href="#get">Télécharger l’app</a>
       <a class="btn btn-ghost" href="#how-it-works">Comment ça marche</a>
     </div>
+    <p class="hero-owner">Vous avez déjà un chien ? Le mode « <a href="#dog-at-home">Chien à la maison</a> » garde un œil sur ses vaccinations, son vermifuge et ses visites chez le vétérinaire.</p>
   </section>
 
   <section class="stat section">
     <div class="wrap">
-      <p class="big">Le plus souvent, un chien n'arrive pas au refuge à cause de son caractère, mais à cause de <span>la situation de ses propriétaires</span>.</p>
-      <p style="opacity:.8;margin-top:10px">Trypup vous permet de découvrir ce qu'un chien demande vraiment avant la décision — pas après.</p>
+      <p class="big">Le plus souvent, un chien n’arrive pas au refuge à cause de son caractère, mais à cause de <span>la situation de ses propriétaires</span>.</p>
+      <p style="opacity:.8;margin-top:10px">Trypup vous permet de découvrir ce qu’un chien demande vraiment avant la décision — pas après.</p>
+    </div>
+  </section>
+
+  {/* Rozcestí jako v aplikaci (2.0.0): mise první, majitelé psů druzí. Názvy režimů 1:1 z aplikace (pesdoma mode.*). Ve fr se volba na úvodu ukazuje až od 2. spuštění → hlavní cesta = Réglages. */}
+  <section id="two-ways" class="section wrap">
+    <h2 class="section-title">Trypup fait les deux</h2>
+    <p class="section-sub">Choisissez par où commencer. Vous pouvez changer à tout moment dans les Réglages.</p>
+    <div class="paths">
+      <a class="card path" href="#how-it-works">
+        <span class="path-kicker">Vous réfléchissez encore à prendre un chien ?</span>
+        <h3>Un chien à l’essai</h3>
+        <p>Occupez-vous d’un chien virtuel pendant 30 jours et découvrez si un chien est fait pour vous. Sans conséquence pour un animal réel.</p>
+        <span class="path-more">Comment ça marche</span>
+      </a>
+      <a class="card path" href="#dog-at-home">
+        <span class="path-kicker">Vous avez déjà un chien ?</span>
+        <h3>Chien à la maison</h3>
+        <p>Vaccinations, soins, rappels et premiers secours pour votre chien, au même endroit.</p>
+        <span class="path-more">Ce que propose « Chien à la maison »</span>
+      </a>
     </div>
   </section>
 
   <section id="how-it-works" class="section wrap">
+    <p class="section-kicker">Un chien à l’essai</p>
     <h2 class="section-title">Comment ça marche</h2>
-    <p class="section-sub">Trois étapes, comme pour prendre soin d'un vrai chien.</p>
+    <p class="section-sub">Trois étapes, comme si vous vous occupiez d’un vrai chien.</p>
     <div class="steps" style="max-width:680px;margin:0 auto">
       <div class="step"><div class="num"></div><div><strong>Choisissez une race et donnez un nom à votre chien.</strong> <span>Un questionnaire vous recommande ce qui vous correspond.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Occupez-vous-en chaque jour.</strong> <span>Promenades, alimentation, entraînement, vétérinaire. Rien ne peut être sauté.</span></div></div>
-      <div class="step"><div class="num"></div><div><strong>Découvrez la vérité sur vous-même.</strong> <span>Arriverez-vous à tenir la routine même les jours sans envie ? Négligez le chien et il finit en refuge — sans conséquence pour un animal réel.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Occupez-vous-en chaque jour.</strong> <span>Promenades, repas, dressage, vétérinaire. Rien ne peut être sauté.</span></div></div>
+      <div class="step"><div class="num"></div><div><strong>Découvrez la vérité sur vous-même.</strong> <span>Au bout de 30 jours, vous obtenez votre résultat et passez un court test final. Arriverez-vous à tenir la routine même les jours sans envie ? Si vous négligez le chien, il part au refuge — sans conséquence pour un animal réel.</span></div></div>
     </div>
   </section>
 
   <section class="section wrap">
-    <h2 class="section-title">Ce que fait l'application</h2>
-    <p class="section-sub">Une simulation réaliste de soins — des promenades aux coûts.</p>
+    <h2 class="section-title">À quoi ressemble l’application</h2>
+    <p class="section-sub">De vrais écrans de l’application Trypup.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/fr-trial-home-300.webp" srcset="/screens/fr-trial-home-300.webp 300w, /screens/fr-trial-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Écran du chien à l’essai : le chien Rex, défi jour 4 sur 30, dressage du jour et liste des tâches quotidiennes" />
+        <figcaption>Un chien à l’essai : tâches quotidiennes et progression du défi de 30 jours</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/fr-trial-walk-300.webp" srcset="/screens/fr-trial-walk-300.webp 300w, /screens/fr-trial-walk-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Écran de promenade dans l’application Trypup : durée, distance parcourue et objectif atteint" />
+        <figcaption>Promenade : un vrai trajet mesuré par GPS</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <p class="section-kicker">Un chien à l’essai</p>
+    <h2 class="section-title">Ce que vous allez essayer</h2>
+    <p class="section-sub">Une simulation réaliste des soins — des promenades aux coûts.</p>
     <div class="grid">
       {features.map((f, i) => (
         <div class="card">
@@ -59,9 +109,113 @@ const features = [
     </div>
   </section>
 
+  {/* Chien à la maison (2.0.0). „Trypup ne remplace pas un vétérinaire“ povinně u zdravotního obsahu; „Un chien est inclus gratuitement.“ = schválená věta ze store (fr.md). */}
+  <section id="dog-at-home" class="section wrap owner">
+    <p class="section-kicker">Nouveau dans la version 2.0</p>
+    <h2 class="section-title">Vous avez déjà un chien ? Chien à la maison</h2>
+    <p class="section-sub">Les soins de votre vrai chien au même endroit : vaccinations, vermifuge, visites et rappels, pour ne rien oublier.</p>
+    <div class="screens">
+      <figure class="screen">
+        <img class="phone" src="/screens/fr-owner-home-300.webp" srcset="/screens/fr-owner-home-300.webp 300w, /screens/fr-owner-home-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Écran Chien à la maison : la chienne Praline, ce qui l’attend aujourd’hui et bientôt (anti-puces et anti-tiques, vaccination, vermifuge, bilan de santé), journal, passeport canin, plan de soins et premiers secours" />
+        <figcaption>Aujourd’hui et bientôt : ce qui attend votre chien</figcaption>
+      </figure>
+      <figure class="screen">
+        <img class="phone" src="/screens/fr-owner-diary-300.webp" srcset="/screens/fr-owner-diary-300.webp 300w, /screens/fr-owner-diary-600.webp 600w" sizes="(max-width: 600px) 70vw, 260px" width="300" height="667" loading="lazy" decoding="async" alt="Journal du chien en mode Chien à la maison : entrées vétérinaire, vaccination, médicament, poids et promenade" />
+        <figcaption>Journal : vétérinaire, vaccinations, médicaments, poids et promenades</figcaption>
+      </figure>
+    </div>
+    <div class="grid owner-grid">
+      {ownerFeatures.map((f) => (
+        <div class="card">
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+    <div class="owner-note">
+      <p><strong>Un chien est inclus gratuitement.</strong> Pour plusieurs chiens, il y a Premium. Les données de vos chiens ne sont jamais verrouillées, même après la fin de Premium, et elles sont sauvegardées automatiquement avec un compte.</p>
+      <p>Activez le mode « Chien à la maison » à tout moment dans les Réglages, rubrique « Comment tu utilises Trypup ». Sur une nouvelle installation, vous pouvez aussi choisir « J’ai déjà un chien » au démarrage.</p>
+      <p class="vet-note">Trypup ne remplace pas un vétérinaire. Au moindre doute sur la santé de votre chien, appelez votre vétérinaire.</p>
+    </div>
+  </section>
+
+  {/* Co je zdarma a co Premium. Bez cen (liší se podle země, Podmínky odkazují na obchod). */}
+  <section id="free" class="section wrap">
+    <h2 class="section-title">Ce qui est gratuit et ce qu’apporte Premium</h2>
+    <p class="section-sub">Tout le défi de 30 jours et un chien en mode « Chien à la maison » sont gratuits. Premium est facultatif.</p>
+    <div class="plans">
+      <div class="card plan">
+        <h3>Gratuit</h3>
+        <ul>
+          <li>Tout le défi de 30 jours, avec le résultat et le test final</li>
+          <li>4 races : Teckel, Beagle, Labrador Retriever et Croisé de refuge</li>
+          <li>Promenades GPS, soins quotidiens et dressage de 9 commandes</li>
+          <li>Calendrier de vaccination et aperçu des coûts d’un chien</li>
+          <li>Articles et quiz éducatifs</li>
+          <li>Rejoindre un chien à l’essai partagé (garde partagée)</li>
+          <li>« Chien à la maison » pour un chien : passeport canin, journal, plan de soins avec rappels et premiers secours</li>
+        </ul>
+      </div>
+      <div class="card plan plan-premium">
+        <h3>Premium <span class="plan-tag">facultatif</span></h3>
+        <ul>
+          <li>10 races supplémentaires — Border Collie, Husky Sibérien, Berger Allemand et d’autres. Vous pouvez aussi acheter une seule race.</li>
+          <li>Créer une garde partagée du chien à l’essai : un chien pour 4 personnes maximum, les autres la rejoignent gratuitement</li>
+          <li>3 articles premium sur la socialisation, le dressage et les soins chez le vétérinaire (7 jours de soins d’affilée les débloquent aussi)</li>
+          <li>Chronologie des soins du chien à l’essai : étapes et vaccinations au même endroit</li>
+          <li>« Chien à la maison » pour plusieurs chiens. Les données de vos chiens ne sont jamais verrouillées, même après la fin de Premium.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="plans-note">Les prix actuels de Premium sont indiqués dans l’App Store ou sur Google Play ; ils varient selon le pays.</p>
+  </section>
+
+  {/* Questions fréquentes. Odpovědi ověřené proti aplikaci 2.0.0 (fr popisky z locales). */}
+  <section id="faq" class="section wrap">
+    <h2 class="section-title">Questions fréquentes</h2>
+    <div class="faq">
+      <details>
+        <summary>Trypup est-il gratuit ?</summary>
+        <p>Oui. L’application se télécharge gratuitement et vous pouvez faire tout le défi de 30 jours, résultat compris, sans payer. En mode « Chien à la maison », un chien est inclus gratuitement. Premium est facultatif : pour le chien à l’essai, il ajoute d’autres races, la création d’une garde partagée et la chronologie des soins ; en mode « Chien à la maison », d’autres chiens. Il débloque aussi trois articles premium.</p>
+      </details>
+      <details>
+        <summary>J’ai déjà un chien. À quoi me sert Trypup ?</summary>
+        <p>Activez le mode « Chien à la maison ». Vous y trouverez un passeport canin, un journal et un plan de soins qui vous rappelle les vaccinations, le vermifuge, la protection anti-puces et anti-tiques et le bilan de santé. Votre vétérinaire habituel est à un clic et les premiers secours sont toujours sous la main. Un chien est inclus gratuitement.</p>
+      </details>
+      <details>
+        <summary>Comment activer le mode « Chien à la maison » ?</summary>
+        <p>Dans les Réglages, rubrique « Comment tu utilises Trypup », passez au mode « Chien à la maison ». Sur une nouvelle installation, vous pouvez aussi choisir « J’ai déjà un chien » au démarrage. Tant que vous êtes en mode « Chien à la maison », votre chien virtuel vous attend et son temps s’arrête ; seul un chien en garde partagée reste actif. Un défi de 30 jours en cours se termine sur « Le chien est arrivé en avance », sans verdict. « Chien à la maison » est disponible depuis la version 2.0. Si vous ne le voyez pas encore, mettez l’application à jour. La nouvelle version arrive progressivement chez tout le monde.</p>
+      </details>
+      <details>
+        <summary>Trypup remplace-t-il le vétérinaire ?</summary>
+        <p>Non. Trypup vous aide à ne rien oublier et à garder les informations sur votre chien sous la main, mais il ne remplace pas un vétérinaire. Au moindre doute sur la santé de votre chien, appelez votre vétérinaire.</p>
+      </details>
+      <details>
+        <summary>Faut-il vraiment sortir ? Trypup fonctionne-t-il sans localisation ?</summary>
+        <p>Les promenades sont réelles : l’application les mesure par GPS et le trajet reste uniquement dans votre téléphone. Si vous n’autorisez pas la localisation ou si quelqu’un d’autre fait la promenade, vous pouvez l’enregistrer manuellement — le chien en profite, simplement sans mesure GPS.</p>
+      </details>
+      <details>
+        <summary>Trypup convient-il aux enfants ?</summary>
+        <p>Trypup s’adresse à toute personne qui réfléchit sérieusement à prendre un chien, et convient aussi aux familles qui décident ensemble. L’application est destinée aux personnes de 13 ans et plus ; pour les enfants plus jeunes, nous recommandons de l’utiliser uniquement avec un parent. Si vous choisissez « Moins de 16 ans » au premier lancement, l’application ne collecte pas de données analytiques, ne propose aucun achat et n’envoie pas de notifications push.</p>
+      </details>
+      <details>
+        <summary>Que se passe-t-il si je ne m’occupe pas du chien ?</summary>
+        <p>Le chien de l’application ne meurt jamais. Si vous ne vous en occupez pas pendant plusieurs jours, il part au refuge et l’application vous explique ce qui lui a manqué. Vous pouvez ensuite recommencer — sans conséquence pour un animal réel.</p>
+      </details>
+      <details>
+        <summary>Ai-je besoin d’un compte ?</summary>
+        <p>Non. Trypup fonctionne sans compte, et tout reste alors uniquement dans votre téléphone. Le compte est facultatif : il sauvegarde dans le cloud, dans l’UE, votre chien à l’essai et vos chiens du mode « Chien à la maison », pour que vous puissiez les restaurer sur un nouveau téléphone. Il est aussi nécessaire pour vous occuper du chien à l’essai à plusieurs, en famille.</p>
+      </details>
+      <details>
+        <summary>Et si je veux continuer après 30&nbsp;jours ?</summary>
+        <p>C’est possible. Après le résultat et le test final, vous continuez à vous occuper de votre chien. Et si le défi ne vous tente pas, choisissez à la création du chien les « Soins classiques » (« Pour la vie ») : le chien grandit avec vous à son rythme, sans test final. Les deux options sont gratuites.</p>
+      </details>
+    </div>
+  </section>
+
   <section id="get" class="section wrap center">
     <h2 class="section-title">Télécharger Trypup</h2>
-    <p class="section-sub">Trypup est disponible dès maintenant sur Android et iPhone. Téléchargez l'application et essayez un chien avant de vous décider.</p>
+    <p class="section-sub">Trypup est disponible sur Android et iPhone. Essayez de vous occuper d’un chien avant d’en avoir un, ou suivez en mode « Chien à la maison » les vaccinations, le vermifuge et les autres dates de votre chien.</p>
     <div class="store-btns">
       <a class="store-badge gp" href="https://play.google.com/store/apps/details?id=app.trypup.mobile&amp;pcampaignid=web_trypup" target="_blank" rel="noopener">
         <img src="/badges/google-play-en.png" alt="Get it on Google Play" width="478" height="142" />
