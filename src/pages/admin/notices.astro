@@ -53,6 +53,8 @@
     .flag { font-size:12px; font-weight:700; color:var(--text); }
     .count { float:right; font-size:11px; color:var(--muted); font-weight:500; }
     .count.over { color:#e8c46a; }
+    .more-langs { margin:2px 0 12px; }
+    .more-langs > summary { cursor:pointer; font-size:12.5px; font-weight:700; margin:4px 0 10px; }
     .hidden { display:none !important; }
     .err { color:#ff8a8a; } .ok { color:#7dd39a; } .warn { color:#e8c46a; }
     .muted { color:var(--muted); font-size:12.5px; }
@@ -143,6 +145,10 @@
           </div>
         </div>
       </div>
+      <details class="more-langs" id="more-langs">
+        <summary>Další jazyky aplikace <span class="muted">(sk, pl, de, es, fr, it, nl, pt, uk, bg; prázdný jazyk dostane anglickou verzi)</span></summary>
+        <div class="cols" id="more-langs-box"></div>
+      </details>
 
       <div class="cols3" style="margin-top:4px">
         <div class="field">
@@ -179,16 +185,7 @@
       <h2>Push oznámení <span class="muted" id="push-for"></span></h2>
       <p class="hint" style="margin:0 0 12px">Push dostanou jen zařízení, která mají povolené notifikace a v Nastavení zapnuté „Novinky a akce push".
         Klepnutí otevře v aplikaci Novinky a akce — tam musí být zpráva, ke které push patří. Text pushe drž krátký (titulek ≤ 50, text ≤ 140 znaků).</p>
-      <div class="cols">
-        <div id="push-cs-box">
-          <div class="field"><label><span class="flag">🇨🇿 Titulek pushe</span><span class="count" id="c-p-cs-title"></span></label><input id="p-cs-title" maxlength="120" /></div>
-          <div class="field"><label><span class="flag">🇨🇿 Text pushe</span><span class="count" id="c-p-cs-body"></span></label><textarea id="p-cs-body" rows="3" maxlength="300"></textarea></div>
-        </div>
-        <div id="push-en-box">
-          <div class="field"><label><span class="flag">🇬🇧 Titulek pushe</span><span class="count" id="c-p-en-title"></span></label><input id="p-en-title" maxlength="120" /></div>
-          <div class="field"><label><span class="flag">🇬🇧 Text pushe</span><span class="count" id="c-p-en-body"></span></label><textarea id="p-en-body" rows="3" maxlength="300"></textarea></div>
-        </div>
-      </div>
+      <div class="cols" id="push-texts"></div>
 
       <div class="field">
         <label>Jazyk aplikace příjemce</label>
@@ -310,6 +307,11 @@
     const CAMPAIGNS = 'push_campaigns';
     /** Jazyky aplikace (musí sedět na SUPPORTED_LANGUAGES v src/locales/index.ts). */
     const APP_LANGS = ['cs','en','sk','pl','de','es','fr','it','nl','pt','uk','bg'];
+    // Texty zprávy i pushe ve všech jazycích aplikace (aplikace bere text svého jazyka, jinak en).
+    const LANG_META = { cs: ['🇨🇿', 'česky'], en: ['🇬🇧', 'anglicky'], sk: ['🇸🇰', 'slovensky'], pl: ['🇵🇱', 'polsky'], de: ['🇩🇪', 'německy'], es: ['🇪🇸', 'španělsky'],
+      fr: ['🇫🇷', 'francouzsky'], it: ['🇮🇹', 'italsky'], nl: ['🇳🇱', 'nizozemsky'], pt: ['🇵🇹', 'portugalsky'], uk: ['🇺🇦', 'ukrajinsky'], bg: ['🇧🇬', 'bulharsky'] };
+    const TEXT_LANGS = APP_LANGS;
+    const EXTRA_LANGS = TEXT_LANGS.filter((l) => l !== 'cs' && l !== 'en');
 
     // Země, kam aplikace reálně míří (kopíruje 12 jazyků + sousední trhy). ISO-3166-1 alpha-2.
     const COUNTRIES = [
@@ -622,10 +624,9 @@
     }
 
     function startEdit(n) {
-      $('cs-title').value = n.text?.cs?.title || '';
-      $('cs-body').value  = n.text?.cs?.body  || '';
-      $('en-title').value = n.text?.en?.title || '';
-      $('en-body').value  = n.text?.en?.body  || '';
+      // VŠECHNY jazyky zprávy (dřív jen cs + en → uložení úpravy smazalo ostatní jazyky).
+      for (const l of TEXT_LANGS) { $(`${l}-title`).value = n.text?.[l]?.title || ''; $(`${l}-body`).value = n.text?.[l]?.body || ''; }
+      $('more-langs').open = EXTRA_LANGS.some((l) => n.text?.[l]);
       $('eventAt').value   = toLocalInput(n.eventAt);
       $('expiresAt').value = toLocalInput(n.expiresAt);
       $('url').value = n.url || '';
@@ -636,9 +637,7 @@
       paintCountries();
 
       // Přepočítej počítadla znaků na načtený obsah.
-      ['cs-title','cs-body','en-title','en-body'].forEach((id) => {
-        $(id).dispatchEvent(new Event('input'));
-      });
+      TEXT_LANGS.forEach((l) => ['title', 'body'].forEach((f) => $(`${l}-${f}`).dispatchEvent(new Event('input'))));
 
       setEditingUi(n);
       $('msg').textContent = '';
@@ -655,10 +654,11 @@
     }
 
     function clearForm() {
-      ['cs-title','cs-body','en-title','en-body','eventAt','expiresAt','url'].forEach((id) => { $(id).value = ''; });
+      [...TEXT_LANGS.flatMap((l) => [`${l}-title`, `${l}-body`]), 'eventAt', 'expiresAt', 'url'].forEach((id) => { $(id).value = ''; });
       oneBoxes().forEach((c) => { c.checked = false; });
       $('c-all').checked = true; paintCountries();
-      ['c-cs-title','c-cs-body','c-en-title','c-en-body'].forEach((id) => { $(id).textContent = ''; $(id).classList.remove('over'); });
+      TEXT_LANGS.flatMap((l) => [`c-${l}-title`, `c-${l}-body`]).forEach((id) => { $(id).textContent = ''; $(id).classList.remove('over'); });
+      $('more-langs').open = false;
       setEditingUi(null);
     }
     $('clear').onclick = () => { clearForm(); $('msg').textContent = ''; };
@@ -669,13 +669,12 @@
       const msg = $('msg'); msg.textContent = '';
       const fail = (t) => { msg.innerHTML = `<span class="err">${t}</span>`; };
 
-      const cs = { title: $('cs-title').value.trim(), body: $('cs-body').value.trim() };
-      const en = { title: $('en-title').value.trim(), body: $('en-body').value.trim() };
+      const texts = Object.fromEntries(TEXT_LANGS.map((l) => [l, { title: $(`${l}-title`).value.trim(), body: $(`${l}-body`).value.trim() }]));
 
       // Titulek bez textu aplikace zobrazí (body smí být prázdné), ale titulek je povinný.
-      if (!cs.title && !en.title) return fail('Vyplň aspoň jeden titulek (česky nebo anglicky).');
-      if (cs.body && !cs.title) return fail('Český text má prázdný titulek — aplikace by celou zprávu zahodila.');
-      if (en.body && !en.title) return fail('Anglický text má prázdný titulek — aplikace by celou zprávu zahodila.');
+      if (!TEXT_LANGS.some((l) => texts[l].title)) return fail('Vyplň aspoň jeden titulek.');
+      const noTitle = TEXT_LANGS.find((l) => texts[l].body && !texts[l].title);
+      if (noTitle) return fail(`Text (${LANG_META[noTitle][1]}) má prázdný titulek — aplikace by celou zprávu zahodila.`);
 
       const eventAt = toMs($('eventAt').value);
       const expiresAt = toMs($('expiresAt').value);
@@ -706,8 +705,7 @@
       const notice = puvodni
         ? { id: puvodni.id, publishedAt: puvodni.publishedAt, text: {} }
         : { id: newId(), publishedAt: Date.now(), text: {} };
-      if (cs.title) notice.text.cs = { title: cs.title, body: cs.body };
-      if (en.title) notice.text.en = { title: en.title, body: en.body };
+      for (const l of TEXT_LANGS) if (texts[l].title) notice.text[l] = texts[l];
       if (typeof expiresAt === 'number') notice.expiresAt = expiresAt;
       if (typeof eventAt === 'number') notice.eventAt = eventAt;
       if (url) notice.url = url;
@@ -716,7 +714,7 @@
       if (!isValidNotice(notice)) return fail('Zpráva neprošla kontrolou tvaru — aplikace by ji tiše zahodila. Zkontroluj titulky, odkaz a data.');
 
       const slovesoQ = puvodni ? 'Uložit?' : 'Zveřejnit?';
-      if (!notice.text.en && !confirm('Zpráva nemá anglickou verzi.\n\nUvidí ji jen lidé s češtinou — ostatní jazyky padají na angličtinu, a ta chybí. ' + slovesoQ)) return;
+      if (!notice.text.en && !confirm(`Zpráva nemá anglickou verzi.\n\nUvidí ji jen lidé s jazyky ${Object.keys(notice.text).join(', ')}; ostatní jazyky padají na angličtinu, a ta chybí. ` + slovesoQ)) return;
       if (!notice.text.cs && !confirm('Zpráva nemá českou verzi — Čechům se ukáže anglicky. ' + slovesoQ)) return;
 
       // Úprava zprávu ponechá na jejím místě v seznamu (řadí se stejně podle
@@ -761,11 +759,21 @@
         get() { return all.checked ? null : ones().filter((c) => c.checked).map((c) => c.value); },
       };
     }
+    // Pole jazyků se generují: zpráva má cs a en v HTML, ostatní v „Další jazyky“; push má všech 12.
+    function langBox(prefix, l, what, rows, boxId) {
+      const [flag, name] = LANG_META[l];
+      const box = document.createElement('div'); if (boxId) box.id = boxId;
+      box.innerHTML = `<div class="field"><label><span class="flag">${flag} ${what === 'push' ? 'Titulek pushe' : 'Titulek'} (${name})</span><span class="count" id="c-${prefix}${l}-title"></span></label><input id="${prefix}${l}-title" maxlength="120" /></div>` +
+        `<div class="field"><label><span class="flag">${flag} ${what === 'push' ? 'Text pushe' : 'Text'} (${name})</span><span class="count" id="c-${prefix}${l}-body"></span></label><textarea id="${prefix}${l}-body" rows="${rows}"${what === 'push' ? ' maxlength="300"' : ''}></textarea></div>`;
+      return box;
+    }
+    for (const l of EXTRA_LANGS) $('more-langs-box').appendChild(langBox('', l, 'notice', 4));
+    for (const l of TEXT_LANGS) $('push-texts').appendChild(langBox('p-', l, 'push', 3, `push-${l}-box`));
+
     const pLangs = buildChips('p-langs', 'Všechny jazyky', APP_LANGS.map((l) => ({ code: l, name: l })), 'p-l-all');
     const pCountries = buildChips('p-countries', 'Všechny země', COUNTRIES, 'p-c-all');
     ['p-ios', 'p-android'].forEach((id) => { $(id).onchange = () => $(id).closest('.chip').classList.toggle('on', $(id).checked); });
-    counter('p-cs-title', 'c-p-cs-title', 50); counter('p-cs-body', 'c-p-cs-body', 140);
-    counter('p-en-title', 'c-p-en-title', 50); counter('p-en-body', 'c-p-en-body', 140);
+    for (const l of TEXT_LANGS) { counter(`p-${l}-title`, `c-p-${l}-title`, 50); counter(`p-${l}-body`, `c-p-${l}-body`, 140); }
 
     const shorten = (t, n) => { t = (t || '').replace(/\s+/g, ' ').trim(); return t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'; };
 
@@ -773,16 +781,16 @@
       pushNotice = n; lastCount = null;
       if (pushUnsub) { pushUnsub(); pushUnsub = null; }
       $('push-for').textContent = '· k zprávě „' + ((n.text?.cs?.title) || (n.text?.en?.title) || n.id) + '"';
-      const hasCs = !!n.text?.cs, hasEn = !!n.text?.en;
-      $('push-cs-box').classList.toggle('hidden', !hasCs);
-      $('push-en-box').classList.toggle('hidden', !hasEn);
-      $('p-cs-title').value = hasCs ? shorten(n.text.cs.title, 50) : '';
-      $('p-cs-body').value = hasCs ? shorten(n.text.cs.body, 140) : '';
-      $('p-en-title').value = hasEn ? shorten(n.text.en.title, 50) : '';
-      $('p-en-body').value = hasEn ? shorten(n.text.en.body, 140) : '';
-      ['p-cs-title','p-cs-body','p-en-title','p-en-body'].forEach((id) => $(id).dispatchEvent(new Event('input')));
-      // Jazyky: s angličtinou míří zpráva na všechny (fallback), jen česká jen na cs.
-      pLangs.set(hasEn ? [] : ['cs']);
+      const has = TEXT_LANGS.filter((l) => !!n.text?.[l]);
+      for (const l of TEXT_LANGS) {
+        const on = has.includes(l);
+        $(`push-${l}-box`).classList.toggle('hidden', !on);
+        $(`p-${l}-title`).value = on ? shorten(n.text[l].title, 50) : '';
+        $(`p-${l}-body`).value = on ? shorten(n.text[l].body, 140) : '';
+        ['title', 'body'].forEach((f) => $(`p-${l}-${f}`).dispatchEvent(new Event('input')));
+      }
+      // Jazyky: s angličtinou míří zpráva na všechny (fallback), jinak jen na jazyky, které má.
+      pLangs.set(has.includes('en') ? [] : has);
       pCountries.set(Array.isArray(n.countries) ? n.countries : []);
       $('p-ios').checked = true; $('p-android').checked = true;
       ['p-ios', 'p-android'].forEach((id) => $(id).closest('.chip').classList.add('on'));
@@ -812,8 +820,11 @@
     function buildCampaign(dryRun) {
       if (!pushNotice) return { error: 'Není vybraná zpráva.' };
       const text = {};
-      if (!$('push-cs-box').classList.contains('hidden') && $('p-cs-title').value.trim()) text.cs = { title: $('p-cs-title').value.trim(), body: $('p-cs-body').value.trim() };
-      if (!$('push-en-box').classList.contains('hidden') && $('p-en-title').value.trim()) text.en = { title: $('p-en-title').value.trim(), body: $('p-en-body').value.trim() };
+      for (const l of TEXT_LANGS) {
+        if ($(`push-${l}-box`).classList.contains('hidden')) continue;
+        const t = $(`p-${l}-title`).value.trim();
+        if (t) text[l] = { title: t, body: $(`p-${l}-body`).value.trim() };
+      }
       if (!Object.keys(text).length) return { error: 'Push potřebuje aspoň jeden titulek.' };
       const platforms = [$('p-ios').checked ? 'ios' : null, $('p-android').checked ? 'android' : null].filter(Boolean);
       if (!platforms.length) return { error: 'Vyber aspoň jednu platformu.' };
@@ -912,8 +923,8 @@
         const kolik = fresh ? `${fresh.recipients} zařízení` : 'NEZNÁMÝ počet zařízení (nejdřív „Spočítat příjemce")';
         const kdy = c.schedule ? ` ${c.schedule.localDate.split('-').reverse().join('. ')} v ${c.schedule.localTime} místního času zařízení` : '';
         if (!confirm(c.schedule
-          ? `Naplánovat push „${(c.text.cs || c.text.en).title}" na ${kolik}${kdy}?\n\nDo odeslání první vlny jde v historii zrušit.`
-          : `Odeslat push „${(c.text.cs || c.text.en).title}" na ${kolik}?\n\nTohle už nejde vzít zpět.`)) return;
+          ? `Naplánovat push „${(c.text.cs || c.text.en || Object.values(c.text)[0]).title}" na ${kolik}${kdy}?\n\nDo odeslání první vlny jde v historii zrušit.`
+          : `Odeslat push „${(c.text.cs || c.text.en || Object.values(c.text)[0]).title}" na ${kolik}?\n\nTohle už nejde vzít zpět.`)) return;
         if (!fresh && !confirm('Opravdu bez spočítání? Pojistkou je jen strop příjemců.')) return;
       }
       msg.textContent = dryRun ? 'Počítám…' : 'Zakládám kampaň…';
@@ -990,10 +1001,7 @@
 
     // --- init ---------------------------------------------------------------
     buildCountries();
-    counter('cs-title', 'c-cs-title', 60);
-    counter('cs-body', 'c-cs-body', 220);
-    counter('en-title', 'c-en-title', 60);
-    counter('en-body', 'c-en-body', 220);
+    for (const l of TEXT_LANGS) { counter(`${l}-title`, `c-${l}-title`, 60); counter(`${l}-body`, `c-${l}-body`, 220); }
   </script>
 </body>
 </html>
