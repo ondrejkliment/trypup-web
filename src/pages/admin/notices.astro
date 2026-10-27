@@ -1,21 +1,21 @@
 ---
-// Trypup — skrytý editor oznámení v aplikaci („Novinky a akce"). Píše do Firestore
+// Trypup – skrytý editor oznámení v aplikaci („Novinky a akce"). Píše do Firestore
 // `app_notice/current`, pole `items: Notice[]`; app to čte při startu
-// (@stores/appNoticeStore) — doručení je „při dalším otevření aplikace".
+// (@stores/appNoticeStore) – doručení je „při dalším otevření aplikace".
 //
 // PUSH (od 10/2026, pawprint-mobile/docs/PUSH_PLAN.md): ke zveřejněné zprávě jde poslat
 // segmentované push oznámení. Admin tu jen založí dokument `push_campaigns/{id}`
-// (status queued) — segment vyhodnotí a rozešle Cloud Function `onPushCampaignCreated`
+// (status queued) – segment vyhodnotí a rozešle Cloud Function `onPushCampaignCreated`
 // (FCM + APNs), výsledek zapíše zpět a tahle stránka ho sleduje přes onSnapshot.
-// Tokeny zařízení (`push_devices`) prohlížeč NIKDY nečte (rules) — počty dává dry-run.
+// Tokeny zařízení (`push_devices`) prohlížeč NIKDY nečte (rules) – počty dává dry-run.
 //
 // Tvar zápisu MUSÍ sedět na `isValidNotice` ve storu, jinak aplikace zprávu TIŠE zahodí.
 // Proto je validace níž zkopírovaná 1:1 ze storu a běží před každým uložením.
-// Zároveň se nikam neposílá `undefined` (Firestore ho odmítá) — volitelná pole se
+// Zároveň se nikam neposílá `undefined` (Firestore ho odmítá) – volitelná pole se
 // do objektu vůbec nepřidávají.
 //
 // Přístup jen admin (Firestore rules), skryté pro roboty (noindex + robots.txt).
-// POZOR: styly jsou `is:global` — seznam se vykresluje z JS, scoped styly by na něj
+// POZOR: styly jsou `is:global` – seznam se vykresluje z JS, scoped styly by na něj
 // nesedly (bez data-astro-cid atributu by byl plochý).
 ---
 <!doctype html>
@@ -168,7 +168,7 @@
       <div class="field">
         <label>Komu zprávu ukázat (země zařízení)</label>
         <div class="chips" id="countries"></div>
-        <p class="hint">Aplikace zemi bere z nastavení telefonu a nikam ji neposílá — filtruje se na zařízení.
+        <p class="hint">Aplikace zemi bere z nastavení telefonu a nikam ji neposílá – filtruje se na zařízení.
           Když zařízení zemi nehlásí, cílená zpráva se <strong>nezobrazí</strong> (proto „Všem" u obecných novinek).</p>
       </div>
 
@@ -184,7 +184,7 @@
     <div class="panel push-panel hidden" id="push-panel">
       <h2>Push oznámení <span class="muted" id="push-for"></span></h2>
       <p class="hint" style="margin:0 0 12px">Push dostanou jen zařízení, která mají povolené notifikace a v Nastavení zapnuté „Novinky a akce push".
-        Klepnutí otevře v aplikaci Novinky a akce — tam musí být zpráva, ke které push patří. Text pushe drž krátký (titulek ≤ 50, text ≤ 140 znaků).</p>
+        Klepnutí otevře v aplikaci Novinky a akce – tam musí být zpráva, ke které push patří. Text pushe drž krátký (titulek ≤ 50, text ≤ 140 znaků).</p>
       <div class="cols" id="push-texts"></div>
 
       <div class="field">
@@ -218,7 +218,7 @@
         <div class="field">
           <label>Neposílat tomu, kdo dostal push za posledních</label>
           <select id="p-quiet">
-            <option value="">— bez omezení —</option>
+            <option value="">– bez omezení –</option>
             <option value="1">1 den</option>
             <option value="3" selected>3 dny</option>
             <option value="7">7 dní</option>
@@ -251,7 +251,7 @@
           dokud neodejde poslední vlna. Ostatní ostré pushe se od první vlny do konce kampaně zablokují.</p>
       </div>
       <div class="field" style="margin-top:12px">
-        <label>Jen testovací zařízení <span class="muted">(ID zařízení z Nastavení aplikace, oddělená čárkou — ostatní filtry platí dál)</span></label>
+        <label>Jen testovací zařízení <span class="muted">(ID zařízení z Nastavení aplikace, oddělená čárkou – ostatní filtry platí dál)</span></label>
         <input id="p-devices" placeholder="a3f1c2d4, 9b8e7f6a" />
       </div>
       <div class="toolbar" style="margin-top:6px">
@@ -277,7 +277,7 @@
         <em>sundat z banneru</em> i lidem, co ji už mají, použij <strong>„Ukončit teď"</strong>
         (nastaví expiraci na teď a app si opravu stáhne). „Smazat" ji jen přestane rozesílat dál.
       </p>
-      <p class="hint">Aplikace si drží posledních 30 zpráv. Nové zprávy se u lidí objeví při dalším otevření aplikace — nebo hned, když k nim pošleš push („Poslat push" u zprávy).</p>
+      <p class="hint">Aplikace si drží posledních 30 zpráv. Nové zprávy se u lidí objeví při dalším otevření aplikace – nebo hned, když k nim pošleš push („Poslat push" u zprávy).</p>
     </div>
 
     <!-- === HISTORIE PUSHŮ === -->
@@ -331,7 +331,7 @@
     let items = [];
 
     // ------------------------------------------------------------------
-    // Validace — KOPIE 1:1 z @stores/appNoticeStore.isValidNotice.
+    // Validace – KOPIE 1:1 z @stores/appNoticeStore.isValidNotice.
     // Když se store změní, změň i tohle. Zpráva, která tudy neprojde, by se
     // v aplikaci tiše zahodila, takže ji radši vůbec neuložíme.
     // ------------------------------------------------------------------
@@ -452,7 +452,7 @@
         const u = snap.exists() ? snap.data().updatedAt : null;
         $('state').innerHTML = snap.exists()
           ? `<span class="ok">Remote dokument existuje</span> · ${items.length} zpráv${u ? ` · upraveno ${fmt(u)}` : ''}`
-          : `<span class="muted">Dokument app_notice/current zatím neexistuje — vznikne prvním uložením.</span>`;
+          : `<span class="muted">Dokument app_notice/current zatím neexistuje – vznikne prvním uložením.</span>`;
         render();
       } catch (e) {
         $('state').innerHTML = `<span class="err">Chyba načítání: ${e.message}</span>`;
@@ -513,14 +513,14 @@
       title.textContent = (n.text?.cs?.title) || (n.text?.en?.title) || '(bez titulku)';
       const badge = document.createElement('span');
       badge.className = 'badge ' + (stazena ? 'gone' : !ok ? 'bad' : expired ? 'gone' : 'live');
-      badge.textContent = stazena ? 'staženo — mizí z archivů' : !ok ? 'aplikace zahodí' : expired ? 'ukončeno' : 'aktivní';
+      badge.textContent = stazena ? 'staženo – mizí z archivů' : !ok ? 'aplikace zahodí' : expired ? 'ukončeno' : 'aktivní';
       title.appendChild(badge);
       left.appendChild(title);
 
       const meta = document.createElement('div'); meta.className = 'item-meta';
       const bits = [
         'zveřejněno ' + fmt(n.publishedAt),
-        'jazyky: ' + (n.text ? Object.keys(n.text).join(', ') : '—'),
+        'jazyky: ' + (n.text ? Object.keys(n.text).join(', ') : '–'),
         'země: ' + (Array.isArray(n.countries) && n.countries.length ? n.countries.join(', ') : 'všem'),
       ];
       if (typeof n.eventAt === 'number') bits.push('akce ' + fmt(n.eventAt));
@@ -569,7 +569,7 @@
       return el;
     }
 
-    /** Expirace na teď — banner zmizí i lidem, co zprávu už staženou mají. */
+    /** Expirace na teď – banner zmizí i lidem, co zprávu už staženou mají. */
     async function endNow(n) {
       if (!confirm('Ukončit zprávu „' + ((n.text?.cs?.title) || n.id) + '"?\n\nBanner zmizí i lidem, co ji už mají. V archivu jim zůstane.')) return;
       const next = items.map((x) => (x.id === n.id ? { ...x, expiresAt: Date.now() } : x));
@@ -577,17 +577,17 @@
     }
 
     /**
-     * Stažení — jediná akce, která zprávu odstraní i z ARCHIVU lidem, co ji už mají.
+     * Stažení – jediná akce, která zprávu odstraní i z ARCHIVU lidem, co ji už mají.
      * Zpráva zůstává v remote s příznakem `retracted`, protože jinak by se app store
      * neměl o čem dozvědět (smazané položky nevidí). Smazat nadobro jde až potom.
      */
     async function retract(n) {
-      if (!confirm('Stáhnout zprávu „' + ((n.text?.cs?.title) || n.id) + '" úplně?\n\nZmizí i z archivu lidem, kterým se už stáhla — jako by nikdy nebyla.\n\nZprávu tu nech aspoň pár dní, ať se stažení stihne rozšířit; teprve pak ji smaž nadobro.')) return;
+      if (!confirm('Stáhnout zprávu „' + ((n.text?.cs?.title) || n.id) + '" úplně?\n\nZmizí i z archivu lidem, kterým se už stáhla – jako by nikdy nebyla.\n\nZprávu tu nech aspoň pár dní, ať se stažení stihne rozšířit; teprve pak ji smaž nadobro.')) return;
       const next = items.map((x) => (x.id === n.id ? { ...x, retracted: true } : x));
       await persist(next, 'Zpráva stažena. Z archivů zmizí lidem při dalším otevření aplikace.', $('listmsg'));
     }
 
-    /** Smazání z remote — nová zařízení ji už nedostanou, stará si ji nechají v archivu. */
+    /** Smazání z remote – nová zařízení ji už nedostanou, stará si ji nechají v archivu. */
     async function remove(n) {
       const stazena = n.retracted === true;
       const varovani = stazena
@@ -619,7 +619,7 @@
       $('publish').textContent = on ? 'Uložit změny' : 'Zveřejnit zprávu';
       $('edit-hint').textContent = on
         ? 'Oprava se propíše i lidem, kterým se zpráva už stáhla (zůstává stejné id ' + n.id +
-          '). Kdo si ji ale zavřel křížkem, znovu ji v banneru neuvidí — najde ji opravenou v archivu.'
+          '). Kdo si ji ale zavřel křížkem, znovu ji v banneru neuvidí – najde ji opravenou v archivu.'
         : '';
     }
 
@@ -674,32 +674,32 @@
       // Titulek bez textu aplikace zobrazí (body smí být prázdné), ale titulek je povinný.
       if (!TEXT_LANGS.some((l) => texts[l].title)) return fail('Vyplň aspoň jeden titulek.');
       const noTitle = TEXT_LANGS.find((l) => texts[l].body && !texts[l].title);
-      if (noTitle) return fail(`Text (${LANG_META[noTitle][1]}) má prázdný titulek — aplikace by celou zprávu zahodila.`);
+      if (noTitle) return fail(`Text (${LANG_META[noTitle][1]}) má prázdný titulek – aplikace by celou zprávu zahodila.`);
 
       const eventAt = toMs($('eventAt').value);
       const expiresAt = toMs($('expiresAt').value);
       if (Number.isNaN(eventAt)) return fail('Datum akce nedává smysl.');
       if (Number.isNaN(expiresAt)) return fail('Datum expirace nedává smysl.');
-      // Expirace v minulosti dává smysl JEN u úpravy zprávy, která UŽ ukončená byla —
+      // Expirace v minulosti dává smysl JEN u úpravy zprávy, která UŽ ukončená byla –
       // opravit překlep v archivu musí jít, aniž by se znovu rozsvítila v banneru.
       // (Neporovnáváme s původní hodnotou na rovnost: `toLocalInput` ořezává na
       // minuty, takže po načtení do formuláře by se nikdy netrefila.)
       const puvodni = editingId ? items.find((x) => x.id === editingId) : null;
       if (editingId && !puvodni) {
         clearForm();
-        return fail('Upravovaná zpráva už v seznamu není — někdo ji mezitím smazal. Načti seznam znovu.');
+        return fail('Upravovaná zpráva už v seznamu není – někdo ji mezitím smazal. Načti seznam znovu.');
       }
       const jizBylaUkoncena =
         !!puvodni && typeof puvodni.expiresAt === 'number' && puvodni.expiresAt <= Date.now();
       if (typeof expiresAt === 'number' && expiresAt <= Date.now() && !jizBylaUkoncena)
-        return fail('Expirace je v minulosti — zpráva by se nikomu neukázala.');
+        return fail('Expirace je v minulosti – zpráva by se nikomu neukázala.');
 
       const url = $('url').value.trim();
       if (url && !/^https:\/\//i.test(url)) return fail('Odkaz musí začínat https:// (http ani jiné schéma aplikace nepřijme).');
 
       const countries = pickedCountries();
 
-      // Objekt skládáme podmíněně — Firestore neumí `undefined` a store čeká
+      // Objekt skládáme podmíněně – Firestore neumí `undefined` a store čeká
       // buď platnou hodnotu, nebo chybějící klíč. Při úpravě držíme původní id
       // i datum zveřejnění (viz komentář u editingId); mění se jen obsah.
       const notice = puvodni
@@ -711,11 +711,11 @@
       if (url) notice.url = url;
       if (countries.length) notice.countries = countries;
 
-      if (!isValidNotice(notice)) return fail('Zpráva neprošla kontrolou tvaru — aplikace by ji tiše zahodila. Zkontroluj titulky, odkaz a data.');
+      if (!isValidNotice(notice)) return fail('Zpráva neprošla kontrolou tvaru – aplikace by ji tiše zahodila. Zkontroluj titulky, odkaz a data.');
 
       const slovesoQ = puvodni ? 'Uložit?' : 'Zveřejnit?';
       if (!notice.text.en && !confirm(`Zpráva nemá anglickou verzi.\n\nUvidí ji jen lidé s jazyky ${Object.keys(notice.text).join(', ')}; ostatní jazyky padají na angličtinu, a ta chybí. ` + slovesoQ)) return;
-      if (!notice.text.cs && !confirm('Zpráva nemá českou verzi — Čechům se ukáže anglicky. ' + slovesoQ)) return;
+      if (!notice.text.cs && !confirm('Zpráva nemá českou verzi – Čechům se ukáže anglicky. ' + slovesoQ)) return;
 
       // Úprava zprávu ponechá na jejím místě v seznamu (řadí se stejně podle
       // publishedAt); nová jde na začátek.
@@ -802,7 +802,7 @@
     }
     $('p-close').onclick = () => { $('push-panel').classList.add('hidden'); pushNotice = null; if (pushUnsub) { pushUnsub(); pushUnsub = null; } };
 
-    /** Datum (YYYY-MM-DD) a čas (HH:MM) v Praze — výchozí pásmo plánovače (functions/push.js). */
+    /** Datum (YYYY-MM-DD) a čas (HH:MM) v Praze – výchozí pásmo plánovače (functions/push.js). */
     function pragueParts(ms) {
       const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
         .formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
@@ -867,14 +867,14 @@
         text, segment,
       } };
     }
-    /** Otisk nastavení — „Odeslat" bez čerstvého dry-runu se zeptá navíc. */
+    /** Otisk nastavení – „Odeslat" bez čerstvého dry-runu se zeptá navíc. */
     const settingsKey = (c) => JSON.stringify({ t: c.text, s: c.segment });
 
     function renderResult(c) {
       const r = c.result || {};
       const st = c.status;
       const line = (label, v) => `<span class="stat"><b>${v ?? '–'}</b>${label}</span>`;
-      let html = `<p class="st-${st}" style="margin:0 0 6px;font-weight:700">${({ queued: 'Zařazeno…', counting: 'Počítám…', sending: 'Rozesílám…', dry: 'Spočítáno', done: 'Odesláno', failed: 'Selhalo', scheduled: 'Naplánováno', cancelled: 'Zrušeno' })[st] || st}${c.error ? ' — ' + c.error : ''}</p>`;
+      let html = `<p class="st-${st}" style="margin:0 0 6px;font-weight:700">${({ queued: 'Zařazeno…', counting: 'Počítám…', sending: 'Rozesílám…', dry: 'Spočítáno', done: 'Odesláno', failed: 'Selhalo', scheduled: 'Naplánováno', cancelled: 'Zrušeno' })[st] || st}${c.error ? ' – ' + c.error : ''}</p>`;
       if (c.schedule) html += `<p class="hint" style="margin:0 0 6px">${scheduleLine(c)}</p>`;
       if (st === 'dry' || st === 'done') {
         html += line('odpovídá segmentu', r.matched) + (r.capped ? line('po stropu', r.recipients) : '');

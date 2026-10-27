@@ -1,9 +1,9 @@
 ---
-// Trypup — knihovna vzdělávacích článků SE ZDROJI (jen ke čtení).
-// Čte Firestore `article_library` — texty článků z aplikace a ke každému tvrzení zdroj.
+// Trypup – knihovna vzdělávacích článků SE ZDROJI (jen ke čtení).
+// Čte Firestore `article_library` – texty článků z aplikace a ke každému tvrzení zdroj.
 // Zdroje NEJSOU veřejné: v aplikaci ani na webu se neukazují, slouží jako podklad, kdyby
 // někdo tvrzení zpochybnil. Proto v téhle stránce nejsou zapečené (statický web je
-// veřejný i bez přihlášení) — načtou se z databáze až po přihlášení admina a pravidla
+// veřejný i bez přihlášení) – načtou se z databáze až po přihlášení admina a pravidla
 // Firestore je nikomu jinému nevydají.
 // Obsah se sem dostává skriptem v repu aplikace: `node scripts/publish-article-library.js`
 // (zdroj pravdy: src/locales/cs.ts + docs/content/article-sources.json).
@@ -79,7 +79,7 @@
   <div id="login" class="center">
     <img src="/icon.png" class="logo" alt="Trypup" />
     <h1>Trypup · Články a zdroje</h1>
-    <p class="muted" style="max-width:360px">Vzdělávací články z aplikace a ke každému tvrzení zdroj. Neveřejné — přihlas se admin účtem Google.</p>
+    <p class="muted" style="max-width:360px">Vzdělávací články z aplikace a ke každému tvrzení zdroj. Neveřejné – přihlas se admin účtem Google.</p>
     <button id="signin">Přihlásit přes Google</button>
     <p id="login-err" class="err"></p>
   </div>
@@ -150,7 +150,7 @@
         ARTICLES = []; META = null;
         snap.forEach((d) => { if (d.id === '_meta') META = d.data(); else ARTICLES.push(d.data()); });
         ARTICLES.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        if (!ARTICLES.length) { $('state').innerHTML = '<span class="err">Knihovna je prázdná — spusť v repu aplikace <code>node scripts/publish-article-library.js</code>.</span>'; return; }
+        if (!ARTICLES.length) { $('state').innerHTML = '<span class="err">Knihovna je prázdná – spusť v repu aplikace <code>node scripts/publish-article-library.js</code>.</span>'; return; }
         const when = META?.updatedAt ? new Date(META.updatedAt).toLocaleString('cs-CZ') : '?';
         $('state').innerHTML = `<span class="ok">${ARTICLES.length} článků · ${META?.claimCount ?? '?'} tvrzení se zdrojem · ${META?.sourceCount ?? '?'} zdrojů</span> · nahráno ${esc(when)}`;
         renderSide(); renderRemoved(); renderOther();
@@ -196,13 +196,13 @@
         <button class="ghost sm copy" type="button" data-copy="${i}">Kopírovat</button>
         <span class="text">${esc(c.claim)}</span><span class="basis">${esc(c.basis)}</span>
         ${c.note ? `<p class="note">${esc(c.note)}</p>` : ''}
-        ${(c.sources || []).length ? `<ul class="src">${c.sources.map(sourceHtml).join('')}</ul>` : '<p class="note">Bez externího zdroje — obecná znalost / vlastní formulace.</p>'}
+        ${(c.sources || []).length ? `<ul class="src">${c.sources.map(sourceHtml).join('')}</ul>` : '<p class="note">Bez externího zdroje – obecná znalost / vlastní formulace.</p>'}
         ${articleTitle ? `<p class="muted" style="margin:6px 0 0">Článek: ${esc(articleTitle)}</p>` : ''}
       </div>`;
     }
 
     function claimText(c) {
-      const src = (c.sources || []).map((s) => `- ${s.title}${s.authors ? ' (' + s.authors + ')' : ''}${s.publisher ? ', ' + s.publisher : ''}${s.year ? ', ' + s.year : ''}${s.url ? ' — ' + s.url : ''}`).join('\n');
+      const src = (c.sources || []).map((s) => `- ${s.title}${s.authors ? ' (' + s.authors + ')' : ''}${s.publisher ? ', ' + s.publisher : ''}${s.year ? ', ' + s.year : ''}${s.url ? ' – ' + s.url : ''}`).join('\n');
       return `${c.claim}\n${c.note ? c.note + '\n' : ''}${src ? 'Zdroje:\n' + src : ''}`.trim();
     }
 

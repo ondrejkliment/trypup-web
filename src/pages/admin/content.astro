@@ -1,5 +1,5 @@
 ---
-// Trypup — skrytý editor obsahu webu. Píše do Firestore `site_content/content`
+// Trypup – skrytý editor obsahu webu. Píše do Firestore `site_content/content`
 // (mapa fields: { <key>: <text> }). Veřejné stránky to čtou a aplikují (hydratace
 // v Base.astro na elementy s data-cms="<key>"). Katalog polí = src/lib/siteContent.
 // Přístup jen admin (Firestore rules), skryté pro roboty (noindex + robots.txt).
@@ -68,7 +68,7 @@ import { CMS_FIELDS } from '../../lib/siteContent';
     <p id="state" class="muted"></p>
     <input id="search" class="search" placeholder="🔎 Filtrovat pole (název / text / klíč)…" autocomplete="off" />
     <div id="groups"></div>
-    <p class="muted" style="margin-top:18px">Změny se na webu projeví do pár vteřin (stránka si je načte při dalším otevření / refreshi). Prázdné pole = vrátí se vestavěný výchozí text. Upravený text se zobrazí jako prostý — vnitřní formátování (tučné, zvýraznění) zůstává jen u needitovaných polí.</p>
+    <p class="muted" style="margin-top:18px">Změny se na webu projeví do pár vteřin (stránka si je načte při dalším otevření / refreshi). Prázdné pole = vrátí se vestavěný výchozí text. Upravený text se zobrazí jako prostý – vnitřní formátování (tučné, zvýraznění) zůstává jen u needitovaných polí.</p>
   </div>
 
   <div id="savebar" class="savebar hidden">
@@ -107,7 +107,7 @@ import { CMS_FIELDS } from '../../lib/siteContent';
       else { $('app').classList.add('hidden'); $('savebar').classList.add('hidden'); $('login').classList.remove('hidden'); }
     });
 
-    // — Form (grupovaný dle FIELDS[].group) —
+    // – Form (grupovaný dle FIELDS[].group) –
     function buildForm() {
       const root = $('groups'); root.innerHTML = '';
       const groups = [];
@@ -132,7 +132,7 @@ import { CMS_FIELDS } from '../../lib/siteContent';
     }
     function mark(wrap, val, def) { wrap.classList.toggle('edited', val.trim() !== '' && val.trim() !== def.trim()); }
 
-    // — Načtení přepisů —
+    // – Načtení přepisů –
     async function load() {
       $('state').textContent = 'Načítám…'; $('msg').textContent='';
       try {
@@ -150,7 +150,7 @@ import { CMS_FIELDS } from '../../lib/siteContent';
       } catch (e) { $('state').innerHTML = `<span class="err">Chyba načtení: ${esc(e.message)}</span>`; }
     }
 
-    // — Uložení (jen pole odlišná od defaultu) —
+    // – Uložení (jen pole odlišná od defaultu) –
     $('save').onclick = async () => {
       const fields = {}; let n = 0;
       document.querySelectorAll('#groups .field').forEach((wrap) => {
@@ -166,7 +166,7 @@ import { CMS_FIELDS } from '../../lib/siteContent';
     };
     $('reload').onclick = load;
 
-    // — Filtr —
+    // – Filtr –
     $('search').oninput = (e) => {
       const q = e.target.value.trim().toLowerCase();
       document.querySelectorAll('#groups .field').forEach((wrap) => {

@@ -1,12 +1,12 @@
 ---
-// Trypup — skrytý analytický dashboard (cross-device).
+// Trypup – skrytý analytický dashboard (cross-device).
 // Čte kolekci `analytics_events` z Firestore (projekt trypupapp). Přístup jen pro
 // admin účet (Firestore rules: read jen pro o.kliment@gmail.com). Skryté pro roboty
 // (noindex + robots.txt Disallow /admin). Firebase přes CDN (žádná npm změna webu).
 //
-// Záložky: PŘEHLED (KPI+funnely) · VÝZKUM (onboarding odpovědi/chování — oddělené od
+// Záložky: PŘEHLED (KPI+funnely) · VÝZKUM (onboarding odpovědi/chování – oddělené od
 // technických dat) · TECHNIKA (zařízení/chyby/build). Filtr + fulltext nad daty.
-// Retence: stránkování (Načíst starší / Načíst vše) — data se drží od začátku měření.
+// Retence: stránkování (Načíst starší / Načíst vše) – data se drží od začátku měření.
 const ADMIN_EMAIL = 'o.kliment@gmail.com';
 ---
 
@@ -160,8 +160,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <h2>Stažení z obchodů <span id="st-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
       <div class="cards" id="st-kpis"></div>
       <div class="grid2" id="st-panels" style="margin-top:12px"></div>
-      <p class="note">Zdroj: App Store Analytics Reports (první stažení, od 5. 10. 2026) a Google Play hromadné přehledy (nové instalace uživatelů, měsíční CSV — Google je vydává se zpožděním několika dní). Kolekce <code>store_stats</code>, plní funkce <code>syncStoreStats</code> denně v 6:40. Jen součty po dnech a zemích, žádná data o lidech.</p>
-      <p class="note">Zdroj: ledger instalací (<code>install_platforms</code>, každé zařízení jednou, bez testerů — přepínač „včetně testerů“ nahoře).
+      <p class="note">Zdroj: App Store Analytics Reports (první stažení, od 5. 10. 2026) a Google Play hromadné přehledy (nové instalace uživatelů, měsíční CSV – Google je vydává se zpožděním několika dní). Kolekce <code>store_stats</code>, plní funkce <code>syncStoreStats</code> denně v 6:40. Jen součty po dnech a zemích, žádná data o lidech.</p>
+      <p class="note">Zdroj: ledger instalací (<code>install_platforms</code>, každé zařízení jednou, bez testerů – přepínač „včetně testerů“ nahoře).
         Skutečná <strong>stažení z obchodů</strong> jsou v bloku níž.</p>
       <h2>Eventy (načtené dávky)</h2>
       <div class="cards" id="kpis"></div>
@@ -177,7 +177,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <div class="grid2" id="r-funnel"></div>
       <h2>Připravenost (formulář „Než si pořídíš psa")</h2>
       <div class="grid2" id="r-readiness"></div>
-      <h2>Kvíz — profil uživatele</h2>
+      <h2>Kvíz – profil uživatele</h2>
       <div class="grid2" id="r-quiz"></div>
       <h2>Doporučení vs. výběr plemene</h2>
       <div class="grid2" id="r-breed"></div>
@@ -189,12 +189,12 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     <!-- TAB: TECHNIKA -->
     <div id="tab-technika" class="tabpane hidden">
-      <h2>Zařízení — na čem se to děje</h2>
+      <h2>Zařízení – na čem se to děje</h2>
       <div class="grid2" id="t-devices"></div>
       <h2>Kvalita & chyby</h2>
       <div class="grid2" id="t-quality"></div>
-      <h2>Instalace (ledger) — označení testerů <span id="i-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
-      <p class="note"><span class="tag auto">robot (auto)</span> = Google Play pre-launch report (emulátory <code>sdk_gphone*</code>, OnePlus8Pro na Androidu 11 s aktivitou pod hodinu) — pravidla v <code>functions/installClass.js</code>. <span class="tag auto">tester (auto)</span> = simulátor / vývojový build / Expo Go. TestFlight a interní testování Play vypadají jako obchod → označ ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi tester. „není robot“ vypne automatiku pro konkrétní zařízení (skutečný majitel OnePlus 8 Pro). Platí hned pro všechny záložky i <code>/api/stats.json</code>.</p>
+      <h2>Instalace (ledger) – označení testerů <span id="i-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <p class="note"><span class="tag auto">robot (auto)</span> = Google Play pre-launch report (emulátory <code>sdk_gphone*</code>, OnePlus8Pro na Androidu 11 s aktivitou pod hodinu) – pravidla v <code>functions/installClass.js</code>. <span class="tag auto">tester (auto)</span> = simulátor / vývojový build / Expo Go. TestFlight a interní testování Play vypadají jako obchod → označ ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi tester. „není robot“ vypne automatiku pro konkrétní zařízení (skutečný majitel OnePlus 8 Pro). Platí hned pro všechny záložky i <code>/api/stats.json</code>.</p>
       <div class="panel" style="overflow:auto"><table class="inst" id="inst"></table></div>
       <h2>Poslední aktivita (drill log)</h2>
       <div class="panel"><div class="feed" id="feed"></div></div>
@@ -223,7 +223,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     const db = getFirestore(app);
 
     const $ = (id) => document.getElementById(id);
-    // Escapuje i uvozovky — data jdou i do HTML ATRIBUTŮ (data-iid, <option value>), a zápis
+    // Escapuje i uvozovky – data jdou i do HTML ATRIBUTŮ (data-iid, <option value>), a zápis
     // do analytics_events je anonymní (Firestore rules nevalidují tvar) → bez toho stored XSS.
     const esc = (s) => String(s ?? '').replace(/[<>&"']/g, (c) => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]));
     const fmt = (t) => new Date(t).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
@@ -249,7 +249,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       }
     });
 
-    // --- Data load (stránkování — drží data od začátku měření) ---
+    // --- Data load (stránkování – drží data od začátku měření) ---
     const PAGE = 500;
     let RAW = [];          // ploché eventy ze všech načtených dávek
     let lastDoc = null;    // cursor pro startAfter
@@ -331,7 +331,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const since = (d) => iso(today.getTime() - d * DAY);
       const sum = (rows) => rows.reduce((a, x) => a + n(x), 0);
       const ios = STORE.filter((x) => x.platform === 'ios'), and = STORE.filter((x) => x.platform === 'android');
-      const last = (rows) => rows.map((x) => x.date).sort().slice(-1)[0] || '—';
+      const last = (rows) => rows.map((x) => x.date).sort().slice(-1)[0] || '–';
       const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
       $('st-sub').textContent = `· App Store data do ${last(ios)} · Google Play do ${last(and)}`;
       $('st-kpis').innerHTML = [
@@ -514,7 +514,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     /**
      * Výsledek pokusu o nákup = hlavní metrika konverze paywallu (ZADANI_ROBOTI_A_NAKUPY B2).
-     * purchase_cancelled / purchase_pending chodí od OTA build282 — starší pokusy bez výsledku
+     * purchase_cancelled / purchase_pending chodí od OTA build282 – starší pokusy bez výsledku
      * se počítají jako „bez záznamu“ (dřív se zrušení nelogovalo vůbec).
      */
     function purchaseOutcomePanel(ev) {
@@ -538,7 +538,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     // --- Render (jen aktivní záložka kvůli výkonu) ---
     function render() {
       const ev = applyFilters(RAW);
-      $('count').textContent = 'Zobrazeno ' + ev.length + ' / ' + RAW.length + ' eventů · ' + batches + ' dávek' + (exhausted ? ' (kompletní)' : ' (jsou starší — Načíst starší)');
+      $('count').textContent = 'Zobrazeno ' + ev.length + ' / ' + RAW.length + ' eventů · ' + batches + ' dávek' + (exhausted ? ' (kompletní)' : ' (jsou starší – Načíst starší)');
       if (activeTab === 'prehled') renderOverview(ev);
       else if (activeTab === 'vyzkum') renderResearch(ev);
       else renderTech(ev);
@@ -563,8 +563,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const byDay = new Map();
       for (let d = 29; d >= 0; d--) byDay.set(new Date(now - d * DAY).toLocaleDateString('cs-CZ'), 0);
       users.forEach((i) => { if (within(i.firstMs, 30)) { const key = new Date(i.firstMs).toLocaleDateString('cs-CZ'); byDay.set(key, (byDay.get(key) || 0) + 1); } });
-      const regionName = (c) => { try { return c && c !== 'none' ? new Intl.DisplayNames(['cs'], { type: 'region' }).of(c) + ' (' + c + ')' : '— nehlásí (starší build)'; } catch { return c; } };
-      const langName = (c) => { try { return c ? new Intl.DisplayNames(['cs'], { type: 'language' }).of(c) + ' (' + c + ')' : '—'; } catch { return c; } };
+      const regionName = (c) => { try { return c && c !== 'none' ? new Intl.DisplayNames(['cs'], { type: 'region' }).of(c) + ' (' + c + ')' : '– nehlásí (starší build)'; } catch { return c; } };
+      const langName = (c) => { try { return c ? new Intl.DisplayNames(['cs'], { type: 'language' }).of(c) + ' (' + c + ')' : '–'; } catch { return c; } };
       $('u-panels').innerHTML = [
         barPanel('Nová zařízení za den (30 dní)', [...byDay.entries()], 'var(--apricot)'),
         barPanel('Jazyk aplikace', countBy(users, (i) => langName(i.locale)), 'var(--water)', 12, 'z nastavení aplikace'),
@@ -674,8 +674,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const sess = evByName(ev, 'session_end').map((e) => +e.props.durationSec).filter((n) => Number.isFinite(n) && n >= 0);
       const sessBuckets = [['< 30 s', sess.filter((s) => s < 30).length], ['30 s–2 min', sess.filter((s) => s >= 30 && s < 120).length], ['2–10 min', sess.filter((s) => s >= 120 && s < 600).length], ['10+ min', sess.filter((s) => s >= 600).length]];
       $('r-mission').innerHTML = [
-        barPanel('Retence — instalace co dosáhly herního dne', dayReach, 'var(--apricot)'),
-        barPanel('Návraty — počet odlišných dní s otevřením', returns, 'var(--water)'),
+        barPanel('Retence – instalace co dosáhly herního dne', dayReach, 'var(--apricot)'),
+        barPanel('Návraty – počet odlišných dní s otevřením', returns, 'var(--water)'),
         barPanel('Délka relace (session_end)', sessBuckets, 'var(--plum)', null, sess.length + '× ukončeno'),
         barPanel('Proklik na útulek dle útulku', countBy(evByName(ev, 'shelter_opened'), (e) => e.props.shelter || '(neznámý)'), 'var(--water)', 12),
       ].join('');
@@ -693,10 +693,10 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
       $('t-quality').innerHTML = [
         barPanel('Chyby (app_error) dle kontextu', countBy(evByName(ev, 'app_error'), (e) => e.props.context || '?'), '#ff8a8a', 12),
-        barPanel('Selhané nákupy — kód chyby', countBy(evByName(ev, 'purchase_failed'), (e) => (e.props.code || e.props.reason || '?') + (e.props.code && e.props.reason && e.props.code !== e.props.reason ? ' (' + e.props.reason + ')' : '')), '#ff8a8a', 12, 'code = název chyby RevenueCatu (od build282), dřív jen reason'),
-        barPanel('Selhané nákupy — produkt', countBy(evByName(ev, 'purchase_failed'), (e) => e.props.product || '?'), '#ff8a8a', 10),
-        barPanel('Selhané nákupy — platforma', countBy(evByName(ev, 'purchase_failed'), (e) => e.dev.platform || '?'), '#ff8a8a'),
-        barPanel('Selhané nákupy — hláška', countBy(evByName(ev, 'purchase_failed'), (e) => (e.props.message || e.props.underlying || '').slice(0, 80) || '(bez hlášky)'), null, 8),
+        barPanel('Selhané nákupy – kód chyby', countBy(evByName(ev, 'purchase_failed'), (e) => (e.props.code || e.props.reason || '?') + (e.props.code && e.props.reason && e.props.code !== e.props.reason ? ' (' + e.props.reason + ')' : '')), '#ff8a8a', 12, 'code = název chyby RevenueCatu (od build282), dřív jen reason'),
+        barPanel('Selhané nákupy – produkt', countBy(evByName(ev, 'purchase_failed'), (e) => e.props.product || '?'), '#ff8a8a', 10),
+        barPanel('Selhané nákupy – platforma', countBy(evByName(ev, 'purchase_failed'), (e) => e.dev.platform || '?'), '#ff8a8a'),
+        barPanel('Selhané nákupy – hláška', countBy(evByName(ev, 'purchase_failed'), (e) => (e.props.message || e.props.underlying || '').slice(0, 80) || '(bez hlášky)'), null, 8),
         barPanel('GPS odmítnuto', countBy(evByName(ev, 'gps_denied'), () => 'gps_denied'), '#ff8a8a'),
         barPanel('Fail-state (pes do útulku) dle dne', countBy(evByName(ev, 'fail_state'), (e) => 'den ' + (e.props.day ?? '?')), '#ff8a8a'),
       ].join('');
