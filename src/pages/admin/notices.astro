@@ -90,7 +90,7 @@
     .hist { border:1px solid var(--line); border-radius:12px; padding:10px 14px; margin:0 0 8px; background:var(--bg); font-size:12.5px; }
     .hist .h-top { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
     .hist .h-meta { color:var(--muted); font-size:11.5px; margin-top:4px; line-height:1.6; }
-    .st-queued, .st-counting, .st-sending { color:#e8c46a; } .st-done, .st-dry { color:#7dd39a; } .st-failed { color:#ff8a8a; }
+    .st-queued, .st-counting, .st-sending, .st-scheduled { color:#e8c46a; } .st-done, .st-dry { color:#7dd39a; } .st-failed { color:#ff8a8a; } .st-cancelled { color:var(--muted); }
 
     @media(max-width:680px){ .cols, .cols3 { grid-template-columns:1fr; } }
   </style>
@@ -240,6 +240,20 @@
           Zařízení, které verzi nehlásí, push <strong>nedostane</strong>. Prázdné = všechny verze. Novou verzi zařízení nahlásí, až v ní uživatel aplikaci otevře.</p>
       </div>
       <div class="field" style="margin-top:12px">
+        <label>Kdy odeslat</label>
+        <div class="seg">
+          <select id="p-when">
+            <option value="now">Hned</option>
+            <option value="local">Naplánovat na místní čas zařízení</option>
+          </select>
+          <input id="p-date" type="date" class="hidden" />
+          <input id="p-time" type="time" class="hidden" value="10:00" />
+        </div>
+        <p class="hint hidden" id="p-when-hint">Každé zařízení dostane push v tento čas <strong>podle svého časového pásma</strong> (zařízení bez pásma podle Prahy),
+          nejpozději do 15 minut. Pásmo, kterému čas nastal před víc než 3 hodinami, se přeskočí. Naplánovanou kampaň jde v historii zrušit,
+          dokud neodejde poslední vlna. Ostatní ostré pushe se od první vlny do konce kampaně zablokují.</p>
+      </div>
+      <div class="field" style="margin-top:12px">
         <label>Jen testovací zařízení <span class="muted">(ID zařízení z Nastavení aplikace, oddělená čárkou — ostatní filtry platí dál)</span></label>
         <input id="p-devices" placeholder="a3f1c2d4, 9b8e7f6a" />
       </div>
@@ -287,7 +301,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-    import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, addDoc, query, orderBy, limit, onSnapshot }
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc, query, orderBy, limit, onSnapshot }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const ADMIN_EMAIL = 'o.kliment@gmail.com';
@@ -773,11 +787,26 @@
       $('p-ios').checked = true; $('p-android').checked = true;
       ['p-ios', 'p-android'].forEach((id) => $(id).closest('.chip').classList.add('on'));
       $('p-activity').value = ''; $('p-quiet').value = '3'; $('p-max').value = '20000'; $('p-devices').value = ''; $('p-minver').value = '';
+      $('p-when').value = 'now'; $('p-date').value = pragueDate(Date.now() + 86_400_000); $('p-time').value = '10:00'; paintWhen();
       $('p-msg').textContent = ''; $('p-result').innerHTML = '';
       $('push-panel').classList.remove('hidden');
       $('push-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     $('p-close').onclick = () => { $('push-panel').classList.add('hidden'); pushNotice = null; if (pushUnsub) { pushUnsub(); pushUnsub = null; } };
+
+    /** Datum (YYYY-MM-DD) a čas (HH:MM) v Praze — výchozí pásmo plánovače (functions/push.js). */
+    function pragueParts(ms) {
+      const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+        .formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+      return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
+    }
+    const pragueDate = (ms) => pragueParts(ms).date;
+    function paintWhen() {
+      const local = $('p-when').value === 'local';
+      ['p-date', 'p-time', 'p-when-hint'].forEach((id) => $(id).classList.toggle('hidden', !local));
+      $('p-send').textContent = local ? 'Naplánovat push' : 'Odeslat push';
+    }
+    $('p-when').onchange = paintWhen;
 
     /** Složí kampaň z formuláře. Vrací { campaign } nebo { error }. */
     function buildCampaign(dryRun) {
@@ -811,8 +840,18 @@
         if (devices.some((d) => d.length < 8)) return { error: 'ID zařízení musí mít aspoň 8 znaků (tolik ukazuje aplikace).' };
         segment.deviceIds = devices;
       }
+      // Plán platí jen pro ostré odeslání; „Spočítat příjemce“ běží vždy hned (počty se nemění).
+      let schedule = null;
+      if (!dryRun && $('p-when').value === 'local') {
+        const localDate = $('p-date').value, localTime = $('p-time').value;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(localDate) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(localTime)) return { error: 'Vyplň datum i čas odeslání.' };
+        const now = pragueParts(Date.now());
+        if (`${localDate} ${localTime}` <= `${now.date} ${now.time}`) return { error: 'Čas odeslání v Praze už minul. Zvol pozdější.' };
+        if (localDate > pragueDate(Date.now() + 60 * 86_400_000)) return { error: 'Naplánovat jde nejvýš 60 dní dopředu.' };
+        schedule = { localDate, localTime, fallbackTz: 'Europe/Prague' };
+      }
       return { campaign: {
-        status: 'queued', dryRun: !!dryRun, createdBy: ADMIN_EMAIL, createdAt: serverTimestamp(),
+        status: schedule ? 'scheduled' : 'queued', ...(schedule ? { schedule } : {}), dryRun: !!dryRun, createdBy: ADMIN_EMAIL, createdAt: serverTimestamp(),
         noticeId: pushNotice.id, noticeTitle: (pushNotice.text?.cs?.title) || (pushNotice.text?.en?.title) || '',
         text, segment,
       } };
@@ -824,7 +863,8 @@
       const r = c.result || {};
       const st = c.status;
       const line = (label, v) => `<span class="stat"><b>${v ?? '–'}</b>${label}</span>`;
-      let html = `<p class="st-${st}" style="margin:0 0 6px;font-weight:700">${({ queued: 'Zařazeno…', counting: 'Počítám…', sending: 'Rozesílám…', dry: 'Spočítáno', done: 'Odesláno', failed: 'Selhalo' })[st] || st}${c.error ? ' — ' + c.error : ''}</p>`;
+      let html = `<p class="st-${st}" style="margin:0 0 6px;font-weight:700">${({ queued: 'Zařazeno…', counting: 'Počítám…', sending: 'Rozesílám…', dry: 'Spočítáno', done: 'Odesláno', failed: 'Selhalo', scheduled: 'Naplánováno', cancelled: 'Zrušeno' })[st] || st}${c.error ? ' — ' + c.error : ''}</p>`;
+      if (c.schedule) html += `<p class="hint" style="margin:0 0 6px">${scheduleLine(c)}</p>`;
       if (st === 'dry' || st === 'done') {
         html += line('odpovídá segmentu', r.matched) + (r.capped ? line('po stropu', r.recipients) : '');
         if (st === 'done') html += line('doručeno do služby', r.sent) + line('selhalo', r.failed) + line('smazaných tokenů', r.pruned);
@@ -837,6 +877,19 @@
           (r.failures && Object.keys(r.failures).length ? `<br/>chyby: ${dict(r.failures)}` : '') + '</p>';
       }
       return html;
+    }
+
+    const escH = (x) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    /** Plán a průběh plánované kampaně (vlny po pásmech, co ještě čeká). */
+    function scheduleLine(c) {
+      const s = c.schedule || {}, r = c.result || {};
+      const bits = [`plán ${escH(String(s.localDate || '').split('-').reverse().join('. '))} v ${escH(s.localTime || '')} místního času zařízení`];
+      if (Array.isArray(r.waves) && r.waves.length) bits.push('vlny: ' + r.waves.map((w) => `${escH(fmt(Date.parse(w.at)))} ${escH((w.tzs || []).join(', ') || '–')} → ${escH(w.sent)}`).join(' · '));
+      if (Array.isArray(r.pending) && r.pending.length) bits.push('čeká: ' + r.pending.map((g) => `${escH(g.tz)} ${escH(fmt(Date.parse(g.at)))} (${escH(g.count)})`).join(' · '));
+      if (r.skippedLate) bits.push(`zmeškáno ${escH(r.skippedLate)}`);
+      if (r.skippedRecentPush) bits.push(`push v poslední hodině ${escH(r.skippedRecentPush)}`);
+      if (c.lastSkip && c.status === 'scheduled') bits.push(`odloženo (${escH(c.lastSkip.reason)})`);
+      return bits.join('<br/>');
     }
 
     async function launch(dryRun) {
@@ -857,7 +910,10 @@
           return;
         }
         const kolik = fresh ? `${fresh.recipients} zařízení` : 'NEZNÁMÝ počet zařízení (nejdřív „Spočítat příjemce")';
-        if (!confirm(`Odeslat push „${(c.text.cs || c.text.en).title}" na ${kolik}?\n\nTohle už nejde vzít zpět.`)) return;
+        const kdy = c.schedule ? ` ${c.schedule.localDate.split('-').reverse().join('. ')} v ${c.schedule.localTime} místního času zařízení` : '';
+        if (!confirm(c.schedule
+          ? `Naplánovat push „${(c.text.cs || c.text.en).title}" na ${kolik}${kdy}?\n\nDo odeslání první vlny jde v historii zrušit.`
+          : `Odeslat push „${(c.text.cs || c.text.en).title}" na ${kolik}?\n\nTohle už nejde vzít zpět.`)) return;
         if (!fresh && !confirm('Opravdu bez spočítání? Pojistkou je jen strop příjemců.')) return;
       }
       msg.textContent = dryRun ? 'Počítám…' : 'Zakládám kampaň…';
@@ -868,7 +924,7 @@
         pushUnsub = onSnapshot(doc(db, CAMPAIGNS, ref.id), (snap) => {
           const d = snap.data(); if (!d) return;
           $('p-result').innerHTML = renderResult(d);
-          if (['dry', 'done', 'failed'].includes(d.status)) {
+          if (['dry', 'done', 'failed', 'scheduled', 'cancelled'].includes(d.status)) {
             $('p-count').disabled = false; $('p-send').disabled = false;
             msg.textContent = '';
             if (d.status === 'dry') lastCount = { key: settingsKey(c), result: d.result || {} };
@@ -904,8 +960,19 @@
             seg.deviceIds ? `TEST ${seg.deviceIds.length} zař.` : '',
           ].filter(Boolean).join(' · ');
           const title = (c.text?.cs?.title) || (c.text?.en?.title) || c.noticeTitle || '(bez titulku)';
-          el.innerHTML = `<div class="h-top"><div><strong>${c.dryRun ? '🔍 ' : '📣 '}${title}</strong> <span class="st-${c.status}">${c.status}</span>${c.error ? ` <span class="err">${c.error}</span>` : ''}</div><div class="muted">${when}</div></div>
-            <div class="h-meta">${segBits}<br/>${c.dryRun ? `odpovídá: ${r.matched ?? '–'}` : `odesláno ${r.sent ?? '–'} · selhalo ${r.failed ?? '–'} · smazané tokeny ${r.pruned ?? '–'} · segment ${r.matched ?? '–'}`} · zařízení celkem ${r.totalDevices ?? '–'}${c.noticeId ? ` · zpráva ${c.noticeId}` : ''}</div>`;
+          el.innerHTML = `<div class="h-top"><div><strong>${c.dryRun ? '🔍 ' : (c.schedule ? '🕙 ' : '📣 ')}${title}</strong> <span class="st-${c.status}">${c.status}</span>${c.error ? ` <span class="err">${c.error}</span>` : ''}</div><div class="muted">${when}</div></div>
+            <div class="h-meta">${segBits}<br/>${c.dryRun ? `odpovídá: ${r.matched ?? '–'}` : `odesláno ${r.sent ?? '–'} · selhalo ${r.failed ?? '–'} · smazané tokeny ${r.pruned ?? '–'} · segment ${r.matched ?? '–'}`} · zařízení celkem ${r.totalDevices ?? '–'}${c.noticeId ? ` · zpráva ${c.noticeId}` : ''}${c.schedule ? '<br/>' + scheduleLine(c) : ''}</div>`;
+          if (c.status === 'scheduled') {
+            const b = document.createElement('button'); b.className = 'ghost'; b.style.marginTop = '6px';
+            b.textContent = 'Zrušit naplánovaný push';
+            b.onclick = async () => {
+              if (!confirm(`Zrušit naplánovaný push „${title}"?\n\nVlny, které už odešly, zůstanou odeslané; další už nepůjdou.`)) return;
+              b.disabled = true;
+              try { await updateDoc(doc(db, CAMPAIGNS, d.id), { status: 'cancelled', cancelledAt: serverTimestamp() }); }
+              catch (e) { b.disabled = false; $('h-msg').innerHTML = `<span class="err">Zrušení: ${escH(e.message)}</span>`; }
+            };
+            el.appendChild(b);
+          }
           box.appendChild(el);
         });
       }, (e) => { $('h-msg').innerHTML = `<span class="err">Historie: ${e.message}</span>`; });
