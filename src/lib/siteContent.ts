@@ -107,8 +107,8 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'about.cs.whyText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Proč vznikl"', default: 'Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí – čas, peníze, bydlení, životní změny. Trypup vás každodenní rutinou provede nanečisto, bez následků pro živé zvíře.' },
   { key: 'about.cs.breedsTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Plemena"', default: 'Plemena' },
   { key: 'about.cs.breedsText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Plemena"', default: 'Pro psa na zkoušku jsou zdarma čtyři plemena – jedno od každého vzrůstu (malé, střední, velké) a navíc voříšek z útulku – a další jako Premium (Border kolie, Sibiřský husky, Německý ovčák, Zlatý retrívr, Bernský salašnický pes a další).' },
-  { key: 'about.cs.commitTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Náš závazek"', default: 'Náš závazek' },
-  { key: 'about.cs.commitText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Náš závazek"', default: 'Část výnosů věnujeme psím útulkům. Trypup není hra na výhru – je to upřímná zkouška, jestli na psa máte.' },
+  { key: 'about.cs.commitTitle', group: 'O aplikaci CZ', type: 'text', label: 'Nadpis „Upřímná zkouška"', default: 'Upřímná zkouška' },
+  { key: 'about.cs.commitText', group: 'O aplikaci CZ', type: 'textarea', label: 'Text „Upřímná zkouška"', default: 'Trypup není hra na výhru – je to upřímná zkouška, jestli na psa máte.' },
   { key: 'about.cs.cta', group: 'O aplikaci CZ', type: 'text', label: 'Tlačítko dole', default: 'Vyzkoušet Trypup' },
 
   // ─────────────────────────── O aplikaci (EN) ───────────────────────────
