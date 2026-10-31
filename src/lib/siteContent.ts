@@ -26,10 +26,10 @@ export interface CmsField {
 
 export const CMS_FIELDS: CmsField[] = [
   // ─────────────────────────── Domů (CZ) ───────────────────────────
-  { key: 'home.cs.hero.badge', group: 'Domů CZ · Hero', type: 'text', label: 'Štítek nad nadpisem', default: '🐾 Edukativní simulátor péče' },
+  { key: 'home.cs.hero.badge', group: 'Domů CZ · Hero', type: 'text', label: 'Štítek nad nadpisem', default: 'Vzdělávací aplikace o péči o psa' },
   { key: 'home.cs.hero.title', group: 'Domů CZ · Hero', type: 'text', label: 'Hlavní nadpis', default: 'Pes na zkoušku' },
-  { key: 'home.cs.hero.lead', group: 'Domů CZ · Hero', type: 'textarea', label: 'Podnadpis (lead)', default: 'Vyzkoušejte si na 30 dní, co péče o psa obnáší – dřív, než si pořídíte toho skutečného.' },
-  { key: 'home.cs.hero.ctaPrimary', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 1 (text)', default: 'Stáhnout aplikaci' },
+  { key: 'home.cs.hero.lead', group: 'Domů CZ · Hero', type: 'textarea', label: 'Podnadpis (lead)', default: 'Virtuální pes v telefonu na 30 dní. Venčení podle GPS, krmení, výcvik i náklady – zjistíte, jestli na psa máte, dřív než si pořídíte skutečného.' },
+  { key: 'home.cs.hero.ctaPrimary', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 1 (text)', default: 'Stáhnout zdarma' },
   { key: 'home.cs.hero.ctaGhost', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 2 (text)', default: 'Jak to funguje' },
 
   { key: 'home.cs.stat.big', group: 'Domů CZ · Statistika', type: 'textarea', label: 'Velký výrok', default: 'Psi většinou nekončí v útulku kvůli své povaze, ale kvůli okolnostem na straně lidí.' },
@@ -63,10 +63,10 @@ export const CMS_FIELDS: CmsField[] = [
   { key: 'home.cs.dl.sub', group: 'Domů CZ · Stažení', type: 'textarea', label: 'Podnadpis sekce', default: 'Trypup je pro Android i iPhone. Vyzkoušejte si péči o psa nanečisto, nebo si v režimu Pes doma hlídejte očkování, odčervení a další termíny svého psa.' },
 
   // ─────────────────────────── Domů (EN) ───────────────────────────
-  { key: 'home.en.hero.badge', group: 'Domů EN · Hero', type: 'text', label: 'Badge', default: '🐾 Educational care simulator' },
+  { key: 'home.en.hero.badge', group: 'Domů EN · Hero', type: 'text', label: 'Badge', default: 'An educational dog-care app' },
   { key: 'home.en.hero.title', group: 'Domů EN · Hero', type: 'text', label: 'Headline', default: 'A dog on trial' },
-  { key: 'home.en.hero.lead', group: 'Domů EN · Hero', type: 'textarea', label: 'Lead', default: 'Spend 30 days finding out what caring for a dog really takes — before you get a real one.' },
-  { key: 'home.en.hero.ctaPrimary', group: 'Domů EN · Hero', type: 'text', label: 'Button 1', default: 'Get the app' },
+  { key: 'home.en.hero.lead', group: 'Domů EN · Hero', type: 'textarea', label: 'Lead', default: 'A virtual dog on your phone for 30 days. GPS walks, feeding, training and costs — find out if a dog is right for you before you get a real one.' },
+  { key: 'home.en.hero.ctaPrimary', group: 'Domů EN · Hero', type: 'text', label: 'Button 1', default: 'Download for free' },
   { key: 'home.en.hero.ctaGhost', group: 'Domů EN · Hero', type: 'text', label: 'Button 2', default: 'How it works' },
 
   { key: 'home.en.stat.big', group: 'Domů EN · Stat', type: 'textarea', label: 'Big statement', default: 'Dogs mostly end up in shelters not because of their temperament, but because of their owners\' circumstances.' },

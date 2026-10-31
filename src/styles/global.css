@@ -43,6 +43,9 @@ img { max-width: 100%; display: block; }
 .announce a { text-decoration: underline; text-underline-offset: 2px; font-weight: 700; }
 .announce-play { color: #FDF4EF; }
 .announce a { color: var(--orange); }
+/* Na mobilu na úvodní stránce lišta s novinkou nepatří: brala 2 řádky první obrazovky a odkaz
+   na Pes doma je v hero stejně (revize 31. 10. 2026). */
+@media (max-width: 600px) { .announce-home { display: none; } }
 .site-header { position: sticky; top: 0; z-index: 20; background: rgba(253,244,239,0.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
 .brand .brand-mark { display: block; }
 .brand .wm-try { color: var(--plum); }
@@ -93,6 +96,16 @@ img { max-width: 100%; display: block; }
 .btn-primary:hover { text-decoration: none; opacity: .92; }
 .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
 .btn-ghost:hover { text-decoration: none; }
+/* Pod tlačítky v hero: na čem aplikace běží (revize 31. 10. 2026). */
+.hero-micro { margin-top: 12px; color: var(--muted); font-size: 14px; }
+/* Mobil (revize 31. 10. 2026): na iPhonu končilo hlavní tlačítko pod cookie lištou →
+   menší horní odsazení a mezery v hero, kratší cookie lišta (níže). */
+@media (max-width: 600px) {
+  .hero { padding-top: 28px; padding-bottom: 40px; }
+  .hero .badge { margin-bottom: 14px; }
+  .hero p.lead { margin-top: 14px; }
+  .cta-row { margin-top: 22px; }
+}
 
 /* Stat band */
 .stat { background: var(--ink); color: #fff; text-align: center; }
@@ -209,3 +222,25 @@ p.section-kicker { text-align: center; color: var(--orange); font-weight: 800; f
 .owner-grid .card h3 { margin-top: 0; }
 .owner-note { max-width: 720px; margin: 28px auto 0; text-align: center; color: #374151; font-size: 15px; display: grid; gap: 8px; }
 .owner-note .vet-note { color: var(--muted); font-size: 14px; }
+
+/* Cookie lišta (souhlas s GA). Na mobilu krátký text a tlačítka vedle sebe, ať lišta
+   nezakrývá hlavní tlačítko v hero (revize 31. 10. 2026). */
+.cookie-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: #fff; border-top: 1px solid var(--orange); box-shadow: 0 -4px 20px rgba(74,43,69,.12); padding: 14px 18px; }
+.cookie-bar[hidden] { display: none; }
+.cookie-inner { max-width: 860px; margin: 0 auto; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.cookie-text { margin: 0; flex: 1 1 320px; font-size: .86rem; line-height: 1.5; color: var(--ink); }
+.cookie-text a { color: var(--orange); text-decoration: underline; }
+.cookie-short { display: none; }
+.cookie-btns { display: flex; gap: 8px; flex: 0 0 auto; }
+.cookie-btn { border-radius: 999px; padding: .5rem 1.3rem; font: inherit; font-size: .86rem; font-weight: 700; cursor: pointer; }
+.cookie-reject { background: none; border: 1.5px solid var(--ink); color: var(--ink); }
+.cookie-accept { background: var(--orange); border: 1.5px solid var(--orange); color: #fff; }
+@media (max-width: 600px) {
+  .cookie-bar { padding: 10px 16px; }
+  .cookie-inner { gap: 8px; }
+  .cookie-text { flex-basis: 100%; font-size: .8rem; line-height: 1.4; text-align: center; }
+  .cookie-long { display: none; }
+  .cookie-short { display: inline; }
+  .cookie-btns { flex: 1 1 100%; }
+  .cookie-btn { flex: 1; padding: .45rem 1rem; }
+}

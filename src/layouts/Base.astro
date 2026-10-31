@@ -16,6 +16,8 @@ interface Props {
    * jazycích, takže jen ty dostanou plné 12jazyčné menu (viz `langLinks` níže). Ostatní
    * stránky (blog, admin, smazání účtu…) nemají 12 mutací → zůstává starý CZ/EN přepínač. */
   pageKey?: PageKey;
+  /** Stránka nesmí do vyhledávačů (pozvánka /join nese v URL kód = přístupový token ke psovi). */
+  noindex?: boolean;
 }
 const {
   title = 'Trypup – pes na zkoušku',
@@ -24,6 +26,7 @@ const {
   lang = 'cs',
   alt,
   pageKey,
+  noindex = false,
 } = Astro.props;
 
 const year = 2026;
@@ -56,6 +59,8 @@ type Strings = {
   // Novinka 2.0 (Pes doma) — když je vyplněná, lišta nahoře ukazuje ji místo starého „je na iPhonu i Androidu“.
   announceNew?: string; announceLink?: string;
   cookieText: string; cookieAccept: string; cookieReject: string; cookieSettings: string;
+  // Krátká verze lišty pro mobil (revize 31. 10. 2026: dlouhá lišta na iPhonu zakrývala hlavní tlačítko).
+  cookieTextShort: string;
 };
 
 // Nav na home/about míří do VLASTNÍHO jazyka (od 11. 9. má všech 12 jazyků svou
@@ -76,6 +81,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Nově v aplikaci: režim Pes doma pro všechny, kdo už psa mají.', announceLink: 'Co umí',
     cookieText: 'Používáme cookies pro měření návštěvnosti (Google Analytics), abychom Trypup vylepšovali. Analytika běží jen s vaším souhlasem – kdykoli ho změníte přes odkaz Cookies v patičce.',
     cookieAccept: 'Přijmout', cookieReject: 'Odmítnout', cookieSettings: 'Cookies',
+    cookieTextShort: 'Návštěvnost měříme přes cookies Google Analytics, jen s vaším souhlasem.',
   },
   en: {
     howItWorks: 'How it works', about: 'About', blog: 'Blog',
@@ -87,6 +93,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'New in the app: Dog at home mode for everyone who already has a dog.', announceLink: 'What it does',
     cookieText: 'We use cookies to measure traffic (Google Analytics) to make Trypup better. Analytics runs only with your consent — you can change it anytime via the Cookies link in the footer.',
     cookieAccept: 'Accept', cookieReject: 'Reject', cookieSettings: 'Cookies',
+    cookieTextShort: 'We measure traffic with Google Analytics cookies, only with your consent.',
   },
   de: {
     howItWorks: 'Wie es funktioniert', about: 'Über uns', blog: 'Blog',
@@ -99,6 +106,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Neu in der App: der Modus „Hund zu Hause“ für alle, die schon einen Hund haben.', announceLink: 'Was der Modus kann',
     cookieText: 'Wir verwenden Cookies zur Reichweitenmessung (Google Analytics), um Trypup zu verbessern. Analysen laufen nur mit Ihrer Zustimmung – Sie können diese jederzeit über den Cookies-Link in der Fußzeile ändern.',
     cookieAccept: 'Akzeptieren', cookieReject: 'Ablehnen', cookieSettings: 'Cookies',
+    cookieTextShort: 'Wir messen die Reichweite mit Google-Analytics-Cookies, nur mit Ihrer Zustimmung.',
   },
   fr: {
     howItWorks: 'Comment ça marche', about: 'À propos', blog: 'Blog',
@@ -111,6 +119,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Nouveau dans l’application : le mode « Chien à la maison », si vous avez déjà un chien.', announceLink: 'Ce qu’il propose',
     cookieText: 'Nous utilisons des cookies pour mesurer l’audience (Google Analytics) afin d’améliorer Trypup. Les analyses ne fonctionnent qu’avec votre consentement — vous pouvez le modifier à tout moment via le lien Cookies dans le pied de page.',
     cookieAccept: 'Accepter', cookieReject: 'Refuser', cookieSettings: 'Cookies',
+    cookieTextShort: 'Mesure d’audience (cookies Google Analytics) uniquement avec votre accord.',
   },
   pl: {
     howItWorks: 'Jak to działa', about: 'O aplikacji', blog: 'Blog',
@@ -123,6 +132,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Nowość w aplikacji: tryb Pies w domu dla każdego, kto ma już psa.', announceLink: 'Co potrafi',
     cookieText: 'Używamy plików cookie do pomiaru ruchu (Google Analytics), aby ulepszać Trypup. Analityka działa tylko za Twoją zgodą – możesz ją zmienić w dowolnym momencie za pomocą linku Cookies w stopce.',
     cookieAccept: 'Akceptuj', cookieReject: 'Odrzuć', cookieSettings: 'Cookies',
+    cookieTextShort: 'Mierzymy ruch za pomocą plików cookie Google Analytics, tylko za Twoją zgodą.',
   },
   es: {
     howItWorks: 'Cómo funciona', about: 'Acerca de', blog: 'Blog',
@@ -135,6 +145,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Novedad en la aplicación: el modo Perro en casa, para quienes ya tienen perro.', announceLink: 'Qué ofrece',
     cookieText: 'Utilizamos cookies para medir el tráfico (Google Analytics) con el fin de mejorar Trypup. El análisis solo funciona con su consentimiento — puede cambiarlo en cualquier momento mediante el enlace Cookies en el pie de página.',
     cookieAccept: 'Aceptar', cookieReject: 'Rechazar', cookieSettings: 'Cookies',
+    cookieTextShort: 'Medimos el tráfico con cookies de Google Analytics, solo con su consentimiento.',
   },
   it: {
     howItWorks: 'Come funziona', about: 'Chi siamo', blog: 'Blog',
@@ -147,6 +158,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Novità nell’app: la modalità Cane a casa per chi ha già un cane.', announceLink: 'Cosa fa',
     cookieText: 'Utilizziamo cookie per misurare il traffico (Google Analytics) per migliorare Trypup. L’analisi viene eseguita solo con il tuo consenso – puoi modificarlo in qualsiasi momento tramite il link Cookie nel footer.',
     cookieAccept: 'Accetta', cookieReject: 'Rifiuta', cookieSettings: 'Cookie',
+    cookieTextShort: 'Misuriamo il traffico con i cookie di Google Analytics, solo con il tuo consenso.',
   },
   nl: {
     howItWorks: 'Hoe het werkt', about: 'Over', blog: 'Blog',
@@ -159,6 +171,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Nieuw in de app: de modus Hond in huis voor iedereen die al een hond heeft.', announceLink: 'Wat de modus kan',
     cookieText: 'We gebruiken cookies om het websiteverkeer te meten (Google Analytics) om Trypup te verbeteren. Analyses lopen alleen met uw toestemming – u kunt dit op elk moment wijzigen via de link Cookies in de voettekst.',
     cookieAccept: 'Accepteren', cookieReject: 'Weigeren', cookieSettings: 'Cookies',
+    cookieTextShort: 'We meten het bezoek met cookies van Google Analytics, alleen met uw toestemming.',
   },
   pt: {
     howItWorks: 'Como funciona', about: 'Sobre', blog: 'Blog',
@@ -171,6 +184,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Novidade na aplicação: o modo «Cão em casa» para quem já tem um cão.', announceLink: 'O que faz',
     cookieText: 'Utilizamos cookies para medir o tráfego (Google Analytics) para melhorar o Trypup. A análise só funciona com o seu consentimento — pode alterá-lo a qualquer momento através da ligação Cookies no rodapé.',
     cookieAccept: 'Aceitar', cookieReject: 'Rejeitar', cookieSettings: 'Cookies',
+    cookieTextShort: 'Medimos o tráfego com cookies do Google Analytics, apenas com o seu consentimento.',
   },
   sk: {
     howItWorks: 'Ako to funguje', about: 'O aplikácii', blog: 'Blog',
@@ -183,6 +197,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Novinka v aplikácii: režim Pes doma pre každého, kto už má psa.', announceLink: 'Čo dokáže',
     cookieText: 'Používame cookies na meranie návštevnosti (Google Analytics), aby sme Trypup vylepšovali. Analytika beží len s vaším súhlasom – kedykoľvek ho zmeníte cez odkaz Cookies v pätičke.',
     cookieAccept: 'Prijať', cookieReject: 'Odmietnuť', cookieSettings: 'Cookies',
+    cookieTextShort: 'Návštevnosť meriame cez cookies Google Analytics, len s vaším súhlasom.',
   },
   bg: {
     howItWorks: 'Как работи', about: 'За приложението', blog: 'Блог',
@@ -195,6 +210,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Ново в приложението: режим „Куче вкъщи“ за всички, които вече имат куче.', announceLink: 'Какво може',
     cookieText: 'Използваме бисквитки за измерване на трафика (Google Analytics), за да подобрим Trypup. Анализите работят само с вашето съгласие — можете да го промените по всяко време чрез връзката Бисквитки в долния колонтитул.',
     cookieAccept: 'Приемам', cookieReject: 'Отказвам', cookieSettings: 'Бисквитки',
+    cookieTextShort: 'Измерваме трафика с бисквитки на Google Analytics, само с вашето съгласие.',
   },
   uk: {
     howItWorks: 'Як це працює', about: 'Про застосунок', blog: 'Блог',
@@ -207,6 +223,7 @@ const STRINGS: Record<Lang, Strings> = {
     announceNew: 'Новинка в застосунку: режим «Собака вдома» для всіх, хто вже має пса.', announceLink: 'Що вміє',
     cookieText: 'Ми використовуємо файли cookie для вимірювання відвідуваності (Google Analytics), щоб покращувати Trypup. Аналітика працює лише за вашою згодою — ви можете змінити її будь-коли через посилання Cookies у нижньому колонтитулі.',
     cookieAccept: 'Прийняти', cookieReject: 'Відхилити', cookieSettings: 'Cookies',
+    cookieTextShort: 'Вимірюємо відвідуваність (cookie Google Analytics) лише з вашої згоди.',
   },
 };
 
@@ -229,7 +246,8 @@ const langLinks = pageKey ? ALL_LANGS.map((code) => ({ code, name: LANG_NAME[cod
 
 // hreflang: stránky ve všech 12 jazycích dostanou plnou sadu + x-default (= /en/),
 // stránky jen cs+en (smazání účtu) pár, ostatní (blog, join, admin) nic.
-// `join` záměrně ne — robots.txt ho zakazuje (kód pozvánky v URL).
+// `join` záměrně ne — má noindex (kód pozvánky v URL). V robots.txt NENÍ zakázaný: zákaz
+// procházení by robotům noindex skryl a holá adresa s kódem by se mohla do výsledků dostat i tak.
 const LOCALIZED: LocalizedPage[] = ['home', 'about', 'privacy', 'terms', 'support'];
 let hreflangLinks: { hreflang: string; href: string }[] = [];
 if (pageKey && (LOCALIZED as string[]).includes(pageKey)) {
@@ -291,6 +309,7 @@ const jsonLd = pageKey === 'home' ? {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
     {hreflangLinks.map((l) => <link rel="alternate" hreflang={l.hreflang} href={l.href} />)}
     <meta property="og:title" content={title} />
@@ -374,7 +393,7 @@ const jsonLd = pageKey === 'home' ? {
   </head>
   <body>
     {t.announceNew
-      ? <div class="announce">{t.announceNew} <a href={`${t.homeHref}#${ownerAnchor}`} class="announce-new">{t.announceLink}</a></div>
+      ? <div class:list={['announce', { 'announce-home': pageKey === 'home' }]}>{t.announceNew} <a href={`${t.homeHref}#${ownerAnchor}`} class="announce-new">{t.announceLink}</a></div>
       : <div class="announce">{t.announcePre}<a href={dlAnchor} class="announce-play">{t.announceBoth}</a>{t.announcePost}<a href="https://www.instagram.com/trypupapp/" target="_blank" rel="noopener" data-cms-href="common.social.instagram">@trypupapp</a></div>}
     <header class="site-header">
       <div class="wrap">
@@ -440,14 +459,14 @@ const jsonLd = pageKey === 'home' ? {
     <!-- GDPR cookie souhlas. Default (head) = analytics_storage 'denied'; teprve
          „Přijmout" pošle gtag('consent','update', granted) a uloží volbu. „Cookies"
          odkaz v patičce lištu znovu otevře (uživatel může souhlas změnit). -->
-    <div id="cookie-bar" hidden style="position:fixed; left:0; right:0; bottom:0; z-index:50; background:#fff; border-top:1px solid #F2784B; box-shadow:0 -4px 20px rgba(74,43,69,.12); padding:14px 18px;">
-      <div style="max-width:860px; margin:0 auto; display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:center;">
-        <p style="margin:0; flex:1 1 320px; font-size:.86rem; line-height:1.5; color:#4A2B45;">
-          {t.cookieText} <a href={t.privacyHref} style="color:#F2784B; text-decoration:underline;">{t.privacy}</a>
+    <div id="cookie-bar" class="cookie-bar" hidden>
+      <div class="cookie-inner">
+        <p class="cookie-text">
+          <span class="cookie-long">{t.cookieText}</span><span class="cookie-short">{t.cookieTextShort}</span> <a href={t.privacyHref}>{t.privacy}</a>
         </p>
-        <div style="display:flex; gap:8px; flex:0 0 auto;">
-          <button id="cookie-reject" type="button" style="background:none; border:1.5px solid #4A2B45; color:#4A2B45; border-radius:999px; padding:.5rem 1.3rem; font-size:.86rem; font-weight:700; cursor:pointer;">{t.cookieReject}</button>
-          <button id="cookie-accept" type="button" style="background:#F2784B; border:1.5px solid #F2784B; color:#fff; border-radius:999px; padding:.5rem 1.3rem; font-size:.86rem; font-weight:700; cursor:pointer;">{t.cookieAccept}</button>
+        <div class="cookie-btns">
+          <button id="cookie-reject" type="button" class="cookie-btn cookie-reject">{t.cookieReject}</button>
+          <button id="cookie-accept" type="button" class="cookie-btn cookie-accept">{t.cookieAccept}</button>
         </div>
       </div>
     </div>

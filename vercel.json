@@ -5,21 +5,27 @@
       "destination": "https://europe-west1-trypupapp.cloudfunctions.net/getStats"
     }
   ],
+  "headers": [
+    {
+      "source": "/:lang([a-z]{2})?/join{/}?",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    }
+  ],
   "redirects": [
     {
-      "source": "/app",
+      "source": "/:p(app|obchody|stahnout|download){/}?",
       "has": [{ "type": "header", "key": "user-agent", "value": ".*(iPhone|iPad|iPod).*" }],
       "destination": "https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135",
       "permanent": false
     },
     {
-      "source": "/app",
+      "source": "/:p(app|obchody|stahnout|download){/}?",
       "has": [{ "type": "header", "key": "user-agent", "value": ".*Android.*" }],
       "destination": "https://play.google.com/store/apps/details?id=app.trypup.mobile",
       "permanent": false
     },
     {
-      "source": "/app",
+      "source": "/:p(app|obchody|stahnout|download){/}?",
       "destination": "/#stahnout",
       "permanent": false
     },

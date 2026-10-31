@@ -191,10 +191,11 @@ const fill = (s: string, withCode: boolean) => s
   .replace(/\[first\]/g, `<strong>${t.first}</strong>`);
 const alt = lang === 'en' ? '/join/' : '/en/join/';
 ---
-<Base title={t.title} description={t.description} lang={lang} alt={alt} pageKey="join">
+<Base title={t.title} description={t.description} lang={lang} alt={alt} pageKey="join" noindex>
   <section class="section wrap" style="text-align:center; max-width: 560px; margin-inline: auto;">
     <h1 style="margin-bottom: 0.4rem;">{t.h1}</h1>
     <p class="meta" style="margin-bottom: 2rem;">{t.meta}</p>
+    <p id="no-code" hidden style="color: #B91C1C; font-weight: 600; margin-bottom: 1.5rem;">{t.noCode}</p>
 
     <div id="code-card" style="background: #FDF4EF; border: 2px solid #F2784B; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
       <div style="font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: #4A2B45; opacity: .7; margin-bottom: .4rem;">{t.codeLabel}</div>
@@ -204,9 +205,8 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
 
     <a id="open-app" href="#" style="display: inline-block; background: #F2784B; color: #fff; border-radius: 999px; padding: .9rem 2rem; font-weight: 700; text-decoration: none; margin-bottom: 1rem;">{t.openApp}</a>
 
-    <p style="font-size: .9rem; opacity: .75; line-height: 1.5;" set:html={fill(t.noApp, true)} />
+    <p id="join-help" style="font-size: .9rem; opacity: .75; line-height: 1.5;" set:html={fill(t.noApp, true)} />
     <p id="install-fallback" hidden style="background:#FDF4EF; border:1px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.9rem; color:#4A2B45; line-height:1.5;" set:html={fill(t.fallback, false)} />
-    <p id="no-code" hidden style="color: #B91C1C; font-weight: 600;">{t.noCode}</p>
   </section>
 </Base>
 
@@ -248,8 +248,11 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
       try { await navigator.clipboard.writeText(raw); if (copyEl) copyEl.textContent = copyEl.dataset.copied ?? '✓'; } catch {}
     });
   } else {
+    // Bez platného kódu: hláška nahoře, pryč karta s kódem, tlačítko i návod s prázdným kódem.
+    // Tlačítko má inline `display`, které atribut `hidden` přebije (dřív zůstalo vidět a nic nedělalo).
     document.getElementById('code-card')?.setAttribute('hidden', '');
-    openEl?.setAttribute('hidden', '');
+    document.getElementById('join-help')?.setAttribute('hidden', '');
+    if (openEl) openEl.style.display = 'none';
     document.getElementById('no-code')?.removeAttribute('hidden');
   }
 </script>

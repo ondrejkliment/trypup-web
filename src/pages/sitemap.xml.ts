@@ -1,6 +1,6 @@
 // sitemap.xml — statický endpoint (output: static → dist/sitemap.xml), bez integrace
 // @astrojs/sitemap (žádný npm install). Obsah: 5 typů stránek × 12 jazyků s hreflang
-// alternativami, cs/en páry (smazání účtu), české stránky (jména pro psa) a český blog. /join a /admin ne (robots.txt).
+// alternativami, cs/en páry (smazání účtu), české stránky (jména pro psa) a český blog. /join (noindex) a /admin (robots.txt) ne.
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { SITE, ALL_LANGS, LOCALIZED_PAGES, pagePath, hreflangSet, CS_EN_PAIRS, CS_ONLY_PAGES } from '../lib/routes';

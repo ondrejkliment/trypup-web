@@ -6,7 +6,7 @@ import type { Lang } from './operator';
 export const SITE = 'https://trypup.life';
 export const ALL_LANGS: Lang[] = ['cs', 'en', 'de', 'fr', 'pl', 'es', 'it', 'nl', 'pt', 'sk', 'bg', 'uk'];
 
-/** Stránky s mutací ve všech 12 jazycích. `join` sem nepatří (robots.txt Disallow). */
+/** Stránky s mutací ve všech 12 jazycích. `join` sem nepatří (noindex, kód pozvánky v URL). */
 export type LocalizedPage = 'home' | 'about' | 'privacy' | 'terms' | 'support';
 export const LOCALIZED_PAGES: LocalizedPage[] = ['home', 'about', 'privacy', 'terms', 'support'];
 

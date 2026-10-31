@@ -1,0 +1,56 @@
+---
+// Vlastní 404 (revize 31. 10. 2026). Dřív Vercel ukázal výchozí černou anglickou stránku.
+// Vercel u statického webu vrací dist/404.html se stavem 404 pro jakoukoli neznámou adresu,
+// i pro /de/… nebo /en/…, proto je stránka česky a pod tím krátce anglicky.
+import Base from '../layouts/Base.astro';
+
+const playUrl = 'https://play.google.com/store/apps/details?id=app.trypup.mobile&pcampaignid=web_trypup';
+const appStoreUrl = 'https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135';
+---
+<Base title="Stránka nenalezena – Trypup" description="Tahle stránka na webu Trypup neexistuje." noindex>
+  <section class="section wrap center notfound">
+    <svg class="notfound-dog" width="96" height="96" viewBox="0 0 200 200" aria-hidden="true">
+      <defs><clipPath id="bm404"><ellipse cx="100" cy="92" rx="58" ry="54"/></clipPath></defs>
+      <ellipse cx="48" cy="112" rx="20" ry="52" transform="rotate(-10 48 112)" fill="#4A2B45"/>
+      <ellipse cx="152" cy="112" rx="20" ry="52" transform="rotate(10 152 112)" fill="#4A2B45"/>
+      <ellipse cx="100" cy="92" rx="58" ry="54" fill="#C77A45"/>
+      <ellipse cx="68" cy="80" rx="32" ry="34" fill="#9A5A2E" clip-path="url(#bm404)"/>
+      <ellipse cx="100" cy="127" rx="38" ry="31" fill="#FDF4EF" stroke="#B0682F" stroke-width="2.5"/>
+      <circle cx="78" cy="86" r="9" fill="#4A2B45"/><circle cx="122" cy="86" r="9" fill="#4A2B45"/>
+      <circle cx="81" cy="83" r="3" fill="#FDF4EF"/><circle cx="125" cy="83" r="3" fill="#FDF4EF"/>
+      <path d="M89 113 Q100 106 111 113 Q111 123 100 127 Q89 123 89 113 Z" fill="#4A2B45"/>
+      <path d="M100 127 V134" stroke="#4A2B45" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M100 134 Q90 143 82 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <path d="M100 134 Q110 143 118 137" stroke="#4A2B45" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    </svg>
+    <h1>Tahle stránka neexistuje</h1>
+    <p class="notfound-lead">Možná je odkaz starý nebo je v&nbsp;adrese překlep.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/">Na úvodní stránku</a>
+      <a class="btn btn-ghost" href="/#pes-doma">Pes doma</a>
+    </div>
+
+    <p class="notfound-store">Hledáte aplikaci Trypup?</p>
+    <div class="store-btns">
+      <a class="store-badge gp" href={playUrl} target="_blank" rel="noopener">
+        <img src="/badges/google-play-cs.png" alt="Ke stažení na Google Play" width="478" height="142" />
+      </a>
+      <a class="store-badge as" href={appStoreUrl} target="_blank" rel="noopener">
+        <img src="/badges/app-store-cs.svg" alt="Stáhnout v App Store" width="120" height="40" />
+      </a>
+    </div>
+    <p class="notfound-links"><a href="/podpora/">Podpora</a> · <a href="/o-aplikaci/">O aplikaci</a></p>
+
+    <p class="notfound-en" lang="en"><strong>Page not found.</strong> <a href="/en/">English home page</a> · <a href="/en/support/">Support</a></p>
+  </section>
+</Base>
+
+<style>
+  .notfound { max-width: 620px; }
+  .notfound-dog { margin: 0 auto 18px; }
+  .notfound h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 850; line-height: 1.1; }
+  .notfound-lead { color: var(--muted); font-size: 18px; margin-top: 12px; }
+  .notfound-store { margin-top: 40px; margin-bottom: 12px; font-weight: 700; }
+  .notfound-links { margin-top: 24px; }
+  .notfound-en { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 15px; }
+</style>
