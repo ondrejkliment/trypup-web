@@ -124,6 +124,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <button class="tab active" data-tab="prehled">Přehled</button>
       <button class="tab" data-tab="vyzkum">Výzkum</button>
       <button class="tab" data-tab="technika">Technika</button>
+      <button class="tab" data-tab="nakupy">Nákupy</button>
     </div>
 
     <!-- FILTRY + VYHLEDÁVÁNÍ -->
@@ -198,6 +199,17 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <div class="panel" style="overflow:auto"><table class="inst" id="inst"></table></div>
       <h2>Poslední aktivita (drill log)</h2>
       <div class="panel"><div class="feed" id="feed"></div></div>
+    </div>
+
+    <!-- TAB: NÁKUPY -->
+    <div id="tab-nakupy" class="tabpane hidden">
+      <h2>Nákupy <span id="p-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <div class="cards" id="p-kpis"></div>
+      <div class="panel" style="overflow:auto;margin-top:12px"><table class="inst" id="p-table"></table></div>
+      <div class="grid2" id="p-panels" style="margin-top:12px"></div>
+      <h2>Ostatní události předplatného</h2>
+      <div class="panel" style="overflow:auto"><table class="inst" id="p-other"></table></div>
+      <p class="note">Zdroj: RevenueCat – kolekce <code>rc_events</code>, plní ji webhook <code>revenuecatWebhook</code> (od 1. 11. 2026) a doplněná historie (<code>functions/backfill-rc-events.cjs</code>). Částka je v měně nákupu včetně DPH, v závorce v USD; výnos = po DPH a provizi obchodu (odhad RevenueCatu). <strong>Zařízení a jazyk</strong> RevenueCat nezná: páruje se s anonymní analytikou (<code>purchase_completed</code> se stejným produktem do 10 minut), obnova předplatného přebírá zařízení z prvního nákupu. Řádek „jen z aplikace“ = nákup bez záznamu v RevenueCatu (testovací nákup z TestFlightu / interního testování). Sandbox a testeři se skrývají jako jinde (přepínač „včetně testerů“ nahoře).</p>
     </div>
   </div>
 
@@ -317,6 +329,12 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       CLS_BY_ID.clear();
       INSTALLS.forEach((i) => { i.cls = classifyInstall(i, OVERRIDES.get(i.id) || null); CLS_BY_ID.set(i.id, i.cls.kind); });
     }
+    // --- Nákupy z RevenueCatu (rc_events, functions/rcEvents.js) ---
+    let RC_EVENTS = [];
+    async function loadRcEvents() {
+      const snap = await getDocs(collection(db, 'rc_events'));
+      RC_EVENTS = snap.docs.map((d) => d.data()).filter((x) => x && x.type);
+    }
     let STORE = [];
     async function loadStoreStats() {
       const snap = await getDocs(collection(db, 'store_stats'));
@@ -375,6 +393,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       try {
         await loadInstalls().catch((e) => console.warn('ledger instalací nenačten', e));
         await loadStoreStats().catch((e) => console.warn('store_stats nenačteny', e));
+        await loadRcEvents().catch((e) => console.warn('rc_events nenačteny', e));
         await fetchPage();
         buildFilterOptions();
         render();
@@ -466,11 +485,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     // --- Záložky ---
     let activeTab = (location.hash || '#prehled').slice(1);
-    if (!['prehled','vyzkum','technika'].includes(activeTab)) activeTab = 'prehled';
+    if (!['prehled','vyzkum','technika','nakupy'].includes(activeTab)) activeTab = 'prehled';
     function setTab(t) {
       activeTab = t; location.hash = t;
       $('tabs').querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === t));
-      ['prehled','vyzkum','technika'].forEach((x) => $('tab-' + x).classList.toggle('hidden', x !== t));
+      ['prehled','vyzkum','technika','nakupy'].forEach((x) => $('tab-' + x).classList.toggle('hidden', x !== t));
       render();
     }
     $('tabs').querySelectorAll('.tab').forEach((b) => b.onclick = () => setTab(b.dataset.tab));
@@ -493,7 +512,12 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     }
     function funnelPanel(title, steps, ev) {
       const installsWith = (name) => new Set(ev.filter((e) => e.name === name).map((e) => e.installId));
-      const sets = steps.map((s) => installsWith(s));
+      return funnelFromSets(title, steps.map((s) => [s, installsWith(s)]));
+    }
+    /** Trychtýř z hotových množin instalací: [[popisek, Set(installId)], …]. */
+    function funnelFromSets(title, pairs, hint) {
+      const steps = pairs.map(([label]) => label);
+      const sets = pairs.map(([, set]) => set);
       const base = sets[0].size || 1;
       const rows = steps.map((s, i) => {
         const c = sets[i].size; const pct = Math.round((c / base) * 100);
@@ -508,7 +532,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} <span class="pct">· ${pct}%</span></span>
           <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div>${conv}</div>`;
       }).join('');
-      return `<div class="panel funnel"><h3>${esc(title)}</h3>${rows}</div>`;
+      const h = hint ? ` <span class="hint">${esc(hint)}</span>` : '';
+      return `<div class="panel funnel"><h3>${esc(title)}${h}</h3>${rows}</div>`;
     }
     const evByName = (ev, name) => ev.filter((e) => e.name === name);
 
@@ -541,6 +566,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       $('count').textContent = 'Zobrazeno ' + ev.length + ' / ' + RAW.length + ' eventů · ' + batches + ' dávek' + (exhausted ? ' (kompletní)' : ' (jsou starší – Načíst starší)');
       if (activeTab === 'prehled') renderOverview(ev);
       else if (activeTab === 'vyzkum') renderResearch(ev);
+      else if (activeTab === 'nakupy') renderPurchases();
       else renderTech(ev);
     }
 
@@ -611,8 +637,15 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         }
         return [...m.entries()].map(([k, [s, n]]) => [k + ' (' + n + '×)', Math.round(s / n / 1000)]).sort((a, b) => b[1] - a[1]);
       })();
+      const flows = onboardingFlows(ev);
       $('r-funnel').innerHTML = [
-        funnelPanel('Onboarding funnel (dle instalací)', ['app_open','onboarding_step','readiness_completed','quiz_completed','breed_selected','activated'], ev),
+        funnelFromSets('Nový onboarding (od 2.2.1) – kroky', flows.newPairs, flows.newHint),
+        funnelFromSets('Původní onboarding (do 2.2.0) – kroky', flows.oldPairs, flows.oldHint),
+        funnelFromSets('Pes doma z onboardingu', flows.ownerPairs, flows.ownerHint),
+        barPanel('Kde odešli – nový onboarding', flows.newExits, '#ff8a8a', 8, 'poslední krok instalací, které psa nezaložily'),
+        barPanel('Krok zpět (odkud → kam)', flows.backs, null, 8, 'onboarding_step s dir: back, od 2.2.1'),
+        barPanel('Založení psa – zvolený režim', flows.doneModes, 'var(--water)', 4, 'step done → mode, od 2.2.1'),
+        funnelPanel('Onboarding funnel (dle eventů)', ['app_open','onboarding_step','quiz_completed','breed_selected','activated'], ev),
         barPanel('Průměrný čas na kroku (s)', dwell, 'var(--plum)', 8, 'z onboarding_step.dwellMs'),
       ].join('');
 
@@ -626,6 +659,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       });
       $('r-readiness').innerHTML = [
         barPanel('Tier připravenosti', countBy(rc, (e) => e.props.tier), 'var(--water)', null, rc.length + '× vyplněno'),
+        barPanel('Odkud vyplněno', countBy(rc, (e) => ({ first: 'karta na Domů (od 2.2.1)', again: 'zopakování na výsledku výzvy' }[e.props.phase] || 'krok onboardingu (do 2.2.0)')), 'var(--plum)', 3),
         barPanel('Odpovědi „ano" dle otázky', perQ, 'var(--apricot)', null, 'kolik z nich na danou otázku odpovědělo ano'),
       ].join('');
 
@@ -679,6 +713,180 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         barPanel('Délka relace (session_end)', sessBuckets, 'var(--plum)', null, sess.length + '× ukončeno'),
         barPanel('Proklik na útulek dle útulku', countBy(evByName(ev, 'shelter_opened'), (e) => e.props.shelter || '(neznámý)'), 'var(--water)', 12),
       ].join('');
+    }
+
+    /**
+     * Onboarding po krocích, zvlášť nový (2.2.1: úvod → věk → 3 otázky → doporučení → plemeno →
+     * jméno s režimem → hotovo) a původní (s dotazníkem připravenosti a krokem režimu).
+     * „Dosáhl kroku“ = onboarding_step se step == krok (bez dir: back). Instalace se do průběhu
+     * zařadí podle stop v datech (done/dir/věk → otázky = nový, readiness/mode = původní); kdo
+     * odešel dřív, podle buildu: od nejnižšího buildu, kde se nový průběh objevil, je nový.
+     */
+    function onboardingFlows(ev) {
+      const NEW = ['age', 'quiz', 'quiz_result', 'breed', 'name', 'done'];
+      const OLD = ['age', 'readiness', 'quiz', 'quiz_result', 'breed', 'name', 'mode'];
+      const LABEL = { intro: 'úvod (otevřeli aplikaci)', age: 'věk', readiness: 'dotazník připravenosti', quiz: '3 otázky', quiz_result: 'doporučení', breed: 'výběr plemene', name: 'jméno (+ režim od 2.2.1)', mode: 'režim', done: 'pes založen (done)', activated: 'pes založen (activated)' };
+      const per = new Map(); // installId → {steps:Set, isNew, isOld, build, last:{ts,step}, minTs, activated, owner…}
+      const get = (iid) => { let x = per.get(iid); if (!x) { x = { steps: new Set(), isNew: false, isOld: false, build: null, last: null, minTs: Infinity, hadStep: false, activated: false, ownerSetup: false, ownerAct: false, ownerBack: false }; per.set(iid, x); } return x; };
+      const backs = new Map(); const doneModes = new Map();
+      for (const e of ev) {
+        const x = get(e.installId);
+        const b = Number(e.dev.appBuild); if (Number.isFinite(b) && (x.build === null || b < x.build)) x.build = b;
+        if (e.ts < x.minTs) x.minTs = e.ts;
+        if (e.name === 'activated') x.activated = true;
+        else if (e.name === 'owner_activated' && e.props.from === 'onboarding') x.ownerAct = true;
+        else if (e.name === 'mode_switched' && e.props.source === 'onboarding' && e.props.from === 'owner' && e.props.to === 'trial') x.ownerBack = true;
+        else if (e.name === 'onboarding_step') {
+          const st = e.props.step; const from = e.props.fromStep;
+          x.hadStep = true;
+          if (e.props.dir === 'back') { x.isNew = true; const k = (from || '?') + ' → ' + (st || '?'); backs.set(k, (backs.get(k) || 0) + 1); continue; }
+          if (st === 'owner_setup') x.ownerSetup = true;
+          if (st === 'done') { x.isNew = true; const m = e.props.mode || '?'; doneModes.set(m, (doneModes.get(m) || 0) + 1); }
+          if (st === 'readiness' || st === 'mode') x.isOld = true;
+          if (from === 'age' && st === 'quiz') x.isNew = true;
+          if (st) x.steps.add(st);
+          if (!x.last || e.ts > x.last.ts) x.last = { ts: e.ts, step: st };
+        }
+      }
+      // Jen instalace, jejichž PRVNÍ relaci máme v datech (ledger firstSeenAt ≈ první načtený event);
+      // jinak by se do „úvodu“ počítali dávní uživatelé, kteří onboarding prošli dřív.
+      const FIRST = new Map(INSTALLS.map((i) => [i.id, i.firstMs]));
+      const all = [...per.entries()].filter(([id, x]) => { const f = FIRST.get(id); return f === null || f === undefined ? x.hadStep : x.minTs <= f + 2 * 3600000; });
+      const newBuilds = all.filter(([, x]) => x.isNew && !x.isOld && x.build !== null).map(([, x]) => x.build);
+      const from = newBuilds.length ? Math.min(...newBuilds) : null;
+      const isNewFlow = (x) => x.isNew && !x.isOld ? true : x.isOld ? false : (from !== null && x.build !== null && x.build >= from);
+      const cohort = (wantNew) => all.filter(([, x]) => isNewFlow(x) === wantNew);
+      const pairs = (rows, steps) => [['úvod (otevřeli aplikaci)', new Set(rows.map(([id]) => id))], ...steps.map((st) => [LABEL[st] || st, new Set(rows.filter(([, x]) => x.steps.has(st)).map(([id]) => id))])];
+      const nw = cohort(true), od = cohort(false);
+      const oldPairs = pairs(od, OLD);
+      oldPairs.push([LABEL.activated, new Set(od.filter(([, x]) => x.activated).map(([id]) => id))]);
+      const exits = new Map();
+      nw.filter(([, x]) => !x.steps.has('done') && !x.ownerAct).forEach(([, x]) => { const k = LABEL[x.last ? x.last.step : 'intro'] || (x.last && x.last.step) || '?'; exits.set(k, (exits.get(k) || 0) + 1); });
+      const ownerRows = all.filter(([, x]) => x.ownerSetup);
+      return {
+        newPairs: pairs(nw, NEW),
+        newHint: from !== null ? `instalace od buildu ${from} · ${nw.length}` : 'zatím žádná data (přijde s nativní 2.2.1)',
+        oldPairs,
+        oldHint: `${od.length} instalací`,
+        ownerPairs: [
+          ['zvolili „mám psa“', new Set(ownerRows.map(([id]) => id))],
+          ['skutečný pes založen (měří se od 2.2.1)', new Set(ownerRows.filter(([, x]) => x.ownerAct).map(([id]) => id))],
+        ],
+        ownerHint: `${ownerRows.filter(([, x]) => x.ownerBack).length}× se vrátili na Pes na zkoušku`,
+        newExits: [...exits.entries()].sort((a, b) => b[1] - a[1]),
+        backs: [...backs.entries()].sort((a, b) => b[1] - a[1]),
+        doneModes: [...doneModes.entries()].sort((a, b) => b[1] - a[1]),
+      };
+    }
+
+    // --- Nákupy (rc_events + párování se zařízením z analytiky) ---
+    const MATCH_MS = 10 * 60 * 1000;
+    const productKey = (id) => {
+      const s = String(id || '').toLowerCase();
+      if (/lifetime/.test(s)) return 'plan_lifetime';
+      if (/year|annual/.test(s)) return 'plan_yearly';
+      if (/month/.test(s)) return 'plan_monthly';
+      if (/bundle/.test(s)) return 'breed_bundle';
+      return s.replace(/^trypup_/, '');
+    };
+    const PLAN_LABEL = { plan_monthly: 'Premium – měsíčně', plan_yearly: 'Premium – ročně', plan_lifetime: 'Premium – navždy', breed_bundle: 'Balíček plemen' };
+    const productLabel = (key) => PLAN_LABEL[key] || (key.startsWith('breed_') ? 'Plemeno: ' + key.slice(6).split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : key || '?');
+    const STORE_LABEL = { APP_STORE: 'App Store', PLAY_STORE: 'Google Play', MAC_APP_STORE: 'Mac App Store', AMAZON: 'Amazon', STRIPE: 'Stripe', PROMOTIONAL: 'promo RevenueCat' };
+    const TYPE_LABEL = { INITIAL_PURCHASE: 'první nákup', RENEWAL: 'obnova', NON_RENEWING_PURCHASE: 'jednorázový', PRODUCT_CHANGE: 'změna tarifu', CANCELLATION: 'zrušení', EXPIRATION: 'vypršení', BILLING_ISSUE: 'problém s platbou', SUBSCRIPTION_EXTENDED: 'prodloužení', UNCANCELLATION: 'obnovené předplatné', TRANSFER: 'převod', SUBSCRIPTION_PAUSED: 'pozastavení', TEST: 'test webhooku' };
+    const money = (v, cur) => { if (v === null || v === undefined || !cur) return '–'; try { return new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: cur }).format(v); } catch { return v + ' ' + cur; } };
+    const usd = (v) => (v === null || v === undefined) ? '' : '$' + Number(v).toFixed(2);
+    const langLabel = (c) => { if (!c || c === 'none' || c === 'unknown') return '–'; try { return new Intl.DisplayNames(['cs'], { type: 'language' }).of(c) + ' (' + c + ')'; } catch { return c; } };
+    let purchaseCoverage = false;
+
+    function purchaseRows() {
+      const app = RAW.filter((e) => e.name === 'purchase_completed' && e.props.product !== 'restore');
+      const used = new Set();
+      const rows = RC_EVENTS.filter((r) => r.isPurchase).map((r) => {
+        const key = productKey(r.productId); const t = r.purchasedAtMs || r.eventAtMs || 0;
+        let best = null, bestD = Infinity;
+        if (r.type !== 'RENEWAL') for (const e of app) {
+          if (used.has(e) || productKey(e.props.product) !== key) continue;
+          const d = Math.abs(e.ts - t); if (d <= MATCH_MS && d < bestD) { best = e; bestD = d; }
+        }
+        if (best) used.add(best);
+        return { rc: r, app: best, ts: t, key, inherited: false };
+      });
+      // Obnova předplatného: zařízení z prvního nákupu téhož zákazníka (hash, ne ID).
+      const firstByCustomer = new Map();
+      [...rows].sort((a, b) => a.ts - b.ts).forEach((x) => { if (x.app && x.rc.customer && !firstByCustomer.has(x.rc.customer)) firstByCustomer.set(x.rc.customer, x.app); });
+      rows.forEach((x) => { if (!x.app && x.rc.customer && firstByCustomer.has(x.rc.customer)) { x.app = firstByCustomer.get(x.rc.customer); x.inherited = true; } });
+      app.filter((e) => !used.has(e)).forEach((e) => rows.push({ rc: null, app: e, ts: e.ts, key: productKey(e.props.product), inherited: false }));
+      const refunded = new Set(RC_EVENTS.filter((r) => r.type === 'CANCELLATION' && r.cancelReason === 'CUSTOMER_SUPPORT').map((r) => r.transactionId).filter(Boolean));
+      rows.forEach((x) => { x.refunded = !!(x.rc && x.rc.transactionId && refunded.has(x.rc.transactionId)); x.sandbox = !!(x.rc && String(x.rc.environment || '').toUpperCase() === 'SANDBOX'); x.cls = x.app ? (CLS_BY_ID.get(x.app.installId) || (isExcluded(x.app.installId, x.app.dev) ? 'tester' : 'real')) : 'real'; });
+      return rows.sort((a, b) => b.ts - a.ts);
+    }
+
+    /** Zařízení ke starším nákupům: dočti analytiku, dokud nepokryje nejstarší nákup (nejvýš 40 stránek). */
+    async function ensurePurchaseCoverage() {
+      if (purchaseCoverage) return; purchaseCoverage = true;
+      const oldest = Math.min(...RC_EVENTS.filter((r) => r.isPurchase).map((r) => r.purchasedAtMs || Infinity));
+      if (!Number.isFinite(oldest)) return;
+      let guard = 0;
+      const rawOldest = () => RAW.reduce((m, e) => Math.min(m, e.ts || Infinity), Infinity);
+      if (rawOldest() <= oldest - MATCH_MS || exhausted) return;
+      $('p-sub').textContent = '· dočítám starší analytiku kvůli zařízení…';
+      while (!exhausted && guard++ < 40 && rawOldest() > oldest - MATCH_MS) await fetchPage();
+      buildFilterOptions(); render();
+    }
+
+    function renderPurchases() {
+      ensurePurchaseCoverage();
+      const fromTs = FILTERS.from ? new Date(FILTERS.from).getTime() : null;
+      const toTs = FILTERS.to ? new Date(FILTERS.to).getTime() + 86400000 : null;
+      const allRows = purchaseRows();
+      // Bez záznamu v RevenueCatu = nákup mimo obchod (TestFlight, interní testování Play) → jako tester.
+      const rows = allRows.filter((x) => (FILTERS.testers || (x.rc && !x.sandbox && x.cls === 'real')) && (!fromTs || x.ts >= fromTs) && (!toTs || x.ts < toTs));
+      const hidden = allRows.length - rows.length;
+      const paid = rows.filter((x) => x.rc && !x.refunded && (x.rc.priceLocal || 0) > 0);
+      const trials = rows.filter((x) => x.rc && String(x.rc.periodType || '') === 'TRIAL');
+      const byCur = new Map(); paid.forEach((x) => byCur.set(x.rc.currency, (byCur.get(x.rc.currency) || 0) + x.rc.priceLocal));
+      const sum = (f) => paid.reduce((a, x) => a + (Number(f(x)) || 0), 0);
+      const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
+      $('p-sub').textContent = `· ${RC_EVENTS.filter((r) => r.isPurchase).length} nákupů v RevenueCatu` + (hidden ? ` · skryto ${hidden} (testovací / testeři)` : '');
+      $('p-kpis').innerHTML = [
+        k('placených nákupů', paid.length, `plemena ${paid.filter((x) => x.key.startsWith('breed_')).length} · Premium ${paid.filter((x) => x.key.startsWith('plan_')).length}`),
+        k('tržba hrubě (s DPH)', usd(sum((x) => x.rc.priceUsd)) || '$0.00', [...byCur.entries()].map(([c, v]) => money(v, c)).join(' + ') || '–'),
+        k('výnos po DPH a provizi', usd(sum((x) => x.rc.proceedsUsd)) || '$0.00', 'odhad RevenueCatu'),
+        k('zkušební období', trials.length, 'Premium zdarma, 0 Kč'),
+        k('testovací nákupy', allRows.filter((x) => !x.rc || x.sandbox).length, FILTERS.testers ? 'v tabulce' : 'skryté, „včetně testerů“ je ukáže'),
+      ].join('');
+      const tag = (t, cls) => `<span class="tag ${cls || ''}">${esc(t)}</span>`;
+      const head = '<tr><th>Čas</th><th>Co koupil</th><th>Částka</th><th>Výnos</th><th>Obchod</th><th>Země</th><th>Zařízení</th><th>Jazyk aplikace</th><th>Jazyk telefonu</th><th>Build</th><th>Druh</th><th>Pozn.</th></tr>';
+      const body = rows.map((x) => {
+        const r = x.rc, d = x.app ? x.app.dev : null;
+        const notes = [
+          !r ? tag('jen z aplikace', 'auto') : '',
+          r && !x.app ? tag('zařízení nespárováno') : '',
+          x.inherited ? tag('zařízení z 1. nákupu') : '',
+          x.refunded ? tag('vráceno', 'manual') : '',
+          x.sandbox ? tag('sandbox', 'auto') : '',
+          x.cls !== 'real' ? tag(x.cls, 'manual') : '',
+        ].join(' ');
+        const what = productLabel(x.key) + (r && r.periodType === 'TRIAL' ? ' · zkušební období' : '');
+        const amount = r ? money(r.priceLocal, r.currency) + (r.priceUsd !== null && r.priceUsd !== undefined ? ` <span style="color:var(--muted)">(${usd(r.priceUsd)})</span>` : '') : '–';
+        // `os` u starších buildů Androidu nese celý otisk sestavení → platforma + verze.
+        const device = d ? esc((d.model || '?') + ' · ' + (d.platform === 'ios' ? 'iOS' : d.platform === 'android' ? 'Android' : (d.platform || '')) + ' ' + (d.osVersion || '')) : '–';
+        return `<tr class="${x.cls !== 'real' || x.sandbox ? 'tester' : ''}"><td>${esc(fmt(x.ts))}</td><td>${esc(what)}</td><td>${amount}</td><td>${r ? esc(usd(r.proceedsUsd) || '–') : '–'}</td>` +
+          `<td>${esc(r ? (STORE_LABEL[r.store] || r.store || '?') : (d && d.platform === 'ios' ? 'App Store?' : d ? 'Google Play?' : '?'))}</td><td>${esc((r && r.countryCode) || (d && d.region !== 'none' && d.region) || '–')}</td>` +
+          `<td>${device}</td><td>${esc(d ? langLabel(d.locale) : '–')}</td><td>${esc(d ? langLabel(d.deviceLocale) : '–')}</td><td>${esc(d && d.appBuild != null ? d.appBuild : '–')}</td>` +
+          `<td>${esc(r ? (TYPE_LABEL[r.type] || r.type) : 'purchase_completed')}</td><td>${notes}</td></tr>`;
+      }).join('');
+      $('p-table').innerHTML = head + (body || '<tr><td colspan="12" style="color:var(--muted)">Žádné nákupy (nebo jsou skryté filtrem).</td></tr>');
+      const matched = paid.filter((x) => x.app);
+      $('p-panels').innerHTML = [
+        barPanel('Placené nákupy podle produktu', countBy(paid, (x) => productLabel(x.key)), 'var(--apricot)', 12),
+        barPanel('Podle obchodu', countBy(paid, (x) => STORE_LABEL[x.rc.store] || x.rc.store || '?'), 'var(--water)', 4),
+        barPanel('Podle země', countBy(paid, (x) => x.rc.countryCode || '?'), 'var(--plum)', 12, 'země účtu v obchodě'),
+        barPanel('Podle jazyka aplikace', countBy(matched, (x) => langLabel(x.app.dev.locale)), 'var(--water)', 12, matched.length + ' spárováno se zařízením'),
+        barPanel('Podle zařízení', countBy(matched, (x) => x.app.dev.model || '?'), null, 12),
+      ].join('');
+      const other = RC_EVENTS.filter((r) => !r.isPurchase && r.type !== 'TEST' && (FILTERS.testers || String(r.environment || '').toUpperCase() !== 'SANDBOX')).sort((a, b) => (b.eventAtMs || 0) - (a.eventAtMs || 0));
+      $('p-other').innerHTML = '<tr><th>Čas</th><th>Událost</th><th>Produkt</th><th>Důvod</th><th>Obchod</th><th>Země</th></tr>' + (other.map((r) => `<tr><td>${esc(fmt(r.eventAtMs || r.purchasedAtMs))}</td><td>${esc(TYPE_LABEL[r.type] || r.type)}</td><td>${esc(productLabel(productKey(r.productId)))}</td><td>${esc(r.cancelReason || r.expirationReason || '–')}</td><td>${esc(STORE_LABEL[r.store] || r.store || '?')}</td><td>${esc(r.countryCode || '–')}</td></tr>`).join('') || '<tr><td colspan="6" style="color:var(--muted)">Žádné.</td></tr>');
     }
 
     function renderTech(ev) {
