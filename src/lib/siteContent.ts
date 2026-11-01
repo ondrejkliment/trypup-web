@@ -26,7 +26,7 @@ export interface CmsField {
 
 export const CMS_FIELDS: CmsField[] = [
   // ─────────────────────────── Domů (CZ) ───────────────────────────
-  { key: 'home.cs.hero.badge', group: 'Domů CZ · Hero', type: 'text', label: 'Štítek nad nadpisem', default: 'Od přípravy na psa po každodenní péči' },
+  { key: 'home.cs.hero.badge', group: 'Domů CZ · Hero', type: 'text', label: 'Štítek nad nadpisem', default: 'Od přípravy na psa až po každodenní péči' },
   { key: 'home.cs.hero.title', group: 'Domů CZ · Hero', type: 'text', label: 'Hlavní nadpis', default: 'Pes na zkoušku' },
   { key: 'home.cs.hero.lead', group: 'Domů CZ · Hero', type: 'textarea', label: 'Podnadpis (lead)', default: 'Virtuální pes v telefonu na 30 dní. Venčení podle GPS, krmení, výcvik i náklady – zjistíte, jestli na psa máte, dřív než si pořídíte skutečného.' },
   { key: 'home.cs.hero.ctaPrimary', group: 'Domů CZ · Hero', type: 'text', label: 'Tlačítko 1 (text)', default: 'Stáhnout zdarma' },
