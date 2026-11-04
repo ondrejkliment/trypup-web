@@ -549,6 +549,24 @@ const jsonLd = pageKey === 'home' ? {
       })();
     </script>
 
+    <!-- Placené hledání (Google, Sklik): značky v odkazech na obchody spočítají instalace bez SDK v aplikaci. -->
+    <script is:inline>
+      (function () {
+        var m = location.search.match(/[?&]utm_source=(gs|sk)(?:&|$)/);
+        if (!m) return;
+        document.querySelectorAll('a[href*="apps.apple.com/app/trypup"], a[href*="play.google.com/store/apps/details?id=app.trypup.mobile"]').forEach(function (a) {
+          var u = new URL(a.href);
+          if (u.hostname === 'apps.apple.com') {
+            u.searchParams.set('ct', m[1] + '-vanoce2026');
+            u.searchParams.set('mt', '8');
+          } else {
+            u.searchParams.set('referrer', 'utm_source=' + m[1] + '&utm_medium=cpc&utm_campaign=vanoce2026');
+          }
+          a.href = u.toString();
+        });
+      })();
+    </script>
+
     <!-- Jazykové menu (<details>) — funguje i bez JS (nativní disclosure), skript
          jen dovírá po kliku mimo / na jinou položku, ať nezůstává otevřené. -->
     <script is:inline>
