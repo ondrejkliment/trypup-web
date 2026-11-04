@@ -60,7 +60,7 @@ Nejvíc o tom řekne společná zkouška. S Premium založíte společnou pé�
 
 ## A když se pro psa rozhodnete
 
-Pak máte promyšlené to důležité. Zvažte i adopci: voříšek z útulku je v aplikaci zdarma. Až bude pes doma, přepněte Trypup na režim Pes doma s plánem péče, připomínkami, deníkem a první pomocí. Jeden pes je zdarma. Trypup nenahrazuje veterináře.
+Pak máte promyšlené to důležité. Zvažte i adopci: voříšek z útulku je v aplikaci zdarma. Až bude pes doma, přepněte Trypup na režim Pes doma s plánem péče, připomínkami, deníkem a první pomocí. Záznamy o jednom psovi zdarma. Trypup nenahrazuje veterináře.
 
 ## Zdroje
 
