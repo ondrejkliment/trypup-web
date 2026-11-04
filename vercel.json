@@ -13,6 +13,23 @@
   ],
   "redirects": [
     {
+      "source": "/v/:k(ig|tz|utulky|blog|fb)",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(iPhone|iPad|iPod).*" }],
+      "destination": "https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135?ct=:k-vanoce2026&mt=8",
+      "permanent": false
+    },
+    {
+      "source": "/v/:k(ig|tz|utulky|blog|fb)",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*Android.*" }],
+      "destination": "https://play.google.com/store/apps/details?id=app.trypup.mobile&referrer=utm_source%3D:k%26utm_medium%3Dkampan%26utm_campaign%3Dvanoce2026",
+      "permanent": false
+    },
+    {
+      "source": "/v/:k(ig|tz|utulky|blog|fb)",
+      "destination": "/?utm_source=:k&utm_medium=kampan&utm_campaign=vanoce2026#stahnout",
+      "permanent": false
+    },
+    {
       "source": "/:p(app|obchody|stahnout|download){/}?",
       "has": [{ "type": "header", "key": "user-agent", "value": ".*(iPhone|iPad|iPod).*" }],
       "destination": "https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135",

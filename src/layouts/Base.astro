@@ -536,6 +536,19 @@ const jsonLd = pageKey === 'home' ? {
       })();
     </script>
 
+    <!-- Vánoční blok na úvodu: ceny platí od 16. 11. (obchody přepnou dopoledne) do 24. 12. Po 24. 11. už nelze výzvu
+         dokončit do Štědrého dne, proto ta věta zmizí. ?vanoce=nahled = kontrola před začátkem. -->
+    <script is:inline>
+      (function () {
+        var el = document.querySelector('[data-xmas]');
+        if (!el) return;
+        var now = Date.now(), preview = location.search.indexOf('vanoce=nahled') !== -1;
+        if (!preview && (now < Date.parse('2026-11-16T10:00:00+01:00') || now >= Date.parse('2026-12-25T00:00:00+01:00'))) return;
+        if (!preview && now >= Date.parse('2026-11-25T00:00:00+01:00')) { var st = el.querySelector('[data-xmas-start]'); if (st) st.remove(); }
+        el.removeAttribute('hidden');
+      })();
+    </script>
+
     <!-- Jazykové menu (<details>) — funguje i bez JS (nativní disclosure), skript
          jen dovírá po kliku mimo / na jinou položku, ať nezůstává otevřené. -->
     <script is:inline>

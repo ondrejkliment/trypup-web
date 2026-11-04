@@ -244,3 +244,11 @@ p.section-kicker { text-align: center; color: var(--orange); font-weight: 800; f
   .cookie-btns { flex: 1 1 100%; }
   .cookie-btn { flex: 1; padding: .45rem 1rem; }
 }
+
+/* Vánoční blok pod hero (kampaň 2026) */
+.xmas[hidden] { display: none; }
+.xmas { padding-bottom: 40px; }
+.xmas-card { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--orange); border-radius: var(--radius); padding: 22px 24px; text-align: center; }
+.xmas-card h2 { font-size: clamp(20px, 3vw, 26px); font-weight: 800; line-height: 1.25; margin-bottom: 10px; }
+.xmas-card p { color: #374151; font-size: 15px; margin-top: 6px; }
+.xmas-links a { font-weight: 700; }
