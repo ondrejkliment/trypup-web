@@ -1,7 +1,7 @@
 ---
 title: "Štěně pod stromeček? Nejdřív si vyzkoušejte 30 dní péče"
 description: "Pes jako vánoční dárek je rozhodnutí na roky. Než ho uděláte, vyzkoušejte si s celou rodinou 30 dní péče o virtuálního psa."
-date: 2026-11-16
+date: 2026-11-05
 tag: "Připravenost"
 ---
 
