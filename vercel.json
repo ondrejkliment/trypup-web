@@ -15,7 +15,7 @@
     {
       "source": "/v/:k(ig|tz|utulky|blog|fb|igad)",
       "has": [{ "type": "header", "key": "user-agent", "value": ".*(iPhone|iPad|iPod).*" }],
-      "destination": "https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135?ct=:k-vanoce2026&mt=8",
+      "destination": "https://apps.apple.com/app/trypup-try-a-dog-first/id6775990135?pt=128985087&ct=:k-vanoce2026&mt=8",
       "permanent": false
     },
     {

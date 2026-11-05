@@ -557,6 +557,7 @@ const jsonLd = pageKey === 'home' ? {
         document.querySelectorAll('a[href*="apps.apple.com/app/trypup"], a[href*="play.google.com/store/apps/details?id=app.trypup.mobile"]').forEach(function (a) {
           var u = new URL(a.href);
           if (u.hostname === 'apps.apple.com') {
+            u.searchParams.set('pt', '128985087');
             u.searchParams.set('ct', m[1] + '-vanoce2026');
             u.searchParams.set('mt', '8');
           } else {
