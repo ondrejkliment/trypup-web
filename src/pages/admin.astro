@@ -161,7 +161,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <h2>Stažení z obchodů <span id="st-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
       <div class="cards" id="st-kpis"></div>
       <div class="grid2" id="st-panels" style="margin-top:12px"></div>
-      <p class="note">Zdroj: App Store Analytics Reports (první stažení, od 5. 10. 2026) a Google Play hromadné přehledy (nové instalace uživatelů, měsíční CSV – Google je vydává se zpožděním několika dní). Kolekce <code>store_stats</code>, plní funkce <code>syncStoreStats</code> denně v 6:40. Jen součty po dnech a zemích, žádná data o lidech.</p>
+      <p class="note">Zdroj: App Store Analytics Reports (první stažení, od 5. 10. 2026) a Google Play hromadné přehledy (nové instalace uživatelů, měsíční CSV – Google je vydává se zpožděním několika dní). Dny, které obchod ještě nevydal, graf označí „čeká na data“ nebo „jen App Store“ / „jen Google Play“, ne nulou. Kolekce <code>store_stats</code>, plní funkce <code>syncStoreStats</code> denně v 6:40. Jen součty po dnech a zemích, žádná data o lidech.</p>
       <p class="note">Zdroj: ledger instalací (<code>install_platforms</code>, každé zařízení jednou, bez testerů – přepínač „včetně testerů“ nahoře).
         Skutečná <strong>stažení z obchodů</strong> jsou v bloku níž.</p>
       <h2>Eventy (načtené dávky)</h2>
@@ -350,11 +350,16 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const sum = (rows) => rows.reduce((a, x) => a + n(x), 0);
       const ios = STORE.filter((x) => x.platform === 'ios'), and = STORE.filter((x) => x.platform === 'android');
       const last = (rows) => rows.map((x) => x.date).sort().slice(-1)[0] || '–';
+      // Obchody vydávají data se zpožděním (Apple 1–2 dny, Google i 5 dní). Den po posledním dni
+      // s daty není nula, jen ho obchod ještě nevydal. Apple dny bez stažení nezapisuje, takže
+      // „má data“ = den nejpozději poslední den, který obchod vydal.
+      const lastIos = last(ios), lastAnd = last(and);
+      const hasIos = (d) => lastIos !== '–' && d <= lastIos, hasAnd = (d) => lastAnd !== '–' && d <= lastAnd;
       const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
       $('st-sub').textContent = `· App Store data do ${last(ios)} · Google Play do ${last(and)}`;
       $('st-kpis').innerHTML = [
         k('stažení celkem', sum(STORE), `App Store ${sum(ios)} · Google Play ${sum(and)}`),
-        k('za 30 dní', sum(STORE.filter((x) => x.date >= since(30))), `7 dní ${sum(STORE.filter((x) => x.date >= since(7)))}`),
+        k('za 30 dní', sum(STORE.filter((x) => x.date >= since(30))), `7 dní ${sum(STORE.filter((x) => x.date >= since(7)))} · jen dny, které obchody už vydaly`),
         k('odinstalace Google Play', and.reduce((a, x) => a + (x.uninstalls || 0), 0), 'celkem'),
       ].join('');
       const byDay = new Map();
@@ -365,7 +370,13 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       STORE.forEach((x) => { for (const [c, v] of Object.entries(x.platform === 'ios' ? (x.byTerritory || {}) : (x.byCountry || {}))) country.set(regionName(c), (country.get(regionName(c)) || 0) + v); });
       const plat = [['App Store', sum(ios)], ['Google Play', sum(and)]];
       $('st-panels').innerHTML = [
-        barPanel('Stažení za den (30 dní, oba obchody)', [...byDay.entries()].map(([d, v]) => [d.slice(5).split('-').reverse().join('. ') + '.', v]), 'var(--apricot)'),
+        barPanel('Stažení za den (30 dní, oba obchody)', [...byDay.entries()].map(([d, v]) => {
+          const lbl = d.slice(5).split('-').reverse().join('. ') + '.';
+          if (!hasIos(d) && !hasAnd(d)) return [lbl + ' · čeká na data', 0, '–'];
+          if (!hasAnd(d)) return [lbl + ' · jen App Store', v];
+          if (!hasIos(d)) return [lbl + ' · jen Google Play', v];
+          return [lbl, v];
+        }), 'var(--apricot)', 0, 'čeká na data = obchod den ještě nevydal, není to nula'),
         barPanel('Země (oba obchody, celkem)', [...country.entries()].sort((a, b) => b[1] - a[1]), 'var(--plum)', 12),
         barPanel('Obchod', plat, 'var(--water)'),
       ].join('');
@@ -503,10 +514,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     const uniqInstalls = (arr) => new Set(arr.map((e) => e.installId)).size;
     function barPanel(title, pairs, color, max, hint) {
       const top = max ? pairs.slice(0, max) : pairs;
-      const hi = top.length ? Math.max(...top.map((p) => p[1])) : 1;
-      const rows = top.map(([k, v]) => `
-        <div class="bar"><span class="lbl">${esc(k)}</span><span class="val">${v}</span>
-        <div class="track"><div class="fill" style="width:${Math.max(2, (v / hi) * 100)}%;${color ? 'background:' + color : ''}"></div></div></div>`).join('');
+      const hi = (top.length ? Math.max(...top.map((p) => p[1])) : 0) || 1;
+      // Volitelný třetí prvek = text místo čísla (např. „–“ u dne bez dat); takový řádek nemá pruh.
+      const rows = top.map(([k, v, txt]) => `
+        <div class="bar"><span class="lbl">${esc(k)}</span><span class="val">${txt != null ? esc(txt) : v}</span>
+        <div class="track">${txt != null ? '' : `<div class="fill" style="width:${Math.max(2, (v / hi) * 100)}%;${color ? 'background:' + color : ''}"></div>`}</div></div>`).join('');
       const h = hint ? ` <span class="hint">${esc(hint)}</span>` : '';
       return `<div class="panel"><h3>${esc(title)}${h}</h3>${rows || '<p style="color:var(--muted)">Žádná data.</p>'}</div>`;
     }
