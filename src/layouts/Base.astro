@@ -47,7 +47,7 @@ const canonical = new URL(Astro.url.pathname, site).href;
 const dlAnchor = lang === 'cs' ? '/#stahnout' : `/${lang}/#get`;
 // Sekce režimu Pes doma na úvodní stránce (odkaz z lišty nahoře).
 const ownerAnchor = lang === 'cs' ? 'pes-doma' : 'dog-at-home';
-const resolvedImage = image ?? '/og-default.png?v=1';
+const resolvedImage = image ?? '/og-default.png?v=2';
 const ogImage = new URL(resolvedImage, site).href;
 
 type Strings = {
