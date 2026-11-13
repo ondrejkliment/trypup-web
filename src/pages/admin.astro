@@ -1024,13 +1024,14 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     let dashCoverPromise = null;
     let refreshing = false;       // tlačítko Obnovit právě načítá
 
-    // Kurzy: 1× za načtení stránky, frankfurter.app (ECB), základ CZK → {rates:{EUR:0.04,…}} = 1 Kč v cizí měně.
+    // Kurzy: 1× za načtení stránky, Frankfurter (ECB), základ CZK → {rates:{EUR:0.04,…}} = 1 Kč v cizí měně.
+    // Pozor: stará adresa api.frankfurter.app jen přesměrovává (301 bez CORS) → v prohlížeči selže.
     const FALLBACK_USD_CZK = 21.0;
     let FX = null, fxPromise = null; // FX = {rates, date} | {failed:true}
     function loadFx() {
       if (fxPromise) return fxPromise;
       const signal = typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
-      fxPromise = fetch('https://api.frankfurter.app/latest?from=CZK', { signal })
+      fxPromise = fetch('https://api.frankfurter.dev/v1/latest?base=CZK', { signal })
         .then((r) => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
         .then((j) => { FX = j && j.rates && typeof j.rates === 'object' ? { rates: j.rates, date: j.date || null } : { failed: true }; })
         .catch((e) => { console.warn('kurzy nenačteny', e); FX = { failed: true }; })
