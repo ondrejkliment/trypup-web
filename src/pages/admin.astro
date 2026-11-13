@@ -90,6 +90,33 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     table { width:100%; border-collapse:collapse; }
     td,th { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); font-size:12.5px; }
     th { color:var(--muted); font-weight:600; }
+    /* Záložky na telefonu: pět záložek se nevejde → lišta se posouvá sama, stránka ne */
+    .tabs { overflow-x:auto; scrollbar-width:none; }
+    .tab { flex-shrink:0; white-space:nowrap; }
+    @media (max-width:560px) { .tab { padding:10px 9px; } }
+    /* Dashboard – dlaždice */
+    .dash-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:14px 0 0; color:var(--muted); font-size:12.5px; }
+    .dash-head button { padding:6px 12px; font-size:12px; }
+    .dash-head button:disabled { opacity:.5; cursor:default; }
+    .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr)); gap:12px; }
+    .tile { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; box-shadow:0 1px 2px #00000030;
+      display:flex; flex-direction:column; gap:8px; min-width:0; container-type:inline-size; }
+    .tile.alert { border-color:#ff8a8a; box-shadow:inset 3px 0 0 #ff8a8a; }
+    .tile .t-title { font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:700; }
+    .tile .t-big { font-size:32px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.5px; line-height:1.1; overflow-wrap:anywhere; }
+    .tile.alert .t-big, .tile.alert .t-cell b { color:#ff8a8a; }
+    .tile .t-cells { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+    .tile .t-cells.c3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    @container (min-width:420px) { .tile .t-cells.c4 { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+    .tile .t-cell { background:#00000026; border:1px solid var(--line); border-radius:10px; padding:7px 9px; min-width:0; }
+    .tile .t-cell b { display:block; font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.3px; line-height:1.15; overflow-wrap:anywhere; }
+    .tile .t-cell span { display:block; font-size:11px; color:var(--muted); margin-top:2px; line-height:1.35; }
+    .tile .t-list { display:flex; flex-direction:column; gap:4px; }
+    .tile .t-list div { display:flex; justify-content:space-between; gap:10px; font-size:13.5px; }
+    .tile .t-list b { font-variant-numeric:tabular-nums; }
+    .tile .t-sub { font-size:12.5px; line-height:1.45; }
+    .tile .t-sub .warn { color:var(--apricot); font-weight:700; }
+    .tile .t-desc { font-size:12px; color:var(--muted); line-height:1.45; margin-top:auto; }
   </style>
 </head>
 <body>
@@ -121,7 +148,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     <!-- ZÁLOŽKY -->
     <div class="tabs" id="tabs">
-      <button class="tab active" data-tab="prehled">Přehled</button>
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="prehled">Přehled</button>
       <button class="tab" data-tab="vyzkum">Výzkum</button>
       <button class="tab" data-tab="technika">Technika</button>
       <button class="tab" data-tab="nakupy">Nákupy</button>
@@ -153,8 +181,17 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     <p id="status" style="color:var(--muted)">Načítám…</p>
 
+    <!-- TAB: DASHBOARD (dlaždice, vždy bez testerů a robotů; filtry se tu skrývají) -->
+    <div id="tab-dashboard" class="tabpane">
+      <div class="dash-head">
+        <span><span id="dash-updated">Načítám…</span> <span id="dash-cover"></span></span>
+        <button id="dash-refresh" class="ghost">Obnovit</button>
+      </div>
+      <div id="dash-tiles"></div>
+    </div>
+
     <!-- TAB: PŘEHLED -->
-    <div id="tab-prehled" class="tabpane">
+    <div id="tab-prehled" class="tabpane hidden">
       <h2>Uživatelé <span id="u-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
       <div class="cards" id="u-kpis"></div>
       <div class="grid2" id="u-panels" style="margin-top:12px"></div>
@@ -246,7 +283,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     };
     $('signout').onclick = () => signOut(auth);
 
-    onAuthStateChanged(auth, (user) => {
+    // Lokální ověření dashboardu bez přihlášení: jen na localhostu s ?demo (bez Firestore).
+    // V produkci je DEMO vždy false → přihlášení beze změny.
+    const DEMO = location.hostname === 'localhost' && new URLSearchParams(location.search).has('demo');
+
+    if (!DEMO) onAuthStateChanged(auth, (user) => {
       if (user && user.email === ADMIN_EMAIL) {
         $('login').classList.add('hidden');
         $('dash').classList.remove('hidden');
@@ -336,14 +377,21 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       RC_EVENTS = snap.docs.map((d) => d.data()).filter((x) => x && x.type);
     }
     let STORE = [];
+    // Hodnocení v obchodech: dokument store_stats/ratings_summary (stejná kolekce, nemá date/platform,
+    // takže do STORE nespadne). {updatedAt, ios:{avg,count,byCountry}, android:{avg,count}, reviews:{ios,android}}
+    let RATINGS = { state: 'missing', data: null };
     async function loadStoreStats() {
       const snap = await getDocs(collection(db, 'store_stats'));
       STORE = snap.docs.map((d) => d.data()).filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
+      const rs = snap.docs.find((d) => d.id === 'ratings_summary');
+      RATINGS = rs ? { state: 'ok', data: rs.data() || {} } : { state: 'missing', data: null };
     }
+    // Stažení podle obchodu: iOS = první stažení (firstTime), Android = nové instalace (installs).
+    const storeN = (x) => x.platform === 'ios' ? (Number(x.firstTime) || 0) : (Number(x.installs) || 0);
     function renderStoreStats() {
       if (!$('st-kpis')) return;
       if (!STORE.length) { $('st-sub').textContent = '· zatím žádná data'; $('st-kpis').innerHTML = ''; $('st-panels').innerHTML = ''; return; }
-      const n = (x) => x.platform === 'ios' ? (x.firstTime || 0) : (x.installs || 0);
+      const n = storeN;
       const today = new Date(); const DAY = 86400000;
       const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
       const since = (d) => iso(today.getTime() - d * DAY);
@@ -399,17 +447,21 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
     async function firstLoad() {
       RAW = []; lastDoc = null; batches = 0; exhausted = false;
+      // Obnovit (dashboard) volá firstLoad znovu → dočítání starší analytiky musí proběhnout znovu.
+      dataReady = false; dashCoverage = false; purchaseCoverage = false;
       $('status').classList.remove('hidden');
       $('status').textContent = 'Načítám…';
       try {
         await loadInstalls().catch((e) => console.warn('ledger instalací nenačten', e));
-        await loadStoreStats().catch((e) => console.warn('store_stats nenačteny', e));
+        await loadStoreStats().catch((e) => { console.warn('store_stats nenačteny', e); RATINGS = { state: 'error', data: null }; });
         await loadRcEvents().catch((e) => console.warn('rc_events nenačteny', e));
         await fetchPage();
+        dataReady = true; LOADED_AT = Date.now();
         buildFilterOptions();
         render();
         $('status').classList.add('hidden');
       } catch (e) {
+        $('dash-updated').textContent = 'Načtení selhalo';
         $('status').innerHTML = '<span class="err">Chyba: ' + esc(e.message || e) +
           '</span><br><span style="color:var(--muted)">Pravděpodobně nejsou nasazené Firestore rules pro <code>analytics_events</code>, nebo je kolekce prázdná.</span>';
       }
@@ -495,12 +547,15 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     };
 
     // --- Záložky ---
-    let activeTab = (location.hash || '#prehled').slice(1);
-    if (!['prehled','vyzkum','technika','nakupy'].includes(activeTab)) activeTab = 'prehled';
+    const TABS = ['dashboard','prehled','vyzkum','technika','nakupy'];
+    let activeTab = (location.hash || '#dashboard').slice(1);
+    if (!TABS.includes(activeTab)) activeTab = 'dashboard';
     function setTab(t) {
       activeTab = t; location.hash = t;
       $('tabs').querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === t));
-      ['prehled','vyzkum','technika','nakupy'].forEach((x) => $('tab-' + x).classList.toggle('hidden', x !== t));
+      TABS.forEach((x) => $('tab-' + x).classList.toggle('hidden', x !== t));
+      // Dashboard filtry nepoužívá (vždy bez testerů a robotů) → lišta filtrů jen na ostatních záložkách.
+      document.querySelector('.filters').classList.toggle('hidden', t === 'dashboard');
       render();
     }
     $('tabs').querySelectorAll('.tab').forEach((b) => b.onclick = () => setTab(b.dataset.tab));
@@ -576,7 +631,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     function render() {
       const ev = applyFilters(RAW);
       $('count').textContent = 'Zobrazeno ' + ev.length + ' / ' + RAW.length + ' eventů · ' + batches + ' dávek' + (exhausted ? ' (kompletní)' : ' (jsou starší – Načíst starší)');
-      if (activeTab === 'prehled') renderOverview(ev);
+      if (activeTab === 'dashboard') renderDashboard();
+      else if (activeTab === 'prehled') renderOverview(ev);
       else if (activeTab === 'vyzkum') renderResearch(ev);
       else if (activeTab === 'nakupy') renderPurchases();
       else renderTech(ev);
@@ -955,6 +1011,351 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       $('feed').querySelectorAll('.iid').forEach((el) => el.onclick = () => {
         FILTERS.installId = el.dataset.iid; $('f-iid').value = el.dataset.iid; render();
       });
+    }
+
+    // --- DASHBOARD (dlaždice) ---
+    // Vždy bez testerů a robotů: zařízení podle i.cls.kind === 'real', eventy přes isExcluded,
+    // nákupy stejným pravidlem jako Nákupy (rc && !sandbox && cls === 'real', bez vrácených).
+    const DAY_MS = 86400000;
+    let dataReady = false;        // první načtení doběhlo (dashboard do té doby nic nepočítá)
+    let LOADED_AT = null;         // čas posledního načtení (hlavička „Aktualizováno …“)
+    let dashCoverage = false;     // dočítání analytiky na 30 dní už spuštěno
+    let dashCovering = false;     // … a právě běží
+    let dashCoverPromise = null;
+    let refreshing = false;       // tlačítko Obnovit právě načítá
+
+    // Kurzy: 1× za načtení stránky, frankfurter.app (ECB), základ CZK → {rates:{EUR:0.04,…}} = 1 Kč v cizí měně.
+    const FALLBACK_USD_CZK = 21.0;
+    let FX = null, fxPromise = null; // FX = {rates, date} | {failed:true}
+    function loadFx() {
+      if (fxPromise) return fxPromise;
+      const signal = typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+      fxPromise = fetch('https://api.frankfurter.app/latest?from=CZK', { signal })
+        .then((r) => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+        .then((j) => { FX = j && j.rates && typeof j.rates === 'object' ? { rates: j.rates, date: j.date || null } : { failed: true }; })
+        .catch((e) => { console.warn('kurzy nenačteny', e); FX = { failed: true }; })
+        .then(() => { if (activeTab === 'dashboard') renderDashboard(); });
+      return fxPromise;
+    }
+    const usdCzk = () => { const r = FX && FX.rates ? Number(FX.rates.USD) : NaN; return r > 0 ? { rate: 1 / r, approx: false } : { rate: FALLBACK_USD_CZK, approx: true }; };
+    /** Částka v měně nákupu → Kč. Bez kurzu měny (nebo bez kurzů vůbec) přes USD → approx. */
+    function toCzk(amount, cur, amountUsd) {
+      const a = amount === null || amount === undefined ? NaN : Number(amount);
+      const c = String(cur || '').toUpperCase();
+      if (c === 'CZK' && Number.isFinite(a)) return { czk: a, approx: false, ecb: false };
+      const r = FX && FX.rates ? Number(FX.rates[c]) : NaN;
+      if (Number.isFinite(a) && r > 0) return { czk: a / r, approx: false, ecb: true };
+      const u = amountUsd === null || amountUsd === undefined ? NaN : Number(amountUsd);
+      return { czk: Number.isFinite(u) ? u * usdCzk().rate : 0, approx: true, ecb: false };
+    }
+
+    const nf = (v, d = 0) => { const x = Number(v); return Number.isFinite(x) ? x.toLocaleString('cs-CZ', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–'; };
+    const czkFmt = (v) => nf(Math.round(v)) + ' Kč';
+    const pctFmt = (a, b, d = 0) => b ? nf((a / b) * 100, d) + ' %' : '–';
+    const anyMs = (v) => {
+      const t = tsMs(v); if (t !== null) return t;
+      if (v instanceof Date) return v.getTime();
+      if (v && typeof v === 'object' && Number.isFinite(Number(v.seconds))) return Number(v.seconds) * 1000;
+      if (typeof v === 'string') { const p = Date.parse(v); return Number.isFinite(p) ? p : null; }
+      return null;
+    };
+    const rtf = typeof Intl.RelativeTimeFormat === 'function' ? new Intl.RelativeTimeFormat('cs', { numeric: 'auto' }) : null;
+    function ago(ms) {
+      if (!Number.isFinite(ms)) return '';
+      const s = (ms - Date.now()) / 1000, a = Math.abs(s);
+      if (!rtf) return fmt(ms);
+      if (a < 60) return 'právě teď';
+      if (a < 3600) return rtf.format(Math.round(s / 60), 'minute');
+      if (a < 86400) return rtf.format(Math.round(s / 3600), 'hour');
+      if (a < 86400 * 60) return rtf.format(Math.round(s / 86400), 'day');
+      return rtf.format(Math.round(s / (86400 * 30)), 'month');
+    }
+    const regionLabel = (c) => { try { return new Intl.DisplayNames(['cs'], { type: 'region' }).of(String(c)) || String(c); } catch { return String(c); } };
+    const isoDay = (ms) => new Date(ms).toISOString().slice(0, 10);
+    const dayLabel = (iso) => /^\d{4}-\d{2}-\d{2}$/.test(String(iso || '')) ? (+iso.slice(8, 10)) + '. ' + (+iso.slice(5, 7)) + '.' : '–';
+
+    // Analytika je stránkovaná po dávkách (lastTs sestupně). 30 dní je pokryto, když kurzor (nejstarší
+    // načtená dávka) je starší než 30 dní – všechny nenačtené dávky jsou ještě starší – nebo už není co načíst.
+    const rawOldest = () => RAW.reduce((m, e) => Math.min(m, Number.isFinite(e.ts) ? e.ts : Infinity), Infinity);
+    const cursorTs = () => { const v = lastDoc && typeof lastDoc.get === 'function' ? tsMs(lastDoc.get('lastTs')) : null; return v !== null ? v : rawOldest(); };
+    const dashCovered = () => exhausted || cursorTs() <= Date.now() - 30 * DAY_MS;
+    function ensureDashCoverage() {
+      if (dashCoverage || DEMO) return dashCoverPromise;
+      dashCoverage = true;
+      if (dashCovered()) return dashCoverPromise;
+      dashCovering = true;
+      dashCoverPromise = (async () => {
+        let pages = 0, waits = 0;
+        while (!dashCovered() && pages < 40 && waits < 300) {
+          // Souběh s jiným dočítáním (Nákupy): fetchPage by vrátil 0 → počkej, nepočítej jako stránku.
+          if (loading) { waits++; await new Promise((r) => setTimeout(r, 100)); continue; }
+          const n = await fetchPage(); pages++;
+          if (!n) break;
+        }
+      })().catch((e) => console.warn('dočtení analytiky na 30 dní selhalo', e))
+        .finally(() => { dashCovering = false; buildFilterOptions(); render(); });
+      return dashCoverPromise;
+    }
+
+    /** Dlaždice. Všechny řetězce jsou už HTML – hodnoty z Firestore musí volající prohnat esc(). */
+    function tile({ title, big, cells, list, sub, desc, alert }) {
+      return `<div class="tile${alert ? ' alert' : ''}"><div class="t-title">${title}</div>` +
+        (big !== undefined ? `<div class="t-big">${big}</div>` : '') +
+        (cells ? `<div class="t-cells c${cells.length}">${cells.map(([v, l]) => `<div class="t-cell"><b>${v}</b><span>${l}</span></div>`).join('')}</div>` : '') +
+        (list ? `<div class="t-list">${list.map(([l, v]) => `<div><span>${l}</span><b>${v}</b></div>`).join('')}</div>` : '') +
+        (sub ? `<div class="t-sub">${sub}</div>` : '') +
+        (desc ? `<div class="t-desc">${desc}</div>` : '') + '</div>';
+    }
+    const section = (title, tiles) => `<h2>${title}</h2><div class="tiles">${tiles.join('')}</div>`;
+
+    function renderDashboard() {
+      if (!$('dash-tiles')) return;
+      if (!dataReady) { $('dash-updated').textContent = 'Načítám…'; $('dash-cover').textContent = ''; return; }
+      ensureDashCoverage();
+      loadFx();
+      const now = Date.now();
+      const within = (ms, d) => ms !== null && ms !== undefined && now - ms <= d * DAY_MS;
+      $('dash-updated').textContent = (DEMO ? 'Demo · ' : '') + 'Aktualizováno ' + (LOADED_AT ? fmt(LOADED_AT) : '–') + ' · bez testerů a robotů';
+      const oldestEv = rawOldest();
+      $('dash-cover').textContent = DEMO ? '' : dashCovering ? '· dočítám události za 30 dní…'
+        : dashCovered() ? '' : '· události načtené jen od ' + (Number.isFinite(oldestEv) ? fmt(oldestEv) : '–') + ' (Načíst starší)';
+      $('dash-refresh').disabled = refreshing || dashCovering;
+
+      // ── Uživatelé (ledger instalací) ──
+      const real = INSTALLS.filter((i) => (i.platform === 'ios' || i.platform === 'android') && i.cls && i.cls.kind === 'real');
+      const PERIODS = [[1, '24 h'], [7, '7 dní'], [14, '14 dní'], [30, '30 dní']];
+      const storeSince = (d) => isoDay(now - d * DAY_MS);
+      const storeSum = (d, plat) => STORE.filter((x) => (!plat || x.platform === plat) && x.date >= storeSince(d)).reduce((a, x) => a + storeN(x), 0);
+      const storeLast = (plat) => STORE.filter((x) => x.platform === plat).map((x) => String(x.date)).sort().slice(-1)[0] || null;
+      const tInstalls = tile({
+        title: 'Instalace',
+        cells: PERIODS.map(([d, l]) => [nf(real.filter((i) => within(i.firstMs, d)).length), l]),
+        sub: STORE.length ? `Stažení z obchodů: 7 dní ${nf(storeSum(7))} · 30 dní ${nf(storeSum(30))} <span style="color:var(--muted)">(obchody je vydávají se zpožděním 1–5 dní)</span>` : 'Stažení z obchodů: zatím žádná data',
+        desc: 'nová zařízení podle prvního spuštění, bez testerů a robotů',
+      });
+      const iosN = real.filter((i) => i.platform === 'ios').length;
+      const tActive = tile({
+        title: 'Aktivní uživatelé',
+        cells: PERIODS.map(([d, l]) => [nf(real.filter((i) => within(i.lastMs, d)).length), l]),
+        sub: `Zařízení celkem: ${nf(real.length)} (iOS ${nf(iosN)} · Android ${nf(real.length - iosN)})`,
+        desc: 'zařízení, která aplikaci v tom období otevřela',
+      });
+      // Rolling retence: podíl zařízení aktivních ještě N a více dní po prvním spuštění,
+      // jen ze zařízení, jejichž první spuštění je aspoň N dní staré.
+      const retention = [1, 7, 30].map((N) => {
+        const base = real.filter((i) => i.firstMs !== null && now - i.firstMs >= N * DAY_MS);
+        const kept = base.filter((i) => i.lastMs !== null && i.lastMs - i.firstMs >= N * DAY_MS).length;
+        return [pctFmt(kept, base.length), `D${N} · z ${nf(base.length)} zařízení`];
+      });
+      const tRetention = tile({
+        title: 'Retence',
+        cells: retention,
+        desc: 'podíl zařízení, která aplikaci otevřela ještě 1 / 7 / 30 a více dní po prvním spuštění; jen ze zařízení, jejichž první spuštění je aspoň tak staré',
+      });
+      const new7 = real.filter((i) => within(i.firstMs, 7));
+      const byRegion = countBy(new7, (i) => i.region && i.region !== 'none' ? String(i.region) : null);
+      const noRegion = new7.length - byRegion.reduce((a, [, v]) => a + v, 0);
+      const tCountries = tile({
+        title: 'Nové instalace podle země (7 dní)',
+        list: byRegion.length ? byRegion.slice(0, 3).map(([c, v]) => [esc(regionLabel(c)), nf(v)]) : null,
+        big: byRegion.length ? undefined : '–',
+        sub: noRegion > 0 ? `Bez údaje o zemi: ${nf(noRegion)}` : '',
+        desc: 'tři nejčastější země z nastavení telefonu u nových zařízení za 7 dní',
+      });
+
+      // ── Peníze (RevenueCat) ──
+      const allP = purchaseRows();
+      const prow = allP.filter((x) => x.rc && !x.sandbox && x.cls === 'real' && !x.refunded);
+      const paid = prow.filter((x) => (Number(x.rc.priceLocal) || 0) > 0);
+      const isPlan = (x) => x.key.startsWith('plan_'), isBreed = (x) => x.key.startsWith('breed_');
+      const lastTile = (title, x, emptyText, extra) => {
+        if (!x) return tile({ title, big: '–', sub: extra || '', desc: emptyText });
+        const r = x.rc;
+        const where = [fmt(x.ts), r.countryCode ? regionLabel(r.countryCode) : null, STORE_LABEL[r.store] || r.store || null].filter(Boolean).map(esc).join(' · ');
+        return tile({
+          title,
+          big: esc(money(r.priceLocal, r.currency)),
+          sub: `${esc(productLabel(x.key))} · ${esc(TYPE_LABEL[r.type] || r.type || '')}<br>${where}` + (extra ? '<br>' + extra : ''),
+          desc: esc(ago(x.ts)) + ' · cena v měně nákupu včetně DPH',
+        });
+      };
+      const lastTrial = prow.find((x) => isPlan(x) && String(x.rc.periodType || '') === 'TRIAL');
+      const tLastPremium = lastTile('Poslední nákup Premium', paid.find(isPlan), 'zatím žádný placený nákup Premium',
+        lastTrial ? 'Poslední zkušební období: ' + esc(ago(lastTrial.ts)) : '');
+      const tLastBreed = lastTile('Poslední nákup plemene (in-app)', paid.find(isBreed), 'zatím žádný nákup plemene');
+
+      let gross = 0, grossApprox = false, grossEcb = false;
+      paid.forEach((x) => { const c = toCzk(x.rc.priceLocal, x.rc.currency, x.rc.priceUsd); gross += c.czk; if (c.approx) grossApprox = true; if (c.ecb) grossEcb = true; });
+      const usdRate = usdCzk();
+      const proceeds = paid.reduce((a, x) => a + (Number(x.rc.proceedsUsd) || 0), 0) * usdRate.rate;
+      const fxNote = !paid.length ? 'zatím žádný placený nákup'
+        : grossApprox ? (FX === null ? 'kurz se načítá, zatím přibližně přes USD' : 'přepočet přibližně přes USD' + (usdRate.approx ? ' (kurz nedostupný, 1 USD = ' + nf(FALLBACK_USD_CZK, 0) + ' Kč)' : ''))
+        : grossEcb ? 'přepočteno kurzem ECB' + (FX && FX.date ? ' z ' + esc(dayLabel(FX.date)) : '') : 'vše placeno v Kč';
+      const tTotal = tile({
+        title: 'Nákupy celkem',
+        big: (grossApprox ? '≈ ' : '') + czkFmt(gross),
+        sub: `Placené nákupy: ${nf(paid.length)} (Premium ${nf(paid.filter(isPlan).length)} · plemena ${nf(paid.filter(isBreed).length)})<br>` +
+          `Výnos po DPH a provizi obchodu: ≈ ${czkFmt(proceeds)}`,
+        desc: 'všechny placené nákupy od začátku, hrubě včetně DPH; ' + fxNote,
+      });
+
+      // Aktivní Premium: zákazník má nevrácený nákup „navždy“, nebo jeho nejnovější událost předplatného
+      // (měsíčně/ročně) není vypršení ani vrácení peněz a expirationAtMs je v budoucnu. Zkušební období zvlášť.
+      const excludedCust = new Set(allP.filter((x) => x.rc && x.rc.customer && (x.sandbox || x.cls !== 'real')).map((x) => x.rc.customer));
+      const refundedTx = new Set(RC_EVENTS.filter((r) => r.type === 'CANCELLATION' && r.cancelReason === 'CUSTOMER_SUPPORT').map((r) => r.transactionId).filter(Boolean));
+      const evAt = (r) => Number(r.eventAtMs || r.purchasedAtMs) || 0;
+      const byCust = new Map();
+      RC_EVENTS.forEach((r) => {
+        if (!r.customer || r.type === 'TEST' || excludedCust.has(r.customer) || String(r.environment || '').toUpperCase() === 'SANDBOX') return;
+        if (!productKey(r.productId).startsWith('plan_')) return;
+        const a = byCust.get(r.customer) || []; a.push(r); byCust.set(r.customer, a);
+      });
+      const act = { plan_monthly: 0, plan_yearly: 0, plan_lifetime: 0 }; let actTrial = 0;
+      byCust.forEach((evs) => {
+        if (evs.some((r) => r.isPurchase && productKey(r.productId) === 'plan_lifetime' && !(r.transactionId && refundedTx.has(r.transactionId)))) { act.plan_lifetime++; return; }
+        const last = evs.filter((r) => productKey(r.productId) !== 'plan_lifetime').sort((a, b) => evAt(b) - evAt(a))[0];
+        if (!last || last.type === 'EXPIRATION' || (last.type === 'CANCELLATION' && last.cancelReason === 'CUSTOMER_SUPPORT')) return;
+        if (!(Number(last.expirationAtMs) > now)) return;
+        if (String(last.periodType || '') === 'TRIAL') actTrial++;
+        else { const k = productKey(last.productId); act[k] = (act[k] || 0) + 1; }
+      });
+      const actPaid = Object.values(act).reduce((a, v) => a + v, 0);
+      const tActivePremium = tile({
+        title: 'Aktivní Premium',
+        big: nf(actPaid),
+        sub: `Měsíčně ${nf(act.plan_monthly)} · ročně ${nf(act.plan_yearly)} · navždy ${nf(act.plan_lifetime)}<br>Ve zkušebním období navíc: ${nf(actTrial)}`,
+        desc: 'zákazníci, kterým Premium právě teď platí (předplatné před vypršením nebo navždy), bez zkušebního období',
+      });
+
+      const custKey = (x) => x.rc.customer || ('tx:' + (x.rc.transactionId || x.ts));
+      const payers = new Set(paid.map(custKey));
+      const tPayers = tile({
+        title: 'Platící zákazníci a konverze',
+        cells: [[nf(payers.size), 'platící zákazníci'], [pctFmt(payers.size, real.length, 1), 'konverze ze zařízení']],
+        sub: `Premium ${nf(new Set(paid.filter(isPlan).map(custKey)).size)} · plemena ${nf(new Set(paid.filter(isBreed).map(custKey)).size)} · zařízení celkem ${nf(real.length)}`,
+        desc: 'různí zákazníci s aspoň jedním placeným nákupem; konverze = podíl ze všech skutečných zařízení od začátku',
+      });
+
+      // ── Obchody ──
+      const lastIos = storeLast('ios'), lastAnd = storeLast('android');
+      const uninst30 = STORE.filter((x) => x.platform === 'android' && x.date >= storeSince(30)).reduce((a, x) => a + (Number(x.uninstalls) || 0), 0);
+      const tStore = tile({
+        title: 'Stažení z obchodů',
+        cells: STORE.length ? [
+          [nf(storeSum(7, 'ios')), 'App Store · 7 dní'], [nf(storeSum(30, 'ios')), 'App Store · 30 dní'],
+          [nf(storeSum(7, 'android')), 'Google Play · 7 dní'], [nf(storeSum(30, 'android')), 'Google Play · 30 dní'],
+        ] : null,
+        big: STORE.length ? undefined : '–',
+        sub: STORE.length ? `Odinstalace Google Play za 30 dní: ${nf(uninst30)}<br>Data do: App Store ${esc(dayLabel(lastIos))} · Google Play ${esc(dayLabel(lastAnd))}` : 'zatím žádná data',
+        desc: 'oficiální čísla obchodů (první stažení / nové instalace); chodí se zpožděním 1–5 dní, poslední dny ještě chybí',
+      });
+
+      let tRatings;
+      const R = RATINGS.state === 'ok' ? RATINGS.data : null;
+      if (!R) {
+        tRatings = tile({
+          title: 'Hodnocení v obchodech', big: '–',
+          sub: 'čeká na první načtení',
+          desc: 'průměr hvězdiček a počet hodnocení v App Storu a na Google Play',
+        });
+      } else {
+        const star = (o) => {
+          const cnt = Number(o && o.count) || 0, avg = o && o.avg !== null && o.avg !== undefined ? Number(o.avg) : NaN;
+          return [!cnt || !Number.isFinite(avg) ? '–' : nf(avg, 1) + ' ★', cnt ? nf(cnt) + ' hodnocení' : 'zatím bez hodnocení'];
+        };
+        const [iosStar, iosCnt] = star(R.ios), [andStar, andCnt] = star(R.android);
+        const rv = R.reviews || {};
+        const unIos = Number(rv.ios && rv.ios.unanswered) || 0, unAnd = Number(rv.android && rv.android.unanswered) || 0;
+        const un = unIos + unAnd;
+        const byCountry = R.ios && R.ios.byCountry && typeof R.ios.byCountry === 'object'
+          ? Object.entries(R.ios.byCountry).filter(([, v]) => v && Number(v.count) > 0).sort((a, b) => Number(b[1].count) - Number(a[1].count)).slice(0, 3) : [];
+        const upd = anyMs(R.updatedAt);
+        tRatings = tile({
+          title: 'Hodnocení v obchodech',
+          cells: [[iosStar, 'App Store · ' + iosCnt], [andStar, 'Google Play · ' + andCnt]],
+          sub: [
+            un > 0 ? `<span class="warn">Čeká na odpověď: ${nf(un)}</span> (App Store ${nf(unIos)} · Google Play ${nf(unAnd)})` : 'Všechny recenze mají odpověď',
+            byCountry.length ? 'App Store podle země: ' + byCountry.map(([c, v]) => esc(regionLabel(c)) + ' ' + esc(Number.isFinite(Number(v.avg)) ? nf(v.avg, 1) + ' ★' : '–') + ' (' + nf(v.count) + ')').join(' · ') : '',
+          ].filter(Boolean).join('<br>'),
+          desc: 'průměr hvězdiček a počet hodnocení' + (upd ? ' · aktualizováno ' + esc(fmt(upd)) : ''),
+        });
+      }
+
+      // ── Zapojení + zdraví (analytické eventy, bez testerů a robotů) ──
+      const ev = RAW.filter((e) => Number.isFinite(e.ts) && !isExcluded(e.installId, e.dev));
+      const evIn = (name, d, pred) => ev.filter((e) => e.name === name && (!d || now - e.ts <= d * DAY_MS) && (!pred || pred(e)));
+      const shared = (e) => e.props && e.props.action === 'shared';
+      const tShare = tile({
+        title: 'Sdílení',
+        cells: [[nf(evIn('share_initiated', 7).length), '7 dní'], [nf(evIn('share_initiated', 30).length), '30 dní']],
+        sub: `Opravdu odesláno (share_completed): 7 dní ${nf(evIn('share_completed', 7, shared).length)} · 30 dní ${nf(evIn('share_completed', 30, shared).length)}`,
+        desc: 'kolikrát lidé otevřeli sdílení (share_initiated)',
+      });
+      const opened7 = evIn('care_reminder_opened', 7).length, done7 = evIn('care_reminder_done', 7).length;
+      const tCare = tile({
+        title: 'Připomínky péče',
+        cells: [[nf(opened7), 'otevřeno · 7 dní'], [nf(done7), 'splněno · 7 dní'], [pctFmt(done7, opened7), 'splněno z otevřených']],
+        desc: 'notifikace virtuálního psa podle zvyku (od 13. 11. 2026)',
+      });
+      const tChallenge = tile({
+        title: '30denní výzva',
+        cells: [[nf(evIn('challenge_completed', 30).length), '30 dní'], [nf(evIn('challenge_completed').length), 'načtená historie' + (Number.isFinite(oldestEv) ? ' od ' + esc(dayLabel(isoDay(oldestEv))) : '')]],
+        desc: 'dokončené 30denní výzvy (challenge_completed)',
+      });
+      const errs = evIn('app_error', 7);
+      const topErr = countBy(errs, (e) => e.props && e.props.context ? String(e.props.context) : '?')[0];
+      const tErrors = tile({
+        title: 'Chyby v aplikaci',
+        alert: errs.length > 0,
+        cells: [[nf(errs.length), 'chyby · 7 dní'], [nf(uniqInstalls(errs)), 'zasažená zařízení']],
+        sub: topErr ? `Nejčastěji: ${esc(topErr[0].slice(0, 80))} (${nf(topErr[1])}×)` : 'Za 7 dní žádná chyba',
+        desc: 'zachycené chyby (app_error) za 7 dní; podrobnosti v záložce Technika',
+      });
+
+      $('dash-tiles').innerHTML = [
+        section('Uživatelé', [tInstalls, tActive, tRetention, tCountries]),
+        section('Peníze', [tTotal, tActivePremium, tPayers, tLastPremium, tLastBreed]),
+        section('Obchody', [tStore, tRatings]),
+        section('Zapojení', [tShare, tCare, tChallenge]),
+        section('Zdraví aplikace', [tErrors]),
+      ].join('');
+    }
+
+    $('dash-refresh').onclick = async () => {
+      const b = $('dash-refresh');
+      if (refreshing || dashCovering) return;
+      if (DEMO) { renderDashboard(); return; }
+      refreshing = true; b.disabled = true;
+      try {
+        if (dashCoverPromise) await dashCoverPromise;
+        await firstLoad();
+        if (dashCoverPromise) await dashCoverPromise;
+      } finally { refreshing = false; b.disabled = dashCovering; }
+    };
+
+    // Lokální ověření (jen localhost): ?demo ukáže dashboard bez přihlášení a bez Firestore,
+    // window.__dash.setData({INSTALLS, RC_EVENTS, STORE, RAW, RATINGS}) podstrčí vlastní data.
+    if (location.hostname === 'localhost') {
+      window.__dash = {
+        setData(d = {}) {
+          if (d.INSTALLS) INSTALLS = d.INSTALLS.map((i) => ({ installKind: 'unknown', ...i, firstMs: anyMs(i.firstMs), lastMs: anyMs(i.lastMs) }));
+          if (d.RC_EVENTS) RC_EVENTS = d.RC_EVENTS.filter((x) => x && x.type);
+          if (d.STORE) STORE = d.STORE.filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
+          if (d.RAW) { RAW = d.RAW.map((e) => ({ ...e, ts: anyMs(e.ts), props: e.props || {}, dev: e.dev || {} })); batches = 0; exhausted = true; }
+          if ('RATINGS' in d) RATINGS = d.RATINGS ? { state: 'ok', data: d.RATINGS } : { state: 'missing', data: null };
+          reclassify();
+          dataReady = true; dashCoverage = true; LOADED_AT = Date.now();
+          render();
+        },
+        render: renderDashboard,
+      };
+    }
+    if (DEMO) {
+      $('login').classList.add('hidden');
+      $('dash').classList.remove('hidden');
+      $('who').textContent = '· demo (localhost, bez Firestore)';
+      $('status').classList.add('hidden');
+      exhausted = true; dataReady = true; LOADED_AT = Date.now();
     }
 
     // init tab z hashe
