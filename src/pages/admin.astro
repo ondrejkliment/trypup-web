@@ -116,6 +116,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     .tile .t-list b { font-variant-numeric:tabular-nums; }
     .tile .t-sub { font-size:12.5px; line-height:1.45; }
     .tile .t-sub .warn { color:var(--apricot); font-weight:700; }
+    .tile table.t-ret { width:100%; border-collapse:collapse; margin-top:2px; }
+    .tile table.t-ret th, .tile table.t-ret td { padding:4px 4px; border-bottom:1px solid var(--line); font-size:12.5px; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .tile table.t-ret th:first-child, .tile table.t-ret td:first-child { text-align:left; white-space:normal; }
+    .tile table.t-ret td span { color:var(--muted); }
+    .tile table.t-ret tr.mkt td { color:var(--muted); border-bottom:0; }
     .tile .t-desc { font-size:12px; color:var(--muted); line-height:1.45; margin-top:auto; }
   </style>
 </head>
@@ -380,11 +385,16 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     // Hodnocení v obchodech: dokument store_stats/ratings_summary (stejná kolekce, nemá date/platform,
     // takže do STORE nespadne). {updatedAt, ios:{avg,count,byCountry}, android:{avg,count}, reviews:{ios,android}}
     let RATINGS = { state: 'missing', data: null };
+    // Retence po režimech: store_stats/retention_summary (functions/cohortRetention.js, denně se syncStoreStats).
+    // {updatedAt, method, segments:{all|challenge|trial|owner|notActivated:{installs, d1:{k,n}, d7, d30}}}
+    let RETENTION = { state: 'missing', data: null };
     async function loadStoreStats() {
       const snap = await getDocs(collection(db, 'store_stats'));
       STORE = snap.docs.map((d) => d.data()).filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
       const rs = snap.docs.find((d) => d.id === 'ratings_summary');
       RATINGS = rs ? { state: 'ok', data: rs.data() || {} } : { state: 'missing', data: null };
+      const rt = snap.docs.find((d) => d.id === 'retention_summary');
+      RETENTION = rt ? { state: 'ok', data: rt.data() || {} } : { state: 'missing', data: null };
     }
     // Stažení podle obchodu: iOS = první stažení (firstTime), Android = nové instalace (installs).
     const storeN = (x) => x.platform === 'ios' ? (Number(x.firstTime) || 0) : (Number(x.installs) || 0);
@@ -453,7 +463,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       $('status').textContent = 'Načítám…';
       try {
         await loadInstalls().catch((e) => console.warn('ledger instalací nenačten', e));
-        await loadStoreStats().catch((e) => { console.warn('store_stats nenačteny', e); RATINGS = { state: 'error', data: null }; });
+        await loadStoreStats().catch((e) => { console.warn('store_stats nenačteny', e); RATINGS = { state: 'error', data: null }; RETENTION = { state: 'error', data: null }; });
         await loadRcEvents().catch((e) => console.warn('rc_events nenačteny', e));
         await fetchPage();
         dataReady = true; LOADED_AT = Date.now();
@@ -1143,17 +1153,31 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         sub: `Zařízení celkem: ${nf(real.length)} (iOS ${nf(iosN)} · Android ${nf(real.length - iosN)})`,
         desc: 'zařízení, která aplikaci v tom období otevřela',
       });
-      // Rolling retence: podíl zařízení aktivních ještě N a více dní po prvním spuštění,
-      // jen ze zařízení, jejichž první spuštění je aspoň N dní staré.
-      const retention = [1, 7, 30].map((N) => {
-        const base = real.filter((i) => i.firstMs !== null && now - i.firstMs >= N * DAY_MS);
-        const kept = base.filter((i) => i.lastMs !== null && i.lastMs - i.firstMs >= N * DAY_MS).length;
-        return [pctFmt(kept, base.length), `D${N} · z ${nf(base.length)} zařízení`];
-      });
+      // Klasická retence (den N přesně, kalendářní dny v Praze) po režimech – srovnatelná s trhem.
+      // Počítá ji server denně (functions/cohortRetention.js), sem jdou jen počty (Number()).
+      const RS = RETENTION.state === 'ok' ? RETENTION.data : null;
+      const seg = (k) => (RS && RS.segments && RS.segments[k]) || null;
+      // Pod 10 zařízení by procenta klamala (1 z 1 = 100 %) → ukaž jen počet.
+      const rPct = (x) => {
+        const n = x ? Number(x.n) || 0 : 0, k = x ? Number(x.k) || 0 : 0;
+        if (!n) return '–';
+        return n < 10 ? `<span>${nf(k)}/${nf(n)}</span>` : pctFmt(k, n);
+      };
+      const DCOLS = [['d1', 'D1'], ['d7', 'D7'], ['d30', 'D30']];
+      const SEG_ROWS = [['challenge', '30denní výzva'], ['trial', 'Pes na zkoušku bez výzvy'], ['owner', 'Pes doma'], ['notActivated', 'Psa nezaložili']];
+      const allSeg = seg('all');
       const tRetention = tile({
         title: 'Retence',
-        cells: retention,
-        desc: 'podíl zařízení, která aplikaci otevřela ještě 1 / 7 / 30 a více dní po prvním spuštění; jen ze zařízení, jejichž první spuštění je aspoň tak staré',
+        cells: allSeg
+          ? DCOLS.map(([k, l]) => [rPct(allSeg[k]), `${l} · z ${nf(Number(allSeg[k] && allSeg[k].n) || 0)} zařízení`])
+          : [['–', RETENTION.state === 'error' ? 'nepodařilo se načíst' : 'čeká na první výpočet']],
+        sub: allSeg
+          ? '<table class="t-ret"><tr><th>Podle režimu</th>' + DCOLS.map(([, l]) => `<th>${l}</th>`).join('') + '</tr>'
+            + SEG_ROWS.map(([k, l]) => { const s = seg(k); return `<tr><td>${l} <span>(${nf(Number(s && s.installs) || 0)})</span></td>` + DCOLS.map(([d]) => `<td>${s ? rPct(s[d]) : '–'}</td>`).join('') + '</tr>'; }).join('')
+            + '<tr class="mkt"><td>Průměr aplikací na trhu</td><td>26 %</td><td>13 %</td><td>7 %</td></tr></table>'
+          : '',
+        desc: 'podíl zařízení, která aplikaci otevřela přesně 1., 7. a 30. den po prvním spuštění – stejně jako srovnávací studie trhu (Adjust, AppsFlyer); v závorce počet zařízení, při méně než 10 zařízeních jen počet (vrátilo se / základ); bez testerů a robotů; přepočet jednou denně'
+          + (RS && anyMs(RS.updatedAt) ? ' · ' + esc(fmt(anyMs(RS.updatedAt))) : ''),
       });
       const new7 = real.filter((i) => within(i.firstMs, 7));
       const byRegion = countBy(new7, (i) => i.region && i.region !== 'none' ? String(i.region) : null);
@@ -1346,6 +1370,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
           if (d.STORE) STORE = d.STORE.filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
           if (d.RAW) { RAW = d.RAW.map((e) => ({ ...e, ts: anyMs(e.ts), props: e.props || {}, dev: e.dev || {} })); batches = 0; exhausted = true; }
           if ('RATINGS' in d) RATINGS = d.RATINGS ? { state: 'ok', data: d.RATINGS } : { state: 'missing', data: null };
+          if ('RETENTION' in d) RETENTION = d.RETENTION ? { state: 'ok', data: d.RETENTION } : { state: 'missing', data: null };
           reclassify();
           dataReady = true; dashCoverage = true; LOADED_AT = Date.now();
           render();
