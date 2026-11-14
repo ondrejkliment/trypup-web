@@ -1175,6 +1175,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
           ? '<table class="t-ret"><tr><th>Podle režimu</th>' + DCOLS.map(([, l]) => `<th>${l}</th>`).join('') + '</tr>'
             + SEG_ROWS.map(([k, l]) => { const s = seg(k); return `<tr><td>${l} <span>(${nf(Number(s && s.installs) || 0)})</span></td>` + DCOLS.map(([d]) => `<td>${s ? rPct(s[d]) : '–'}</td>`).join('') + '</tr>'; }).join('')
             + '<tr class="mkt"><td>Průměr aplikací na trhu</td><td>26 %</td><td>13 %</td><td>7 %</td></tr></table>'
+            // Týdenní retence (Pes doma se nevrací denně, ale kvůli plánu péče): vrátil se kdykoli v týdnu.
+            + (seg('owner') && seg('owner').w1
+              ? `<div style="margin-top:8px"><b>Pes doma po týdnech:</b> 2. týden ${rPct(seg('owner').w1)} · 5. týden ${rPct(seg('owner').w4)}`
+                + ` <span style="color:var(--muted)">(vrátil se kdykoli ve dnech 7–13, resp. 28–34; celkem 2. týden ${rPct(allSeg.w1)})</span></div>`
+              : '')
           : '',
         desc: 'podíl zařízení, která aplikaci otevřela přesně 1., 7. a 30. den po prvním spuštění – stejně jako srovnávací studie trhu (Adjust, AppsFlyer); v závorce počet zařízení, při méně než 10 zařízeních jen počet (vrátilo se / základ); bez testerů a robotů; přepočet jednou denně'
           + (RS && anyMs(RS.updatedAt) ? ' · ' + esc(fmt(anyMs(RS.updatedAt))) : ''),
