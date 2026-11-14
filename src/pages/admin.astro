@@ -1131,8 +1131,10 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       const tInstalls = tile({
         title: 'Instalace',
         cells: PERIODS.map(([d, l]) => [nf(real.filter((i) => within(i.firstMs, d)).length), l]),
-        sub: STORE.length ? `Stažení z obchodů: 7 dní ${nf(storeSum(7))} · 30 dní ${nf(storeSum(30))} <span style="color:var(--muted)">(obchody je vydávají se zpožděním 1–5 dní)</span>` : 'Stažení z obchodů: zatím žádná data',
-        desc: 'nová zařízení podle prvního spuštění, bez testerů a robotů',
+        // Velká čísla = naše měření (první spuštění). Obchody jen pro srovnání: počítají stažení
+        // (i neotevřená) a data vydávají se zpožděním, proto jen 30 dní a s datem, do kdy je mají.
+        sub: STORE.length ? `Pro srovnání oficiálně z obchodů za 30 dní: ${nf(storeSum(30))} stažení <span style="color:var(--muted)">(App Store má data do ${esc(dayLabel(storeLast('ios')))}, Google Play do ${esc(dayLabel(storeLast('android')))}; stažení se počítá i bez otevření aplikace)</span>` : 'Obchody: zatím žádná data',
+        desc: 'velká čísla = naše měření: zařízení, která aplikaci poprvé spustila (bez testerů a robotů)',
       });
       const iosN = real.filter((i) => i.platform === 'ios').length;
       const tActive = tile({
