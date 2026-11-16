@@ -84,6 +84,10 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     table.inst th, table.inst td { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); white-space:nowrap; }
     table.inst th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
     table.inst tr.tester td { opacity:.55; }
+    table.conv th.n, table.conv td.n { text-align:right; font-variant-numeric:tabular-nums; }
+    table.conv td:first-child { white-space:normal; min-width:120px; }
+    .grid2 .panel.wide { grid-column:1 / -1; }
+    #m-panels { grid-auto-flow:row dense; }
     .tag { display:inline-block; border-radius:10px; padding:1px 7px; font-size:10.5px; font-weight:700; background:var(--bg); border:1px solid var(--line); }
     .tag.auto { color:#e8c46a; } .tag.manual { color:#ff8a8a; } .tag.store { color:#7dd39a; }
     .note { color:var(--muted); font-size:12px; margin:4px 0 12px; line-height:1.5; }
@@ -252,6 +256,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       <h2>Ostatní události předplatného</h2>
       <div class="panel" style="overflow:auto"><table class="inst" id="p-other"></table></div>
       <p class="note">Zdroj: RevenueCat – kolekce <code>rc_events</code>, plní ji webhook <code>revenuecatWebhook</code> (od 1. 11. 2026) a doplněná historie (<code>functions/backfill-rc-events.cjs</code>). Částka je v měně nákupu včetně DPH, v závorce v USD; výnos = po DPH a provizi obchodu (odhad RevenueCatu). <strong>Zařízení a jazyk</strong> RevenueCat nezná: páruje se s anonymní analytikou (<code>purchase_completed</code> se stejným produktem do 10 minut), obnova předplatného přebírá zařízení z prvního nákupu. Řádek „jen z aplikace“ = nákup bez záznamu v RevenueCatu (testovací nákup z TestFlightu / interního testování). Sandbox a testeři se skrývají jako jinde (přepínač „včetně testerů“ nahoře).</p>
+      <h2>Paywall → nákup (analytika aplikace) <span id="m-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <div class="grid2" id="m-panels"></div>
+      <h2>Obnova nákupů a správa předplatného</h2>
+      <div class="grid2" id="m-restore"></div>
+      <p class="note">Zdroj: anonymní analytika aplikace (<code>paywall_viewed</code>, <code>purchase_*</code>, <code>restore_*</code>, <code>subscription_manage_opened</code>); platí všechny filtry nahoře (období, platforma, build…). Počty v tabulkách = různá zařízení, <strong>konverze</strong> = kolik zařízení, která paywall z daného zdroje viděla, nákup dokončilo. <strong>Obnova nákupů</strong> se do nákupů ani tržeb nepočítá: od vlny 1 má vlastní <code>restore_*</code>, starší verze ji posílají jako <code>purchase_*</code> s <code>product: restore</code>&nbsp;– obojí je sloučené v „Obnova nákupů“. Starší verze u zamčeného článku a zdravotního tipu logují zobrazení paywallu dvakrát; dvojice téhož zařízení do 60 s se počítá jako jedno zobrazení. Nákupy ze starších verzí zdroj ani režim nenesou: doplní se z posledního zobrazení paywallu na tomtéž zařízení (nejvýš hodinu před); zkušební doba u nich zůstane „neuvedeno“. „bez zdroje (starší verze)“ = vstup na paywall, který ve starší verzi zdroj neposílal (od vlny 1 mají zdroj Spolu, časová osa, Profil, průvodce, změna plemene a sbírka plemen).</p>
     </div>
   </div>
 
@@ -614,13 +623,128 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     }
     const evByName = (ev, name) => ev.filter((e) => e.name === name);
 
+    // --- Monetizace z analytiky aplikace: paywall → nákup, obnova, správa předplatného ---
+    // Vlna 1 auditu (pawprint-mobile docs/ANALYTICS.md, 16. 11. 2026):
+    //  • Obnova nákupů má vlastní restore_started → restore_completed {kind} / restore_none /
+    //    restore_failed {reason, code}. Starší verze ji posílají jako purchase_* s product: 'restore'
+    //    → do nákupů, trychtýře ani tržeb se nikdy nepočítá; obnovy jsou zvlášť (oba zdroje sloučené).
+    //  • purchase_* nově nesou source, mode, trial (0|1) a u Premium plánu plan. Starším nákupům
+    //    zdroj a režim dopočítáme z posledního paywall_viewed téhož zařízení (nejvýš hodinu před).
+    //  • Starší verze u zdrojů article a health_tip logují paywall_viewed dvakrát (z článku s article,
+    //    z paywallu bez něj) → dvojice téhož zařízení a zdroje do 60 s = jedno zobrazení. Od vlny 1
+    //    loguje jen paywall, jednou a s article: dvojice nevznikají, takže netřeba hranice buildu.
+    const PURCHASE_EVENTS = new Set(['purchase_started', 'purchase_completed', 'purchase_cancelled', 'purchase_pending', 'purchase_failed']);
+    const RESTORE_KIND = { restore_started: 'started', restore_completed: 'completed', restore_none: 'none', restore_failed: 'failed' };
+    const isLegacyRestore = (e) => PURCHASE_EVENTS.has(e.name) && !!e.props && e.props.product === 'restore';
+    const DOUBLE_VIEW_SOURCES = new Set(['article', 'health_tip']);
+    const DOUBLE_VIEW_MS = 60 * 1000;
+    const ATTRIBUTION_MS = 60 * 60 * 1000;
+    const hasArticle = (e) => e.props.article !== undefined && e.props.article !== null && e.props.article !== '';
+
+    /** Dvojí zobrazení ze starších verzí (článek + paywall) → jedno; ponechá záznam paywallu (má mode) s id článku. */
+    function dedupePaywallViews(views) {
+      const out = [], groups = new Map(); let merged = 0;
+      for (const e of views) {
+        if (!DOUBLE_VIEW_SOURCES.has(e.props.source)) { out.push(e); continue; }
+        const k = e.installId + '|' + e.props.source;
+        const a = groups.get(k); if (a) a.push(e); else groups.set(k, [e]);
+      }
+      groups.forEach((arr) => {
+        arr.sort((a, b) => a.ts - b.ts);
+        const used = new Set();
+        arr.forEach((a, i) => {
+          if (used.has(i)) return;
+          let j = i + 1;
+          while (j < arr.length && arr[j].ts - a.ts <= DOUBLE_VIEW_MS && (used.has(j) || hasArticle(arr[j]) === hasArticle(a))) j++;
+          if (j >= arr.length || arr[j].ts - a.ts > DOUBLE_VIEW_MS) { out.push(a); return; }
+          used.add(j); merged++;
+          const b = arr[j], art = hasArticle(a) ? a : b, pw = hasArticle(a) ? b : a;
+          out.push({ ...pw, props: { ...pw.props, article: art.props.article } });
+        });
+      });
+      return { views: out, merged };
+    }
+
     /**
-     * Výsledek pokusu o nákup = hlavní metrika konverze paywallu (ZADANI_ROBOTI_A_NAKUPY B2).
-     * purchase_cancelled / purchase_pending chodí od OTA build282 – starší pokusy bez výsledku
-     * se počítají jako „bez záznamu“ (dřív se zrušení nelogovalo vůbec).
+     * Eventy (už filtrované) → {views, merged, purchases, restores, manage}. purchases = purchase_*
+     * BEZ obnovy, s dopočteným zdrojem/režimem; restores = restore_* + starší purchase_* s product
+     * 'restore' (kind: started|completed|none|failed, legacy = ze starší verze).
      */
-    function purchaseOutcomePanel(ev) {
-      const n = (name) => evByName(ev, name).length;
+    function monetization(ev) {
+      const rawViews = ev.filter((e) => e.name === 'paywall_viewed');
+      const { views, merged } = dedupePaywallViews(rawViews);
+      const viewsBy = new Map();
+      views.forEach((v) => { const a = viewsBy.get(v.installId); if (a) a.push(v); else viewsBy.set(v.installId, [v]); });
+      viewsBy.forEach((a) => a.sort((x, y) => x.ts - y.ts));
+      // Poslední zobrazení paywallu před událostí (2 s tolerance: pořadí v jedné dávce).
+      const lastView = (e) => {
+        let best = null;
+        for (const v of viewsBy.get(e.installId) || []) { if (v.ts > e.ts + 2000) break; if (e.ts - v.ts <= ATTRIBUTION_MS) best = v; }
+        return best;
+      };
+      const purchases = [], restores = [];
+      for (const e of ev) {
+        const p = e.props;
+        if (RESTORE_KIND[e.name]) {
+          restores.push({ installId: e.installId, kind: RESTORE_KIND[e.name], legacy: false, reason: e.name === 'restore_failed' ? (p.code || p.reason || '?') : null, source: p.source || null });
+          continue;
+        }
+        if (!PURCHASE_EVENTS.has(e.name)) continue;
+        if (isLegacyRestore(e)) {
+          const kind = e.name === 'purchase_started' ? 'started' : e.name === 'purchase_completed' ? 'completed'
+            : e.name === 'purchase_failed' && p.reason === 'nothing_to_restore' ? 'none' : 'failed';
+          restores.push({ installId: e.installId, kind, legacy: true, reason: kind === 'failed' ? (p.code || p.reason || e.name.replace('purchase_', '')) : null, source: null });
+          continue;
+        }
+        let source = p.source || null, mode = p.mode || null, inferred = false;
+        if (!source || !mode) {
+          const v = lastView(e);
+          if (v && !source && v.props.source) { source = v.props.source; inferred = true; }
+          if (v && !mode && v.props.mode) { mode = v.props.mode; inferred = true; }
+        }
+        const product = String(p.product || '');
+        const plan = p.plan || (product.startsWith('plan_') ? product.slice(5) : null);
+        const trial = p.trial === 1 || p.trial === '1' ? 1 : p.trial === 0 || p.trial === '0' ? 0 : null;
+        purchases.push({ name: e.name, installId: e.installId, product, source, mode, plan, trial, inferred });
+      }
+      return { views, rawViews: rawViews.length, merged, purchases, restores, manage: ev.filter((e) => e.name === 'subscription_manage_opened') };
+    }
+
+    const PAYWALL_SOURCE_LABEL = {
+      onboarding: 'onboarding', article: 'zamčený článek', health_tip: 'zdravotní tip', quiz: 'kvíz',
+      challenge_result: 'výsledek výzvy', coop: 'Spolu (sdílení psa)', timeline: 'časová osa',
+      profile_timeline: 'časová osa v Profilu', profile: 'karta Premium v Profilu', owner_profile: 'Profil Psa doma',
+      tutorial: 'konec průvodce', breed_select: 'změna plemene', breeddex: 'sbírka plemen',
+      engagement: 'bez zdroje (starší verze)',
+    };
+    const srcLabel = (s) => !s ? 'nezjištěno (bez paywallu v datech)'
+      : PAYWALL_SOURCE_LABEL[s] ? PAYWALL_SOURCE_LABEL[s] + (PAYWALL_SOURCE_LABEL[s] === s ? '' : ' · ' + s)
+      : /^owner_/.test(s) ? 'Pes doma · ' + s : s;
+    const MODE_LABEL = { challenge: '30denní výzva', classic: 'na zkoušku bez výzvy', owner: 'Pes doma' };
+    const modeLabel = (m) => !m ? 'neuvedeno (starší verze)' :MODE_LABEL[m] ? MODE_LABEL[m] + ' · ' + m : m;
+    const trialLabel = (t) => t === 1 ? 'nabízena zkušební doba · 1' : t === 0 ? 'bez zkušební doby · 0' : 'neuvedeno (starší verze)';
+    const PLAN_KEY_LABEL = { monthly: 'měsíčně', yearly: 'ročně', lifetime: 'navždy' };
+    const planLabel = (p) => PLAN_KEY_LABEL[p] ? PLAN_KEY_LABEL[p] + ' · ' + p : String(p);
+    const MANAGE_SOURCE_LABEL = { settings: 'Nastavení', paywall: 'paywall', account_delete: 'smazání účtu' };
+    const MANAGE_VIA_LABEL = { sheet: 'list iOS', link: 'stránka obchodu' };
+
+    /** Sloupcový „výsledek“ (podíl ze základu); rows = [[popisek, počet, barva], …]. */
+    function outcomePanel(title, hint, base, rows) {
+      const html = rows.map(([l, v, c]) => {
+        const pct = base ? Math.round((v / base) * 100) : 0;
+        return `<div class="bar"><span class="lbl">${esc(l)}</span><span class="val">${v} <span class="pct">· ${pct}%</span></span><div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:${c}"></div></div></div>`;
+      }).join('');
+      return `<div class="panel funnel"><h3>${esc(title)} <span class="hint">${esc(hint)}</span></h3>${html}</div>`;
+    }
+
+    /**
+     * Výsledek pokusu o nákup = hlavní metrika konverze paywallu (ZADANI_ROBOTI_A_NAKUPY B2), bez obnovy.
+     * purchase_cancelled / purchase_pending chodí od OTA build282 – starší pokusy bez výsledku
+     * se počítají jako „bez záznamu“ (dřív se zrušení nelogovalo vůbec). Od vlny 1 zůstane bez
+     * výsledku i klepnutí, které obchod odmítl jako už rozběhnutý nákup.
+     */
+    function purchaseOutcomePanel(m) {
+      const n = (name) => m.purchases.filter((p) => p.name === name).length;
       const started = n('purchase_started');
       const rows = [
         ['dokončeno', n('purchase_completed'), 'var(--water)'],
@@ -629,12 +753,63 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         ['selhalo', n('purchase_failed'), '#ff8a8a'],
       ];
       const known = rows.reduce((a, r) => a + r[1], 0);
-      rows.push(['bez záznamu (před build282)', Math.max(0, started - known), 'var(--line)']);
-      const html = rows.map(([l, v, c]) => {
-        const pct = started ? Math.round((v / started) * 100) : 0;
-        return `<div class="bar"><span class="lbl">${esc(l)}</span><span class="val">${v} <span class="pct">· ${pct}%</span></span><div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:${c}"></div></div></div>`;
-      }).join('');
-      return `<div class="panel funnel"><h3>Výsledek pokusu o nákup <span class="hint">${started} pokusů (purchase_started)</span></h3>${html}</div>`;
+      rows.push(['bez záznamu (před build282 / nákup už běžel)', Math.max(0, started - known), 'var(--line)']);
+      return outcomePanel('Výsledek pokusu o nákup', `${started} pokusů (purchase_started, bez obnovy)`, started, rows);
+    }
+
+    /** Obnova nákupů: restore_* + starší purchase_* s product 'restore'. */
+    function restoreOutcomePanel(m) {
+      const n = (k) => m.restores.filter((r) => r.kind === k).length;
+      const started = n('started');
+      const rows = [
+        ['obnoveno', n('completed'), 'var(--water)'],
+        ['nebylo co obnovit', n('none'), 'var(--muted)'],
+        ['selhalo', n('failed'), '#ff8a8a'],
+      ];
+      const known = rows.reduce((a, r) => a + r[1], 0);
+      rows.push(['bez výsledku', Math.max(0, started - known), 'var(--line)']);
+      const legacy = m.restores.filter((r) => r.kind === 'started' && r.legacy).length;
+      return outcomePanel('Obnova nákupů', `${started} pokusů · z toho ${legacy} ze starších verzí`, started, rows);
+    }
+
+    /** Trychtýř paywall → nákup po zařízeních (bez obnovy, dvojí zobrazení sloučená). */
+    function monetFunnel(m) {
+      const set = (arr) => new Set(arr.map((x) => x.installId));
+      return funnelFromSets('Monetizace', [
+        ['paywall_viewed', set(m.views)],
+        ['purchase_started', set(m.purchases.filter((p) => p.name === 'purchase_started'))],
+        ['purchase_completed', set(m.purchases.filter((p) => p.name === 'purchase_completed'))],
+      ], 'bez obnovy nákupů');
+    }
+
+    /**
+     * Rozpad paywall → nákup podle jedné vlastnosti. Počty = různá zařízení (jako trychtýř).
+     * viewKey = null → paywall vlastnost nezná (zkušební doba, plán): tabulka začíná pokusem o nákup.
+     * Klíč undefined = událost do rozpadu nepatří (např. plán u nákupu plemene).
+     */
+    function convPanel(title, m, viewKey, buyKey, label, hint) {
+      const add = (map, k, iid) => { let s = map.get(k); if (!s) map.set(k, s = new Set()); s.add(iid); };
+      const seen = new Map(), viewsN = new Map(), started = new Map(), done = new Map();
+      if (viewKey) m.views.forEach((v) => { const k = viewKey(v); if (k === undefined) return; add(seen, k, v.installId); viewsN.set(k, (viewsN.get(k) || 0) + 1); });
+      m.purchases.forEach((p) => {
+        const k = buyKey(p); if (k === undefined) return;
+        if (p.name === 'purchase_started') add(started, k, p.installId);
+        else if (p.name === 'purchase_completed') add(done, k, p.installId);
+      });
+      const sz = (map, k) => (map.get(k) || { size: 0 }).size;
+      const keys = [...new Set([...seen.keys(), ...started.keys(), ...done.keys()])]
+        .sort((a, b) => (viewKey ? sz(seen, b) - sz(seen, a) : 0) || sz(started, b) - sz(started, a) || sz(done, b) - sz(done, a));
+      const pct = (a, b) => b ? Math.round((a / b) * 100) + '&nbsp;%' : '–';
+      const head = viewKey
+        ? '<tr><th></th><th class="n">zobrazení</th><th class="n">zařízení</th><th class="n">zahájili</th><th class="n">koupili</th><th class="n">konverze</th></tr>'
+        : '<tr><th></th><th class="n">zahájili</th><th class="n">koupili</th><th class="n">úspěšnost</th></tr>';
+      const rows = keys.map((k) => `<tr><td>${esc(label(k))}</td>` + (viewKey
+        ? `<td class="n">${viewsN.get(k) || 0}</td><td class="n">${sz(seen, k)}</td><td class="n">${sz(started, k)}</td><td class="n">${sz(done, k)}</td><td class="n">${pct(sz(done, k), sz(seen, k))}</td>`
+        : `<td class="n">${sz(started, k)}</td><td class="n">${sz(done, k)}</td><td class="n">${pct(sz(done, k), sz(started, k))}</td>`) + '</tr>').join('');
+      const h = hint ? ` <span class="hint">${esc(hint)}</span>` : '';
+      // Tabulka se zobrazeními má 5 čísel → přes celou šířku mřížky, jinak by se v úzkém sloupci usekla.
+      return `<div class="panel${viewKey ? ' wide' : ''}" style="overflow:auto"><h3>${esc(title)}${h}</h3>` +
+        (rows ? `<table class="inst conv">${head}${rows}</table>` : '<p style="color:var(--muted)">Žádná data.</p>') + '</div>';
     }
 
     // --- Render (jen aktivní záložka kvůli výkonu) ---
@@ -644,7 +819,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       if (activeTab === 'dashboard') renderDashboard();
       else if (activeTab === 'prehled') renderOverview(ev);
       else if (activeTab === 'vyzkum') renderResearch(ev);
-      else if (activeTab === 'nakupy') renderPurchases();
+      else if (activeTab === 'nakupy') renderPurchases(ev);
       else renderTech(ev);
     }
 
@@ -691,11 +866,12 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         ['Rozsah (dny)', span], ['Poslední', tsList.length ? fmt(Math.max(...tsList)) : '–'],
       ].map(([l, v]) => `<div class="card"><div class="kpi">${v}<small>${l}</small></div></div>`).join('');
 
+      const mon = monetization(ev);
       $('funnels').innerHTML = [
         funnelPanel('Aktivace', ['app_open','onboarding_step','quiz_completed','breed_selected','activated'], ev),
-        funnelPanel('Monetizace', ['paywall_viewed','purchase_started','purchase_completed'], ev),
+        monetFunnel(mon),
         funnelPanel('Mise (→ útulek)', ['activated','article_read','graduation_reached','shelter_opened'], ev),
-        purchaseOutcomePanel(ev),
+        purchaseOutcomePanel(mon),
       ].join('');
 
       $('overview-events').innerHTML = [
@@ -877,7 +1053,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     let purchaseCoverage = false;
 
     function purchaseRows() {
-      const app = RAW.filter((e) => e.name === 'purchase_completed' && e.props.product !== 'restore');
+      // Obnova (starší verze: purchase_completed s product 'restore') není nákup → nepáruje se.
+      const app = RAW.filter((e) => e.name === 'purchase_completed' && !isLegacyRestore(e));
       const used = new Set();
       const rows = RC_EVENTS.filter((r) => r.isPurchase).map((r) => {
         const key = productKey(r.productId); const t = r.purchasedAtMs || r.eventAtMs || 0;
@@ -912,8 +1089,9 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       buildFilterOptions(); render();
     }
 
-    function renderPurchases() {
+    function renderPurchases(ev) {
       ensurePurchaseCoverage();
+      renderMonetization(ev);
       const fromTs = FILTERS.from ? new Date(FILTERS.from).getTime() : null;
       const toTs = FILTERS.to ? new Date(FILTERS.to).getTime() + 86400000 : null;
       const allRows = purchaseRows();
@@ -967,7 +1145,34 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       $('p-other').innerHTML = '<tr><th>Čas</th><th>Událost</th><th>Produkt</th><th>Důvod</th><th>Obchod</th><th>Země</th></tr>' + (other.map((r) => `<tr><td>${esc(fmt(r.eventAtMs || r.purchasedAtMs))}</td><td>${esc(TYPE_LABEL[r.type] || r.type)}</td><td>${esc(productLabel(productKey(r.productId)))}</td><td>${esc(r.cancelReason || r.expirationReason || '–')}</td><td>${esc(STORE_LABEL[r.store] || r.store || '?')}</td><td>${esc(r.countryCode || '–')}</td></tr>`).join('') || '<tr><td colspan="6" style="color:var(--muted)">Žádné.</td></tr>');
     }
 
+    /** Nákupy → „Paywall → nákup“: analytika aplikace (respektuje všechny filtry nahoře). */
+    function renderMonetization(ev) {
+      if (!$('m-panels')) return;
+      const m = monetization(ev);
+      const inferred = m.purchases.filter((p) => p.inferred).length;
+      $('m-sub').textContent = `· ${m.views.length} zobrazení paywallu` + (m.merged ? ` (${m.merged} dvojic sloučeno)` : '') +
+        ` · ${m.purchases.length} nákupních událostí` + (inferred ? ` (${inferred} se zdrojem z paywallu)` : '');
+      const planOf = (p) => p.plan || undefined; // jen Premium plán, plemena do rozpadu nepatří
+      $('m-panels').innerHTML = [
+        monetFunnel(m),
+        purchaseOutcomePanel(m),
+        convPanel('Podle zdroje paywallu', m, (v) => v.props.source || null, (p) => p.source, srcLabel, 'odkud člověk na paywall přišel'),
+        convPanel('Podle režimu', m, (v) => v.props.mode || null, (p) => p.mode, modeLabel, 'mode paywallu'),
+        convPanel('Podle zkušební doby', m, null, (p) => p.trial, trialLabel, 'trial u vybraného plánu, od vlny 1'),
+        convPanel('Podle plánu Premium', m, null, planOf, planLabel, 'jen Premium, bez plemen'),
+      ].join('');
+      const failed = m.restores.filter((r) => r.kind === 'failed');
+      $('m-restore').innerHTML = [
+        restoreOutcomePanel(m),
+        barPanel('Obnova nákupů – odkud',countBy(m.restores.filter((r) => r.kind === 'started'), (r) => r.legacy ? 'starší verze (zdroj neposílá)' : srcLabel(r.source)), 'var(--water)', 10),
+        failed.length ? barPanel('Obnova nákupů – proč selhala',countBy(failed, (r) => r.reason || '?'), '#ff8a8a', 8, 'code / reason z RevenueCatu') : '',
+        barPanel('Spravovat předplatné', countBy(m.manage, (e) => (MANAGE_SOURCE_LABEL[e.props.source] || e.props.source || '?') + ' · ' + (MANAGE_VIA_LABEL[e.props.via] || e.props.via || '?')), 'var(--plum)', 8,
+          `${m.manage.length}× otevřeno (subscription_manage_opened, od vlny 1)`),
+      ].join('');
+    }
+
     function renderTech(ev) {
+      const purchaseFailed = evByName(ev, 'purchase_failed').filter((e) => !isLegacyRestore(e)); // obnova není nákup
       $('t-devices').innerHTML = [
         barPanel('Platforma', countBy(ev, (e) => e.dev.platform), 'var(--water)'),
         barPanel('Model zařízení', countBy(ev, (e) => e.dev.model), null, 12),
@@ -979,10 +1184,10 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
       $('t-quality').innerHTML = [
         barPanel('Chyby (app_error) dle kontextu', countBy(evByName(ev, 'app_error'), (e) => e.props.context || '?'), '#ff8a8a', 12),
-        barPanel('Selhané nákupy – kód chyby', countBy(evByName(ev, 'purchase_failed'), (e) => (e.props.code || e.props.reason || '?') + (e.props.code && e.props.reason && e.props.code !== e.props.reason ? ' (' + e.props.reason + ')' : '')), '#ff8a8a', 12, 'code = název chyby RevenueCatu (od build282), dřív jen reason'),
-        barPanel('Selhané nákupy – produkt', countBy(evByName(ev, 'purchase_failed'), (e) => e.props.product || '?'), '#ff8a8a', 10),
-        barPanel('Selhané nákupy – platforma', countBy(evByName(ev, 'purchase_failed'), (e) => e.dev.platform || '?'), '#ff8a8a'),
-        barPanel('Selhané nákupy – hláška', countBy(evByName(ev, 'purchase_failed'), (e) => (e.props.message || e.props.underlying || '').slice(0, 80) || '(bez hlášky)'), null, 8),
+        barPanel('Selhané nákupy – kód chyby', countBy(purchaseFailed, (e) => (e.props.code || e.props.reason || '?') + (e.props.code && e.props.reason && e.props.code !== e.props.reason ? ' (' + e.props.reason + ')' : '')), '#ff8a8a', 12, 'code = název chyby RevenueCatu (od build282), dřív jen reason; bez obnovy nákupů'),
+        barPanel('Selhané nákupy – produkt', countBy(purchaseFailed, (e) => e.props.product || '?'), '#ff8a8a', 10),
+        barPanel('Selhané nákupy – platforma', countBy(purchaseFailed, (e) => e.dev.platform || '?'), '#ff8a8a'),
+        barPanel('Selhané nákupy – hláška', countBy(purchaseFailed, (e) => (e.props.message || e.props.underlying || '').slice(0, 80) || '(bez hlášky)'), null, 8),
         barPanel('GPS odmítnuto', countBy(evByName(ev, 'gps_denied'), () => 'gps_denied'), '#ff8a8a'),
         barPanel('Fail-state (pes do útulku) dle dne', countBy(evByName(ev, 'fail_state'), (e) => 'den ' + (e.props.day ?? '?')), '#ff8a8a'),
       ].join('');
@@ -1323,6 +1528,22 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         sub: `Opravdu odesláno (share_completed): 7 dní ${nf(evIn('share_completed', 7, shared).length)} · 30 dní ${nf(evIn('share_completed', 30, shared).length)}`,
         desc: 'kolikrát lidé otevřeli sdílení (share_initiated)',
       });
+      // Paywall → nákup za 30 dní (analytika aplikace): obnova se nepočítá, dvojí zobrazení sloučená.
+      const mon30 = monetization(ev.filter((e) => now - e.ts <= 30 * DAY_MS));
+      const pwInst = new Set(mon30.views.map((v) => v.installId));
+      const buys30 = mon30.purchases.filter((p) => p.name === 'purchase_completed');
+      const buyInst = new Set(buys30.map((p) => p.installId));
+      const rN = (k) => mon30.restores.filter((r) => r.kind === k).length;
+      const topSrc = countBy(buys30, (p) => p.source || null)[0];
+      const tPaywall = tile({
+        title: 'Paywall → nákup (30 dní)',
+        big: pctFmt(buyInst.size, pwInst.size, 1),
+        cells: [[nf(pwInst.size), 'zařízení s paywallem'], [nf(buyInst.size), 'dokončilo nákup']],
+        sub: `Obnova nákupů: ${nf(rN('started'))}× (obnoveno ${nf(rN('completed'))} · nebylo co obnovit ${nf(rN('none'))} · selhalo ${nf(rN('failed'))})` +
+          `<br>Spravovat předplatné: ${nf(mon30.manage.length)}×` +
+          (topSrc ? `<br>Nejvíc nákupů ze zdroje: ${esc(srcLabel(topSrc[0]))} (${nf(topSrc[1])})` : ''),
+        desc: 'zařízení, která za 30 dní viděla paywall, a kolik jich nákup dokončilo (analytika aplikace); obnova nákupů se jako nákup nepočítá; rozpad podle zdroje, režimu a plánu v záložce Nákupy',
+      });
       const opened7 = evIn('care_reminder_opened', 7).length, done7 = evIn('care_reminder_done', 7).length;
       const tCare = tile({
         title: 'Připomínky péče',
@@ -1346,7 +1567,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
 
       $('dash-tiles').innerHTML = [
         section('Uživatelé', [tInstalls, tActive, tRetention, tCountries]),
-        section('Peníze', [tTotal, tActivePremium, tPayers, tLastPremium, tLastBreed]),
+        section('Peníze', [tTotal, tActivePremium, tPayers, tPaywall, tLastPremium, tLastBreed]),
         section('Obchody', [tStore, tRatings]),
         section('Zapojení', [tShare, tCare, tChallenge]),
         section('Zdraví aplikace', [tErrors]),
