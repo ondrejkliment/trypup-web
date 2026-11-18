@@ -15,12 +15,14 @@ type JoinStrings = {
   title: string; description: string; h1: string; meta: string; codeLabel: string;
   copy: string; copied: string; openApp: string; noApp: string; fallback: string; noCode: string;
   path: string; first: string;
+  /** Vestavěný prohlížeč jiné aplikace (Messenger, Instagram…): iOS / Android. [open] = openApp. */
+  inAppIos: string; inAppAndroid: string; openSafari: string;
 };
 
 // [as]…[/as] = odkaz do App Storu, [gp]…[/gp] = Google Play, [code] = kód z URL, [first] = odkaz na
 // úvodní obrazovce aplikace (onboarding.intro.haveCode — nováček nemá Profil), [path] = cesta
 // v aplikaci. `path` musí sedět s aplikací: nav.profile → nav.friends → friends.join v pawprint-mobile/src/locales
-// („Spolu" je řádek v Profilu, ne záložka v liště).
+// („Společná péče" je řádek v Profilu, ne záložka v liště; dřív „Spolu", 18. 11. 2026 sjednoceno s aplikací).
 // cs: titulek a popis zůstávají dvojjazyčné — starší verze aplikace posílají /join všem jazykům.
 const T: Record<Lang, JoinStrings> = {
   cs: {
@@ -33,8 +35,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Nemáte aplikaci? Stáhněte si ji z [as]App Storu[/as] nebo [gp]Google Play[/gp]. Pak se vraťte sem, nebo kód [code] zadejte v aplikaci ručně. Poprvé v Trypup? Hned na úvodní obrazovce klepněte na „[first]“. Už v aplikaci psa máte? [path]. V režimu Pes doma nejdřív v Nastavení přepněte na Pes na zkoušku.',
     fallback: 'Vypadá to, že Trypup ještě nemáte nainstalovaný. Zkopírujte si kód výše, stáhněte si aplikaci z [as]App Storu[/as] nebo [gp]Google Play[/gp] a hned na úvodní obrazovce klepněte na „[first]“.',
     noCode: 'Odkaz nemá platný kód – požádejte o nové pozvání.',
-    path: 'Profil → Spolu → Připojit se',
+    path: 'Profil → Společná péče → Připojit se',
     first: 'Mám kód pro společnou péči',
+    inAppIos: 'Pozvánka se otevřela ve vestavěném prohlížeči (třeba v Messengeru) a z něj se Trypup spustit nedá. Klepněte vpravo nahoře na ⋯ nebo ↗, zvolte „Otevřít v Safari“ nebo „Otevřít v prohlížeči“ a pak tady klepněte na „[open]“. Anebo otevřete Trypup sami a kód zadejte ručně.',
+    inAppAndroid: 'Pozvánka se otevřela ve vestavěném prohlížeči (třeba v Messengeru). Klepněte na „[open]“: Trypup se otevře rovnou, a když ho ještě nemáte, otevře se Google Play. Když to nepůjde, klepněte vpravo nahoře na ⋮ a zvolte „Otevřít v Chrome“, nebo kód zadejte v aplikaci ručně.',
+    openSafari: 'Otevřít v Safari',
   },
   en: {
     title: 'trypup 🐾 invite',
@@ -46,8 +51,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: "Don't have the app? Get it from the [as]App Store[/as] or [gp]Google Play[/gp]. Then come back here, or enter the code [code] in the app yourself. New to Trypup? On the very first screen, tap “[first]”. Already have a dog in the app? [path]. In Dog at home mode, first switch to Dog on trial in Settings under “How you use Trypup”.",
     fallback: "It looks like Trypup isn't installed yet. Copy the code above, get the app from the [as]App Store[/as] or [gp]Google Play[/gp], and on the very first screen tap “[first]”.",
     noCode: 'This link has no valid code — ask for a new invitation.',
-    path: 'Profile → Together → Join',
+    path: 'Profile → Shared care → Join',
     first: 'I have a co-care code',
+    inAppIos: 'This invite opened in an in-app browser (for example in Messenger), which can’t launch Trypup. Tap ⋯ or ↗ in the top corner, choose “Open in Safari” or “Open in browser”, then tap “[open]” here. Or open Trypup yourself and enter the code manually.',
+    inAppAndroid: 'This invite opened in an in-app browser (for example in Messenger). Tap “[open]”: Trypup opens straight away, or Google Play if you don’t have it yet. If that doesn’t work, tap ⋮ in the top corner and choose “Open in Chrome”, or enter the code in the app manually.',
+    openSafari: 'Open in Safari',
   },
   de: {
     title: 'trypup 🐾 Einladung',
@@ -59,8 +67,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Sie haben die App noch nicht? Laden Sie sie im [as]App Store[/as] oder bei [gp]Google Play[/gp] herunter. Kommen Sie dann hierher zurück oder geben Sie den Code [code] selbst in der App ein. Neu bei Trypup? Tippen Sie gleich auf dem ersten Bildschirm auf „[first]“. Sie haben schon einen Hund in der App? [path]. Im Modus „Hund zu Hause“ wechseln Sie zuerst in den Einstellungen zu „Hund auf Probe“.',
     fallback: 'Trypup scheint noch nicht installiert zu sein. Kopieren Sie den Code oben, laden Sie die App im [as]App Store[/as] oder bei [gp]Google Play[/gp] herunter und tippen Sie gleich auf dem ersten Bildschirm auf „[first]“.',
     noCode: 'Dieser Link enthält keinen gültigen Code – bitten Sie um eine neue Einladung.',
-    path: 'Profil → Gemeinsam → Beitreten',
+    path: 'Profil → Gemeinsame Pflege → Beitreten',
     first: 'Ich habe einen Code für gemeinsame Pflege',
+    inAppIos: 'Die Einladung wurde in einem App-internen Browser geöffnet (zum Beispiel in Messenger), aus dem sich Trypup nicht starten lässt. Tippen Sie oben auf ⋯ oder ↗, wählen Sie „In Safari öffnen“ oder „Im Browser öffnen“ und tippen Sie dann hier auf „[open]“. Oder öffnen Sie Trypup selbst und geben Sie den Code manuell ein.',
+    inAppAndroid: 'Die Einladung wurde in einem App-internen Browser geöffnet (zum Beispiel in Messenger). Tippen Sie auf „[open]“: Trypup öffnet sich direkt, oder Google Play, falls Sie die App noch nicht haben. Falls das nicht klappt, tippen Sie oben auf ⋮ und wählen Sie „In Chrome öffnen“, oder geben Sie den Code in der App manuell ein.',
+    openSafari: 'In Safari öffnen',
   },
   fr: {
     title: 'trypup 🐾 invitation',
@@ -72,8 +83,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Vous n’avez pas l’application ? Téléchargez-la sur l’[as]App Store[/as] ou sur [gp]Google Play[/gp]. Revenez ensuite ici, ou saisissez vous-même le code [code] dans l’application. Première fois sur Trypup ? Dès le premier écran, touchez « [first] ». Vous avez déjà un chien dans l’application ? [path]. En mode « Chien à la maison », passez d’abord à « Un chien à l’essai » dans les Réglages.',
     fallback: 'Il semble que Trypup ne soit pas encore installé. Copiez le code ci-dessus, téléchargez l’application sur l’[as]App Store[/as] ou sur [gp]Google Play[/gp], puis, dès le premier écran, touchez « [first] ».',
     noCode: 'Ce lien ne contient pas de code valide — demandez une nouvelle invitation.',
-    path: 'Profil → Ensemble → Rejoindre',
+    path: 'Profil → Garde partagée → Rejoindre',
     first: 'J’ai un code de garde partagée',
+    inAppIos: 'L’invitation s’est ouverte dans le navigateur intégré d’une application (par exemple Messenger), qui ne peut pas lancer Trypup. Touchez ⋯ ou ↗ en haut, choisissez « Ouvrir dans Safari » ou « Ouvrir dans le navigateur », puis touchez « [open] » ici. Ou ouvrez Trypup vous-même et saisissez le code manuellement.',
+    inAppAndroid: 'L’invitation s’est ouverte dans le navigateur intégré d’une application (par exemple Messenger). Touchez « [open] » : Trypup s’ouvre directement, ou Google Play si vous ne l’avez pas encore. Si cela ne fonctionne pas, touchez ⋮ en haut et choisissez « Ouvrir dans Chrome », ou saisissez le code dans l’application.',
+    openSafari: 'Ouvrir dans Safari',
   },
   pl: {
     title: 'trypup 🐾 zaproszenie',
@@ -85,8 +99,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Nie masz aplikacji? Pobierz ją z [as]App Store[/as] lub [gp]Google Play[/gp]. Potem wróć tutaj albo wpisz kod [code] ręcznie w aplikacji. Pierwszy raz w Trypup? Już na ekranie powitalnym stuknij „[first]”. Masz już psa w aplikacji? [path]. W trybie Pies w domu najpierw przełącz się w Ustawieniach na tryb Pies na próbę.',
     fallback: 'Wygląda na to, że nie masz jeszcze zainstalowanej aplikacji Trypup. Skopiuj kod powyżej, pobierz aplikację z [as]App Store[/as] lub [gp]Google Play[/gp] i już na ekranie powitalnym stuknij „[first]”.',
     noCode: 'Ten link nie zawiera prawidłowego kodu – poproś o nowe zaproszenie.',
-    path: 'Profil → Razem → Dołącz',
+    path: 'Profil → Wspólna opieka → Dołącz',
     first: 'Mam kod do wspólnej opieki',
+    inAppIos: 'Zaproszenie otworzyło się we wbudowanej przeglądarce aplikacji (np. Messengera), z której nie da się uruchomić Trypup. Stuknij ⋯ lub ↗ u góry, wybierz „Otwórz w Safari” lub „Otwórz w przeglądarce”, a potem stuknij tutaj „[open]”. Albo otwórz Trypup i wpisz kod ręcznie.',
+    inAppAndroid: 'Zaproszenie otworzyło się we wbudowanej przeglądarce aplikacji (np. Messengera). Stuknij „[open]”: Trypup otworzy się od razu, a jeśli go jeszcze nie masz, otworzy się Google Play. Jeśli to nie zadziała, stuknij ⋮ u góry i wybierz „Otwórz w Chrome” albo wpisz kod w aplikacji ręcznie.',
+    openSafari: 'Otwórz w Safari',
   },
   es: {
     title: 'trypup 🐾 invitación',
@@ -98,8 +115,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: '¿No tiene la aplicación? Descárguela en el [as]App Store[/as] o en [gp]Google Play[/gp]. Después vuelva aquí o introduzca el código [code] en la aplicación. ¿Primera vez en Trypup? En la primera pantalla, toque «[first]». ¿Ya tiene un perro en la aplicación? [path]. En el modo Perro en casa, cambie primero a Perro a prueba en Ajustes.',
     fallback: 'Parece que aún no tiene instalada la aplicación Trypup. Copie el código de arriba, descargue la aplicación en el [as]App Store[/as] o en [gp]Google Play[/gp] y, en la primera pantalla, toque «[first]».',
     noCode: 'Este enlace no tiene un código válido: pida una nueva invitación.',
-    path: 'Perfil → Juntos → Unirse',
+    path: 'Perfil → Cuidado compartido → Unirse',
     first: 'Tengo un código de cuidado compartido',
+    inAppIos: 'La invitación se abrió en el navegador integrado de otra aplicación (por ejemplo, Messenger), que no puede abrir Trypup. Toque ⋯ o ↗ arriba, elija «Abrir en Safari» o «Abrir en el navegador» y después toque aquí «[open]». O abra Trypup usted y escriba el código manualmente.',
+    inAppAndroid: 'La invitación se abrió en el navegador integrado de otra aplicación (por ejemplo, Messenger). Toque «[open]»: Trypup se abrirá directamente o, si aún no la tiene, se abrirá Google Play. Si no funciona, toque ⋮ arriba y elija «Abrir en Chrome», o escriba el código en la aplicación manualmente.',
+    openSafari: 'Abrir en Safari',
   },
   it: {
     title: 'trypup 🐾 invito',
@@ -111,8 +131,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: "Non hai l'app? Scaricala dall'[as]App Store[/as] o da [gp]Google Play[/gp]. Poi torna qui, oppure inserisci il codice [code] nell'app. Prima volta su Trypup? Nella primissima schermata, tocca “[first]”. Hai già un cane nell'app? [path]. Nella modalità Cane a casa, passa prima a Cane alla prova in Impostazioni.",
     fallback: "Sembra che l'app Trypup non sia ancora installata. Copia il codice qui sopra, scarica l'app dall'[as]App Store[/as] o da [gp]Google Play[/gp] e nella primissima schermata tocca “[first]”.",
     noCode: 'Questo link non contiene un codice valido: chiedi un nuovo invito.',
-    path: 'Profilo → Insieme → Unisciti',
+    path: 'Profilo → Cura condivisa → Unisciti',
     first: 'Ho un codice per la cura condivisa',
+    inAppIos: "L'invito si è aperto nel browser integrato di un'altra app (per esempio Messenger), che non può avviare Trypup. Tocca ⋯ o ↗ in alto, scegli «Apri in Safari» o «Apri nel browser» e poi tocca qui «[open]». Oppure apri Trypup e inserisci il codice a mano.",
+    inAppAndroid: "L'invito si è aperto nel browser integrato di un'altra app (per esempio Messenger). Tocca «[open]»: Trypup si apre subito, oppure Google Play se non ce l'hai ancora. Se non funziona, tocca ⋮ in alto e scegli «Apri in Chrome», oppure inserisci il codice nell'app a mano.",
+    openSafari: 'Apri in Safari',
   },
   nl: {
     title: 'trypup 🐾 uitnodiging',
@@ -124,8 +147,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Heeft u de app nog niet? Download hem in de [as]App Store[/as] of via [gp]Google Play[/gp]. Kom daarna hier terug, of voer de code [code] zelf in de app in. Nieuw bij Trypup? Tik meteen op het eerste scherm op “[first]”. Heeft u al een hond in de app? [path]. In de modus Hond in huis schakelt u eerst in Instellingen over naar Hond op proef.',
     fallback: 'Het lijkt erop dat Trypup nog niet is geïnstalleerd. Kopieer de code hierboven, download de app in de [as]App Store[/as] of via [gp]Google Play[/gp] en tik meteen op het eerste scherm op “[first]”.',
     noCode: 'Deze link bevat geen geldige code – vraag om een nieuwe uitnodiging.',
-    path: 'Profiel → Samen → Deelnemen',
+    path: 'Profiel → Gedeelde zorg → Deelnemen',
     first: 'Ik heb een code voor gedeelde zorg',
+    inAppIos: 'De uitnodiging is geopend in de ingebouwde browser van een andere app (bijvoorbeeld Messenger), die Trypup niet kan starten. Tik bovenaan op ⋯ of ↗, kies ‘Openen in Safari’ of ‘Openen in browser’ en tik daarna hier op ‘[open]’. Of open Trypup zelf en voer de code handmatig in.',
+    inAppAndroid: 'De uitnodiging is geopend in de ingebouwde browser van een andere app (bijvoorbeeld Messenger). Tik op ‘[open]’: Trypup opent meteen, of Google Play als u de app nog niet heeft. Werkt dat niet, tik dan bovenaan op ⋮ en kies ‘Openen in Chrome’, of voer de code handmatig in de app in.',
+    openSafari: 'Openen in Safari',
   },
   pt: {
     title: 'trypup 🐾 convite',
@@ -137,8 +163,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Ainda não tem a aplicação? Descarregue-a na [as]App Store[/as] ou no [gp]Google Play[/gp]. Depois volte aqui ou introduza o código [code] na aplicação. Primeira vez na Trypup? Logo no primeiro ecrã, toque em «[first]». Já tem um cão na aplicação? [path]. No modo «Cão em casa», mude primeiro para «Um cão à experiência» nas Definições.',
     fallback: 'Parece que a Trypup ainda não está instalada. Copie o código acima, descarregue a aplicação na [as]App Store[/as] ou no [gp]Google Play[/gp] e, logo no primeiro ecrã, toque em «[first]».',
     noCode: 'Esta ligação não tem um código válido — peça um novo convite.',
-    path: 'Perfil → Juntos → Juntar-se',
+    path: 'Perfil → Cuidado partilhado → Juntar-se',
     first: 'Tenho um código de cuidado partilhado',
+    inAppIos: 'O convite abriu no navegador integrado de outra aplicação (por exemplo, o Messenger), que não consegue abrir a aplicação Trypup. Toque em ⋯ ou ↗ no topo, escolha «Abrir no Safari» ou «Abrir no navegador» e depois toque aqui em «[open]». Ou abra a aplicação Trypup e introduza o código manualmente.',
+    inAppAndroid: 'O convite abriu no navegador integrado de outra aplicação (por exemplo, o Messenger). Toque em «[open]»: a aplicação Trypup abre de imediato, ou o Google Play se ainda não a tiver. Se não funcionar, toque em ⋮ no topo e escolha «Abrir no Chrome», ou introduza o código na aplicação manualmente.',
+    openSafari: 'Abrir no Safari',
   },
   sk: {
     title: 'trypup 🐾 pozvánka',
@@ -150,8 +179,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Nemáte aplikáciu? Stiahnite si ju z [as]App Store[/as] alebo [gp]Google Play[/gp]. Potom sa vráťte sem alebo kód [code] zadajte v aplikácii ručne. Prvýkrát v Trypupe? Hneď na úvodnej obrazovke ťuknite na „[first]“. Už máte v aplikácii psa? [path]. V režime Pes doma najprv v Nastaveniach prepnite na Pes na skúšku.',
     fallback: 'Vyzerá to, že Trypup ešte nemáte nainštalovaný. Skopírujte si kód vyššie, stiahnite si aplikáciu z [as]App Store[/as] alebo [gp]Google Play[/gp] a hneď na úvodnej obrazovke ťuknite na „[first]“.',
     noCode: 'Odkaz nemá platný kód – požiadajte o nové pozvanie.',
-    path: 'Profil → Spolu → Pripojiť sa',
+    path: 'Profil → Spoločná starostlivosť → Pripojiť sa',
     first: 'Mám kód na spoločnú starostlivosť',
+    inAppIos: 'Pozvánka sa otvorila vo vstavanom prehliadači (napríklad v Messengeri) a z neho sa Trypup spustiť nedá. Ťuknite vpravo hore na ⋯ alebo ↗, zvoľte „Otvoriť v Safari“ alebo „Otvoriť v prehliadači“ a potom tu ťuknite na „[open]“. Alebo otvorte Trypup a kód zadajte ručne.',
+    inAppAndroid: 'Pozvánka sa otvorila vo vstavanom prehliadači (napríklad v Messengeri). Ťuknite na „[open]“: Trypup sa otvorí hneď, a ak ho ešte nemáte, otvorí sa Google Play. Ak to nepôjde, ťuknite vpravo hore na ⋮ a zvoľte „Otvoriť v Chrome“, alebo kód zadajte v aplikácii ručne.',
+    openSafari: 'Otvoriť v Safari',
   },
   bg: {
     title: 'trypup 🐾 покана',
@@ -163,8 +195,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Нямате приложението? Изтеглете го от [as]App Store[/as] или [gp]Google Play[/gp]. След това се върнете тук или въведете кода [code] в приложението ръчно. Тепърва започвате с Trypup? Още на първия екран докоснете „[first]“. Вече имате куче в приложението? [path]. В режима „Куче вкъщи“ първо превключете в Настройки на „Куче на проба“.',
     fallback: 'Изглежда, че Trypup все още не е инсталиран. Копирайте кода по-горе, изтеглете приложението от [as]App Store[/as] или [gp]Google Play[/gp] и още на първия екран докоснете „[first]“.',
     noCode: 'Връзката няма валиден код — поискайте нова покана.',
-    path: 'Профил → Заедно → Присъединяване',
+    path: 'Профил → Споделена грижа → Присъединяване',
     first: 'Имам код за споделена грижа',
+    inAppIos: 'Поканата се отвори във вградения браузър на друго приложение (например Messenger), от който Trypup не може да се стартира. Докоснете ⋯ или ↗ горе, изберете „Отваряне в Safari“ или „Отваряне в браузъра“ и после докоснете тук „[open]“. Или отворете Trypup и въведете кода ръчно.',
+    inAppAndroid: 'Поканата се отвори във вградения браузър на друго приложение (например Messenger). Докоснете „[open]“: Trypup ще се отвори веднага, а ако още го нямате, ще се отвори Google Play. Ако не стане, докоснете ⋮ горе и изберете „Отваряне в Chrome“ или въведете кода в приложението ръчно.',
+    openSafari: 'Отваряне в Safari',
   },
   uk: {
     title: 'trypup 🐾 запрошення',
@@ -176,8 +211,11 @@ const T: Record<Lang, JoinStrings> = {
     noApp: 'Немає застосунку? Завантажте його з [as]App Store[/as] або [gp]Google Play[/gp]. Потім поверніться сюди або введіть код [code] у застосунку вручну. Уперше в Trypup? Одразу на першому екрані натисніть «[first]». Уже маєте собаку в застосунку? [path]. У режимі «Собака вдома» спершу перемкніться в Налаштуваннях на «Собака на пробу».',
     fallback: 'Схоже, Trypup ще не встановлено. Скопіюйте код вище, завантажте застосунок з [as]App Store[/as] або [gp]Google Play[/gp] і одразу на першому екрані натисніть «[first]».',
     noCode: 'Посилання не містить дійсного коду — попросіть нове запрошення.',
-    path: 'Профіль → Разом → Приєднатися',
+    path: 'Профіль → Спільний догляд → Приєднатися',
     first: 'Маю код для спільної турботи',
+    inAppIos: 'Запрошення відкрилося у вбудованому браузері іншого застосунку (наприклад, Messenger), з якого Trypup не запуститься. Торкніться ⋯ або ↗ угорі, виберіть «Відкрити в Safari» чи «Відкрити в браузері», а потім торкніться тут «[open]». Або відкрийте Trypup і введіть код вручну.',
+    inAppAndroid: 'Запрошення відкрилося у вбудованому браузері іншого застосунку (наприклад, Messenger). Торкніться «[open]»: Trypup відкриється одразу, а якщо його ще немає, відкриється Google Play. Якщо не вийде, торкніться ⋮ угорі й виберіть «Відкрити в Chrome» або введіть код у застосунку вручну.',
+    openSafari: 'Відкрити в Safari',
   },
 };
 
@@ -203,7 +241,13 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
       <button id="copy" data-copied={t.copied} style="margin-top: 1rem; background: none; border: 1px solid #F2784B; color: #F2784B; border-radius: 999px; padding: .5rem 1.2rem; font-size: .95rem; cursor: pointer;">{t.copy}</button>
     </div>
 
-    <a id="open-app" href="#" style="display: inline-block; background: #F2784B; color: #fff; border-radius: 999px; padding: .9rem 2rem; font-weight: 700; text-decoration: none; margin-bottom: 1rem;">{t.openApp}</a>
+    <!-- Vestavěný prohlížeč jiné aplikace (Messenger, Instagram…) aplikaci nespustí (18. 11. 2026). -->
+    <p id="in-app-ios" hidden style="background:#FDF4EF; border:2px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.95rem; color:#4A2B45; line-height:1.5; margin-bottom:1rem;">{t.inAppIos.replace('[open]', t.openApp)}</p>
+    <p id="in-app-android" hidden style="background:#FDF4EF; border:2px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.95rem; color:#4A2B45; line-height:1.5; margin-bottom:1rem;">{t.inAppAndroid.replace('[open]', t.openApp)}</p>
+
+    <a id="open-app" href="#" data-play={PLAY} style="display: inline-block; background: #F2784B; color: #fff; border-radius: 999px; padding: .9rem 2rem; font-weight: 700; text-decoration: none; margin-bottom: 1rem;">{t.openApp}</a>
+    <br />
+    <a id="open-safari" href="#" style="display: none; background: none; border: 1px solid #F2784B; color: #F2784B; border-radius: 999px; padding: .6rem 1.4rem; font-weight: 600; text-decoration: none; margin-bottom: 1rem;">{t.openSafari}</a>
 
     <p id="join-help" style="font-size: .9rem; opacity: .75; line-height: 1.5;" set:html={fill(t.noApp, true)} />
     <p id="install-fallback" hidden style="background:#FDF4EF; border:1px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.9rem; color:#4A2B45; line-height:1.5;" set:html={fill(t.fallback, false)} />
@@ -221,7 +265,27 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
   if (valid && codeEl && openEl) {
     codeEl.textContent = raw;
     if (inlineEl) inlineEl.textContent = raw;
-    openEl.href = `trypup://join/${raw}`;
+    // Vestavěný prohlížeč jiné aplikace (Messenger, Instagram, TikTok…): custom scheme na iPhonu
+    // neprojde a stránka by lživě tvrdila „nemáte nainstalovaný“. Návod + „Otevřít v Safari“;
+    // na Androidu intent:// otevře aplikaci rovnou (bez ní Google Play).
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/i.test(ua);
+    const inApp = /FBAN|FBAV|FB_IAB|FBIOS|FBSS|Messenger|Instagram|Line\/|MicroMessenger|BytedanceWebview|musical_ly|TikTok|Snapchat|Pinterest|LinkedInApp/i.test(ua);
+    const appUrl = `trypup://join/${raw}`;
+    const play = openEl.dataset.play ?? '';
+    const intentUrl = `intent://join/${raw}#Intent;scheme=trypup;package=app.trypup.mobile;S.browser_fallback_url=${encodeURIComponent(play)};end`;
+    const targetUrl = isAndroid ? intentUrl : appUrl;
+    openEl.href = targetUrl;
+    const inAppBox = inApp ? document.getElementById(isIOS ? 'in-app-ios' : isAndroid ? 'in-app-android' : '') : null;
+    if (inAppBox) inAppBox.removeAttribute('hidden');
+    if (inApp && isIOS) {
+      const safariEl = document.getElementById('open-safari') as HTMLAnchorElement | null;
+      if (safariEl) {
+        safariEl.href = `x-safari-https://${location.host}${location.pathname}${location.search}`;
+        safariEl.style.display = 'inline-block';
+      }
+    }
     // Přepnutí jazyka musí kód zachovat, jinak by stránka v jiném jazyce ukázala „neplatný kód".
     document.querySelectorAll<HTMLAnchorElement>('.lang-menu a').forEach((a) => {
       try {
@@ -239,9 +303,12 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
       const onHide = () => { opened = true; };
       document.addEventListener('visibilitychange', onHide, { once: true });
       window.addEventListener('pagehide', onHide, { once: true });
-      try { window.location.href = `trypup://join/${raw}`; } catch {}
+      try { window.location.href = targetUrl; } catch {}
       setTimeout(() => {
-        if (!opened && !document.hidden) document.getElementById('install-fallback')?.removeAttribute('hidden');
+        if (opened || document.hidden) return;
+        // Ve vestavěném prohlížeči nejde poznat, jestli aplikace chybí: návod už visí nahoře.
+        if (inAppBox) inAppBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        else document.getElementById('install-fallback')?.removeAttribute('hidden');
       }, 1400);
     });
     copyEl?.addEventListener('click', async () => {
