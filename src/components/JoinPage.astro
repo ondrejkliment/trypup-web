@@ -15,8 +15,8 @@ type JoinStrings = {
   title: string; description: string; h1: string; meta: string; codeLabel: string;
   copy: string; copied: string; openApp: string; noApp: string; fallback: string; noCode: string;
   path: string; first: string;
-  /** Vestavěný prohlížeč jiné aplikace (Messenger, Instagram…): iOS / Android. [open] = openApp. */
-  inAppIos: string; inAppAndroid: string; openSafari: string;
+  /** Aplikace se po klepnutí neotevřela ve vestavěném prohlížeči (Messenger, Instagram…): iOS / Android. [open] = openApp. */
+  inAppIos: string; inAppAndroid: string;
 };
 
 // [as]…[/as] = odkaz do App Storu, [gp]…[/gp] = Google Play, [code] = kód z URL, [first] = odkaz na
@@ -37,9 +37,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Odkaz nemá platný kód – požádejte o nové pozvání.',
     path: 'Profil → Společná péče → Připojit se',
     first: 'Mám kód pro společnou péči',
-    inAppIos: 'Pozvánka se otevřela ve vestavěném prohlížeči (třeba v Messengeru) a z něj se Trypup spustit nedá. Klepněte vpravo nahoře na ⋯ nebo ↗, zvolte „Otevřít v Safari“ nebo „Otevřít v prohlížeči“ a pak tady klepněte na „[open]“. Anebo otevřete Trypup sami a kód zadejte ručně.',
-    inAppAndroid: 'Pozvánka se otevřela ve vestavěném prohlížeči (třeba v Messengeru). Klepněte na „[open]“: Trypup se otevře rovnou, a když ho ještě nemáte, otevře se Google Play. Když to nepůjde, klepněte vpravo nahoře na ⋮ a zvolte „Otevřít v Chrome“, nebo kód zadejte v aplikaci ručně.',
-    openSafari: 'Otevřít v Safari',
+    inAppIos: 'Aplikace se neotevřela? Pozvánka je nejspíš ve vestavěném prohlížeči (třeba v Messengeru), který otevírání aplikací často blokuje. Klepněte vpravo nahoře na ⋯ nebo ↗, zvolte „Otevřít v Safari“ nebo „Otevřít v prohlížeči“ a tam klepněte na „[open]“. Anebo otevřete Trypup sami a kód zadejte ručně.',
+    inAppAndroid: 'Aplikace se neotevřela? Pozvánka je nejspíš ve vestavěném prohlížeči (třeba v Messengeru). Klepněte vpravo nahoře na ⋮, zvolte „Otevřít v Chrome“ a tam klepněte na „[open]“. Anebo kód zadejte v aplikaci ručně.',
   },
   en: {
     title: 'trypup 🐾 invite',
@@ -53,9 +52,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'This link has no valid code — ask for a new invitation.',
     path: 'Profile → Shared care → Join',
     first: 'I have a co-care code',
-    inAppIos: 'This invite opened in an in-app browser (for example in Messenger), which can’t launch Trypup. Tap ⋯ or ↗ in the top corner, choose “Open in Safari” or “Open in browser”, then tap “[open]” here. Or open Trypup yourself and enter the code manually.',
-    inAppAndroid: 'This invite opened in an in-app browser (for example in Messenger). Tap “[open]”: Trypup opens straight away, or Google Play if you don’t have it yet. If that doesn’t work, tap ⋮ in the top corner and choose “Open in Chrome”, or enter the code in the app manually.',
-    openSafari: 'Open in Safari',
+    inAppIos: 'The app didn’t open? The invite is probably in an in-app browser (for example in Messenger), which often blocks opening apps. Tap ⋯ or ↗ in the top corner, choose “Open in Safari” or “Open in browser” and tap “[open]” there. Or open Trypup yourself and enter the code manually.',
+    inAppAndroid: 'The app didn’t open? The invite is probably in an in-app browser (for example in Messenger). Tap ⋮ in the top corner, choose “Open in Chrome” and tap “[open]” there. Or enter the code in the app manually.',
   },
   de: {
     title: 'trypup 🐾 Einladung',
@@ -69,9 +67,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Dieser Link enthält keinen gültigen Code – bitten Sie um eine neue Einladung.',
     path: 'Profil → Gemeinsame Pflege → Beitreten',
     first: 'Ich habe einen Code für gemeinsame Pflege',
-    inAppIos: 'Die Einladung wurde in einem App-internen Browser geöffnet (zum Beispiel in Messenger), aus dem sich Trypup nicht starten lässt. Tippen Sie oben auf ⋯ oder ↗, wählen Sie „In Safari öffnen“ oder „Im Browser öffnen“ und tippen Sie dann hier auf „[open]“. Oder öffnen Sie Trypup selbst und geben Sie den Code manuell ein.',
-    inAppAndroid: 'Die Einladung wurde in einem App-internen Browser geöffnet (zum Beispiel in Messenger). Tippen Sie auf „[open]“: Trypup öffnet sich direkt, oder Google Play, falls Sie die App noch nicht haben. Falls das nicht klappt, tippen Sie oben auf ⋮ und wählen Sie „In Chrome öffnen“, oder geben Sie den Code in der App manuell ein.',
-    openSafari: 'In Safari öffnen',
+    inAppIos: 'Die App hat sich nicht geöffnet? Die Einladung ist wahrscheinlich in einem App-internen Browser (zum Beispiel in Messenger), der das Öffnen von Apps oft blockiert. Tippen Sie oben auf ⋯ oder ↗, wählen Sie „In Safari öffnen“ oder „Im Browser öffnen“ und tippen Sie dort auf „[open]“. Oder öffnen Sie Trypup selbst und geben Sie den Code manuell ein.',
+    inAppAndroid: 'Die App hat sich nicht geöffnet? Die Einladung ist wahrscheinlich in einem App-internen Browser (zum Beispiel in Messenger). Tippen Sie oben auf ⋮, wählen Sie „In Chrome öffnen“ und tippen Sie dort auf „[open]“. Oder geben Sie den Code in der App manuell ein.',
   },
   fr: {
     title: 'trypup 🐾 invitation',
@@ -85,9 +82,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Ce lien ne contient pas de code valide — demandez une nouvelle invitation.',
     path: 'Profil → Garde partagée → Rejoindre',
     first: 'J’ai un code de garde partagée',
-    inAppIos: 'L’invitation s’est ouverte dans le navigateur intégré d’une application (par exemple Messenger), qui ne peut pas lancer Trypup. Touchez ⋯ ou ↗ en haut, choisissez « Ouvrir dans Safari » ou « Ouvrir dans le navigateur », puis touchez « [open] » ici. Ou ouvrez Trypup vous-même et saisissez le code manuellement.',
-    inAppAndroid: 'L’invitation s’est ouverte dans le navigateur intégré d’une application (par exemple Messenger). Touchez « [open] » : Trypup s’ouvre directement, ou Google Play si vous ne l’avez pas encore. Si cela ne fonctionne pas, touchez ⋮ en haut et choisissez « Ouvrir dans Chrome », ou saisissez le code dans l’application.',
-    openSafari: 'Ouvrir dans Safari',
+    inAppIos: 'L’application ne s’est pas ouverte ? L’invitation est sans doute dans le navigateur intégré d’une application (par exemple Messenger), qui bloque souvent l’ouverture des applications. Touchez ⋯ ou ↗ en haut, choisissez « Ouvrir dans Safari » ou « Ouvrir dans le navigateur » et touchez-y « [open] ». Ou ouvrez Trypup vous-même et saisissez le code manuellement.',
+    inAppAndroid: 'L’application ne s’est pas ouverte ? L’invitation est sans doute dans le navigateur intégré d’une application (par exemple Messenger). Touchez ⋮ en haut, choisissez « Ouvrir dans Chrome » et touchez-y « [open] ». Ou saisissez le code dans l’application.',
   },
   pl: {
     title: 'trypup 🐾 zaproszenie',
@@ -101,9 +97,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Ten link nie zawiera prawidłowego kodu – poproś o nowe zaproszenie.',
     path: 'Profil → Wspólna opieka → Dołącz',
     first: 'Mam kod do wspólnej opieki',
-    inAppIos: 'Zaproszenie otworzyło się we wbudowanej przeglądarce aplikacji (np. Messengera), z której nie da się uruchomić Trypup. Stuknij ⋯ lub ↗ u góry, wybierz „Otwórz w Safari” lub „Otwórz w przeglądarce”, a potem stuknij tutaj „[open]”. Albo otwórz Trypup i wpisz kod ręcznie.',
-    inAppAndroid: 'Zaproszenie otworzyło się we wbudowanej przeglądarce aplikacji (np. Messengera). Stuknij „[open]”: Trypup otworzy się od razu, a jeśli go jeszcze nie masz, otworzy się Google Play. Jeśli to nie zadziała, stuknij ⋮ u góry i wybierz „Otwórz w Chrome” albo wpisz kod w aplikacji ręcznie.',
-    openSafari: 'Otwórz w Safari',
+    inAppIos: 'Aplikacja się nie otworzyła? Zaproszenie jest pewnie we wbudowanej przeglądarce aplikacji (np. Messengera), która często blokuje otwieranie aplikacji. Stuknij ⋯ lub ↗ u góry, wybierz „Otwórz w Safari” lub „Otwórz w przeglądarce” i tam stuknij „[open]”. Albo otwórz Trypup i wpisz kod ręcznie.',
+    inAppAndroid: 'Aplikacja się nie otworzyła? Zaproszenie jest pewnie we wbudowanej przeglądarce aplikacji (np. Messengera). Stuknij ⋮ u góry, wybierz „Otwórz w Chrome” i tam stuknij „[open]”. Albo wpisz kod w aplikacji ręcznie.',
   },
   es: {
     title: 'trypup 🐾 invitación',
@@ -117,9 +112,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Este enlace no tiene un código válido: pida una nueva invitación.',
     path: 'Perfil → Cuidado compartido → Unirse',
     first: 'Tengo un código de cuidado compartido',
-    inAppIos: 'La invitación se abrió en el navegador integrado de otra aplicación (por ejemplo, Messenger), que no puede abrir Trypup. Toque ⋯ o ↗ arriba, elija «Abrir en Safari» o «Abrir en el navegador» y después toque aquí «[open]». O abra Trypup usted y escriba el código manualmente.',
-    inAppAndroid: 'La invitación se abrió en el navegador integrado de otra aplicación (por ejemplo, Messenger). Toque «[open]»: Trypup se abrirá directamente o, si aún no la tiene, se abrirá Google Play. Si no funciona, toque ⋮ arriba y elija «Abrir en Chrome», o escriba el código en la aplicación manualmente.',
-    openSafari: 'Abrir en Safari',
+    inAppIos: '¿No se abrió la aplicación? La invitación probablemente está en el navegador integrado de otra aplicación (por ejemplo, Messenger), que a menudo bloquea abrir aplicaciones. Toque ⋯ o ↗ arriba, elija «Abrir en Safari» o «Abrir en el navegador» y allí toque «[open]». O abra Trypup usted y escriba el código manualmente.',
+    inAppAndroid: '¿No se abrió la aplicación? La invitación probablemente está en el navegador integrado de otra aplicación (por ejemplo, Messenger). Toque ⋮ arriba, elija «Abrir en Chrome» y allí toque «[open]». O escriba el código en la aplicación manualmente.',
   },
   it: {
     title: 'trypup 🐾 invito',
@@ -133,9 +127,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Questo link non contiene un codice valido: chiedi un nuovo invito.',
     path: 'Profilo → Cura condivisa → Unisciti',
     first: 'Ho un codice per la cura condivisa',
-    inAppIos: "L'invito si è aperto nel browser integrato di un'altra app (per esempio Messenger), che non può avviare Trypup. Tocca ⋯ o ↗ in alto, scegli «Apri in Safari» o «Apri nel browser» e poi tocca qui «[open]». Oppure apri Trypup e inserisci il codice a mano.",
-    inAppAndroid: "L'invito si è aperto nel browser integrato di un'altra app (per esempio Messenger). Tocca «[open]»: Trypup si apre subito, oppure Google Play se non ce l'hai ancora. Se non funziona, tocca ⋮ in alto e scegli «Apri in Chrome», oppure inserisci il codice nell'app a mano.",
-    openSafari: 'Apri in Safari',
+    inAppIos: "L'app non si è aperta? L'invito è probabilmente nel browser integrato di un'altra app (per esempio Messenger), che spesso blocca l'apertura delle app. Tocca ⋯ o ↗ in alto, scegli «Apri in Safari» o «Apri nel browser» e lì tocca «[open]». Oppure apri Trypup e inserisci il codice a mano.",
+    inAppAndroid: "L'app non si è aperta? L'invito è probabilmente nel browser integrato di un'altra app (per esempio Messenger). Tocca ⋮ in alto, scegli «Apri in Chrome» e lì tocca «[open]». Oppure inserisci il codice nell'app a mano.",
   },
   nl: {
     title: 'trypup 🐾 uitnodiging',
@@ -149,9 +142,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Deze link bevat geen geldige code – vraag om een nieuwe uitnodiging.',
     path: 'Profiel → Gedeelde zorg → Deelnemen',
     first: 'Ik heb een code voor gedeelde zorg',
-    inAppIos: 'De uitnodiging is geopend in de ingebouwde browser van een andere app (bijvoorbeeld Messenger), die Trypup niet kan starten. Tik bovenaan op ⋯ of ↗, kies ‘Openen in Safari’ of ‘Openen in browser’ en tik daarna hier op ‘[open]’. Of open Trypup zelf en voer de code handmatig in.',
-    inAppAndroid: 'De uitnodiging is geopend in de ingebouwde browser van een andere app (bijvoorbeeld Messenger). Tik op ‘[open]’: Trypup opent meteen, of Google Play als u de app nog niet heeft. Werkt dat niet, tik dan bovenaan op ⋮ en kies ‘Openen in Chrome’, of voer de code handmatig in de app in.',
-    openSafari: 'Openen in Safari',
+    inAppIos: 'Ging de app niet open? De uitnodiging staat waarschijnlijk in de ingebouwde browser van een andere app (bijvoorbeeld Messenger), die het openen van apps vaak blokkeert. Tik bovenaan op ⋯ of ↗, kies ‘Openen in Safari’ of ‘Openen in browser’ en tik daar op ‘[open]’. Of open Trypup zelf en voer de code handmatig in.',
+    inAppAndroid: 'Ging de app niet open? De uitnodiging staat waarschijnlijk in de ingebouwde browser van een andere app (bijvoorbeeld Messenger). Tik bovenaan op ⋮, kies ‘Openen in Chrome’ en tik daar op ‘[open]’. Of voer de code handmatig in de app in.',
   },
   pt: {
     title: 'trypup 🐾 convite',
@@ -165,9 +157,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Esta ligação não tem um código válido — peça um novo convite.',
     path: 'Perfil → Cuidado partilhado → Juntar-se',
     first: 'Tenho um código de cuidado partilhado',
-    inAppIos: 'O convite abriu no navegador integrado de outra aplicação (por exemplo, o Messenger), que não consegue abrir a aplicação Trypup. Toque em ⋯ ou ↗ no topo, escolha «Abrir no Safari» ou «Abrir no navegador» e depois toque aqui em «[open]». Ou abra a aplicação Trypup e introduza o código manualmente.',
-    inAppAndroid: 'O convite abriu no navegador integrado de outra aplicação (por exemplo, o Messenger). Toque em «[open]»: a aplicação Trypup abre de imediato, ou o Google Play se ainda não a tiver. Se não funcionar, toque em ⋮ no topo e escolha «Abrir no Chrome», ou introduza o código na aplicação manualmente.',
-    openSafari: 'Abrir no Safari',
+    inAppIos: 'A aplicação não abriu? O convite está provavelmente no navegador integrado de outra aplicação (por exemplo, o Messenger), que muitas vezes bloqueia a abertura de aplicações. Toque em ⋯ ou ↗ no topo, escolha «Abrir no Safari» ou «Abrir no navegador» e aí toque em «[open]». Ou abra a aplicação Trypup e introduza o código manualmente.',
+    inAppAndroid: 'A aplicação não abriu? O convite está provavelmente no navegador integrado de outra aplicação (por exemplo, o Messenger). Toque em ⋮ no topo, escolha «Abrir no Chrome» e aí toque em «[open]». Ou introduza o código na aplicação manualmente.',
   },
   sk: {
     title: 'trypup 🐾 pozvánka',
@@ -181,9 +172,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Odkaz nemá platný kód – požiadajte o nové pozvanie.',
     path: 'Profil → Spoločná starostlivosť → Pripojiť sa',
     first: 'Mám kód na spoločnú starostlivosť',
-    inAppIos: 'Pozvánka sa otvorila vo vstavanom prehliadači (napríklad v Messengeri) a z neho sa Trypup spustiť nedá. Ťuknite vpravo hore na ⋯ alebo ↗, zvoľte „Otvoriť v Safari“ alebo „Otvoriť v prehliadači“ a potom tu ťuknite na „[open]“. Alebo otvorte Trypup a kód zadajte ručne.',
-    inAppAndroid: 'Pozvánka sa otvorila vo vstavanom prehliadači (napríklad v Messengeri). Ťuknite na „[open]“: Trypup sa otvorí hneď, a ak ho ešte nemáte, otvorí sa Google Play. Ak to nepôjde, ťuknite vpravo hore na ⋮ a zvoľte „Otvoriť v Chrome“, alebo kód zadajte v aplikácii ručne.',
-    openSafari: 'Otvoriť v Safari',
+    inAppIos: 'Aplikácia sa neotvorila? Pozvánka je asi vo vstavanom prehliadači (napríklad v Messengeri), ktorý otváranie aplikácií často blokuje. Ťuknite vpravo hore na ⋯ alebo ↗, zvoľte „Otvoriť v Safari“ alebo „Otvoriť v prehliadači“ a tam ťuknite na „[open]“. Alebo otvorte Trypup a kód zadajte ručne.',
+    inAppAndroid: 'Aplikácia sa neotvorila? Pozvánka je asi vo vstavanom prehliadači (napríklad v Messengeri). Ťuknite vpravo hore na ⋮, zvoľte „Otvoriť v Chrome“ a tam ťuknite na „[open]“. Alebo kód zadajte v aplikácii ručne.',
   },
   bg: {
     title: 'trypup 🐾 покана',
@@ -197,9 +187,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Връзката няма валиден код — поискайте нова покана.',
     path: 'Профил → Споделена грижа → Присъединяване',
     first: 'Имам код за споделена грижа',
-    inAppIos: 'Поканата се отвори във вградения браузър на друго приложение (например Messenger), от който Trypup не може да се стартира. Докоснете ⋯ или ↗ горе, изберете „Отваряне в Safari“ или „Отваряне в браузъра“ и после докоснете тук „[open]“. Или отворете Trypup и въведете кода ръчно.',
-    inAppAndroid: 'Поканата се отвори във вградения браузър на друго приложение (например Messenger). Докоснете „[open]“: Trypup ще се отвори веднага, а ако още го нямате, ще се отвори Google Play. Ако не стане, докоснете ⋮ горе и изберете „Отваряне в Chrome“ или въведете кода в приложението ръчно.',
-    openSafari: 'Отваряне в Safari',
+    inAppIos: 'Приложението не се отвори? Поканата вероятно е във вградения браузър на друго приложение (например Messenger), който често блокира отварянето на приложения. Докоснете ⋯ или ↗ горе, изберете „Отваряне в Safari“ или „Отваряне в браузъра“ и там докоснете „[open]“. Или отворете Trypup и въведете кода ръчно.',
+    inAppAndroid: 'Приложението не се отвори? Поканата вероятно е във вградения браузър на друго приложение (например Messenger). Докоснете ⋮ горе, изберете „Отваряне в Chrome“ и там докоснете „[open]“. Или въведете кода в приложението ръчно.',
   },
   uk: {
     title: 'trypup 🐾 запрошення',
@@ -213,9 +202,8 @@ const T: Record<Lang, JoinStrings> = {
     noCode: 'Посилання не містить дійсного коду — попросіть нове запрошення.',
     path: 'Профіль → Спільний догляд → Приєднатися',
     first: 'Маю код для спільної турботи',
-    inAppIos: 'Запрошення відкрилося у вбудованому браузері іншого застосунку (наприклад, Messenger), з якого Trypup не запуститься. Торкніться ⋯ або ↗ угорі, виберіть «Відкрити в Safari» чи «Відкрити в браузері», а потім торкніться тут «[open]». Або відкрийте Trypup і введіть код вручну.',
-    inAppAndroid: 'Запрошення відкрилося у вбудованому браузері іншого застосунку (наприклад, Messenger). Торкніться «[open]»: Trypup відкриється одразу, а якщо його ще немає, відкриється Google Play. Якщо не вийде, торкніться ⋮ угорі й виберіть «Відкрити в Chrome» або введіть код у застосунку вручну.',
-    openSafari: 'Відкрити в Safari',
+    inAppIos: 'Застосунок не відкрився? Запрошення, мабуть, у вбудованому браузері іншого застосунку (наприклад, Messenger), який часто блокує відкриття застосунків. Торкніться ⋯ або ↗ угорі, виберіть «Відкрити в Safari» чи «Відкрити в браузері» і там торкніться «[open]». Або відкрийте Trypup і введіть код вручну.',
+    inAppAndroid: 'Застосунок не відкрився? Запрошення, мабуть, у вбудованому браузері іншого застосунку (наприклад, Messenger). Торкніться ⋮ угорі, виберіть «Відкрити в Chrome» і там торкніться «[open]». Або введіть код у застосунку вручну.',
   },
 };
 
@@ -241,13 +229,11 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
       <button id="copy" data-copied={t.copied} style="margin-top: 1rem; background: none; border: 1px solid #F2784B; color: #F2784B; border-radius: 999px; padding: .5rem 1.2rem; font-size: .95rem; cursor: pointer;">{t.copy}</button>
     </div>
 
-    <!-- Vestavěný prohlížeč jiné aplikace (Messenger, Instagram…) aplikaci nespustí (18. 11. 2026). -->
+    <!-- Vestavěný prohlížeč jiné aplikace (Messenger, Instagram…) otevření aplikace často zablokuje: návod až po neúspěšném klepnutí (18. 11. 2026). -->
     <p id="in-app-ios" hidden style="background:#FDF4EF; border:2px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.95rem; color:#4A2B45; line-height:1.5; margin-bottom:1rem;">{t.inAppIos.replace('[open]', t.openApp)}</p>
     <p id="in-app-android" hidden style="background:#FDF4EF; border:2px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.95rem; color:#4A2B45; line-height:1.5; margin-bottom:1rem;">{t.inAppAndroid.replace('[open]', t.openApp)}</p>
 
     <a id="open-app" href="#" data-play={PLAY} style="display: inline-block; background: #F2784B; color: #fff; border-radius: 999px; padding: .9rem 2rem; font-weight: 700; text-decoration: none; margin-bottom: 1rem;">{t.openApp}</a>
-    <br />
-    <a id="open-safari" href="#" style="display: none; background: none; border: 1px solid #F2784B; color: #F2784B; border-radius: 999px; padding: .6rem 1.4rem; font-weight: 600; text-decoration: none; margin-bottom: 1rem;">{t.openSafari}</a>
 
     <p id="join-help" style="font-size: .9rem; opacity: .75; line-height: 1.5;" set:html={fill(t.noApp, true)} />
     <p id="install-fallback" hidden style="background:#FDF4EF; border:1px solid #F2784B; border-radius:12px; padding:.9rem 1.1rem; font-size:.9rem; color:#4A2B45; line-height:1.5;" set:html={fill(t.fallback, false)} />
@@ -265,9 +251,10 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
   if (valid && codeEl && openEl) {
     codeEl.textContent = raw;
     if (inlineEl) inlineEl.textContent = raw;
-    // Vestavěný prohlížeč jiné aplikace (Messenger, Instagram, TikTok…): custom scheme na iPhonu
-    // neprojde a stránka by lživě tvrdila „nemáte nainstalovaný“. Návod + „Otevřít v Safari“;
-    // na Androidu intent:// otevře aplikaci rovnou (bez ní Google Play).
+    // Vestavěný prohlížeč jiné aplikace (Messenger, Instagram, TikTok…) otevření aplikace často
+    // zablokuje a stránka by lživě tvrdila „nemáte nainstalovaný“. Tlačítko je obyčejný odkaz
+    // (skutečné klepnutí, ne přesměrování skriptem – to Meta blokuje); když se aplikace neotevře,
+    // návod „Otevřít v Safari / Chrome“. Na Androidu intent:// (bez aplikace Google Play).
     const ua = navigator.userAgent || '';
     const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
     const isAndroid = /Android/i.test(ua);
@@ -278,14 +265,6 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
     const targetUrl = isAndroid ? intentUrl : appUrl;
     openEl.href = targetUrl;
     const inAppBox = inApp ? document.getElementById(isIOS ? 'in-app-ios' : isAndroid ? 'in-app-android' : '') : null;
-    if (inAppBox) inAppBox.removeAttribute('hidden');
-    if (inApp && isIOS) {
-      const safariEl = document.getElementById('open-safari') as HTMLAnchorElement | null;
-      if (safariEl) {
-        safariEl.href = `x-safari-https://${location.host}${location.pathname}${location.search}`;
-        safariEl.style.display = 'inline-block';
-      }
-    }
     // Přepnutí jazyka musí kód zachovat, jinak by stránka v jiném jazyce ukázala „neplatný kód".
     document.querySelectorAll<HTMLAnchorElement>('.lang-menu a').forEach((a) => {
       try {
@@ -297,18 +276,19 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
     // Když aplikace NENÍ nainstalovaná, custom scheme jen hodí systémovou chybu
     // („Aplikaci nelze otevřít"). Zkusíme aplikaci otevřít a když se po chvíli nic
     // nestane (stránka zůstane viditelná), ukážeme nenápadný návod pro stažení.
-    openEl.addEventListener('click', (ev) => {
-      ev.preventDefault();
+    openEl.addEventListener('click', () => {
+      // Bez preventDefault: odkaz otevře prohlížeč sám z klepnutí (viz výš).
       let opened = false;
       const onHide = () => { opened = true; };
       document.addEventListener('visibilitychange', onHide, { once: true });
       window.addEventListener('pagehide', onHide, { once: true });
-      try { window.location.href = targetUrl; } catch {}
       setTimeout(() => {
         if (opened || document.hidden) return;
-        // Ve vestavěném prohlížeči nejde poznat, jestli aplikace chybí: návod už visí nahoře.
-        if (inAppBox) inAppBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        else document.getElementById('install-fallback')?.removeAttribute('hidden');
+        // Ve vestavěném prohlížeči nejde poznat, jestli aplikace chybí → návod, jak ho opustit.
+        if (inAppBox) {
+          inAppBox.removeAttribute('hidden');
+          inAppBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else document.getElementById('install-fallback')?.removeAttribute('hidden');
       }, 1400);
     });
     copyEl?.addEventListener('click', async () => {
