@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["SF838HZHGG.app.trypup.mobile"],
+        "components": [
+          { "/": "/join", "comment": "Pozvánka ke společné péči (?c=KÓD), i jazykové varianty níž" },
+          { "/": "/join/*" },
+          { "/": "/*/join" },
+          { "/": "/*/join/*" }
+        ]
+      }
+    ]
+  }
+}

@@ -3,12 +3,20 @@
     {
       "source": "/api/stats.json",
       "destination": "https://europe-west1-trypupapp.cloudfunctions.net/getStats"
+    },
+    {
+      "source": "/join/:code([A-Za-z0-9]{6})",
+      "destination": "/join/"
     }
   ],
   "headers": [
     {
       "source": "/:lang([a-z]{2})?/join{/}?",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
     }
   ],
   "redirects": [

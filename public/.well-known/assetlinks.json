@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.trypup.mobile",
+      "sha256_cert_fingerprints": [
+        "92:E5:EC:E8:B8:53:44:61:E9:6D:7C:8A:A2:BE:15:3B:5C:26:04:90:FD:DB:22:B2:73:63:52:12:F2:60:62:C6"
+      ]
+    }
+  }
+]

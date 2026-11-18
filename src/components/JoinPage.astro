@@ -242,7 +242,10 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
 
 <script>
   const params = new URLSearchParams(location.search);
-  const raw = (params.get('c') ?? params.get('code') ?? '').trim().toUpperCase();
+  // Kód z dotazu (`/join?c=KÓD`, pozvánka z aplikace) nebo z cesty (`/join/KÓD`, Universal Link
+  // tlačítka na jiné subdoméně – vercel.json ho přepisuje na tuhle stránku).
+  const pathCode = location.pathname.match(/\/join\/([A-Za-z0-9]{6})\/?$/)?.[1] ?? '';
+  const raw = (params.get('c') ?? params.get('code') ?? pathCode).trim().toUpperCase();
   const valid = /^[A-Z2-9]{6}$/.test(raw);
   const codeEl = document.getElementById('code');
   const inlineEl = document.getElementById('code-inline');
