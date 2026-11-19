@@ -43,7 +43,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 1px 2px #00000030; }
     .kpi { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.5px; }
     .kpi small { display:block; font-size:12px; color:var(--muted); font-weight:500; margin-top:4px; }
-    .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px; }
+    .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr)); gap:16px; }
     .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; box-shadow:0 1px 2px #00000030; }
     .panel h3 { margin:0 0 14px; font-size:14px; display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
     .panel h3 .hint { font-weight:500; color:var(--muted); font-size:12px; }
@@ -129,6 +129,91 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     .tile table.t-ret td span { color:var(--muted); }
     .tile table.t-ret tr.mkt td { color:var(--muted); border-bottom:0; }
     .tile .t-desc { font-size:12px; color:var(--muted); line-height:1.45; margin-top:auto; }
+    /* Přepínač popisků (SPEC D.3) */
+    .langsw { display:inline-flex; align-items:center; gap:2px; color:var(--muted); font-size:12px; flex-wrap:wrap; }
+    .langsw button { background:transparent; color:var(--muted); border:1px solid transparent; border-radius:8px; padding:4px 7px; font-size:12px; font-weight:600; }
+    .langsw button[aria-pressed="true"] { color:var(--text); border-color:var(--apricot); }
+    /* Získávání a Cesta: karty s otázkou a verdiktem (SPEC C.0) */
+    .muted { color:var(--muted); }
+    .tab-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin:16px 0 14px; }
+    .tab-head h2 { margin:0 0 6px; font-size:15px; text-transform:none; letter-spacing:0; color:var(--text); }
+    .tab-head .tab-meta { color:var(--muted); font-size:12.5px; line-height:1.5; }
+    .tab-head button { padding:6px 12px; font-size:12px; }
+    .tab-head button:disabled { opacity:.5; cursor:default; }
+    .wait { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px 18px; color:var(--muted); }
+    .takeaways { background:#f2784b12; border:1px solid #f2784b55; border-radius:14px; padding:14px 18px; margin-bottom:18px; }
+    .takeaways h3 { margin:0 0 10px; font-size:12px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); }
+    .tk-row { display:grid; grid-template-columns:minmax(0,11.5em) minmax(0,1fr); gap:6px 14px; align-items:baseline; padding:6px 0; border-top:1px solid #ffffff12; }
+    .tk-row:first-of-type { border-top:0; }
+    .tk-row p { margin:0; line-height:1.5; font-size:13.5px; }
+    .verdict { display:inline-block; border:1px solid currentColor; border-radius:20px; padding:2px 9px; font-size:10.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; justify-self:start; }
+    .v-good { color:#7dd39a; } .v-warn { color:#e8c46a; } .v-up { color:var(--apricot); } .v-info { color:#8cc3d0; } .v-muted { color:var(--muted); }
+    .qsec { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin:26px 0 10px; }
+    .qcards { display:flex; flex-direction:column; gap:14px; }
+    .qcard { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; box-shadow:0 1px 2px #00000030; min-width:0; overflow-wrap:anywhere; }
+    .qcard .q-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px 12px; flex-wrap:wrap; }
+    .qcard h3 { margin:0; font-size:15px; line-height:1.35; }
+    .qcard .q-sent { margin:10px 0 12px; font-size:14px; line-height:1.5; }
+    .qcard .q-body { font-size:13px; line-height:1.5; }
+    .qcard .q-body p { margin:6px 0; }
+    .qcard .q-how { margin:12px 0 0; font-size:12.5px; line-height:1.5; color:var(--muted); }
+    .qcard .q-how b { color:var(--text); font-weight:700; }
+    .qcard .q-foot { margin:10px 0 0; padding-top:8px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted); line-height:1.45; }
+    .qcard .sub { font-size:11.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:700; margin:12px 0 4px; }
+    .qcard .bar .lbl { white-space:normal; overflow:visible; }
+    .qcard .bar .fill { background:var(--apricot); }
+    .qnums { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 8px; }
+    .qnum { background:#00000026; border:1px solid var(--line); border-radius:10px; padding:7px 11px; min-width:0; }
+    .qnum b { display:block; font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.15; }
+    .qnum span { display:block; font-size:11px; color:var(--muted); margin-top:2px; }
+    .subgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr)); gap:10px 22px; }
+    .branches { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin:10px 0; }
+    @media (min-width:700px) { .branches { grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
+    .branch { border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#00000018; min-width:0; }
+    .branch h4 { margin:0 0 8px; font-size:13px; }
+    .step { margin:0 0 10px; }
+    .step .bar { margin:0; }
+    .step .conv { font-size:11px; color:var(--muted); margin:3px 0 0; }
+    .kv { display:flex; justify-content:space-between; flex-wrap:wrap; gap:2px 12px; padding:5px 0; border-bottom:1px solid #ffffff10; }
+    .qdet h4 { margin:4px 0 6px; font-size:13px; }
+    .kv:last-child { border-bottom:0; }
+    .kv > span:last-child { text-align:right; font-variant-numeric:tabular-nums; margin-left:auto; }
+    .ilist b { font-variant-numeric:tabular-nums; }
+    /* Po dnech (Z1): den · pruh · číslo · obchody; na telefonu obchody pod řádkem */
+    .days { margin-top:6px; }
+    .drow { display:grid; grid-template-columns:9em minmax(40px,1fr) 2.6em minmax(0,17em); gap:2px 10px; align-items:center; padding:3px 4px; border-radius:6px; font-size:12.5px; }
+    .drow.dhead { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
+    .drow.camp { background:#3e7c8c40; }
+    .d-track { height:9px; background:#ffffff1f; border-radius:6px; position:relative; overflow:hidden; }
+    .d-fill { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--apricot); }
+    .d-val { text-align:right; font-variant-numeric:tabular-nums; }
+    .d-store { color:var(--muted); font-size:11.5px; }
+    .legend-camp { display:inline-block; width:12px; height:12px; border-radius:3px; background:#3e7c8c80; vertical-align:-2px; margin-right:4px; }
+    /* Tabulky karet (Z4, A4, B2, B3): na telefonu se lámou do řádků */
+    table.qt { width:100%; border-collapse:collapse; margin:6px 0; }
+    table.qt th, table.qt td { text-align:left; padding:6px 8px 6px 0; border-bottom:1px solid var(--line); font-size:12.5px; vertical-align:top; }
+    table.qt th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
+    table.qt td.n, table.qt th.n { font-variant-numeric:tabular-nums; white-space:nowrap; }
+    table.qt tr.mkt td { color:var(--muted); }
+    table.qt.narrow { max-width:620px; }
+    table.qt td .sublbl { padding-left:14px; }
+    @media (max-width:640px) {
+      table.qt thead { display:none; }
+      table.qt, table.qt tbody, table.qt tr, table.qt td { display:block; width:100%; }
+      table.qt tr { padding:8px 0; border-bottom:1px solid var(--line); }
+      /* Popisek sloupce vlevo jako float: obsah buňky (text, odkazy, víc řádků) teče vpravo vedle něj. */
+      table.qt td { border:0; padding:3px 0; display:flow-root; text-align:right; white-space:normal; }
+      table.qt td::before { content:attr(data-label); float:left; color:var(--muted); text-align:left; margin-right:12px; max-width:55%; }
+      table.qt td:first-child { font-weight:700; text-align:left; }
+      table.qt td:first-child::before { content:none; }
+      .drow { grid-template-columns:5.6em minmax(40px,1fr) 2.4em; }
+      .drow .d-store { grid-column:1 / -1; padding-left:6.1em; }
+      .drow.dhead .d-store { display:none; }
+      .tk-row { grid-template-columns:minmax(0,1fr); }
+    }
+    details.qdet { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 18px; }
+    details.qdet > summary { cursor:pointer; font-weight:700; font-size:14px; }
+    details.qdet > summary span { color:var(--muted); font-weight:500; font-size:12.5px; }
   </style>
 </head>
 <body>
@@ -137,7 +222,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     <img src="/icon.png" class="logo" alt="Trypup" />
     <div>
       <h1>Trypup · Analytika</h1>
-      <p style="color:var(--muted);max-width:340px">Skrytý dashboard. Přihlas se admin účtem Google.</p>
+      <p style="color:var(--muted);max-width:340px">Skrytá analytika. Přihlas se účtem správce Google.</p>
     </div>
     <button id="signin">Přihlásit přes Google</button>
     <p id="login-err" class="err"></p>
@@ -148,10 +233,15 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     <header>
       <h1>Trypup · Analytika <small id="who"></small></h1>
       <div class="toolbar">
-        <a href="/admin/content" class="pill" style="text-decoration:none">✏️ Obsah webu</a>
-        <a href="/admin/shelters" class="pill" style="text-decoration:none">🐾 Útulky</a>
-        <a href="/admin/notices" class="pill" style="text-decoration:none">📣 Novinky a akce</a>
-        <a href="/admin/articles" class="pill" style="text-decoration:none">📚 Články a zdroje</a>
+        <a href="/admin/content" class="pill" style="text-decoration:none">Obsah webu</a>
+        <a href="/admin/shelters" class="pill" style="text-decoration:none">Útulky</a>
+        <a href="/admin/notices" class="pill" style="text-decoration:none">Novinky a akce</a>
+        <a href="/admin/articles" class="pill" style="text-decoration:none">Články a zdroje</a>
+        <span class="langsw" id="langsw" role="group" aria-label="Popisky akcí">Popisky:
+          <button type="button" data-lang="cs" aria-pressed="true">Čeština</button><span aria-hidden="true">·</span>
+          <button type="button" data-lang="en" aria-pressed="false">English</button><span aria-hidden="true">·</span>
+          <button type="button" data-lang="raw" aria-pressed="false">Technické názvy</button>
+        </span>
         <button id="loadOlder" class="ghost">Načíst starší</button>
         <button id="loadAll" class="ghost">Načíst vše</button>
         <button id="signout" class="ghost">Odhlásit</button>
@@ -159,18 +249,18 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     </header>
 
     <!-- ZÁLOŽKY -->
-    <div class="tabs" id="tabs">
-      <button class="tab active" data-tab="dashboard">Dashboard</button>
-      <button class="tab" data-tab="prehled">Přehled</button>
-      <button class="tab" data-tab="vyzkum">Výzkum</button>
-      <button class="tab" data-tab="technika">Technika</button>
-      <button class="tab" data-tab="nakupy">Nákupy</button>
+    <div class="tabs" id="tabs" role="tablist">
+      <button class="tab active" data-tab="souhrn" role="tab">Souhrn</button>
+      <button class="tab" data-tab="ziskavani" role="tab">Získávání</button>
+      <button class="tab" data-tab="cesta" role="tab">Cesta</button>
+      <button class="tab" data-tab="nakupy" role="tab">Nákupy</button>
+      <button class="tab" data-tab="technika" role="tab">Technika</button>
     </div>
 
     <!-- FILTRY + VYHLEDÁVÁNÍ -->
     <div class="filters">
       <div class="row1">
-        <input id="f-text" type="search" placeholder="🔎 Hledat (event, props, model, jazyk…)" style="min-width:240px;flex:1" />
+        <input id="f-text" type="search" placeholder="Hledat akci, hodnotu, model, jazyk…" style="min-width:min(240px,100%);flex:1" />
         <input id="f-iid" type="text" placeholder="installId (prefix)" style="width:150px" />
         <button id="f-clear" class="ghost">Vyčistit</button>
       </div>
@@ -193,8 +283,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
 
     <p id="status" style="color:var(--muted)">Načítám…</p>
 
-    <!-- TAB: DASHBOARD (dlaždice, vždy bez testerů a robotů; filtry se tu skrývají) -->
-    <div id="tab-dashboard" class="tabpane">
+    <!-- TAB: SOUHRN (dlaždice, vždy bez testerů a robotů; filtry se tu skrývají) -->
+    <div id="tab-souhrn" class="tabpane">
       <div class="dash-head">
         <span><span id="dash-updated">Načítám…</span> <span id="dash-cover"></span></span>
         <button id="dash-refresh" class="ghost">Obnovit</button>
@@ -202,7 +292,14 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       <div id="dash-tiles"></div>
     </div>
 
-    <!-- TAB: PŘEHLED -->
+    <!-- TAB: ZÍSKÁVÁNÍ (SPEC C.1, vždy bez testerů a robotů, pevná období) -->
+    <div id="tab-ziskavani" class="tabpane hidden"><div id="acq-root"></div></div>
+
+    <!-- TAB: CESTA (SPEC C.2, vždy bez testerů a robotů, pevná období) -->
+    <div id="tab-cesta" class="tabpane hidden"><div id="jr-root"></div></div>
+
+    <!-- Přehled a Výzkum: už nejsou v liště (adresy přesměrují na Získávání a Cestu). Další krok z nich
+         přenese Build, Druh instalace a Klasifikace do Techniky a pak oba bloky i jejich funkce smaže. -->
     <div id="tab-prehled" class="tabpane hidden">
       <h2>Uživatelé <span id="u-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
       <div class="cards" id="u-kpis"></div>
@@ -491,6 +588,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const half = (z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / den;
       return [Math.max(0, mid - half), Math.min(1, mid + half)];
     }
+    /** Rozpětí Wilson 95 % zlomku {k, n} v celých procentech [dolní, horní]; null při n = 0 (R7 „nejspíš 19–36 %“). */
+    const pctRange = (f) => { const w = f ? wilson(f.k, f.n) : null; return w ? [Math.round(100 * w[0]), Math.round(100 * w[1])] : null; };
     /** Test dvou podílů se sdruženým podílem: z = (pa − pb) / se; prázdná skupina nebo se = 0 → 0. */
     function twoProp(a, b) {
       if (!a || !b || !(a.n > 0) || !(b.n > 0)) return 0;
@@ -849,7 +948,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         const list = chanGroups.get(k), ids = new Set(list.map((d) => d.id)), rest = n30.filter((d) => !ids.has(d.id));
         const row = qRow(list); setKey(qChannel, k, row);
         const b = d1Of(idx, rest), c = compareGroups(row.d1, b);
-        comparisons.push({ group: 'channel:' + k, eligible: cnt >= R.SURE_N, a: row.d1, b, verdict: c.verdict, z: c.z });
+        comparisons.push({ group: 'channel:' + k, eligible: cnt >= R.SURE_N, a: row.d1, b, verdict: c.verdict, z: c.z, aRange: pctRange(row.d1), bRange: pctRange(b) });
         sides.push([list, rest]);
       }
       let qCampaign = null;
@@ -863,7 +962,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           const row = { in: qRow(inL), out: qRow(outL) };
           qCampaign[p] = row;
           const c = compareGroups(row.in.d1, row.out.d1);
-          comparisons.push({ group: 'campaign:' + p, eligible: true, a: row.in.d1, b: row.out.d1, verdict: c.verdict, z: c.z });
+          comparisons.push({ group: 'campaign:' + p, eligible: true, a: row.in.d1, b: row.out.d1, verdict: c.verdict, z: c.z, aRange: pctRange(row.in.d1), bRange: pctRange(row.out.d1) });
           sides.push([inL, outL]);
         }
       }
@@ -1094,9 +1193,10 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       for (const [v, list] of [...abGroups].sort((a, b) => cmpStr(a[0], b[0]))) {
         const rv = list.filter((d) => review.has(d.id)).length;
         abReview += rv;
-        setKey(variants, v, { assigned: list.length, d1: d1Of(idx, list),
+        const vd1 = d1Of(idx, list);
+        setKey(variants, v, { assigned: list.length, d1: vd1,
           tapped: list.filter((d) => scanDev(d, -Infinity, Infinity, (e, p) => e.name === 'home_banner' && p.kind === 'first_care' && p.action === 'tap').n > 0).length,
-          review: rv });
+          review: rv, d1Range: pctRange(vd1) });
       }
       const va = abGroups.has('a') ? getKey(variants, 'a') : null, vb = abGroups.has('b') ? getKey(variants, 'b') : null;
       const a5 = va && vb && va.d1.n >= R.SURE_N && vb.d1.n >= R.SURE_N ? compareGroups(va.d1, vb.d1).verdict : 'Málo dat';
@@ -1297,7 +1397,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         ab: { variants, review: abReview },
         modes: { active: active.length, trial: mTrial.length, owner: mOwner.length,
           both: active.filter((d) => d.mode.trial && d.mode.owner).length, neither: active.filter((d) => !d.mode.trial && !d.mode.owner).length,
-          twoDays: { trial: tdTrial, owner: tdOwner, z: b1c.z } },
+          twoDays: { trial: tdTrial, owner: tdOwner, z: b1c.z, ranges: { trial: pctRange(tdTrial), owner: pctRange(tdOwner) } } },
         trialUse, owner,
         switch: { total: sw.total, onboarding: { owner: sw.onbOwner, trial: sw.onbTrial },
           later: { owner: sw.laterOwner, trial: sw.laterTrial, ownerBySource: breakdown(sw.ownerBy), trialBySource: breakdown(sw.trialBy) } },
@@ -1406,6 +1506,88 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         cohortFrom: dayIso(pragueDay(idx.w30)), cohortTo: dayIso(idx.today), realDevices: idx.real.length, campaignsDoc: !!campaignsOf(idx.D.adCampaigns) };
     }
     // == ADMIN CORE END ==
+
+    // --- Popisky akcí (SPEC D.1, D.2, D.5): katalog vložený do stránky (#admin-labels), jedno JSON.parse,
+    //     hledání jen přes Map a Object.hasOwn. Jádro dostává tentýž objekt (LABELS) jako vstup.
+    let LABELS = null;
+    try { const el = $('admin-labels'); LABELS = el ? JSON.parse(el.textContent || 'null') : null; }
+    catch (e) { console.warn('katalog popisků nenačten', e); }
+    const EV = new Map(), SCREENS = new Map(), GROUPS = new Map(), PLACES = new Map();
+    if (LABELS && typeof LABELS === 'object') {
+      const ownMap = (src, m, ok) => { if (src && typeof src === 'object') for (const k of Object.keys(src)) if (ok(src[k])) m.set(k, src[k]); };
+      ownMap(LABELS.ev, EV, (e) => !!e && typeof e === 'object');
+      ownMap(LABELS.screens, SCREENS, Array.isArray);
+      ownMap(LABELS.places, PLACES, Array.isArray);
+      if (Array.isArray(LABELS.groups)) for (const g of LABELS.groups) if (Array.isArray(g) && typeof g[0] === 'string') GROUPS.set(g[0], g);
+    }
+    // Jazyk popisků (D.3): Čeština · English · Technické názvy. Úložiště jen v try/catch; bez něj čeština.
+    const LANG_KEY = 'trypup-admin-labels', LANGS = ['cs', 'en', 'raw'];
+    let LANG = 'cs';
+    try { const v = localStorage.getItem(LANG_KEY); if (LANGS.includes(v)) LANG = v; } catch { /* bez úložiště platí čeština */ }
+    const pickLang = (pair, raw, lang) => (lang === 'raw' ? raw : lang === 'en' ? String(pair[1] || pair[0] || raw) : String(pair[0] || raw));
+    /** Popisek { text, raw, known, tip }; tip = technický zápis do title (L.html). */
+    const lab = (text, raw, known, tip) => ({ text: String(text), raw: String(raw), known: !!known, tip: tip === undefined ? String(raw) : String(tip) });
+    const propOf = (name, key) => {
+      const e = EV.get(name);
+      return e && e.p && typeof e.p === 'object' && Object.hasOwn(e.p, key) && e.p[key] && typeof e.p[key] === 'object' ? e.p[key] : null;
+    };
+    const L = {
+      /** Akce: katalog, jinak „Neznámá akce (název)“; název mimo vzor = „neplatný záznam“ (D.5). */
+      event(name, lang = LANG) {
+        if (!validActionName(name)) return lab(lang === 'en' ? 'invalid record' : 'neplatný záznam', typeof name === 'string' ? name : '', false, '');
+        const e = EV.get(name);
+        if (!e) return lab(lang === 'raw' ? name : lang === 'en' ? `Unknown action (${name})` : `Neznámá akce (${name})`, name, false);
+        let t = pickLang([e.cs, e.en], name, lang);
+        if (e.st === 'removed' && lang !== 'raw') t += lang === 'en' ? ' (no longer sent)' : ' (už se neposílá)';
+        return lab(t, name, true);
+      },
+      prop(name, key, lang = LANG) {
+        const p = propOf(name, key), k = String(key);
+        return p ? lab(pickLang([p.cs, p.en], k, lang), k, true, `${name} · ${k}`) : lab(k, k, false, `${name} · ${k}`);
+      },
+      /** Hodnota vlastnosti. Klíč z jádra '_none' = prázdná hodnota. Volný text (f: 1) bez „(bez překladu)“. */
+      value(name, key, val, lang = LANG) {
+        const vk = val === null || val === undefined ? '' : String(val), k2 = vk === '_none' ? '' : vk;
+        const p = propOf(name, key), vals = p && p.v && typeof p.v === 'object' ? p.v : null;
+        const hit = vals && Object.hasOwn(vals, k2) && Array.isArray(vals[k2]) ? vals[k2] : null;
+        const tip = `${name} · ${key} = ${k2}`;
+        if (lang === 'raw') return lab(k2 === '' ? '(prázdné)' : k2, k2, !!hit, tip);
+        if (hit) return lab(pickLang(hit, k2, lang), k2, true, tip);
+        if (k2 === '') return lab(lang === 'en' ? 'not given' : 'bez údaje', k2, false, tip);
+        if (p && p.f === 1) return lab(k2.split(' - ').join(' – '), k2, false, tip);
+        return lab(`${k2} ${lang === 'en' ? '(no translation)' : '(bez překladu)'}`, k2, false, tip);
+      },
+      screen(route, lang = LANG) {
+        const r = String(route ?? ''), s = SCREENS.get(r);
+        return s ? lab(pickLang(s, r, lang), r, true) : lab(lang === 'raw' ? r : `${r} ${lang === 'en' ? '(no translation)' : '(bez překladu)'}`, r, false);
+      },
+      group(id, lang = LANG) { const g = GROUPS.get(id), k = String(id ?? ''); return g ? lab(pickLang([g[1], g[2]], k, lang), k, true) : lab(k, k, false); },
+      place(id, lang = LANG) { const p = PLACES.get(id), k = String(id ?? ''); return p ? lab(pickLang(p, k, lang), k, true) : lab(k, k, false); },
+      /** Země a jazyky přes Intl.DisplayNames (cs / en), v režimu Technické názvy kód; '_none' = bez údaje. */
+      region(code, lang = LANG) { return L.intl('region', code, lang); },
+      lang(code, lang = LANG) { return L.intl('language', code, lang); },
+      intl(type, code, lang) {
+        const c = String(code ?? '');
+        if (c === '' || c === '_none') return lab(lang === 'en' ? 'not given' : 'bez údaje', c, false);
+        if (lang === 'raw') return lab(c, c, true);
+        let t = c;
+        try { t = intlNames(type, lang).of(c) || c; } catch { t = c; }
+        return lab(t, c, t !== c);
+      },
+      /** Bezpečné HTML: text i technický název přes esc() (R12). */
+      html(x) { return `<span title="Technický název: ${esc(x.tip)}">${esc(x.text)}</span>`; },
+    };
+    const INTL_CACHE = new Map();
+    function intlNames(type, lang) {
+      const k = type + '|' + lang;
+      if (!INTL_CACHE.has(k)) INTL_CACHE.set(k, new Intl.DisplayNames([lang === 'en' ? 'en' : 'cs'], { type, fallback: 'code' }));
+      return INTL_CACHE.get(k);
+    }
+    /** Popisek ukazatele, který není jedna akce z katalogu (např. „Denní péče“ = task_done): cs, en, technický zápis. */
+    const ml = (cs, en, raw) => L.html(lab(LANG === 'raw' ? raw : LANG === 'en' ? en : cs, raw, true));
+    const lv = (name, key, val) => L.html(L.value(name, key, val));
+    /** Český popisek do vět „Co z toho plyne“ (D.3: věty jsou vždy česky), escapovaný. */
+    const csv = (name, key, val) => esc(L.value(name, key, val, 'cs').text);
 
     // --- Data load (stránkování – drží data od začátku měření) ---
     const PAGE = 500;
@@ -1600,6 +1782,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     }
 
     async function firstLoad() {
+      // Dočítání nových záložek začne znovu (staré běhy už stav nepřepíšou).
+      COVER_GEN++; COVER_RUNS.clear();
       // Reset dat pod zámkem: běžící dočítání (Souhrn, Nákupy, Načíst vše) nejdřív doběhne.
       await withLoadLock(() => { RAW = []; lastDoc = null; batches = 0; exhausted = false; DEDUP.reset(); DATA_VER++; });
       // Obnovit (dashboard) volá firstLoad znovu → dočítání starší analytiky musí proběhnout znovu.
@@ -1702,19 +1886,48 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       render();
     };
 
-    // --- Záložky ---
-    const TABS = ['dashboard','prehled','vyzkum','technika','nakupy'];
-    let activeTab = (location.hash || '#dashboard').slice(1);
-    if (!TABS.includes(activeTab)) activeTab = 'dashboard';
-    function setTab(t) {
-      activeTab = t; location.hash = t;
-      $('tabs').querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === t));
+    // --- Záložky (SPEC B.1, E.13): adresa = záložka, staré adresy přesměrují, Zpět v prohlížeči mění záložku ---
+    const TABS = ['souhrn', 'ziskavani', 'cesta', 'nakupy', 'technika'];
+    const TAB_ALIASES = new Map([['dashboard', 'souhrn'], ['prehled', 'ziskavani'], ['vyzkum', 'cesta']]);
+    // Lišta filtrů jen tam, kde filtry platí; Souhrn, Získávání a Cesta jsou vždy bez testerů a s pevnými obdobími.
+    const FILTER_TABS = new Set(['nakupy', 'technika']);
+    function tabFromHash() {
+      const h = (location.hash || '').slice(1);
+      if (TAB_ALIASES.has(h)) {
+        const t = TAB_ALIASES.get(h);
+        try { history.replaceState(null, '', '#' + t); } catch { /* bez history zůstane stará adresa */ }
+        return t;
+      }
+      return TABS.includes(h) ? h : 'souhrn';
+    }
+    let activeTab = tabFromHash();
+    function showTab(t) {
+      activeTab = t;
+      $('tabs').querySelectorAll('.tab').forEach((b) => { const on = b.dataset.tab === t; b.classList.toggle('active', on); b.setAttribute('aria-selected', String(on)); });
       TABS.forEach((x) => $('tab-' + x).classList.toggle('hidden', x !== t));
-      // Dashboard filtry nepoužívá (vždy bez testerů a robotů) → lišta filtrů jen na ostatních záložkách.
-      document.querySelector('.filters').classList.toggle('hidden', t === 'dashboard');
+      document.querySelector('.filters').classList.toggle('hidden', !FILTER_TABS.has(t));
       render();
     }
+    /** Klik na záložku zapíše adresu (nový záznam historie); překreslí posluchač hashchange. */
+    function setTab(t) {
+      if (!TABS.includes(t)) return;
+      if ((location.hash || '').slice(1) !== t) location.hash = t;
+      else showTab(t);
+    }
+    window.addEventListener('hashchange', () => showTab(tabFromHash()));
     $('tabs').querySelectorAll('.tab').forEach((b) => b.onclick = () => setTab(b.dataset.tab));
+
+    // --- Přepínač popisků (SPEC D.3): mění jen popisky z dat, nic se nepřepočítává ---
+    function syncLangButtons() { $('langsw').querySelectorAll('button[data-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG))); }
+    $('langsw').querySelectorAll('button[data-lang]').forEach((b) => b.onclick = () => {
+      const v = b.dataset.lang;
+      if (!LANGS.includes(v) || v === LANG) return;
+      LANG = v;
+      try { localStorage.setItem(LANG_KEY, v); } catch { /* bez úložiště volba platí do obnovení stránky */ }
+      syncLangButtons();
+      render();
+    });
+    syncLangButtons();
 
     // --- agregační helpery ---
     function countBy(arr, keyFn) {
@@ -1950,12 +2163,13 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
 
     // --- Render (jen aktivní záložka kvůli výkonu) ---
     function render() {
+      if (activeTab === 'souhrn') { renderDashboard(); return; }
+      if (activeTab === 'ziskavani') { renderAcquisition(); return; }
+      if (activeTab === 'cesta') { renderJourney(); return; }
+      // Filtry platí jen na Nákupech a Technice (lišta je jinde skrytá) → filtrovat jen tady.
       const ev = applyFilters(RAW);
       $('count').textContent = 'Zobrazeno ' + ev.length + ' / ' + RAW.length + ' eventů · ' + batches + ' dávek' + (exhausted ? ' (kompletní)' : ' (jsou starší – Načíst starší)');
-      if (activeTab === 'dashboard') renderDashboard();
-      else if (activeTab === 'prehled') renderOverview(ev);
-      else if (activeTab === 'vyzkum') renderResearch(ev);
-      else if (activeTab === 'nakupy') renderPurchases(ev);
+      if (activeTab === 'nakupy') renderPurchases(ev);
       else renderTech(ev);
     }
 
@@ -2329,7 +2543,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
             : c.kind === 'real'
               ? `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="tester">tester</button> <button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="robot">robot</button>`
               : `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="real">není ${c.kind}</button>`;
-          return `<tr class="${c.kind !== 'real' ? 'tester' : ''}"><td><span class="iid" data-iid="${esc(i.id)}" style="cursor:pointer">${esc(i.id.slice(0, 10))}</span></td><td>${esc(i.platform || '?')}</td><td>${esc(i.model || '')}</td><td>${esc((i.os || '') + ' ' + (i.osVersion || ''))}</td><td>${esc(i.locale || '')}${i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + esc(i.deviceLocale) + ')</span>' : ''}</td><td>${esc(i.region && i.region !== 'none' ? i.region : '')}</td><td>${i.appBuild ?? ''}</td><td>${i.firstMs ? fmt(i.firstMs) : ''}</td><td>${i.lastMs ? fmt(i.lastMs) : ''}</td><td>${tag}</td>
+          return `<tr class="${c.kind !== 'real' ? 'tester' : ''}"><td><span class="iid" data-iid="${esc(i.id)}" style="cursor:pointer">${esc(i.id.slice(0, 10))}</span></td><td>${esc(i.platform || '?')}</td><td>${esc(i.model || '')}</td><td>${esc((i.os || '') + ' ' + (i.osVersion || ''))}</td><td>${esc(i.locale || '')}${i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + esc(i.deviceLocale) + ')</span>' : ''}</td><td>${esc(i.region && i.region !== 'none' ? i.region : '')}</td><td>${esc(i.appBuild ?? '')}</td><td>${i.firstMs ? fmt(i.firstMs) : ''}</td><td>${i.lastMs ? fmt(i.lastMs) : ''}</td><td>${tag}</td>
             <td style="white-space:nowrap">${btns}</td></tr>`;
         }).join('');
       $('inst').querySelectorAll('button[data-ov]').forEach((b) => b.onclick = () => setOverride(b.dataset.ov, b.dataset.kind || null).catch((e) => alert('Nepodařilo se uložit: ' + e.message)));
@@ -2368,7 +2582,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         .then((r) => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
         .then((j) => { FX = j && j.rates && typeof j.rates === 'object' ? { rates: j.rates, date: j.date || null } : { failed: true }; })
         .catch((e) => { console.warn('kurzy nenačteny', e); FX = { failed: true }; })
-        .then(() => { if (activeTab === 'dashboard') renderDashboard(); });
+        .then(() => { if (activeTab === 'souhrn') renderDashboard(); });
       return fxPromise;
     }
     const usdCzk = () => { const r = FX && FX.rates ? Number(FX.rates.USD) : NaN; return r > 0 ? { rate: 1 / r, approx: false } : { rate: FALLBACK_USD_CZK, approx: true }; };
@@ -2692,24 +2906,669 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       ].join('');
     }
 
-    $('dash-refresh').onclick = async () => {
-      const b = $('dash-refresh');
+    /** Obnovit: Souhrn, Získávání i Cesta (stejná obsluha, SPEC C.0). */
+    async function refreshAll() {
       if (refreshing || dashCovering) return;
-      if (DEMO) { renderDashboard(); return; }
-      refreshing = true; b.disabled = true;
+      if (DEMO) { render(); return; }
+      refreshing = true; $('dash-refresh').disabled = true;
+      document.querySelectorAll('[data-refresh]').forEach((b) => { b.disabled = true; });
       try {
         if (dashCoverPromise) await dashCoverPromise;
         await firstLoad();
         if (dashCoverPromise) await dashCoverPromise;
-      } finally { refreshing = false; b.disabled = dashCovering; }
-    };
+      } finally { refreshing = false; $('dash-refresh').disabled = dashCovering; render(); }
+    }
+    $('dash-refresh').onclick = refreshAll;
+
+    // Dočítání pro Získávání a Cestu (C.5): stejný zámek a tytéž stránky jako Souhrn. Stav podle dní:
+    // 'ok' = pokryto, 'running' = dočítám, 'short' = doběhlo, ale dny pokryté nejsou (zarážka stránek nebo chyba).
+    const COVER_RUNS = new Map();
+    let COVER_GEN = 0;
+    function coverState(days) {
+      if (DEMO || coveredDays(days)) return 'ok';
+      const st = COVER_RUNS.get(days);
+      if (st === 'done') return 'short';
+      if (!st) {
+        const gen = COVER_GEN;
+        COVER_RUNS.set(days, 'running');
+        ensureCoverage(days, 40)
+          .catch((e) => console.warn('dočtení analytiky selhalo', e))
+          .finally(() => { if (gen === COVER_GEN) COVER_RUNS.set(days, 'done'); buildFilterOptions(); render(); });
+      }
+      return 'running';
+    }
+
+    // ─── Získávání a Cesta (SPEC C.0–C.2). Všechna čísla jsou z jádra (coreResult); tady jen texty, popisky
+    //     a vykreslení (procenta z k a n, rozdíly kroků). Věty karet a „Co z toho plyne“ jsou vždy česky
+    //     s českými popisky (D.3); tabulky, pruhy a seznamy se řídí přepínačem popisků.
+    const SMALL_N = VERDICT_RULES.SMALL_N;
+    const MONTH_GEN = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'];
+    // Slovník verdiktů (C.0): barva jen doplňuje slovo, žádná červená.
+    const VERDICT_CLASS = new Map([['Vyplatí se', 'v-good'], ['Nad trhem', 'v-good'], ['Nevyplatí se', 'v-warn'], ['Pod trhem', 'v-warn'], ['Roste', 'v-up'],
+      ['Zjištění', 'v-info'], ['Průkazný rozdíl', 'v-info'], ['Na úrovni trhu', 'v-info'], ['Drží', 'v-info'], ['Jen počty', 'v-info']]);
+    const PLATFORM_LABEL = new Map([['android', 'Android'], ['ios', 'iPhone']]);
+    const NETWORK_LABEL = new Map([['tiktok', 'TikTok'], ['google', 'Google Ads'], ['apple', 'Apple Ads'], ['meta', 'Meta']]);
+    const OPEN_DETAILS = new Set(); // rozbalené <details> přežijí překreslení (C.5)
+    const num = (v) => { if (v === null || v === undefined || v === '' || typeof v === 'boolean') return null; const x = Number(v); return Number.isFinite(x) ? x : null; };
+    const isIsoDay = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+    /** Tvar podle počtu: 1 / 2–4 / ostatní (0 a 5+). */
+    const pl = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);
+    /** Předložka „z“ / „ze“ před číslem podle výslovnosti: ze 7, ze 16, ze 104, z 62, z 1 000. */
+    function zePrep(v) {
+      let n = Math.abs(Math.trunc(num(v) ?? 0));
+      while (n >= 1000) { const t = Math.floor(n / 1000); if (t === 1) return 'z'; n = t; }
+      if (n >= 100) return n < 200 || (n >= 600 && n < 800) ? 'ze' : 'z';
+      return n === 6 || n === 7 || n === 16 || n === 17 || (n >= 60 && n < 80) ? 'ze' : 'z';
+    }
+    const zz = (n) => `${zePrep(n)}&nbsp;${nf(n)}`;
+    const pctTxt = (k, n) => `${nf(Math.round((100 * k) / n))}&nbsp;%`;
+    const cap = (s) => String(s).charAt(0).toUpperCase() + String(s).slice(1);
+    const lc1 = (s) => (/^\p{Lu}\p{Ll}/u.test(String(s)) ? String(s).charAt(0).toLowerCase() + String(s).slice(1) : String(s));
+    /** R7: „k z n“, od 10 navíc „· p %“; bez základu „čeká na data“ (nikdy 0 ani pomlčka). */
+    function kzn(f, empty = 'čeká na data') {
+      const k = num(f && f.k), n = num(f && f.n);
+      if (k === null || n === null || n <= 0) return empty;
+      return `${nf(k)} ${zz(n)}` + (n < SMALL_N ? '' : ` · ${pctTxt(k, n)}`);
+    }
+    /** Základ je v záhlaví sloupce: pod 10 „k z n“, jinak „k · p %“. */
+    function kpct(f) {
+      const k = num(f && f.k), n = num(f && f.n);
+      if (k === null || n === null || n <= 0) return 'čeká na data';
+      return n < SMALL_N ? `${nf(k)} ${zz(n)}` : `${nf(k)} · ${pctTxt(k, n)}`;
+    }
+    /** Procento do závorky ve větě „(27 %)“; pod 10 bez procenta (R7). */
+    const pctPar = (f) => { const k = num(f && f.k), n = num(f && f.n); return k !== null && n !== null && n >= SMALL_N ? ` (${pctTxt(k, n)})` : ''; };
+    const unmeasuredTxt = (f) => `zatím neměříme: verzi, která to posílá, ${num(f.x) > 0 ? 'má ' + nf(f.x) + ' ' + zz(f.y) : 'nemá nikdo ' + zz(f.y)}`;
+    /** R8: zlomek s „měřitelné u X z Y“, „Zatím neměříme…“ nebo „zatím jen testeři“. */
+    function mfrac(f) {
+      if (!f || typeof f !== 'object') return 'čeká na data';
+      if (f.state === 'unmeasured') return cap(unmeasuredTxt(f));
+      if (f.state === 'testers') return 'zatím jen testeři';
+      const n = num(f.n), y = num(f.y);
+      return kzn(f) + (n !== null && y !== null && n < y ? ` <span class="muted">(měřitelné u ${nf(f.x)} ${zz(y)})</span>` : '');
+    }
+    /** „Kdy bude jasno“ (C.0): začátkem / v polovině / koncem měsíce (2. pád), jiný rok s rokem. */
+    function whenTxt(w, todayIso) {
+      if (!w || typeof w !== 'object') return '';
+      if (w.state === 'unknown') return 'kdy bude jasno, zatím nejde odhadnout';
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(w.date || ''));
+      const mi = m ? Number(m[2]) - 1 : -1;
+      if (!(mi >= 0 && mi < 12)) return '';
+      const part = w.part === 'start' ? 'začátkem' : w.part === 'mid' ? 'v polovině' : 'koncem';
+      return `jasno nejspíš ${part} ${MONTH_GEN[mi]}${m[1] !== String(todayIso || '').slice(0, 4) ? ' ' + m[1] : ''}`;
+    }
+    const rangeTxt = (r) => (Array.isArray(r) && num(r[0]) !== null && num(r[1]) !== null ? `nejspíš ${nf(r[0])}–${nf(r[1])}&nbsp;%` : '');
+    const eur = (v) => { const x = num(v); return x === null ? 'chybí' : `${nf(x, Number.isInteger(x) ? 0 : 2)}&nbsp;€`; };
+    const PRAGUE_HM = new Intl.DateTimeFormat('cs-CZ', { timeZone: 'Europe/Prague', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
+    /** Čas dat v hlavičce: v demu čas výpisu, jinak čas načtení. */
+    const dataTime = () => { const t = NOW_FIXED !== null ? NOW_FIXED : LOADED_AT; return Number.isFinite(t) ? PRAGUE_HM.format(t) : 'načítám'; };
+    function verdictPill(v) { const s = String(v ?? ''); return `<span class="verdict ${VERDICT_CLASS.get(s) || 'v-muted'}">${esc(s)}</span>`; }
+    /** Karta (C.0). Jako tile() nic neescapuje: hodnoty z dat musí volající prohnat esc() nebo L.html(). */
+    function card({ q, verdict, sentence, body, how, foot }) {
+      return `<section class="qcard"><div class="q-head"><h3>${q}</h3>${verdict ? verdictPill(verdict) : ''}</div>` +
+        (sentence ? `<p class="q-sent">${sentence}</p>` : '') + (body ? `<div class="q-body">${body}</div>` : '') +
+        (how ? `<p class="q-how"><b>Jak číst:</b> ${how}</p>` : '') + (foot ? `<p class="q-foot">${foot}</p>` : '') + '</section>';
+    }
+    const takeaways = (rows) => `<div class="takeaways"><h3>Co z toho plyne</h3>${rows.map(([v, s]) => `<div class="tk-row">${verdictPill(v)}<p>${s}</p></div>`).join('')}</div>`;
+    function tabHead(title, meta) {
+      return `<div class="tab-head"><div><h2>${title}</h2><div class="tab-meta">${meta}</div></div>` +
+        `<button class="ghost" type="button" data-refresh${refreshing ? ' disabled' : ''}>Obnovit</button></div>`;
+    }
+    const coverWord = (st) => (st === 'ok' ? 'data úplná' : st === 'short' ? 'data neúplná' : 'dočítám…');
+    /** Během dočítání žádná čísla (neúplná se nesmí tvářit jako hotová). */
+    const waitBox = (st, days) => `<div class="wait">${st === 'short'
+      ? `Data za posledních ${nf(days)} dní se nepodařilo načíst celá, čísla by nebyla úplná. Zkus Obnovit.`
+      : `Počítám z dat za ${nf(days)} dní…`}</div>`;
+    /** Po vykreslení: Obnovit a pamatování rozbalených sekcí. */
+    function bindPane(root) {
+      root.querySelectorAll('[data-refresh]').forEach((b) => { b.onclick = refreshAll; });
+      root.querySelectorAll('details[data-open]').forEach((d) => d.addEventListener('toggle', () => {
+        if (d.open) OPEN_DETAILS.add(d.dataset.open); else OPEN_DETAILS.delete(d.dataset.open);
+      }));
+    }
+    const openAttr = (key) => (OPEN_DETAILS.has(key) ? ' open' : '');
+    /** Pruhy: [[popisek HTML, číslo, text místo čísla, bez pruhu]]. Šířka jen z Number() (R12), maximum smyčkou. */
+    function barRows(rows, color = 'var(--apricot)') {
+      let hi = 0;
+      for (const r of rows) { const v = num(r[1]); if (!r[3] && v !== null && v > hi) hi = v; }
+      return rows.map(([label, v, txt, noBar]) => {
+        const n = num(v);
+        const val = txt !== undefined && txt !== null ? txt : n !== null ? nf(n) : 'čeká na data';
+        const track = noBar ? '' : `<div class="track">${n !== null && hi > 0 && n > 0 ? `<div class="fill" style="width:${Math.max(2, (n / hi) * 100).toFixed(1)}%;background:${color}"></div>` : ''}</div>`;
+        return `<div class="bar"><span class="lbl">${label}</span><span class="val">${val}</span>${track}</div>`;
+      }).join('');
+    }
+    const kvRow = (label, val) => `<div class="kv"><span>${label}</span><span>${val}</span></div>`;
+    const pairsOf = (arr) => (Array.isArray(arr) ? arr.filter((x) => Array.isArray(x) && x.length >= 2) : []);
+    const own = (o, k) => (o && typeof o === 'object' && Object.hasOwn(o, k) ? o[k] : null);
+
+    // ── Záložka Získávání (C.1)
+    function renderAcquisition() {
+      const root = $('acq-root');
+      if (!root) return;
+      const title = 'Získávání&nbsp;– kolik nových lidí přichází, odkud a za kolik';
+      const st = dataReady ? coverState(30) : 'running';
+      const meta = `Skutečná zařízení bez testerů a robotů · data do ${esc(dataTime())} · dnešek je neúplný · ${coverWord(st)}`;
+      if (st !== 'ok') { root.innerHTML = tabHead(title, meta) + waitBox(st, 30); bindPane(root); return; }
+      const A = coreResult('acq'), J = coreResult('jr'), M = coreResult('meta');
+      const today = M.today, NW = A.new, n7 = NW.d7.all, a7 = NW.d7.android;
+
+      // Z1 Kolik nových lidí přichází?
+      const s1 = `Za posledních 7 dní ${pl(n7, 'přišlo', 'přišla', 'přišlo')} ${nf(n7)} ${pl(n7, 'nové zařízení', 'nová zařízení', 'nových zařízení')}, předchozích 7 dní ${nf(NW.prev7.all)}. ` +
+        `Z těch ${nf(n7)} ${a7 >= 2 && a7 <= 4 ? 'jsou' : 'je'} ${nf(a7)} z Androidu.`;
+      const days = Array.isArray(A.byDay) ? A.byDay : [];
+      let dayHi = 0;
+      for (const d of days) { const v = num(d.all); if (v !== null && v > dayHi) dayHi = v; }
+      const storeCell = (d) => {
+        const i = num(d.store && d.store.ios), a = num(d.store && d.store.android);
+        if (i === null && a === null) return 'čeká na data';
+        return `App Store ${i === null ? 'čeká na data' : nf(i)} · Google Play ${a === null ? 'čeká na data' : nf(a)}`;
+      };
+      let anyCamp = false;
+      const dayRows = days.map((d) => {
+        const v = num(d.all) ?? 0, camp = Array.isArray(d.campaign) ? d.campaign.filter((p) => PLATFORM_LABEL.has(p)) : [];
+        if (camp.length) anyCamp = true;
+        return `<div class="drow${camp.length ? ' camp' : ''}"><span>${esc(dayLabel(d.day))}${d.partial ? ' <span class="muted">(neúplný)</span>' : ''}</span>` +
+          `<span class="d-track">${dayHi > 0 && v > 0 ? `<span class="d-fill" style="width:${Math.max(2, (v / dayHi) * 100).toFixed(1)}%"></span>` : ''}</span>` +
+          `<b class="d-val">${nf(v)}</b><span class="d-store">${storeCell(d)}${camp.length ? ' · kampaň ' + camp.map((p) => PLATFORM_LABEL.get(p)).join(', ') : ''}</span></div>`;
+      }).join('');
+      const z1 = card({
+        q: 'Kolik nových lidí přichází?', verdict: A.verdicts.z1, sentence: s1,
+        body: `<div class="qnums">${[[NW.h24.all, 'za 24 h'], [n7, 'za 7 dní'], [NW.prev7.all, 'předchozích 7 dní'], [NW.d30.all, 'za 30 dní']]
+          .map(([v, l]) => `<div class="qnum"><b>${nf(v)}</b><span>${l}</span></div>`).join('')}</div>` +
+          `<p>7 dní: Android <b>${nf(a7)}</b> · iPhone <b>${nf(NW.d7.ios)}</b><br>30 dní: Android <b>${nf(NW.d30.android)}</b> · iPhone <b>${nf(NW.d30.ios)}</b></p>` +
+          `<div class="sub">Po dnech</div><div class="days"><div class="drow dhead"><span>Den</span><span>naše měření</span><span></span><span class="d-store">obchody pro srovnání</span></div>${dayRows}</div>` +
+          (anyCamp ? '<p class="muted"><span class="legend-camp"></span>den, kdy podle zápisu kampaní běžela placená kampaň</p>' : ''),
+        how: 'Nové zařízení = telefon, na kterém někdo aplikaci poprvé spustil a odpověděl na věk jako dospělý. Lidé pod 16 let a lidé s vypnutou analytikou v datech nejsou a přeinstalace je nové zařízení. Obchody jsou jen pro srovnání: počítají i stažení bez otevření, data vydávají se zpožděním a den bez dat je ‚čeká na data‘, ne nula.',
+        foot: 'Měří se od 10. 6. 2026 · bez testerů a robotů · Roste / Klesá při změně aspoň o 20&nbsp;% a aspoň o 5 zařízení',
+      });
+
+      // Z2 Odkud noví lidé přišli?
+      const CH = A.channel, byCh = pairsOf(CH.byChannel), topCh = byCh[0] || null;
+      const androidNoun = (n) => (n === 1 ? 'nového Android zařízení' : 'nových Android zařízení');
+      const s2 = `Zdroj známe u ${nf(CH.measured)} ${zz(CH.of)} ${androidNoun(CH.of)}` + (topCh ? `; nejčastěji ${csv('install_source', 'channel', topCh[0])} (${nf(topCh[1])}).` : '.');
+      const z2 = card({
+        q: 'Odkud noví lidé přišli?', verdict: A.verdicts.z2, sentence: s2,
+        body: '<div class="sub">Android, noví za 30 dní</div>' +
+          barRows(byCh.map(([k, v]) => [lv('install_source', 'channel', k), v]), 'var(--water)') +
+          barRows([['Verze bez měření zdroje', CH.unmeasured, null, true], ['iPhone: zdroj od Applu v adminu zatím není', CH.ios, null, true]]),
+        how: 'Kanál čteme z odkazu, přes který Google Play aplikaci stáhl. TikTok v kampani ‚Propagace aplikace‘ odkaz nepředává, jeho lidé spadnou do ‚Google Play organicky‘. Kdo klikl na reklamu a aplikaci našel později, je také organicky. U iPhonu dává Apple jen souhrn po dnech a ten v adminu zatím není.',
+        foot: 'Měří se od 18. 11. 2026 (verze 352), jen Android · noví za 30 dní · bez testerů a robotů',
+      });
+
+      // Z3 Vyplatí se placené kampaně?
+      const CP = A.campaigns;
+      let s3, z3Body, z3Upd = '';
+      const z0Camp = [];
+      if (!CP || CP.state !== 'ok') {
+        s3 = 'Útrata a dny kampaní zatím nejsou v adminu zapsané, takže cenu za zařízení spočítat nejde.';
+        z3Body = '<p>Až budou, tady bude pro každou kampaň: dny, útrata, nová zařízení nad běžný stav, cena za zařízení a verdikt (hranice 5&nbsp;€ = aspoň 12 zařízení za 60&nbsp;€).</p>';
+        z0Camp.push(['Chybí útrata', 'Kolik z nich přivedly placené kampaně, zatím nevíme: útrata a dny kampaní nejsou v adminu zapsané.']);
+      } else {
+        const list = Array.isArray(CP.list) ? CP.list : [], joint = Array.isArray(CP.joint) ? CP.joint : [];
+        const jointOf = new Map(joint.map((j) => [j.group, j]));
+        const cName = (c) => esc(c.name || c.id || 'kampaň');
+        const dayN = (n) => `${nf(n)} ${pl(n, 'den', 'dny', 'dní')}`;
+        const campSent = (c) => {
+          const nm = cName(c);
+          if (c.verdict === 'Běží krátce') return `${nm}: běží teprve ${dayN(c.days)}, na cenu je brzy.`;
+          if (c.verdict === 'Chybí útrata') return `${nm}: útrata není zapsaná, cenu za zařízení spočítat nejde.`;
+          if (c.verdict === 'Nelze oddělit') {
+            const j = jointOf.get(c.group);
+            return `${nm}: běží ve stejné dny jako jiná kampaň na stejném telefonu, umíme jen společnou cenu` +
+              (j && num(j.cost) !== null ? ` (${eur(j.spendEur)} / ${nf(j.above, 1)} zařízení = ${eur(j.cost)}).` : '.');
+          }
+          if (c.note === 'noBaseline') return `${nm}: nelze určit běžný stav, před začátkem kampaně je málo dnů bez kampaně.`;
+          if (c.note === 'nothingExtra') return `${nm}: nad běžný stav nepřibylo nic (${nf(c.new)} nových za ${dayN(c.days)}, útrata ${eur(c.spendEur)}).`;
+          return `${nm}: ${nf(c.above, 1)} zařízení nad běžný stav za ${eur(c.spendEur)} = ${eur(c.cost)} za zařízení${c.tight ? ' (těsně)' : ''}. Hranice je 5&nbsp;€ (aspoň 12 zařízení za 60&nbsp;€).`;
+        };
+        let newest = null;
+        for (const c of list) if (!newest || String(c.from) >= String(newest.from)) newest = c;
+        s3 = newest ? campSent(newest) + (list.length > 1 ? ' Ostatní kampaně jsou v tabulce.' : '') : 'Zápis kampaní je prázdný.';
+        for (const c of list) z0Camp.push([c.verdict, campSent(c)]);
+        if (!list.length) z0Camp.push(['Chybí útrata', 'Zápis kampaní je prázdný, cenu za zařízení spočítat nejde.']);
+        const toTxt = (c) => (isIsoDay(c.to) ? esc(dayLabel(c.to)) : 'běží');
+        z3Body = list.length ? '<table class="qt"><thead><tr><th>Kampaň</th><th>Dny</th><th class="n">Nová</th><th class="n">Běžný stav za den</th><th class="n">Nad běžný stav</th><th class="n">Útrata</th><th class="n">Cena za zařízení</th><th>Verdikt</th></tr></thead><tbody>' +
+          list.map((c) => `<tr><td>${cName(c)} <span class="muted">${esc(NETWORK_LABEL.get(c.network) || String(c.network ?? ''))} · ${esc(PLATFORM_LABEL.get(c.platform) || '')}</span></td>` +
+            `<td data-label="Dny">${isIsoDay(c.from) ? esc(dayLabel(c.from)) : ''}–${toTxt(c)} <span class="muted">(${dayN(c.days)})</span></td>` +
+            `<td data-label="Nová" class="n">${nf(c.new)}</td>` +
+            `<td data-label="Běžný stav za den" class="n">${c.baseline && !c.baseline.state ? nf(c.baseline.perDay, 1) : 'nelze určit'}</td>` +
+            `<td data-label="Nad běžný stav" class="n">${num(c.above) === null ? 'nelze určit' : nf(c.above, 1)}</td>` +
+            `<td data-label="Útrata" class="n">${eur(c.spendEur)}</td>` +
+            `<td data-label="Cena za zařízení" class="n">${num(c.cost) === null ? 'nelze spočítat' : eur(c.cost)}</td>` +
+            `<td data-label="Verdikt">${verdictPill(c.verdict)}${c.tight ? ' <span class="muted">těsně</span>' : ''}${c.note === 'nothingExtra' ? ' <span class="muted">nic navíc</span>' : ''}</td></tr>`).join('') +
+          '</tbody></table>' +
+          joint.map((j) => `<p>Společně (${(Array.isArray(j.ids) ? j.ids : []).map((x) => esc(x)).join(', ')}): ${eur(j.spendEur)} / ${num(j.above) === null ? 'nelze určit' : nf(j.above, 1)} zařízení = ${num(j.cost) === null ? 'nelze spočítat' : eur(j.cost)}</p>`).join('')
+          : '<p>Zápis kampaní je prázdný.</p>';
+        const upd = newest && isIsoDay(newest.spendAt) ? newest.spendAt : typeof CP.updatedAt === 'string' ? CP.updatedAt.slice(0, 10) : '';
+        if (isIsoDay(upd)) z3Upd = ` (aktualizováno ${esc(dayLabel(upd))})`;
+      }
+      const z3 = card({
+        q: 'Vyplatí se placené kampaně?', verdict: A.verdicts.z3, sentence: s3, body: z3Body,
+        how: 'Nepočítáme kliknutí ani ‚konverze‘ reklamních systémů, ty hlásí víc, protože počítají i stažení bez otevření. Od nových zařízení ve dnech kampaně odečteme, kolik jich přichází v běžný den bez kampaně. Když běží dvě kampaně na stejném telefonu ve stejné dny, umíme jen společnou cenu.',
+        foot: `Útrata ze zápisu kampaní${z3Upd} · nová zařízení z našeho měření · Vyplatí se do 5&nbsp;€ za zařízení nad běžný stav (dohodnuto)`,
+      });
+
+      // Z4 Jsou lidé z kampaní a kanálů stejně dobří jako ostatní?
+      const Q = A.quality, qa = Q.all, comps = Array.isArray(Q.comparisons) ? Q.comparisons : [];
+      const QCOLS = [['active10', 'Aktivní aspoň 10 min'], ['otherDay', 'Vrátili se jiný den'], ['d1', 'D1'], ['dog', 'Psa založili']];
+      const qRow = (labelHtml, r, sub) => (r ? `<tr><td>${sub ? `<span class="sublbl">${labelHtml}</span>` : labelHtml} <span class="muted">(${nf(r.n)})</span></td>` +
+        QCOLS.map(([k, l]) => `<td data-label="${l}" class="n">${k === 'd1' ? kzn(r.d1) : kpct(r[k])}</td>`).join('') + '</tr>' : '');
+      const groupHtml = (g, cs) => {
+        const s = String(g), i = s.indexOf(':'), kind = s.slice(0, i), key = s.slice(i + 1);
+        if (kind === 'campaign') return `${cs ? 'Lidé ze dnů kampaní' : 'Dny kampaní'} (${esc(PLATFORM_LABEL.get(key) || key)})`;
+        return cs ? csv('install_source', 'channel', key) : lv('install_source', 'channel', key);
+      };
+      let qBody = '<table class="qt"><thead><tr><th></th>' + QCOLS.map(([, l]) => `<th class="n">${l}</th>`).join('') + '</tr></thead><tbody>' +
+        qRow('Všichni noví za 30 dní', qa);
+      if (Q.campaign && typeof Q.campaign === 'object') {
+        for (const p of ['android', 'ios']) {
+          const c = own(Q.campaign, p);
+          if (!c) continue;
+          qBody += qRow(`${PLATFORM_LABEL.get(p)}: ve dnech kampaní`, c.in, true) + qRow(`${PLATFORM_LABEL.get(p)}: ve dnech bez kampaně`, c.out, true);
+        }
+      }
+      if (byCh.length) qBody += `<tr><td colspan="5" class="muted">Android po kanálech (jen měřitelní, pod 10 jen počty)</td></tr>` + byCh.map(([k]) => qRow(lv('install_source', 'channel', k), own(Q.channel, k), true)).join('');
+      qBody += '</tbody></table>';
+      if (!Q.campaign) qBody += '<p class="muted">Dny kampaní × bez kampaně: až po zapsání kampaní.</p>';
+      const elig = comps.filter((c) => c && c.eligible);
+      qBody += elig.map((c) => `<p>${groupHtml(c.group)} × ostatní noví: D1 ${kzn(c.a)}${c.verdict !== 'Málo dat' && c.aRange ? ` (${rangeTxt(c.aRange)})` : ''} proti ${kzn(c.b)}${c.verdict !== 'Málo dat' && c.bRange ? ` (${rangeTxt(c.bRange)})` : ''} ${verdictPill(c.verdict)}</p>`).join('');
+      const sure = elig.find((c) => c.verdict === 'Průkazný rozdíl');
+      const sureTxt = (c) => `${cap(groupHtml(c.group, true))} se další den vrací ${num(c.z) > 0 ? 'víc' : 'méně'} než ostatní noví (${pctTxt(c.a.k, c.a.n)} proti ${pctTxt(c.b.k, c.b.n)}).`;
+      const tc = Q.topChannel;
+      // D1 bez základu (nikomu z nových ještě celý další den neuplynul) = čeká na data, nikdy „0 z 0“ (R7).
+      const d1Sent = (f) => (num(f && f.n) > 0 ? `Další den ${pl(f.k, 'se vrátil', 'se vrátili', 'se vrátilo')} ${nf(f.k)} ${zz(f.n)} nových${pctPar(f)}` : 'Další den: čeká na data');
+      let s4 = d1Sent(qa.d1);
+      if (sure) s4 += '. ' + sureTxt(sure);
+      else if (A.verdicts.z4 === 'Zatím neprůkazné') s4 += '; rozdíly mezi skupinami jsou zatím v mezích náhody.';
+      else s4 += `; po kanálech je zatím málo dat${tc ? ` (nejvíc ${csv('install_source', 'channel', tc.key)}: ${nf(tc.devices)} zařízení)` : ''}.`;
+      const w4 = whenTxt(A.whenClear && A.whenClear.z4, today);
+      if (w4 && !sure) s4 += ` Srovnání skupin: ${w4}.`;
+      const z4 = card({
+        q: 'Jsou lidé z kampaní a kanálů stejně dobří jako ostatní?', verdict: A.verdicts.z4, sentence: s4, body: qBody,
+        how: '‚Aktivní aspoň 10 minut‘ a ‚Vrátili se jiný den‘ jsou stejná měřítka jako ve zprávách o kampaních 17. a 19. 11., aby šla čísla srovnat. Počítají se z první a poslední aktivity zařízení, takže ‚jiný den‘ může být i za týden. D1 je přísnější: aplikaci otevřeli přesně další kalendářní den, stejně jako Retence v Souhrnu, a počítá se jen u těch, kterým další den celý uplynul. Telefony se tu nesrovnávají: kampaně běží hlavně na Androidu, takže rozdíl by ukazoval lidi z reklamy, ne telefon.',
+        foot: 'Noví za 30 dní · bez testerů a robotů · srovnání skupin až od 30 zařízení v každé',
+      });
+
+      // Z5 Šíří se aplikace sama?
+      const S = A.share, kinds = pairsOf(S.kind), tk = kinds[0] || null;
+      const inv = num(S.coop.invited) ?? 0, joi = num(S.coop.joined) ?? 0;
+      const s5 = `Za 30 dní ${pl(S.shared.k, 'sdílel', 'sdíleli', 'sdílelo')} ${nf(S.shared.k)} ${zz(S.shared.n)} aktivních zařízení${pctPar(S.shared)}` +
+        (tk ? `, nejčastěji ${esc(lc1(L.value('share_initiated', 'kind', tk[0], 'cs').text))} (${nf(tk[1])})` : '') +
+        `. Pozvánku parťáka ${pl(inv, 'vytvořil', 'vytvořili', 'vytvořilo')} ${nf(inv)}, ${pl(joi, 'připojil se', 'připojili se', 'připojilo se')} ${nf(joi)}.`;
+      const z5 = card({
+        q: 'Šíří se aplikace sama?', verdict: A.verdicts.z5, sentence: s5,
+        body: `<p class="ilist">Moment sdílení: ${kinds.slice(0, 5).map(([k, v]) => `${lv('share_initiated', 'kind', k)} <b>${nf(v)}</b>`).join(' · ') || 'zatím nikdo'}</p>` +
+          `<p class="ilist">iPhone: sdíleli <b>${nf(S.ios.shared)}</b>, opravdu odeslali <b>${nf(S.ios.sent)}</b></p>` +
+          `<p class="ilist">Pozvánka parťáka: vytvořili <b>${nf(inv)}</b> · připojili se <b>${nf(joi)}</b></p>` +
+          `<p class="ilist">Instalace přes náš odkaz: <b>${nf(S.link)}</b> <span class="muted">(měří se jen na Androidu od 18. 11.)</span> · Rodina: zatím jen testeři</p>`,
+        how: 'Sdíleli = otevřeli nabídku sdílení. Jestli opravdu odeslali, řekne jen iPhone, Android hlásí ‚odesláno‘ i při pouhém otevření. Pod 10 jen počty; mezi nimi mohou být i telefony zakladatele, které ještě nejsou označené jako tester.',
+        foot: 'Měří se od 7. 10. 2026 (verze 284), sdílení od 2. 7. 2026 · aktivní za 30 dní · bez testerů a robotů',
+      });
+
+      // Z6 Odkud lidé jsou?
+      const geoRows = (list, type) => {
+        const all = pairsOf(list), main = all.filter(([k]) => k !== '_none'), none = all.find(([k]) => k === '_none');
+        const name = (k) => L.html(type === 'region' ? L.region(k) : L.lang(k));
+        const rows = main.slice(0, 15).map(([k, v]) => [name(k), v]);
+        if (main.length > 15) rows.push([`další (${nf(main.length - 15)})`, null, 'v datech', true]);
+        rows.push([name('_none'), none ? none[1] : 0]);
+        return rows;
+      };
+      const topRegion = pairsOf(A.region).find(([k]) => k !== '_none');
+      const s6 = topRegion ? `Nejčastější země nových za 30 dní je ${esc(L.region(topRegion[0], 'cs').text)} (${nf(topRegion[1])} ${zz(NW.d30.all)}).` : 'Zemi nových zařízení zatím neznáme.';
+      const storeReg = pairsOf(A.storeRegion30);
+      const z6 = card({
+        q: 'Odkud lidé jsou?', verdict: A.verdicts.z6, sentence: s6,
+        body: '<div class="subgrid">' +
+          `<div><div class="sub">Země (noví za 30 dní)</div>${barRows(geoRows(A.region, 'region'))}</div>` +
+          `<div><div class="sub">Jazyk aplikace</div>${barRows(geoRows(A.locale, 'language'))}</div>` +
+          `<div><div class="sub">Jazyk telefonu</div>${barRows(geoRows(A.deviceLocale, 'language'))}</div>` +
+          `<div><div class="sub">Stažení z obchodů podle země (30 dní)</div>${storeReg.length ? barRows(storeReg.slice(0, 15).map(([k, v]) => [L.html(L.region(k)), v]), 'var(--water)') : '<p class="muted">Obchody zatím nic nevydaly.</p>'}</div>` +
+          '</div>',
+        how: 'Země je oblast nastavená v telefonu, ne poloha. Bez údaje = verze před 5. 10. Obchody počítají stažení, ne spuštění, proto se čísla liší.',
+        foot: 'Noví za 30 dní · bez testerů a robotů',
+      });
+
+      // Z0 Co z toho plyne (stejná čísla a verdikty jako karty pod ním)
+      const rd1 = J.ret.all.d1;
+      let s04 = `${d1Sent(rd1)}, průměr trhu je ${nf(Math.round(VERDICT_RULES.MARKET.d1 * 100))}&nbsp;%.`;
+      if (sure) s04 += ' ' + sureTxt(sure);
+      const z0 = [[A.verdicts.z1, s1], ...z0Camp,
+        [A.verdicts.z2, `Zdroj známe u ${nf(CH.measured)} ${zz(CH.of)} ${androidNoun(CH.of)} (měří se od 18. 11.).`],
+        [J.verdicts.a4, s04]];
+      root.innerHTML = tabHead(title, meta) + takeaways(z0) + `<div class="qcards">${z1}${z2}${z3}${z4}${z5}${z6}</div>`;
+      bindPane(root);
+    }
+
+    // ── Záložka Cesta (C.2)
+    function renderJourney() {
+      const root = $('jr-root');
+      if (!root) return;
+      const title = 'Cesta&nbsp;– kudy noví lidé procházejí a co aktivní lidé dělají';
+      const st = dataReady ? coverState(30) : 'running';
+      const M = st === 'ok' ? coreResult('meta') : null;
+      const meta = (M ? `Noví = první spuštění ${esc(dayLabel(M.cohortFrom))}–${esc(dayLabel(M.cohortTo))} · ` : '') +
+        `Aktivní = použili aplikaci za posledních 30 dní · bez testerů a robotů · data do ${esc(dataTime())} · ${coverWord(st)}`;
+      if (st !== 'ok') { root.innerHTML = tabHead(title, meta) + waitBox(st, 30); bindPane(root); return; }
+      const J = coreResult('jr'), today = M.today, V = J.verdicts, WC = J.whenClear || {};
+      // A5 čte přiřazení od 16. 11. 2026 bez ohledu na 30 dní: dočíst max(30, dní od začátku testu).
+      const abStartMs = Date.parse(CORE_LIMITS.AB_START + 'T00:00:00+01:00');
+      const abDays = Math.max(30, Math.ceil((nowMs() - abStartMs) / DAY_MS) + 1);
+      const abSt = abDays > 30 ? coverState(abDays) : 'ok';
+
+      // A1 Kolik nových lidí projde úvodem a založí si psa?
+      const BT = J.branch.trial, BO = J.branch.owner, dog = J.dogAny;
+      const s1 = `Psa si ${pl(dog.k, 'založil', 'založili', 'založilo')} ${nf(dog.k)} ${zz(dog.n)} nových${pctPar(dog)}: Pes na zkoušku ${nf(BT.activated)} ${zz(BT.entered)}, Pes doma ${nf(BO.saved)} ${zz(BO.entered)}.`;
+      const stepsHtml = (steps) => {
+        const first = num(steps[0][1]) ?? 0;
+        let hi = 0;
+        for (const s of steps) { const v = num(s[1]); if (v !== null && v > hi) hi = v; }
+        return steps.map(([label, v, extra], i) => {
+          const c = num(v) ?? 0, prev = i > 0 ? num(steps[i - 1][1]) ?? 0 : null;
+          const pFirst = i > 0 && first >= SMALL_N ? ` <span class="pct">· ${pctTxt(c, first)}</span>` : '';
+          const conv = !(prev > 0) ? '' : `<div class="conv">↳ ${prev >= SMALL_N ? `${pctTxt(c, prev)} z předchozího` : `${nf(c)} ${zz(prev)} z předchozího`}${prev - c > 0 ? `, −${nf(prev - c)}` : ''}</div>`;
+          return `<div class="step"><div class="bar"><span class="lbl">${label}</span><span class="val">${nf(c)}${pFirst}</span>` +
+            `<div class="track">${hi > 0 && c > 0 ? `<div class="fill" style="width:${Math.max(2, (c / hi) * 100).toFixed(1)}%"></div>` : ''}</div></div>${conv}${extra || ''}</div>`;
+        }).join('');
+      };
+      const trialSteps = [['Vstoupili', BT.entered], [lv('onboarding_step', 'step', 'quiz'), BT.quiz], [lv('onboarding_step', 'step', 'quiz_result'), BT.quiz_result],
+        [lv('onboarding_step', 'step', 'name'), BT.name], [L.html(L.event('activated')), BT.activated]];
+      const ownerSteps = [['Vstoupili', BO.entered], [lv('onboarding_step', 'step', 'owner_setup'), BO.owner_setup],
+        [ml('Pes uložen', 'Dog saved', 'owner_activated | screen_view pesdoma/dog/*'), BO.saved,
+          `<div class="conv">↳ neuložili ${nf(BO.notSaved)}, z toho ${ml('zavřeli založení', 'closed the setup', 'owner_setup_exit')} ${nf(BO.closed)}</div>` +
+          `<div class="conv">uložení hlásí aplikace sama u ${nf(BO.savedEvent)}, ostatní podle otevřené karty psa (verze před 6. 11.)</div>`]];
+      const forkCh = pairsOf(J.fork.choice);
+      const a1 = card({
+        q: 'Kolik nových lidí projde úvodem a založí si psa?', verdict: V.a1, sentence: s1,
+        body: kvRow('Nová zařízení (odpověděli na věk)', `<b>${nf(J.cohort)}</b> · bez úvodu ${nf(J.noOnb)} <span class="muted">(obnova ze zálohy, pozvánka)</span>`) +
+          kvRow(`${lv('onboarding_step', 'step', 'fork')} vidělo`, `<b>${nf(J.fork.n)}</b>${forkCh.length ? ' · ' + forkCh.map(([k, v]) => `${lv('onboarding_step', 'choice', k)} <b>${nf(v)}</b>`).join(' · ') : ''}`) +
+          `<div class="branches"><div class="branch"><h4>Pes na zkoušku</h4>${stepsHtml(trialSteps)}</div><div class="branch"><h4>Pes doma</h4>${stepsHtml(ownerSteps)}</div></div>` +
+          `<p>Psa si založilo celkem: <b>${kzn(dog)}</b></p>`,
+        how: 'Začínáme lidmi, kteří odpověděli na věk jako dospělí: aplikace před tím nic neposílá, takže kdo odešel na úvodní obrazovce nebo u věku, tu chybí a skutečný odpad na začátku je větší. Uložení psa doma počítáme i podle otevřené karty psa, protože verze před 6. 11. ho samy nehlásily. Bez rozcestí = starší verze úvodu, ti jdou do větve Pes na zkoušku.',
+        foot: 'Noví za 30 dní · rozcestí od 26. 10. 2026 (verze 293) · bez testerů a robotů',
+      });
+
+      // A2 Kde v úvodu odcházejí a kde váhají?
+      const noDog = pairsOf(J.noDog), noDogN = (num(dog.n) ?? 0) - (num(dog.k) ?? 0), topND = noDog[0] || null;
+      const stepLbl = (k, key) => (k === '_none' ? ml('bez kroku úvodu', 'no onboarding step', '_none') : k === '?' ? ml('neznámý krok', 'unknown step', '?') : lv('onboarding_step', key, k));
+      const s2 = `Bez psa ${pl(noDogN, 'zůstal', 'zůstali', 'zůstalo')} ${nf(noDogN)} ${pl(noDogN, 'nový', 'noví', 'nových')}` +
+        (topND ? `; nejčastěji naposledy byli na kroku „${topND[0] === '_none' ? 'bez kroku úvodu' : csv('onboarding_step', 'step', topND[0])}“ (${nf(topND[1])}).` : '.');
+      const dw = J.dwell && typeof J.dwell === 'object' ? Object.keys(J.dwell).map((k) => [k, own(J.dwell, k)]).filter(([, v]) => v && num(v.s) !== null) : [];
+      dw.sort((a, b) => b[1].s - a[1].s || cmpStr(a[0], b[0]));
+      const backT = pairsOf(J.back.transitions).slice(0, 3).map(([k, v]) => {
+        const s = String(k), i = s.indexOf('>');
+        return kvRow(`${stepLbl(s.slice(0, i), 'fromStep')} → ${stepLbl(s.slice(i + 1), 'step')}`, `<b>${nf(v)}×</b>`);
+      }).join('');
+      const a2 = card({
+        q: 'Kde v úvodu odcházejí a kde váhají?', verdict: V.a2, sentence: s2,
+        body: '<div class="subgrid">' +
+          `<div><div class="sub">Kde naposledy byli (${nf(noDogN)})</div>${noDog.length ? barRows(noDog.map(([k, v]) => [stepLbl(k, 'step'), v])) : '<p class="muted">Psa si založili všichni.</p>'}</div>` +
+          `<div><div class="sub">Kde váhají (medián)</div>${dw.length ? barRows(dw.map(([k, v]) => [stepLbl(k, 'fromStep'), v.s, `${nf(v.s)}&nbsp;s <span class="pct">(${nf(v.n)}×)</span>`]), 'var(--water)') : '<p class="muted">Zatím žádný krok nemá 10 záznamů.</p>'}</div>` +
+          `<div><div class="sub">Krok zpět: ${nf(J.back.devices)} zařízení</div>${backT || '<p class="muted">Zatím nikdo.</p>'}<p class="muted">Nejčastější přechody, počet přechodů.</p></div>` +
+          '</div>',
+        how: 'Čas je medián: polovina lidí byla na kroku kratší dobu. Průměr by zkreslila aplikace nechaná otevřená hodiny. ‚Odchod do založení skutečného psa‘ jako poslední krok znamená, že psa doma neuložili.',
+        foot: 'Noví za 30 dní · krok zpět od 1. 11. 2026 (verze 314) · bez testerů a robotů',
+      });
+
+      // A3 Co noví lidé udělají v prvním týdnu?
+      const WK = J.week, TU = WK.trialUse, OU = WK.ownerUse;
+      const wDog = (num(WK.trial) ?? 0) + (num(WK.owner) ?? 0);
+      const s3 = `Týden uplynul ${nf(WK.mature)} novým, psa má ${nf(wDog)}: se psem na zkoušku péči ${pl(TU.care.k, 'začal', 'začali', 'začalo')} ${nf(TU.care.k)} ${zz(TU.care.n)}, ` +
+        `se psem doma plán péče ${pl(OU.plan.k, 'otevřel', 'otevřeli', 'otevřelo')} ${nf(OU.plan.k)} ${zz(OU.plan.n)}.`;
+      const a3 = card({
+        q: 'Co noví lidé udělají v prvním týdnu?', verdict: V.a3, sentence: s3,
+        body: '<div class="branches">' +
+          `<div class="branch"><h4>Pes na zkoušku (${nf(WK.trial)})</h4>` +
+            kvRow(ml('První péče', 'First care', 'task_done'), kzn(TU.care)) +
+            kvRow(ml('Péče aspoň 2 různé dny', 'Care on 2+ different days', 'task_done ≥ 2 dny'), kzn(TU.care2)) +
+            kvRow(ml('Péče aspoň 3 různé dny', 'Care on 3+ different days', 'task_done ≥ 3 dny'), kzn(TU.care3)) +
+            kvRow(ml('Spustili 30denní výzvu', 'Started the 30-day challenge', 'challenge_started'), kzn(TU.challenge)) +
+            kvRow(ml('Povolili upozornění', 'Allowed notifications', 'notification_permission · status = granted'), mfrac(TU.notif)) + '</div>' +
+          `<div class="branch"><h4>Pes doma (${nf(WK.owner)})</h4>` +
+            kvRow(ml('Otevřeli plán péče', 'Opened the care plan', 'screen_view pesdoma/dog/[id]/plan'), kzn(OU.plan)) +
+            kvRow(ml('Otevřeli deník nebo váhu', 'Opened diary or weight', 'screen_view …/diary | …/entry | …/weight'), kzn(OU.diary)) +
+            kvRow(ml('Vrátili se k Psovi doma jiný den', 'Came back to Dog at home another day', 'screen_view pesdoma/* ≥ 2 dny'), kzn(OU.returned)) +
+            kvRow(ml('Akce v plánu', 'Care plan actions', 'plan_item'), mfrac(OU.planItem)) + '</div>' +
+          '</div>',
+        how: 'Jen lidé, kterým první týden už celý uplynul. Pes doma se měří hlavně podle otevřených obrazovek: akce v plánu a deníku posílají jen verze od 15. 11.',
+        foot: 'Noví za 30 dní, kterým uplynul týden · bez testerů a robotů',
+      });
+
+      // A4 Vracejí se noví lidé?
+      const RT = J.ret, all = RT.all, MK = VERDICT_RULES.MARKET;
+      const mpct = (x) => `${nf(Math.round(x * 100))}&nbsp;%`;
+      const inPar = (f, mk) => { const n = num(f.n); return ` (${n !== null && n >= SMALL_N ? pctTxt(f.k, n) + ', ' : ''}trh ${mpct(mk)})`; };
+      const s4 = num(all.d1.n) > 0
+        ? `Další den ${pl(all.d1.k, 'se vrátil', 'se vrátili', 'se vrátilo')} ${nf(all.d1.k)} ${zz(all.d1.n)} nových${inPar(all.d1, MK.d1)}, po týdnu ${nf(all.d7.k)} ${zz(all.d7.n)}${inPar(all.d7, MK.d7)}.`
+        : 'Další den zatím nikomu z nových celý neuplynul, retence čeká na data.';
+      const SEG_ROWS = [['all', 'Celkem', 'Total'], ['challenge', '30denní výzva', '30-day challenge'], ['trial', 'Pes na zkoušku bez výzvy', 'Trial dog, no challenge'],
+        ['owner', 'Pes doma', 'Dog at home'], ['notActivated', 'Psa nezaložili', 'No dog created']];
+      const a4 = card({
+        q: 'Vracejí se noví lidé?', verdict: V.a4, sentence: s4,
+        body: '<table class="qt narrow"><thead><tr><th></th><th class="n">D1</th><th class="n">D7</th></tr></thead><tbody>' +
+          SEG_ROWS.map(([k, cs, en]) => { const s = own(RT, k); return s ? `<tr><td>${ml(cs, en, 'segment ' + k)}</td><td data-label="D1" class="n">${kzn(s.d1)}</td><td data-label="D7" class="n">${kzn(s.d7)}</td></tr>` : ''; }).join('') +
+          `<tr class="mkt"><td>Průměr aplikací na trhu</td><td data-label="D1" class="n">${mpct(MK.d1)}</td><td data-label="D7" class="n">${mpct(MK.d7)}</td></tr></tbody></table>` +
+          `<p>2. týden (dny 7–13): celkem ${kzn(all.w1)} · Pes doma ${kzn(own(RT, 'owner') && RT.owner.w1)}</p>` +
+          (J.retMarket && J.retMarket.d1Range ? `<p class="muted">D1 celkem ${rangeTxt(J.retMarket.d1Range)} (rozpětí s 95% jistotou).</p>` : '') +
+          (whenTxt(WC.a4, today) ? `<p class="muted">${cap(whenTxt(WC.a4, today))}.</p>` : ''),
+        how: 'Stejná metoda jako dlaždice Retence v Souhrnu: zařízení aplikaci otevřelo přesně 1., resp. 7. kalendářní den po prvním spuštění. Souhrn počítá všechny lidi od června, tady jen nové z posledních 30 dní, aby bylo vidět, jestli zabraly poslední změny. Do základu patří jen ti, kterým ten den už celý uplynul; pod 10 zařízení jen počet. Pes doma = kdo si uložil psa doma nebo na Psa doma přepnul.',
+        foot: 'Noví za 30 dní · bez testerů a robotů · Nad / Pod trhem jen tehdy, když je průměr trhu mimo pravděpodobné rozpětí (95&nbsp;%)',
+      });
+
+      // A5 Zabírá varianta B testu první péče?
+      const AB = J.ab, VARS = AB.variants && typeof AB.variants === 'object' ? AB.variants : {};
+      const vKeys = Object.keys(VARS).sort(cmpStr), vA = own(VARS, 'a'), vB = own(VARS, 'b');
+      let abTotal = 0;
+      for (const k of vKeys) abTotal += num(own(VARS, k).assigned) ?? 0;
+      let s5, a5Body;
+      if (abSt !== 'ok') {
+        s5 = 'Test běží od 16. 11. 2026, dočítám data od jeho začátku.';
+        a5Body = waitBox(abSt, abDays);
+      } else {
+        s5 = V.a5 === 'Málo dat'
+          ? `Zatím zařazeno A ${nf(vA ? vA.assigned : 0)}, B ${nf(vB ? vB.assigned : 0)}; každá varianta potřebuje aspoň 30 lidí. Vyhodnocení je naplánované na 14. 12.`
+          : `Další den se vrátilo A ${kzn(vA && vA.d1)}, B ${kzn(vB && vB.d1)}: ${esc(V.a5)}.`;
+        const d1Txt = (v) => (num(v.d1 && v.d1.n) > 0
+          ? `další den ${pl(v.d1.k, 'se vrátil', 'se vrátili', 'se vrátilo')} ${kzn(v.d1)}${V.a5 !== 'Málo dat' && v.d1Range ? ` (${rangeTxt(v.d1Range)})` : ''}`
+          : 'další den zatím 0 z 0');
+        a5Body = vKeys.map((k) => {
+          const v = own(VARS, k);
+          return kvRow(lv('experiment_assigned', 'variant', k), `<b>${nf(v.assigned)}</b> · ${k === 'b' ? `klepli na kartu ${lv('home_banner', 'kind', 'first_care')} ${nf(v.tapped)} ${zz(v.assigned)} · ` : ''}${d1Txt(v)}`);
+        }).join('') +
+          kvRow('K ověření (stejný model jako testovací telefon nebo nákup bez záznamu v RevenueCatu, seznam v Technice)', `<b>${nf(AB.review)}</b> ${zz(abTotal)}`) +
+          (whenTxt(WC.a5, today) ? `<p class="muted">${cap(whenTxt(WC.a5, today))}.</p>` : '');
+      }
+      const a5 = card({
+        q: 'Zabírá varianta B testu první péče?', verdict: V.a5, sentence: s5, body: a5Body,
+        how: 'A = průvodce aplikací, B = rovnou Domů s kartou ‚Začni snídaní‘. Do testu jdou jen nové instalace při založení prvního psa, napůl. K novým lidem se dostane s verzí 2.2.3 (Android od 19. 11., iPhone po schválení Applem). Rozdíl pár procent u desítek lidí bývá náhoda, proto ukazujeme rozpětí.',
+        foot: 'Měří se od 16. 11. 2026 (verze 344) · bez testerů a robotů · rozhodnutí až od 30 lidí v každé variantě',
+      });
+
+      // B1 Kolik aktivních lidí je v kterém režimu?
+      const MD = J.modes, TD = MD.twoDays, RG = TD.ranges || {};
+      const modeT = ml('Pes na zkoušku', 'Trial dog', 'trial'), modeO = ml('Pes doma', 'Dog at home', 'owner');
+      const tdT = TD.trial, tdO = TD.owner, wb1 = whenTxt(WC.b1, today);
+      let b1Why;
+      if (V.b1 === 'Průkazný rozdíl') b1Why = `Pes doma drží lidi průkazně ${num(TD.z) > 0 ? 'hůř' : 'líp'}.`;
+      else if (V.b1 === 'Zatím neprůkazné' && num(tdO.n) >= VERDICT_RULES.SURE_N && num(tdT.n) >= VERDICT_RULES.SURE_N) b1Why = 'Rozdíl je zatím v mezích náhody.';
+      else b1Why = `${num(tdO.n) < VERDICT_RULES.SURE_N ? 'Majitelů' : 'Lidí se psem na zkoušku'} je zatím málo na jistý závěr${wb1 ? ', ' + wb1 : ''}.`;
+      const sB1 = `${cap(zePrep(MD.active))} ${nf(MD.active)} aktivních zařízení ${pl(MD.trial, 'byl', 'byli', 'bylo')} ${nf(MD.trial)} se psem na zkoušku a ${nf(MD.owner)} se psem doma, ${nf(MD.both)} v obou a ${nf(MD.neither)} v žádném.`;
+      const twoTxt = (f, r) => `${kzn(f)}${V.b1 !== 'Málo dat' && r ? ` <span class="muted">(${rangeTxt(r)})</span>` : ''}`;
+      const b1 = card({
+        q: 'Kolik aktivních lidí je v kterém režimu?', verdict: V.b1, sentence: sB1,
+        body: `<div class="qnums">${[[MD.trial, modeT], [MD.owner, modeO], [MD.both, 'v obou'], [MD.neither, 'ani v jednom (jen úvod nebo bez psa)']]
+          .map(([v, l]) => `<div class="qnum"><b>${nf(v)}</b><span>${l}</span></div>`).join('')}</div>` +
+          '<div class="sub">Používali režim aspoň 2 různé dny</div>' + kvRow(modeT, twoTxt(tdT, RG.trial)) + kvRow(modeO, twoTxt(tdO, RG.owner)) + `<p>${b1Why}</p>`,
+        how: 'Podle toho, co lidé za posledních 30 dní opravdu dělali, ne podle volby v úvodu. Kdo přepnul, je v obou. ‚Aspoň 2 různé dny‘ není retence: říká, jestli se k režimu vracejí, nebo ho zkusili jednou. Počítáme jen ty, kdo ho poprvé otevřeli aspoň před týdnem, ostatní se ještě vrátit nestihli.',
+        foot: 'Aktivní za 30 dní · režim podle obrazovek od 23. 10. 2026 (verze 291) · bez testerů a robotů',
+      });
+
+      // B2 Co dělají lidé se psem na zkoušku?
+      const TR = J.trialUse, base2 = TR.base;
+      const usedK = (key) => num(own(TR, key) && TR[key].used.k) ?? 0;
+      const MAIN2 = [
+        ['care', ml('Denní péče', 'Daily care', 'task_done'), 'denní péče'],
+        ['training', ml('Výcvik povelů', 'Command training', 'training_done'), 'výcvik povelů'],
+        ['walk', ml('Otevřeli procházku', 'Opened a walk', 'walk_started (bez mode owner) | screen_view walk'), 'procházka'],
+        ['learning', ml('Vzdělávání', 'Learning', 'article_opened | article_read | lesson_answered | myth_answered | review_answered'), 'vzdělávání'],
+        ['event', ml('Denní událost', 'Daily event', 'event_choice'), 'denní událost'],
+        ['challenge', ml('Spustili 30denní výzvu', 'Started the 30-day challenge', 'challenge_started'), '30denní výzva'],
+      ].sort((a, b) => usedK(b[0]) - usedK(a[0]));
+      const r2 = (key, label, twoCell, sub) => {
+        const r = own(TR, key);
+        if (!r) return '';
+        return `<tr><td>${sub ? `<span class="sublbl">↳ ${label}</span>` : label}</td><td data-label="Použili (${zz(base2)})" class="n">${kpct(r.used)}</td>` +
+          `<td data-label="Aspoň 2 různé dny">${twoCell === null ? kzn(r.twoDays) : twoCell}</td></tr>`;
+      };
+      const fc = pairsOf(TR.failChoice);
+      let rows2 = '';
+      for (const [key, label] of MAIN2) {
+        rows2 += r2(key, label, key === 'challenge' ? 'jednou za výzvu' : null);
+        if (key === 'walk') rows2 += r2('walkGps', ml('dokončili procházku s GPS', 'finished a GPS walk', 'walk_completed (bez mode owner)'), null, true);
+      }
+      rows2 += r2('day7', ml('Pes došel aspoň do 7. dne', 'Dog reached day 7', 'day_advanced · day ≥ 7'), 'výsledek');
+      rows2 += r2('shelter', ml('Pes skončil v útulku', 'Dog ended up in a shelter', 'fail_state'),
+        `výsledek${fc.length ? ' · pak ' + fc.map(([k, v]) => `${lv('fail_state_choice', 'choice', k)} <b>${nf(v)}</b>`).join(', ') : ''}`);
+      const t1 = MAIN2[0], t2 = MAIN2[1];
+      const sB2 = `Nejčastěji: ${t1[2]} (${nf(usedK(t1[0]))} ${zz(base2)}) a ${t2[2]} (${nf(usedK(t2[0]))}); procházku s GPS ${pl(usedK('walkGps'), 'dokončil', 'dokončili', 'dokončilo')} ${nf(usedK('walkGps'))}.`;
+      const b2 = card({
+        q: 'Co dělají lidé se psem na zkoušku?', verdict: V.b2, sentence: sB2,
+        body: `<table class="qt"><thead><tr><th></th><th class="n">Použili (${zz(base2)})</th><th>Aspoň 2 různé dny</th></tr></thead><tbody>${rows2}</tbody></table>`,
+        how: 'Kolik lidí se psem na zkoušku každou funkci za posledních 30 dní aspoň jednou použilo. ‚Aspoň 2 různé dny‘ odliší zvyk od zvědavosti; počítáme jen ty, kdo funkci poprvé použili aspoň před týdnem. ‚Otevřeli procházku‘ je obrazovka nebo zahájená procházka, dokončenou procházku s GPS ukazuje řádek pod ní. Odznaky a posun dne posílá aplikace sama, nejsou to činnosti lidí.',
+        foot: 'Aktivní se psem na zkoušku za 30 dní · bez testerů a robotů',
+      });
+
+      // B3 Co dělají majitelé v Psovi doma?
+      const OW = J.owner, PLACES_B3 = ['plan', 'diary', 'docs', 'firstaid', 'training', 'vets', 'walk', 'family'];
+      const DIDS = [['planItem', () => L.html(L.event('plan_item'))], ['calendar', () => L.html(L.event('calendar_event_opened'))],
+        ['entry', () => ml('zápis do deníku nebo váhy', 'diary or weight entry', 'diary_entry | weight_entry')], ['document', () => L.html(L.event('dog_document'))],
+        ['trainingSession', () => ml('uložené sezení výcviku', 'training session saved', 'training_logged | training_stage_confirmed')],
+        ['walkStarted', () => ml('zahájená procházka', 'walk started', 'walk_started · mode = owner')], ['walkCompleted', () => ml('dokončená procházka', 'walk completed', 'walk_completed · mode = owner')],
+        ['family', () => L.html(L.event('family'))]];
+      const rows3 = PLACES_B3.map((p) => {
+        const op = own(OW.opened, p), td = own(OW.twoDays, p);
+        if (!op) return '';
+        const did = DIDS.filter(([k]) => own(OW.did, k) && OW.did[k].place === p).map(([k, lf]) => `<div>${lf()} ${mfrac(OW.did[k])}</div>`).join('') || '<span class="muted">jen obrazovky</span>';
+        return `<tr><td>${L.html(L.place(p))}</td><td data-label="Otevřeli (${zz(OW.base)})" class="n">${p === 'family' ? nf(op.k) : kpct(op)}</td>` +
+          `<td data-label="Aspoň 2 různé dny" class="n">${kzn(td)}</td><td data-label="Udělali">${did}</td></tr>`;
+      }).join('');
+      let topPl = null;
+      for (const p of PLACES_B3) { const f = own(OW.opened, p); if (f && (!topPl || f.k > OW.opened[topPl].k)) topPl = p; }
+      const pi = own(OW.did, 'planItem');
+      const piTxt = !pi ? '' : pi.state === 'unmeasured' ? ` Akce v plánu ${unmeasuredTxt(pi)} majitelů.`
+        : ` Akce v plánu umí poslat ${num(pi.x) < num(pi.y) ? 'jen ' : ''}${nf(pi.x)} ${zz(pi.y)} majitelů.`;
+      const tdTop = topPl ? own(OW.twoDays, topPl) : null;
+      const sB3 = topPl
+        ? `Majitelé nejčastěji otevírají ${esc(L.place(topPl, 'cs').text)} (${nf(OW.opened[topPl].k)} ${zz(OW.opened[topPl].n)}), ` +
+          (tdTop && num(tdTop.n) > 0 ? `znovu jiný den ale jen ${nf(tdTop.k)} ${zz(tdTop.n)}.` : 'jestli se vracejí jiný den, zatím nejde říct.') + piTxt
+        : 'Majitelé zatím nic neotevřeli.';
+      const b3 = card({
+        q: 'Co dělají majitelé v Psovi doma?', verdict: V.b3, sentence: sB3,
+        body: `<table class="qt"><thead><tr><th>Místo</th><th class="n">Otevřeli (${zz(OW.base)})</th><th class="n">Aspoň 2 různé dny</th><th>Udělali</th></tr></thead><tbody>${rows3}</tbody></table>` +
+          '<p class="muted">Detail psa a úpravu údajů nepočítáme: projde jimi každý při založení psa.</p>',
+        how: 'Otevřeli = obrazovka se aspoň jednou ukázala, ještě to neznamená, že tam něco udělali. Udělali = akce, kterou aplikace posílá jen od určité verze, proto má vlastní základ ‚měřitelné u X z Y‘. Detail psa a úpravu údajů nepočítáme: projde jimi každý při založení psa. Jeden telefon = jeden majitel i s víc psy.',
+        foot: 'Majitelé aktivní za 30 dní · obrazovky od 23. 10. 2026, akce od 15. 11. 2026 · bez testerů a robotů',
+      });
+
+      // B4 Přecházejí lidé mezi režimy?
+      const SW = J.switch;
+      const srcList = (arr) => pairsOf(arr).map(([k, v]) => `${lv('mode_switched', 'source', k)} <b>${nf(v)}</b>`).join(' · ') || 'nikdo';
+      const sB4 = `Za 30 dní ${pl(SW.total, 'přepnulo', 'přepnula', 'přepnulo')} ${nf(SW.total)} zařízení; mimo úvod na Psa doma ${nf(SW.later.owner)}, zpět ${nf(SW.later.trial)}.`;
+      const b4 = card({
+        q: 'Přecházejí lidé mezi režimy?', verdict: V.b4, sentence: sB4,
+        body: kvRow('Volba na rozcestí v úvodu', `na Psa doma <b>${nf(SW.onboarding.owner)}</b> · zpět na Psa na zkoušku <b>${nf(SW.onboarding.trial)}</b>`) +
+          kvRow(`Přepnuli později na Psa doma (${nf(SW.later.owner)})`, `<span class="ilist">${srcList(SW.later.ownerBySource)}</span>`) +
+          kvRow(`Přepnuli později zpět na Psa na zkoušku (${nf(SW.later.trial)})`, `<span class="ilist">${srcList(SW.later.trialBySource)}</span>`),
+        how: 'Počty zařízení, ne přepnutí. Volba na rozcestí patří k úvodu; pozdější přepnutí ukazují, jestli fungují nabídky v aplikaci (řádek dole na Domů, Nastavení, konec výzvy). Jedno zařízení mohlo přepnout víc cestami, proto součet míst může být větší než celkem.',
+        foot: 'Aktivní za 30 dní · měří se od 23. 10. 2026 (verze 292) · bez testerů a robotů',
+      });
+
+      // B5 Co lidi vrací do aplikace?
+      const EN = J.entry, NT = J.notif, CR = J.care;
+      let sB5, entryHtml;
+      if (EN.state === 'unmeasured') {
+        sB5 = `Vstupy do aplikace ${unmeasuredTxt(EN)} aktivních za 7 dní.`;
+        entryHtml = `<p>Vstupy za 7 dní: ${unmeasuredTxt(EN)} aktivních.</p>`;
+      } else {
+        const bySrc = pairsOf(EN.bySource), cnt = new Map(pairsOf(EN.countBySource));
+        sB5 = `Vstupy měříme u ${nf(EN.n)} ${zz(EN.y)} aktivních za 7 dní` +
+          (bySrc.length ? ': ' + bySrc.slice(0, 3).map(([k, v]) => `${esc(lc1(L.value('app_entry', 'source', k, 'cs').text))} ${nf(v)}`).join(', ') + '.' : '.');
+        entryHtml = `<p class="ilist">Vstupy za 7 dní (zařízení, v závorce vstupů): ${bySrc.map(([k, v]) => `${lv('app_entry', 'source', k)} <b>${nf(v)}</b> (${nf(cnt.get(k) ?? 0)})`).join(' · ') || 'zatím žádné'}` +
+          (num(EN.n) < num(EN.y) ? ` <span class="muted">(měřitelné u ${nf(EN.x)} ${zz(EN.y)})</span>` : '') + '</p>';
+      }
+      // Popisek končící číslem („Varianta textu 3“) dostane dvojtečku, ať se nespojí s počtem.
+      const devList = (arr, name, key) => pairsOf(arr).map(([k, v]) => `${lv(name, key, k)}${/\d$/.test(L.value(name, key, k).text) ? ':' : ''} <b>${nf(v)}</b>`).join(' · ') || 'zatím nikdo';
+      let careHtml;
+      if (!CR || CR.state === 'unmeasured') careHtml = `<p>Připomínky péče: ${CR ? unmeasuredTxt(CR) : 'čeká na data'}.</p>`;
+      else {
+        const wb5 = whenTxt(WC.b5, today);
+        careHtml = `<p>Připomínky péče (30 dní${num(CR.n) < num(CR.y) ? `, měřitelné u ${nf(CR.x)} ${zz(CR.y)}` : ''}): ${pl(CR.opened, 'otevřelo', 'otevřela', 'otevřelo')} <b>${nf(CR.opened)}</b> · ${pl(CR.done, 'splnilo', 'splnila', 'splnilo')} po připomínce <b>${nf(CR.done)}</b></p>` +
+          `<p class="ilist">Splnili podle času: ${devList(CR.doneBySlot, 'care_reminder_done', 'slot')}</p>` +
+          `<p class="ilist">Splnili podle varianty textu: ${devList(CR.doneByVariant, 'care_reminder_done', 'variant')}${CR.best ? '' : ' <span class="muted">(zatím žádná nemá 30)</span>'}</p>` +
+          `<p class="ilist">Splnili podle načasování: ${devList(CR.doneByTiming, 'care_reminder_done', 'timing')}</p>` +
+          (wb5 ? `<p class="muted">Srovnání variant: ${wb5}.</p>` : '');
+      }
+      const b5 = card({
+        q: 'Co lidi vrací do aplikace?', verdict: V.b5, sentence: sB5,
+        body: entryHtml +
+          `<p>Upozornění (30 dní): ${pl(NT.answered, 'odpovědělo', 'odpověděla', 'odpovědělo')} <b>${nf(NT.answered)}</b> · ${pl(NT.granted, 'povolilo', 'povolila', 'povolilo')} <b>${nf(NT.granted)}</b> · ${pl(NT.denied, 'zamítlo', 'zamítla', 'zamítlo')} <b>${nf(NT.denied)}</b></p>` +
+          careHtml,
+        how: 'Vstup = každé otevření aplikace i návrat z pozadí (krátké odskočení pod 10 s ne); měří se jen u verzí od 16. 11. Upozornění: poslední odpověď na dotaz systému. Připomínky: otevřeli = klepli na připomínku, splnili = nakrmili nebo vyvenčili psa do 2 hodin po připomínce i bez klepnutí, proto je nedělíme. Kolik připomínek opravdu přišlo, aplikace neposílá, takže varianty textu srovnáváme jen počtem splnění.',
+        foot: 'Vstupy od 16. 11. 2026 (verze 342) · připomínky od 14. 11. 2026 (verze 335) · upozornění od 13. 10. 2026 (verze 288) · bez testerů a robotů',
+      });
+
+      // B6 Plní aplikace misi?
+      const MS = J.mission, decs = new Map(pairsOf(MS.decision)), dv = (k) => num(decs.get(k)) ?? 0;
+      const decCs = (k) => esc(lc1(L.value('challenge_decision', 'choice', k, 'cs').text));
+      const shelterLbl = (k) => (k === '_graduation' ? ml('z gratulace', 'from graduation', 'graduation_shelter_cta') : lv('shelter_opened', 'shelter', k));
+      const sB6 = `Výzvu za 30 dní ${pl(MS.started, 'spustilo', 'spustila', 'spustilo')} ${nf(MS.started)} zařízení a ${pl(MS.completed, 'dokončilo', 'dokončila', 'dokončilo')} ${nf(MS.completed)}; ` +
+        `po výzvě: ${decCs('yes')} ${nf(dv('yes'))}, ${decCs('not_yet')} ${nf(dv('not_yet'))}, ${decCs('no')} ${nf(dv('no'))}${dv('skipped') ? `, ${decCs('skipped')} ${nf(dv('skipped'))}` : ''}. ` +
+        `Na útulek ${pl(MS.shelter.devices, 'kliklo', 'klikla', 'kliklo')} ${nf(MS.shelter.devices)} zařízení.`;
+      const b6 = card({
+        q: 'Plní aplikace misi?', verdict: V.b6, sentence: sB6,
+        body: `<p class="ilist">${ml('Spustili výzvu', 'Started the challenge', 'challenge_started')} <b>${nf(MS.started)}</b> · ${ml('došli k promoci', 'reached graduation', 'graduation_reached')} <b>${nf(MS.graduation)}</b> · ` +
+          `${ml('dokončili výzvu', 'completed the challenge', 'challenge_completed')} <b>${nf(MS.completed)}</b> · ${ml('rozhodli se počkat', 'decided to wait', 'graduation_wait_cta')} <b>${nf(MS.wait)}</b></p>` +
+          `<p class="ilist">Rozhodnutí po výzvě (${nf(MS.decided)}): ${devList(MS.decision, 'challenge_decision', 'choice')}</p>` +
+          `<p class="ilist">Proklik na útulek: <b>${nf(MS.shelter.devices)}</b> zařízení, <b>${nf(MS.shelter.clicks)}</b> prokliků: ${pairsOf(MS.shelter.byShelter).map(([k, v]) => `${shelterLbl(k)} <b>${nf(v)}</b>`).join(' · ') || 'zatím žádné'}</p>`,
+        how: 'Výzva trvá 30 dní, každé číslo proto říká, kolik zařízení to za posledních 30 dní udělalo, není to cesta jedné skupiny. Rozhodnutí po výzvě je hlavní měřítko dopadu mise: ‚Zatím počkám‘ i ‚Pes teď není pro mě‘ jsou dobrý výsledek, rozhodnutí místo psa, který by mohl skončit v útulku.',
+        foot: 'Aktivní za 30 dní · rozhodnutí po výzvě od 11. 10. 2026 (verze 287) · bez testerů a robotů',
+      });
+
+      // B7 Odpovědi v úvodu (sbalené, převzato z Výzkumu: zařízení, 30 dní, popisky z katalogu)
+      const AN = J.answers, RD = AN.readiness, QZ = AN.quiz, BR = AN.breed, PO = AN.premiumOffer;
+      const qRows = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'].map((q) => { const x = own(RD.q, q) || {}; return [L.html(L.prop('readiness_completed', q)), x.yes, kzn({ k: x.yes, n: RD.n })]; });
+      const phaseLbl = (k) => (k === '_none' ? ml('krok úvodu (do 2.2.0)', 'onboarding step (up to 2.2.0)', 'phase = _none') : lv('readiness_completed', 'phase', k));
+      const quizBlock = (field, color) => `<div class="sub">${L.html(L.prop('quiz_completed', field))}</div>${barRows(pairsOf(own(QZ, field)).map(([k, v]) => [lv('quiz_completed', field, k), v]), color)}`;
+      const b7 = `<details class="qdet" data-open="b7"${openAttr('b7')}><summary>Odpovědi v úvodu <span>připravenost, kvíz, doporučené plemeno, nabídka Premium plemene</span></summary>` +
+        '<div class="subgrid" style="margin-top:12px">' +
+        `<div><h4>Připravenost (${nf(RD.n)} zařízení)</h4><div class="sub">Výsledek</div>${barRows(pairsOf(RD.tier).map(([k, v]) => [lv('readiness_completed', 'tier', k), v]))}` +
+          `<div class="sub">Odpověděli ano</div>${barRows(qRows, 'var(--water)')}<div class="sub">Odkud vyplněno</div>${barRows(pairsOf(RD.phase).map(([k, v]) => [phaseLbl(k), v]), 'var(--water)')}</div>` +
+        `<div><h4>Kvíz o životním stylu (${nf(QZ.n)} zařízení)</h4>${quizBlock('hours', 'var(--apricot)')}${quizBlock('housing', 'var(--water)')}${quizBlock('activity', 'var(--apricot)')}</div>` +
+        `<div><h4>Doporučení vs. výběr plemene (${nf(BR.n)} zařízení)</h4>${kvRow('Vybrali doporučené plemeno', `<b>${nf(BR.matched)}</b>`)}${kvRow('Vybrali jiné', `<b>${nf(BR.other)}</b>`)}` +
+          `<div class="sub">${L.html(L.prop('breed_selected', 'breed'))}</div>${barRows(pairsOf(BR.breed).slice(0, 15).map(([k, v]) => [lv('breed_selected', 'breed', k), v]), 'var(--water)')}</div>` +
+        `<div><h4>${L.html(L.event('onboarding_premium_offer'))}</h4>${kvRow(lv('onboarding_premium_offer', 'action', 'shown'), `<b>${nf(PO.shown)}</b> zařízení`)}${kvRow(lv('onboarding_premium_offer', 'action', 'tapped'), `<b>${nf(PO.tapped)}</b> zařízení`)}</div>` +
+        '</div><p class="q-how"><b>Jak číst:</b> Co o sobě lidé řekli za posledních 30 dní. Dotazník připravenosti je od 31. 10. karta na Domů, ne krok úvodu. Kolik peněz nabídka Premium plemene vydělala, ukazují Nákupy podle zdroje.</p>' +
+        '<p class="q-foot">Aktivní za 30 dní, u každého zařízení poslední odpověď · bez testerů a robotů</p></details>';
+
+      // C0 Co z toho plyne
+      const piC0 = !pi ? '' : pi.state === 'unmeasured' ? ` Akce v plánu ${unmeasuredTxt(pi)} majitelů.` : ` Akce v plánu umí poslat ${num(pi.x) < num(pi.y) ? 'jen ' : ''}${nf(pi.x)} ${zz(pi.y)} majitelů.`;
+      const c03 = `K Psovi doma se jiný den ${pl(tdO.k, 'vrátil', 'vrátili', 'vrátilo')} ${nf(tdO.k)} ${zz(tdO.n)} majitelů, kteří ho otevřeli aspoň před týdnem${pctPar(tdO)}; u Psa na zkoušku ${nf(tdT.k)} ${zz(tdT.n)}${pctPar(tdT)}. ${b1Why}`;
+      const c04 = topPl
+        ? `Majitelé nejčastěji otevírají ${esc(L.place(topPl, 'cs').text)} (${nf(OW.opened[topPl].k)} ${zz(OW.opened[topPl].n)}), ` +
+          (tdTop && num(tdTop.n) > 0 ? `znovu jiný den ale jen ${nf(tdTop.k)} ${zz(tdTop.n)}.` : 'jestli se vracejí jiný den, zatím nejde říct.') + piC0
+        : 'Majitelé zatím nic neotevřeli.';
+      const c0 = [[V.a1, s1], [V.a4, s4], [V.b1, c03], [V.b3, c04], [V.b6, sB6]];
+
+      root.innerHTML = tabHead(title, meta) + takeaways(c0) +
+        `<h2 class="qsec">A&nbsp; Noví lidé <span class="muted">(první spuštění za posledních 30 dní)</span></h2><div class="qcards">${a1}${a2}${a3}${a4}${a5}</div>` +
+        `<h2 class="qsec">B&nbsp; Aktivní lidé <span class="muted">(posledních 30 dní, ${nf(MD.active)} zařízení)</span></h2><div class="qcards">${b1}${b2}${b3}${b4}${b5}${b6}${b7}</div>`;
+      bindPane(root);
+    }
 
     // --- Jádro v paměti (C.5): index a výsledky compute* pod klíčem verze dat (počet událostí, konec
     //     historie, verze přepisů testerů, „teď“ na minuty). Přepnutí záložky, jazyka ani rozbalení
-    //     sekce nic nepřepočítává. Katalog akcí je ve stránce jako JSON (#admin-labels, SPEC D.1).
-    let LABELS = null;
-    try { const el = $('admin-labels'); LABELS = el ? JSON.parse(el.textContent || 'null') : null; }
-    catch (e) { console.warn('katalog popisků nenačten', e); }
+    //     sekce nic nepřepočítává. Katalog akcí (LABELS) je načtený výše (#admin-labels, SPEC D.1).
     let CORE_CACHE = { key: null, idx: null, out: new Map() };
     const coreKey = () => [DATA_VER, RAW.length, exhausted ? 1 : 0, OVERRIDES_VER, Math.floor(nowMs() / 60000)].join('|');
     function coreIndex() {
@@ -2776,8 +3635,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       exhausted = true; dataReady = true; LOADED_AT = Date.now();
     }
 
-    // init tab z hashe
-    setTab(activeTab);
+    // init záložky z adresy (staré adresy už přesměroval tabFromHash)
+    showTab(activeTab);
   </script>
 </body>
 </html>

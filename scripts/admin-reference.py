@@ -743,6 +743,8 @@ for ch, _ in breakdown(ch_count):
     cmp_ = compare(q['channel'][ch]['d1'], d1_of(rest))
     q['comparisons'].append({'group': 'channel:' + ch, 'eligible': len(ids) >= SURE_N,
                              'a': q['channel'][ch]['d1'], 'b': d1_of(rest), **cmp_,
+                             'aRange': pct_range(q['channel'][ch]['d1']['k'], q['channel'][ch]['d1']['n']),
+                             'bRange': pct_range(d1_of(rest)['k'], d1_of(rest)['n']),
                              '_ids': (ids, rest)})
 if CAMP:
     q['campaign'] = {}
@@ -754,6 +756,8 @@ if CAMP:
         q['comparisons'].append({'group': 'campaign:' + p, 'eligible': True,
                                  'a': q['campaign'][p]['in']['d1'], 'b': q['campaign'][p]['out']['d1'],
                                  **compare(q['campaign'][p]['in']['d1'], q['campaign'][p]['out']['d1']),
+                                 'aRange': pct_range(q['campaign'][p]['in']['d1']['k'], q['campaign'][p]['in']['d1']['n']),
+                                 'bRange': pct_range(q['campaign'][p]['out']['d1']['k'], q['campaign'][p]['out']['d1']['n']),
                                  '_ids': (inn, outn)})
 elig = [c for c in q['comparisons'] if c['eligible']]
 if any(c['verdict'] == 'Průkazný rozdíl' for c in elig):
@@ -1118,7 +1122,7 @@ for var in sorted(set(ab_var.values())):
     dd = d1_of(ids)
     ab[var] = {'assigned': len(ids), 'd1': dd,
                'tapped': sum(1 for i in ids if has(i, lambda e: e['name'] == 'home_banner' and P(e).get('kind') == 'first_care' and P(e).get('action') == 'tap')),
-               'review': sum(1 for i in ids if i in REVIEW)}
+               'review': sum(1 for i in ids if i in REVIEW), 'd1Range': pct_range(dd['k'], dd['n'])}
     ab_whens.append(when_clear(dd['n'], d1_entered7(ids)))
 vs = list(ab.values())
 if len(vs) < 2 or any(x['d1']['n'] < SURE_N for x in vs):
@@ -1142,6 +1146,7 @@ _, om, orp = feature(O, owner_sig)
 two = {'trial': frac(len(tr), len(tm)), 'owner': frac(len(orp), len(om))}
 cmp = compare(two['trial'], two['owner'])
 two['z'] = cmp['z']
+two['ranges'] = {'trial': pct_range(two['trial']['k'], two['trial']['n']), 'owner': pct_range(two['owner']['k'], two['owner']['n'])}
 JV['b1'] = cmp['verdict']
 
 
