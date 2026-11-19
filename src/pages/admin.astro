@@ -1,13 +1,13 @@
 ---
 import labels from '../data/admin-labels.json';
-// Trypup – skrytý analytický dashboard (cross-device).
+// Trypup – skrytá analytika (cross-device).
 // Čte kolekci `analytics_events` z Firestore (projekt trypupapp). Přístup jen pro
 // admin účet (Firestore rules: read jen pro o.kliment@gmail.com). Skryté pro roboty
 // (noindex + robots.txt Disallow /admin). Firebase přes CDN (žádná npm změna webu).
 //
-// Záložky: PŘEHLED (KPI+funnely) · VÝZKUM (onboarding odpovědi/chování – oddělené od
-// technických dat) · TECHNIKA (zařízení/chyby/build). Filtr + fulltext nad daty.
-// Retence: stránkování (Načíst starší / Načíst vše) – data se drží od začátku měření.
+// Záložky (SPEC B.1): SOUHRN (dlaždice) · ZÍSKÁVÁNÍ · CESTA (karty z jádra) · NÁKUPY · TECHNIKA
+// (kontrola dat, zařízení, selhání, evidence zařízení, poslední záznamy). Filtry jen na Nákupech a Technice.
+// Stránkování (Načíst starší / Načíst vše v Technice) – data se drží od začátku měření.
 const ADMIN_EMAIL = 'o.kliment@gmail.com';
 // Katalog popisků akcí (SPEC D.1): vložený do stránky jako JSON, žádný další požadavek ani veřejný soubor.
 const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
@@ -101,7 +101,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     .tabs { overflow-x:auto; scrollbar-width:none; }
     .tab { flex-shrink:0; white-space:nowrap; }
     @media (max-width:560px) { .tab { padding:10px 9px; } }
-    /* Dashboard – dlaždice */
+    /* Souhrn: dlaždice */
     .dash-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:14px 0 0; color:var(--muted); font-size:12.5px; }
     .dash-head button { padding:6px 12px; font-size:12px; }
     .dash-head button:disabled { opacity:.5; cursor:default; }
@@ -214,6 +214,26 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     details.qdet { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 18px; }
     details.qdet > summary { cursor:pointer; font-weight:700; font-size:14px; }
     details.qdet > summary span { color:var(--muted); font-weight:500; font-size:12.5px; }
+    /* Technika a Nákupy (SPEC C.3, D.4) */
+    .h2-hint { color:var(--muted); font-weight:500; font-size:12px; text-transform:none; letter-spacing:0; }
+    .t-loaded { display:flex; justify-content:space-between; align-items:center; gap:10px 16px; flex-wrap:wrap; }
+    .t-loaded-text { margin:0; line-height:1.5; }
+    .t-loaded .toolbar button { padding:6px 12px; font-size:12px; }
+    .t-loaded .toolbar button:disabled { opacity:.5; cursor:default; }
+    #t-checks { margin-top:14px; }
+    details.how-calc { margin-top:18px; }
+    details.how-calc .note { margin:10px 0 0; }
+    .feed .tech { display:block; color:var(--muted); font-size:11.5px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-top:2px; overflow-wrap:anywhere; }
+    .feed .row > span:first-child { min-width:0; overflow-wrap:anywhere; }
+    button.sm { padding:3px 8px; font-size:11px; }
+    .chk { display:grid; grid-template-columns:minmax(0,7.5em) minmax(0,1fr); gap:4px 12px; align-items:baseline; padding:6px 0; border-bottom:1px solid #ffffff10; }
+    .chk:last-child { border-bottom:0; }
+    .chk p { margin:0; line-height:1.5; }
+    td.raw, span.raw { color:var(--muted); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; overflow-wrap:anywhere; }
+    details.t6g { border-top:1px solid var(--line); padding:6px 0; }
+    details.t6g > summary { cursor:pointer; font-weight:700; font-size:13px; padding:4px 0; }
+    details.t6g > summary span { color:var(--muted); font-weight:500; }
+    @media (max-width:640px) { .chk { grid-template-columns:minmax(0,1fr); } }
   </style>
 </head>
 <body>
@@ -242,8 +262,6 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           <button type="button" data-lang="en" aria-pressed="false">English</button><span aria-hidden="true">·</span>
           <button type="button" data-lang="raw" aria-pressed="false">Technické názvy</button>
         </span>
-        <button id="loadOlder" class="ghost">Načíst starší</button>
-        <button id="loadAll" class="ghost">Načíst vše</button>
         <button id="signout" class="ghost">Odhlásit</button>
       </div>
     </header>
@@ -261,22 +279,22 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     <div class="filters">
       <div class="row1">
         <input id="f-text" type="search" placeholder="Hledat akci, hodnotu, model, jazyk…" style="min-width:min(240px,100%);flex:1" />
-        <input id="f-iid" type="text" placeholder="installId (prefix)" style="width:150px" />
+        <input id="f-iid" type="text" placeholder="Kód zařízení (začátek)" style="width:180px" />
         <button id="f-clear" class="ghost">Vyčistit</button>
       </div>
       <div class="row2">
-        <select id="f-event"><option value="">Event: vše</option></select>
+        <select id="f-event"><option value="">Akce: vše</option></select>
         <select id="f-platform"><option value="">Platforma: vše</option></select>
         <select id="f-locale"><option value="">Jazyk: vše</option></select>
-        <select id="f-build"><option value="">Build: vše</option></select>
-        <select id="f-type"><option value="">Typ: vše</option></select>
+        <select id="f-build"><option value="">Verze: vše</option></select>
+        <select id="f-type"><option value="">Druh zařízení: vše</option></select>
         <span class="quick" id="quick">
-          <button data-d="1">24 h</button><button data-d="7">7 d</button>
-          <button data-d="30">30 d</button><button data-d="0" class="on">Vše</button>
+          <button data-d="1">24 h</button><button data-d="7">7 dní</button>
+          <button data-d="30">30 dní</button><button data-d="0" class="on">Vše</button>
         </span>
-        <input id="f-from" type="date" title="Od" />
-        <input id="f-to" type="date" title="Do" />
-        <label class="tgl" title="Testeři (simulátory, vývojové buildy, Expo Go, ručně označená zařízení) a roboti (Google Play pre-launch report: sdk_gphone*, OnePlus8Pro/Android 11 s krátkou aktivitou)"><input type="checkbox" id="f-testers" /> včetně testerů a robotů</label>
+        <input id="f-from" type="date" title="Od (pražský den)" />
+        <input id="f-to" type="date" title="Do (pražský den včetně)" />
+        <label class="tgl" title="Testeři (simulátory, vývojové verze, Expo Go, ručně označená zařízení) a roboti (předběžná kontrola Google Play: emulátory, OnePlus 8 Pro s Androidem 11 a krátkou aktivitou)"><input type="checkbox" id="f-testers" /> včetně testerů a robotů</label>
         <span class="count" id="count"></span>
       </div>
     </div>
@@ -298,69 +316,43 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     <!-- TAB: CESTA (SPEC C.2, vždy bez testerů a robotů, pevná období) -->
     <div id="tab-cesta" class="tabpane hidden"><div id="jr-root"></div></div>
 
-    <!-- Přehled a Výzkum: už nejsou v liště (adresy přesměrují na Získávání a Cestu). Další krok z nich
-         přenese Build, Druh instalace a Klasifikace do Techniky a pak oba bloky i jejich funkce smaže. -->
-    <div id="tab-prehled" class="tabpane hidden">
-      <h2>Uživatelé <span id="u-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
-      <div class="cards" id="u-kpis"></div>
-      <div class="grid2" id="u-panels" style="margin-top:12px"></div>
-      <h2>Stažení z obchodů <span id="st-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
-      <div class="cards" id="st-kpis"></div>
-      <div class="grid2" id="st-panels" style="margin-top:12px"></div>
-      <p class="note">Zdroj: App Store Analytics Reports (první stažení, od 5. 10. 2026) a Google Play hromadné přehledy (nové instalace uživatelů, měsíční CSV – Google je vydává se zpožděním několika dní). Dny, které obchod ještě nevydal, graf označí „čeká na data“ nebo „jen App Store“ / „jen Google Play“, ne nulou. Kolekce <code>store_stats</code>, plní funkce <code>syncStoreStats</code> denně v 6:40. Jen součty po dnech a zemích, žádná data o lidech.</p>
-      <p class="note">Zdroj: ledger instalací (<code>install_platforms</code>, každé zařízení jednou, bez testerů – přepínač „včetně testerů“ nahoře).
-        Skutečná <strong>stažení z obchodů</strong> jsou v bloku níž.</p>
-      <h2>Eventy (načtené dávky)</h2>
-      <div class="cards" id="kpis"></div>
-      <h2>Funnely (kolik instalací dojde k…)</h2>
-      <div class="grid2" id="funnels"></div>
-      <h2>Aktivita v čase</h2>
-      <div class="grid2" id="overview-events"></div>
-    </div>
-
-    <!-- TAB: VÝZKUM -->
-    <div id="tab-vyzkum" class="tabpane hidden">
-      <h2>Onboarding funnel & váhání</h2>
-      <div class="grid2" id="r-funnel"></div>
-      <h2>Připravenost (formulář „Než si pořídíš psa")</h2>
-      <div class="grid2" id="r-readiness"></div>
-      <h2>Kvíz – profil uživatele</h2>
-      <div class="grid2" id="r-quiz"></div>
-      <h2>Doporučení vs. výběr plemene</h2>
-      <div class="grid2" id="r-breed"></div>
-      <h2>Engagement & chování</h2>
-      <div class="grid2" id="r-engage"></div>
-      <h2>Mise, retence & virální smyčka</h2>
-      <div class="grid2" id="r-mission"></div>
-    </div>
-
-    <!-- TAB: TECHNIKA -->
+    <!-- TAB: TECHNIKA (SPEC C.3): nahoře kontrola dat s pevnými obdobími, pod ní panely podle filtrů -->
     <div id="tab-technika" class="tabpane hidden">
-      <h2>Zařízení – na čem se to děje</h2>
+      <h2>Načtená data</h2>
+      <div class="panel t-loaded">
+        <p id="t-loaded" class="t-loaded-text">Načítám…</p>
+        <div class="toolbar"><button id="loadOlder" class="ghost">Načíst starší</button><button id="loadAll" class="ghost">Načíst vše</button></div>
+      </div>
+      <div id="t-checks"></div>
+      <h2>Zařízení podle filtrů <span class="h2-hint">počty různých zařízení</span></h2>
       <div class="grid2" id="t-devices"></div>
-      <h2>Kvalita & chyby</h2>
+      <h2>Selhání <span class="h2-hint">podle filtrů</span></h2>
+      <p class="note">Pády a chyby aplikace sleduje Sentry, do analytiky se neposílají.</p>
       <div class="grid2" id="t-quality"></div>
-      <h2>Instalace (ledger) – označení testerů <span id="i-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
-      <p class="note"><span class="tag auto">robot (auto)</span> = Google Play pre-launch report (emulátory <code>sdk_gphone*</code>, OnePlus8Pro na Androidu 11 s aktivitou pod hodinu) – pravidla v <code>functions/installClass.js</code>. <span class="tag auto">tester (auto)</span> = simulátor / vývojový build / Expo Go. TestFlight a interní testování Play vypadají jako obchod → označ ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi tester. „není robot“ vypne automatiku pro konkrétní zařízení (skutečný majitel OnePlus 8 Pro). Platí hned pro všechny záložky i <code>/api/stats.json</code>.</p>
+      <h2>Evidence zařízení&nbsp;– označení testerů a robotů <span id="i-sub" class="h2-hint"></span></h2>
+      <p class="note"><span class="tag auto">robot (automaticky)</span> = předběžná kontrola Google Play (emulátory Google a OnePlus 8 Pro s Androidem 11 a aktivitou pod hodinu). <span class="tag auto">tester (automaticky)</span> = simulátor, vývojová verze nebo Expo Go. TestFlight a interní testování Google Play vypadají jako obchod, proto je označ ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi testera. „Není robot“ vypne automatiku pro jedno zařízení (skutečný majitel OnePlus 8 Pro). Označení platí hned pro všechny záložky i veřejné statistiky webu.</p>
       <div class="panel" style="overflow:auto"><table class="inst" id="inst"></table></div>
-      <h2>Poslední aktivita (drill log)</h2>
+      <h2>Poslední záznamy <span class="h2-hint">podle filtrů, nejnovější nahoře</span></h2>
       <div class="panel"><div class="feed" id="feed"></div></div>
     </div>
 
     <!-- TAB: NÁKUPY -->
     <div id="tab-nakupy" class="tabpane hidden">
-      <h2>Nákupy <span id="p-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <h2>Nákupy <span id="p-sub" class="h2-hint"></span></h2>
       <div class="cards" id="p-kpis"></div>
       <div class="panel" style="overflow:auto;margin-top:12px"><table class="inst" id="p-table"></table></div>
       <div class="grid2" id="p-panels" style="margin-top:12px"></div>
       <h2>Ostatní události předplatného</h2>
       <div class="panel" style="overflow:auto"><table class="inst" id="p-other"></table></div>
-      <p class="note">Zdroj: RevenueCat – kolekce <code>rc_events</code>, plní ji webhook <code>revenuecatWebhook</code> (od 1. 11. 2026) a doplněná historie (<code>functions/backfill-rc-events.cjs</code>). Částka je v měně nákupu včetně DPH, v závorce v USD; výnos = po DPH a provizi obchodu (odhad RevenueCatu). <strong>Zařízení a jazyk</strong> RevenueCat nezná: páruje se s anonymní analytikou (<code>purchase_completed</code> se stejným produktem do 10 minut), obnova předplatného přebírá zařízení z prvního nákupu. Řádek „jen z aplikace“ = nákup bez záznamu v RevenueCatu (testovací nákup z TestFlightu / interního testování). Sandbox a testeři se skrývají jako jinde (přepínač „včetně testerů“ nahoře).</p>
-      <h2>Paywall → nákup (analytika aplikace) <span id="m-sub" style="color:var(--muted);font-weight:500;font-size:12px"></span></h2>
+      <h2>Paywall → nákup (analytika aplikace) <span id="m-sub" class="h2-hint"></span></h2>
       <div class="grid2" id="m-panels"></div>
       <h2>Obnova nákupů a správa předplatného</h2>
       <div class="grid2" id="m-restore"></div>
-      <p class="note">Zdroj: anonymní analytika aplikace (<code>paywall_viewed</code>, <code>purchase_*</code>, <code>restore_*</code>, <code>subscription_manage_opened</code>); platí všechny filtry nahoře (období, platforma, build…). Počty v tabulkách = různá zařízení, <strong>konverze</strong> = kolik zařízení, která paywall z daného zdroje viděla, nákup dokončilo. <strong>Obnova nákupů</strong> se do nákupů ani tržeb nepočítá: od vlny 1 má vlastní <code>restore_*</code>, starší verze ji posílají jako <code>purchase_*</code> s <code>product: restore</code>&nbsp;– obojí je sloučené v „Obnova nákupů“. Starší verze u zamčeného článku a zdravotního tipu logují zobrazení paywallu dvakrát; dvojice téhož zařízení do 60 s se počítá jako jedno zobrazení. Nákupy ze starších verzí zdroj ani režim nenesou: doplní se z posledního zobrazení paywallu na tomtéž zařízení (nejvýš hodinu před); zkušební doba u nich zůstane „neuvedeno“. „bez zdroje (starší verze)“ = vstup na paywall, který ve starší verzi zdroj neposílal (od vlny 1 mají zdroj Spolu, časová osa, Profil, průvodce, změna plemene a sbírka plemen).</p>
+      <details class="qdet how-calc">
+        <summary>Jak se to počítá</summary>
+        <p class="note"><b>Nákupy</b> jsou z RevenueCatu: od 1. 11. 2026 chodí samy, starší jsou doplněné jednorázově. Částka je v měně nákupu včetně DPH, v závorce v USD; výnos = po DPH a provizi obchodu (odhad RevenueCatu). <b>Zařízení a jazyk</b> RevenueCat nezná: přiřazují se z anonymní analytiky aplikace (dokončený nákup se stejným produktem do 10 minut), obnova předplatného přebírá zařízení z prvního nákupu. Řádek „jen z aplikace“ = nákup bez záznamu v RevenueCatu (testovací nákup z TestFlightu nebo interního testování Google Play). Testovací nákupy a testeři se skrývají jako jinde (zaškrtávátko „včetně testerů a robotů“ nahoře).</p>
+        <p class="note"><b>Paywall → nákup</b> je z anonymní analytiky aplikace a platí pro něj všechny filtry nahoře (období, platforma, verze…). Počty v tabulkách = různá zařízení, <b>konverze</b> = kolik zařízení, která paywall z daného zdroje viděla, nákup dokončilo. <b>Obnova nákupů</b> se do nákupů ani tržeb nepočítá: od 16. 11. 2026 má vlastní záznamy, starší verze ji posílaly jako nákup s produktem „obnova“&nbsp;– obojí je sloučené v „Obnova nákupů“. Starší verze u zamčeného článku a zdravotního tipu zapisují zobrazení paywallu dvakrát; dvojice téhož zařízení do 60 s se počítá jako jedno zobrazení. Nákupy ze starších verzí zdroj ani režim nenesou: doplní se z posledního zobrazení paywallu na tomtéž zařízení (nejvýš hodinu před); zkušební doba u nich zůstane „neuvedeno“. „Bez určeného zdroje“ = vstup na paywall, který ve starší verzi zdroj neposílal.</p>
+      </details>
     </div>
   </div>
 
@@ -1428,14 +1420,21 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const oneDay = onStore.filter((d) => { const s = new Set(); for (let j = d.i30; j < d.end; j++) s.add(d.days[j]); return s.size === 1; }).length;
 
       // T3 kontroly: neznámé a neplatné názvy, zařízení mimo ledger (všechna načtená zařízení).
+      // Zároveň T6 se zaškrtávátkem testerů: zařízení a záznamy podle akce ze všech načtených záznamů.
       const unknownAll = new Set(); let invalidAll = 0, outRec = 0;
-      const outDev = new Set();
+      const outDev = new Set(), all7 = new Map(), all30 = new Map(), allRec30 = new Map();
       for (const e of raw) {
         if (!e || !isNum(e.ts) || !inWin(e.ts, w30, now)) continue;
         if (!validActionName(e.name)) invalidAll++;
-        else if (!ci.ev.has(e.name)) unknownAll.add(e.name);
+        else {
+          if (!ci.ev.has(e.name)) unknownAll.add(e.name);
+          const iid = typeof e.installId === 'string' ? e.installId : null;
+          addToSet(all30, e.name, iid); addCount(allRec30, e.name);
+          if (e.ts > w7) addToSet(all7, e.name, iid);
+        }
         if (!idx.ledger.has(e.installId)) { outRec++; outDev.add(e.installId); }
       }
+      const dupsAll30 = dupLog.filter(([, ts]) => isNum(ts) && inWin(ts, w30, now)).length;
       const unknownNames = [...unknownAll].sort(cmpStr);
       const unknownReal = new Set(); let invalidReal = 0;
       const valid30 = new Set();
@@ -1460,22 +1459,25 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       let expo = 0;
       for (const i of idx.ledger.values()) if ((i.platform === 'ios' || i.platform === 'android') && isNum(i.lastMs) && inWin(i.lastMs, w30, now)) expo++;
 
-      // T6 akce podle skupin.
-      const rows = {}, groupRows = new Map();
-      let seen30 = 0;
-      const addRow = (nm, e) => {
-        const r30 = idx.rec30.get(nm) || 0;
-        const g = e ? (typeof e.g === 'string' ? e.g : 'unknown') : 'unknown';
-        const state = !e ? 'unknown' : e.st === 'removed' ? 'removed' : e.st === 'testers' ? 'testers' : r30 === 0 ? 'noData' : e.auto === 1 ? 'auto' : 'live';
-        setKey(rows, nm, { g, d7: (idx.byName7.get(nm) || CORE_EMPTY_SET).size, d30: (idx.byName30.get(nm) || CORE_EMPTY_SET).size, r30,
-          sb: e && isNum(e.sb) ? e.sb : null, od: e && typeof e.od === 'string' ? e.od : null, state });
-        addCount(groupRows, g);
-      };
-      for (const [nm, e] of ci.ev) { addRow(nm, e); if ((idx.rec30.get(nm) || 0) > 0) seen30++; }
-      for (const nm of [...unknownReal].sort(cmpStr)) addRow(nm, null);
+      // T6 akce podle skupin: by7 / by30 = Map(název → Set zařízení), rec = Map(název → záznamů za 30 dní).
       const groupOrder = ci.groups.includes('unknown') ? ci.groups : [...ci.groups, 'unknown'];
-      const byGroup = groupOrder.filter((g) => (groupRows.get(g) || 0) > 0).map((g) => [g, groupRows.get(g)]);
-      for (const [g, c] of groupRows) if (!groupOrder.includes(g)) byGroup.push([g, c]);
+      const actionTable = (by7, by30, rec, unknownSet, invalidN, dupsK) => {
+        const rows = {}, groupRows = new Map();
+        let seen30 = 0;
+        const addRow = (nm, e) => {
+          const r30 = rec.get(nm) || 0;
+          const g = e ? (typeof e.g === 'string' ? e.g : 'unknown') : 'unknown';
+          const state = !e ? 'unknown' : e.st === 'removed' ? 'removed' : e.st === 'testers' ? 'testers' : r30 === 0 ? 'noData' : e.auto === 1 ? 'auto' : 'live';
+          setKey(rows, nm, { g, d7: (by7.get(nm) || CORE_EMPTY_SET).size, d30: (by30.get(nm) || CORE_EMPTY_SET).size, r30,
+            sb: e && isNum(e.sb) ? e.sb : null, od: e && typeof e.od === 'string' ? e.od : null, state });
+          addCount(groupRows, g);
+        };
+        for (const [nm, e] of ci.ev) { addRow(nm, e); if ((rec.get(nm) || 0) > 0) seen30++; }
+        for (const nm of [...unknownSet].sort(cmpStr)) addRow(nm, null);
+        const byGroup = groupOrder.filter((g) => (groupRows.get(g) || 0) > 0).map((g) => [g, groupRows.get(g)]);
+        for (const [g, c] of groupRows) if (!groupOrder.includes(g)) byGroup.push([g, c]);
+        return { catalog: ci.ev.size, seen30, unknown30: unknownSet.size, invalid30: invalidN, dups30: dupsK, rows, byGroup };
+      };
 
       const warnIf = (c) => (c ? 'warn' : 'ok');
       const check = {
@@ -1495,9 +1497,12 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         check,
         unknown: check.unknown.count, invalid: check.invalid.count, actions30: valid30.size, purchaseNoRc: check.purchaseNoRc.count,
         review: { active30: rv.rows.length, byModel: breakdown(byModel), byReason: breakdown(byReason),
-          rows: rv.rows.map((r) => ({ iid: r.d.id.slice(0, 10), model: r.d.inst.model ?? null, firstDay: r.d.firstMs === null ? null : dayIso(pragueDay(r.d.firstMs)), build: r.d.inst.appBuild ?? null, reasons: r.reasons })) },
+          rows: rv.rows.map((r) => ({ id: r.d.id, iid: r.d.id.slice(0, 10), model: r.d.inst.model ?? null, firstDay: r.d.firstMs === null ? null : dayIso(pragueDay(r.d.firstMs)), build: r.d.inst.appBuild ?? null, reasons: r.reasons })) },
         expo: { active30: expo, limit: L.EXPO_LIMIT, level: expo >= L.EXPO_PLAN ? 'plan' : expo >= L.EXPO_WARN ? 'warn' : 'ok' },
-        actions: { catalog: ci.ev.size, seen30, unknown30: unknownReal.size, invalid30: invalidReal, dups30: dups30.k, rows, byGroup },
+        // Výchozí stav (zaškrtávátko testerů vypnuté): skutečná zařízení. actionsAll = se zaškrtávátkem:
+        // všechny načtené záznamy včetně testerů, robotů a zařízení mimo evidenci.
+        actions: actionTable(idx.byName7, idx.byName30, idx.rec30, unknownReal, invalidReal, dups30.k),
+        actionsAll: actionTable(all7, all30, allRec30, unknownAll, invalidAll, dupsAll30),
       };
     }
     /** Informační hlavička výpočtu (kontrola jádra ji neporovnává). */
@@ -1554,7 +1559,10 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         if (lang === 'raw') return lab(k2 === '' ? '(prázdné)' : k2, k2, !!hit, tip);
         if (hit) return lab(pickLang(hit, k2, lang), k2, true, tip);
         if (k2 === '') return lab(lang === 'en' ? 'not given' : 'bez údaje', k2, false, tip);
-        if (p && p.f === 1) return lab(k2.split(' - ').join(' – '), k2, false, tip);
+        // Volný text: pomlčka sjednocená na „–“ s nezlomitelnou mezerou před ní (E.19).
+        if (p && p.f === 1) return lab(k2.split(' - ').join('\u00a0– ').split(' – ').join('\u00a0– '), k2, false, tip);
+        // Vlastnost bez slovníku hodnot (čísla, počty, hodiny): hodnota je sama sebou, nic nechybí.
+        if (p && !vals) return lab(k2, k2, true, tip);
         return lab(`${k2} ${lang === 'en' ? '(no translation)' : '(bez překladu)'}`, k2, false, tip);
       },
       screen(route, lang = LANG) {
@@ -1677,14 +1685,12 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       return { kind: 'real', source: 'none', rule: null };
     }
     // == ADMIN CLASSIFY END ==
-    const clsOf = (iid) => CLS_BY_ID.get(iid) || 'real';
     // Eventy bez záznamu v ledgeru (čerstvá dávka) posuzujeme podle device kontextu dávky.
     const isExcluded = (iid, dev) => {
       const k = CLS_BY_ID.get(iid);
       if (k) return k !== 'real';
       return dev ? classifyInstall({ installKind: dev.installKind, model: dev.model, osVersion: dev.osVersion, firstMs: null, lastMs: null }, null).kind !== 'real' : false;
     };
-    const isTester = (iid, kind) => isExcluded(iid, kind ? { installKind: kind } : null);
     function reclassify() {
       CLS_BY_ID.clear();
       INSTALLS.forEach((i) => { i.cls = classifyInstall(i, OVERRIDES.get(i.id) || null); CLS_BY_ID.set(i.id, i.cls.kind); });
@@ -1720,47 +1726,6 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     }
     // Stažení podle obchodu: iOS = první stažení (firstTime), Android = nové instalace (installs).
     const storeN = (x) => x.platform === 'ios' ? (Number(x.firstTime) || 0) : (Number(x.installs) || 0);
-    function renderStoreStats() {
-      if (!$('st-kpis')) return;
-      if (!STORE.length) { $('st-sub').textContent = '· zatím žádná data'; $('st-kpis').innerHTML = ''; $('st-panels').innerHTML = ''; return; }
-      const n = storeN;
-      const today = new Date(); const DAY = 86400000;
-      const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
-      const since = (d) => iso(today.getTime() - d * DAY);
-      const sum = (rows) => rows.reduce((a, x) => a + n(x), 0);
-      const ios = STORE.filter((x) => x.platform === 'ios'), and = STORE.filter((x) => x.platform === 'android');
-      const last = (rows) => rows.map((x) => x.date).sort().slice(-1)[0] || '–';
-      // Obchody vydávají data se zpožděním (Apple 1–2 dny, Google i 5 dní). Den po posledním dni
-      // s daty není nula, jen ho obchod ještě nevydal. Apple dny bez stažení nezapisuje, takže
-      // „má data“ = den nejpozději poslední den, který obchod vydal.
-      const lastIos = last(ios), lastAnd = last(and);
-      const hasIos = (d) => lastIos !== '–' && d <= lastIos, hasAnd = (d) => lastAnd !== '–' && d <= lastAnd;
-      const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
-      $('st-sub').textContent = `· App Store data do ${last(ios)} · Google Play do ${last(and)}`;
-      $('st-kpis').innerHTML = [
-        k('stažení celkem', sum(STORE), `App Store ${sum(ios)} · Google Play ${sum(and)}`),
-        k('za 30 dní', sum(STORE.filter((x) => x.date >= since(30))), `7 dní ${sum(STORE.filter((x) => x.date >= since(7)))} · jen dny, které obchody už vydaly`),
-        k('odinstalace Google Play', and.reduce((a, x) => a + (x.uninstalls || 0), 0), 'celkem'),
-      ].join('');
-      const byDay = new Map();
-      for (let d = 29; d >= 0; d--) byDay.set(iso(today.getTime() - d * DAY), 0);
-      STORE.forEach((x) => { if (byDay.has(x.date)) byDay.set(x.date, byDay.get(x.date) + n(x)); });
-      const regionName = (c) => { try { return new Intl.DisplayNames(['cs'], { type: 'region' }).of(c) + ' (' + c + ')'; } catch { return c; } };
-      const country = new Map();
-      STORE.forEach((x) => { for (const [c, v] of Object.entries(x.platform === 'ios' ? (x.byTerritory || {}) : (x.byCountry || {}))) country.set(regionName(c), (country.get(regionName(c)) || 0) + v); });
-      const plat = [['App Store', sum(ios)], ['Google Play', sum(and)]];
-      $('st-panels').innerHTML = [
-        barPanel('Stažení za den (30 dní, oba obchody)', [...byDay.entries()].map(([d, v]) => {
-          const lbl = d.slice(5).split('-').reverse().join('. ') + '.';
-          if (!hasIos(d) && !hasAnd(d)) return [lbl + ' · čeká na data', 0, '–'];
-          if (!hasAnd(d)) return [lbl + ' · jen App Store', v];
-          if (!hasIos(d)) return [lbl + ' · jen Google Play', v];
-          return [lbl, v];
-        }), 'var(--apricot)', 0, 'čeká na data = obchod den ještě nevydal, není to nula'),
-        barPanel('Země (oba obchody, celkem)', [...country.entries()].sort((a, b) => b[1] - a[1]), 'var(--plum)', 12),
-        barPanel('Obchod', plat, 'var(--water)'),
-      ].join('');
-    }
     async function loadInstalls() {
       const [inst, over] = await Promise.all([getDocs(collection(db, 'install_platforms')), getDocs(collection(db, 'tester_installs'))]);
       // srcChannel … srcAds = zdroj instalace (Android od verze 352, Z2 a Z4; E.11).
@@ -1803,7 +1768,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       } catch (e) {
         $('dash-updated').textContent = 'Načtení selhalo';
         $('status').innerHTML = '<span class="err">Chyba: ' + esc(e.message || e) +
-          '</span><br><span style="color:var(--muted)">Pravděpodobně nejsou nasazené Firestore rules pro <code>analytics_events</code>, nebo je kolekce prázdná.</span>';
+          '</span><br><span style="color:var(--muted)">Pravděpodobně chybí pravidla přístupu k analytice v databázi, nebo v ní zatím nejsou žádná data.</span>';
       }
     }
 
@@ -1820,68 +1785,105 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       $('loadAll').textContent = exhausted ? 'Vše načteno' : 'Načíst vše';
     };
 
-    // --- Filtry ---
-    const FILTERS = { text:'', installId:'', event:'', platform:'', locale:'', build:'', type:'', from:'', to:'', testers:false };
+    // --- Filtry (jen Nákupy a Technika). Data a rychlé volby v pražských dnech (E.9): „Od“ = pražská
+    //     půlnoc dne, „Do“ = celý pražský den včetně; 24 h / 7 / 30 dní = interval (teď − N × 24 h, teď].
+    const FILTERS = { text:'', installId:'', event:'', platform:'', locale:'', build:'', type:'', from:'', to:'', sinceMs:null, testers:false };
     $('f-testers').onchange = (ev) => { FILTERS.testers = ev.target.checked; render(); };
+    const PLATFORM_NAME = new Map([['ios', 'iPhone'], ['android', 'Android']]);
+    const DEVICE_TYPE_LABEL = new Map([['phone', 'telefon'], ['tablet', 'tablet'], ['desktop', 'počítač'], ['tv', 'televize']]);
+    const mapLabel = (m, v) => (m.has(String(v)) ? m.get(String(v)) : String(v));
+    /** Pražská půlnoc dne 'YYYY-MM-DD' v ms (Praha má posun v celých hodinách); jinak null. */
+    function pragueStartMs(iso) {
+      const n = isoDayNum(iso);
+      if (n === null) return null;
+      let t = n * DAY_MS - 3 * 3600000;
+      for (let i = 0; i < 8 && pragueDay(t) < n; i++) t += 3600000;
+      return t;
+    }
+    /** Hranice filtru období v ms: [od, do) nebo (since, …]. */
+    function filterRange() {
+      if (FILTERS.sinceMs !== null) return { from: null, to: null, since: FILTERS.sinceMs };
+      const n = FILTERS.to ? isoDayNum(FILTERS.to) : null;
+      return { from: FILTERS.from ? pragueStartMs(FILTERS.from) : null, to: n !== null ? pragueStartMs(dayIso(n + 1)) : null, since: null };
+    }
+    const inRange = (ts, r) => (r.since === null || ts > r.since) && (r.from === null || ts >= r.from) && (r.to === null || ts < r.to);
+
+    // Hledání podle českého i anglického popisku akce: popisky se počítají jednou za název.
+    const SEARCH_LABEL = new Map();
+    const searchLabel = (name) => {
+      if (!SEARCH_LABEL.has(name)) SEARCH_LABEL.set(name, validActionName(name) ? (L.event(name, 'cs').text + ' ' + L.event(name, 'en').text).toLowerCase() : '');
+      return SEARCH_LABEL.get(name);
+    };
 
     function buildFilterOptions() {
-      const fill = (id, vals, label) => {
+      const fill = (id, vals, label, labelOf) => {
         const sel = $(id); const cur = sel.value;
-        const opts = [...new Set(vals.filter(Boolean))].sort();
+        const opts = [...new Set(vals.filter((v) => v !== null && v !== undefined && v !== ''))].map(String).sort();
         sel.innerHTML = '<option value="">' + label + ': vše</option>' +
-          opts.map((v) => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join('');
-        sel.value = cur; // zachovej výběr po reloadu
+          opts.map((v) => '<option value="' + esc(v) + '">' + esc(labelOf ? labelOf(v) : v) + '</option>').join('');
+        sel.value = cur; // zachovej výběr po překreslení
       };
-      fill('f-event', RAW.map((e) => e.name), 'Event');
-      fill('f-platform', RAW.map((e) => e.dev.platform), 'Platforma');
-      fill('f-locale', RAW.map((e) => e.dev.locale), 'Jazyk');
-      fill('f-build', RAW.map((e) => e.dev.appBuild != null ? String(e.dev.appBuild) : ''), 'Build');
-      fill('f-type', RAW.map((e) => e.dev.type), 'Typ');
+      // Akce: skupiny katalogu jako <optgroup>, text popiskem, hodnota technická (D.4). Neplatné názvy jen v počtech (D.5).
+      const names = new Set();
+      for (const e of RAW) if (validActionName(e.name)) names.add(e.name);
+      const byGroup = new Map();
+      for (const n of names) { const e = EV.get(n); addToSet(byGroup, e && typeof e.g === 'string' && GROUPS.has(e.g) ? e.g : 'unknown', n); }
+      const order = [...GROUPS.keys()];
+      for (const g of byGroup.keys()) if (!order.includes(g)) order.push(g);
+      const sel = $('f-event'), cur = sel.value;
+      sel.innerHTML = '<option value="">Akce: vše</option>' + order.filter((g) => byGroup.has(g)).map((g) =>
+        `<optgroup label="${esc(L.group(g).text)}">` + [...byGroup.get(g)].map((n) => [n, L.event(n).text]).sort((a, b) => a[1].localeCompare(b[1], 'cs'))
+          .map(([n, t]) => `<option value="${esc(n)}">${esc(t)}</option>`).join('') + '</optgroup>').join('');
+      sel.value = cur;
+      fill('f-platform', RAW.map((e) => e.dev.platform), 'Platforma', (v) => mapLabel(PLATFORM_NAME, v));
+      fill('f-locale', RAW.map((e) => e.dev.locale), 'Jazyk', (v) => L.lang(v).text);
+      fill('f-build', RAW.map((e) => (e.dev.appBuild !== null && e.dev.appBuild !== undefined ? String(e.dev.appBuild) : '')), 'Verze', (v) => 'verze ' + v);
+      fill('f-type', RAW.map((e) => e.dev.type), 'Druh zařízení', (v) => mapLabel(DEVICE_TYPE_LABEL, v));
     }
 
     function applyFilters(arr) {
       const text = FILTERS.text.trim().toLowerCase();
       const iid = FILTERS.installId.trim();
-      const fromTs = FILTERS.from ? new Date(FILTERS.from).getTime() : null;
-      const toTs = FILTERS.to ? new Date(FILTERS.to).getTime() + 86400000 : null; // celý „do" den včetně
+      const range = filterRange();
       return arr.filter((e) => {
         if (!Number.isFinite(e.ts)) return false;
         if (!FILTERS.testers && isExcluded(e.installId, e.dev)) return false;
         if (FILTERS.event && e.name !== FILTERS.event) return false;
-        if (FILTERS.platform && e.dev.platform !== FILTERS.platform) return false;
-        if (FILTERS.locale && e.dev.locale !== FILTERS.locale) return false;
+        if (FILTERS.platform && String(e.dev.platform) !== FILTERS.platform) return false;
+        if (FILTERS.locale && String(e.dev.locale) !== FILTERS.locale) return false;
         if (FILTERS.build && String(e.dev.appBuild) !== FILTERS.build) return false;
-        if (FILTERS.type && e.dev.type !== FILTERS.type) return false;
+        if (FILTERS.type && String(e.dev.type) !== FILTERS.type) return false;
         if (iid && !String(e.installId || '').startsWith(iid)) return false;
-        if (fromTs && e.ts < fromTs) return false;
-        if (toTs && e.ts >= toTs) return false;
+        if (!inRange(e.ts, range)) return false;
         if (text) {
-          const hay = (e.name + ' ' + JSON.stringify(e.props) + ' ' + (e.dev.model || '') + ' ' + (e.dev.locale || '')).toLowerCase();
+          const hay = (String(e.name) + ' ' + searchLabel(e.name) + ' ' + JSON.stringify(e.props) + ' ' + (e.dev.model || '') + ' ' + (e.dev.locale || '')).toLowerCase();
           if (!hay.includes(text)) return false;
         }
         return true;
       });
     }
 
-    // filter event wiring
+    // Obsluha filtrů
     let textTimer = null;
     $('f-text').oninput = (ev) => { clearTimeout(textTimer); const v = ev.target.value; textTimer = setTimeout(() => { FILTERS.text = v; render(); }, 200); };
     $('f-iid').oninput = (ev) => { clearTimeout(textTimer); const v = ev.target.value; textTimer = setTimeout(() => { FILTERS.installId = v; render(); }, 200); };
     ['event','platform','locale','build','type'].forEach((k) => { $('f-' + k).onchange = (ev) => { FILTERS[k] = ev.target.value; render(); }; });
-    $('f-from').onchange = (ev) => { FILTERS.from = ev.target.value; setQuickActive(null); render(); };
-    $('f-to').onchange = (ev) => { FILTERS.to = ev.target.value; setQuickActive(null); render(); };
+    $('f-from').onchange = (ev) => { FILTERS.from = ev.target.value; FILTERS.sinceMs = null; setQuickActive(null); render(); };
+    $('f-to').onchange = (ev) => { FILTERS.to = ev.target.value; FILTERS.sinceMs = null; setQuickActive(null); render(); };
     $('quick').querySelectorAll('button').forEach((b) => { b.onclick = () => {
-      const d = +b.dataset.d;
-      FILTERS.to = '';
-      FILTERS.from = d ? new Date(Date.now() - d * 86400000).toISOString().slice(0, 10) : '';
-      $('f-from').value = FILTERS.from; $('f-to').value = '';
+      const d = Number(b.dataset.d);
+      FILTERS.from = ''; FILTERS.to = '';
+      FILTERS.sinceMs = d > 0 ? nowMs() - d * DAY_MS : null;
+      $('f-from').value = ''; $('f-to').value = '';
       setQuickActive(b); render();
     }; });
     function setQuickActive(btn) { $('quick').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === btn)); }
+    // Vyčistit vrátí všechny filtry včetně zaškrtávátka testerů (E.9).
     $('f-clear').onclick = () => {
-      Object.keys(FILTERS).forEach((k) => FILTERS[k] = '');
-      ['f-text','f-iid','f-from','f-to'].forEach((id) => $(id).value = '');
-      ['f-event','f-platform','f-locale','f-build','f-type'].forEach((id) => $(id).value = '');
+      Object.assign(FILTERS, { text:'', installId:'', event:'', platform:'', locale:'', build:'', type:'', from:'', to:'', sinceMs:null, testers:false });
+      ['f-text','f-iid','f-from','f-to'].forEach((id) => { $(id).value = ''; });
+      ['f-event','f-platform','f-locale','f-build','f-type'].forEach((id) => { $(id).value = ''; });
+      $('f-testers').checked = false;
       setQuickActive($('quick').querySelector('[data-d="0"]'));
       render();
     };
@@ -1925,6 +1927,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       LANG = v;
       try { localStorage.setItem(LANG_KEY, v); } catch { /* bez úložiště volba platí do obnovení stránky */ }
       syncLangButtons();
+      if (dataReady) buildFilterOptions();
       render();
     });
     syncLangButtons();
@@ -1935,29 +1938,37 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       for (const x of arr) { const k = keyFn(x); if (k == null || k === '') continue; m.set(k, (m.get(k) || 0) + 1); }
       return [...m.entries()].sort((a, b) => b[1] - a[1]);
     }
-    const uniqInstalls = (arr) => new Set(arr.map((e) => e.installId)).size;
+    /** Různá zařízení na hodnotu (E.10): [[hodnota, zařízení], …] sestupně. */
+    function devicesBy(arr, keyFn, idFn = (x) => x.installId) {
+      const m = new Map();
+      for (const x of arr) { const k = keyFn(x); if (k === null || k === undefined || k === '') continue; addToSet(m, k, idFn(x)); }
+      return breakdownSets(m);
+    }
+    /** Popisek pruhu: řetězec se escapuje, { html } je hotové bezpečné HTML (L.html). */
+    const labelHtml = (k) => (k && typeof k === 'object' && typeof k.html === 'string' ? k.html : esc(k));
+    const H = (html) => ({ html });
+    /** Panel s pruhy. Číslo jen přes Number() + Number.isFinite (E.2), maximum smyčkou (E.4). */
     function barPanel(title, pairs, color, max, hint) {
       const top = max ? pairs.slice(0, max) : pairs;
-      const hi = (top.length ? Math.max(...top.map((p) => p[1])) : 0) || 1;
+      let hi = 0;
+      for (const p of top) { const v = Number(p[1]); if (Number.isFinite(v) && v > hi) hi = v; }
       // Volitelný třetí prvek = text místo čísla (např. „–“ u dne bez dat); takový řádek nemá pruh.
-      const rows = top.map(([k, v, txt]) => `
-        <div class="bar"><span class="lbl">${esc(k)}</span><span class="val">${txt != null ? esc(txt) : v}</span>
-        <div class="track">${txt != null ? '' : `<div class="fill" style="width:${Math.max(2, (v / hi) * 100)}%;${color ? 'background:' + color : ''}"></div>`}</div></div>`).join('');
+      const rows = top.map(([k, v, txt]) => {
+        const n = Number(v), ok = Number.isFinite(n);
+        const w = ok && hi > 0 ? Math.max(2, (n / hi) * 100) : 0;
+        return `<div class="bar"><span class="lbl">${labelHtml(k)}</span><span class="val">${txt != null ? esc(txt) : ok ? nf(n) : '–'}</span>` +
+          `<div class="track">${txt != null || !ok ? '' : `<div class="fill" style="width:${w.toFixed(1)}%;${color ? 'background:' + color : ''}"></div>`}</div></div>`;
+      }).join('');
       const h = hint ? ` <span class="hint">${esc(hint)}</span>` : '';
       return `<div class="panel"><h3>${esc(title)}${h}</h3>${rows || '<p style="color:var(--muted)">Žádná data.</p>'}</div>`;
     }
-    function funnelPanel(title, steps, ev) {
-      const installsWith = (name) => new Set(ev.filter((e) => e.name === name).map((e) => e.installId));
-      return funnelFromSets(title, steps.map((s) => [s, installsWith(s)]));
-    }
-    /** Trychtýř z hotových množin instalací: [[popisek, Set(installId)], …]. */
+    /** Trychtýř z hotových množin zařízení: [[popisek, Set(installId)], …]. */
     function funnelFromSets(title, pairs, hint) {
-      const steps = pairs.map(([label]) => label);
       const sets = pairs.map(([, set]) => set);
       const base = sets[0].size || 1;
-      const rows = steps.map((s, i) => {
+      const rows = pairs.map(([label], i) => {
         const c = sets[i].size; const pct = Math.round((c / base) * 100);
-        // Krok-na-krok konverze: kolik % z PŘEDCHOZÍHO kroku se dostalo sem (+ absolutní úbytek).
+        // Krok na krok: kolik % z PŘEDCHOZÍHO kroku se dostalo sem (+ absolutní úbytek).
         let conv = '';
         if (i > 0) {
           const prev = sets[i - 1].size;
@@ -1965,7 +1976,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           const drop = prev - c;
           conv = `<div class="conv">↳ ${stepPct}&nbsp;% z předchozího${drop > 0 ? `<span class="drop">−${drop}</span>` : ''}</div>`;
         }
-        return `<div class="step"><div class="bar"><span class="lbl">${esc(s)}</span><span class="val">${c} <span class="pct">· ${pct}%</span></span>
+        return `<div class="step"><div class="bar"><span class="lbl">${labelHtml(label)}</span><span class="val">${c} <span class="pct">· ${pct}&nbsp;%</span></span>
           <div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:var(--apricot)"></div></div></div>${conv}</div>`;
       }).join('');
       const h = hint ? ` <span class="hint">${esc(hint)}</span>` : '';
@@ -1984,7 +1995,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     //    z paywallu bez něj) → dvojice téhož zařízení a zdroje do 60 s = jedno zobrazení. Od vlny 1
     //    loguje jen paywall, jednou a s article: dvojice nevznikají, takže netřeba hranice buildu.
     // PURCHASE_EVENTS a isLegacyRestore jsou v jádru (sdílí je kontrola nákupů v Technice).
-    const RESTORE_KIND = { restore_started: 'started', restore_completed: 'completed', restore_none: 'none', restore_failed: 'failed' };
+    const RESTORE_KIND = new Map([['restore_started', 'started'], ['restore_completed', 'completed'], ['restore_none', 'none'], ['restore_failed', 'failed']]);
     const DOUBLE_VIEW_SOURCES = new Set(['article', 'health_tip']);
     const DOUBLE_VIEW_MS = 60 * 1000;
     const ATTRIBUTION_MS = 60 * 60 * 1000;
@@ -2034,8 +2045,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const purchases = [], restores = [];
       for (const e of ev) {
         const p = e.props;
-        if (RESTORE_KIND[e.name]) {
-          restores.push({ installId: e.installId, kind: RESTORE_KIND[e.name], legacy: false, reason: e.name === 'restore_failed' ? (p.code || p.reason || '?') : null, source: p.source || null });
+        if (RESTORE_KIND.has(e.name)) {
+          restores.push({ installId: e.installId, kind: RESTORE_KIND.get(e.name), legacy: false, reason: e.name === 'restore_failed' ? (p.code || p.reason || '?') : null, source: p.source || null });
           continue;
         }
         if (!PURCHASE_EVENTS.has(e.name)) continue;
@@ -2059,29 +2070,21 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       return { views, rawViews: rawViews.length, merged, purchases, restores, manage: ev.filter((e) => e.name === 'subscription_manage_opened') };
     }
 
-    const PAYWALL_SOURCE_LABEL = {
-      onboarding: 'onboarding', article: 'zamčený článek', health_tip: 'zdravotní tip', quiz: 'kvíz',
-      challenge_result: 'výsledek výzvy', coop: 'Spolu (sdílení psa)', timeline: 'časová osa',
-      profile_timeline: 'časová osa v Profilu', profile: 'karta Premium v Profilu', owner_profile: 'Profil Psa doma',
-      tutorial: 'konec průvodce', breed_select: 'změna plemene', breeddex: 'sbírka plemen',
-      engagement: 'bez zdroje (starší verze)',
-    };
-    const srcLabel = (s) => !s ? 'nezjištěno (bez paywallu v datech)'
-      : PAYWALL_SOURCE_LABEL[s] ? PAYWALL_SOURCE_LABEL[s] + (PAYWALL_SOURCE_LABEL[s] === s ? '' : ' · ' + s)
-      : /^owner_/.test(s) ? 'Pes doma · ' + s : s;
-    const MODE_LABEL = { challenge: '30denní výzva', classic: 'na zkoušku bez výzvy', owner: 'Pes doma' };
-    const modeLabel = (m) => !m ? 'neuvedeno (starší verze)' :MODE_LABEL[m] ? MODE_LABEL[m] + ' · ' + m : m;
-    const trialLabel = (t) => t === 1 ? 'nabízena zkušební doba · 1' : t === 0 ? 'bez zkušební doby · 0' : 'neuvedeno (starší verze)';
-    const PLAN_KEY_LABEL = { monthly: 'měsíčně', yearly: 'ročně', lifetime: 'navždy' };
-    const planLabel = (p) => PLAN_KEY_LABEL[p] ? PLAN_KEY_LABEL[p] + ' · ' + p : String(p);
-    const MANAGE_SOURCE_LABEL = { settings: 'Nastavení', paywall: 'paywall', account_delete: 'smazání účtu' };
-    const MANAGE_VIA_LABEL = { sheet: 'list iOS', link: 'stránka obchodu' };
+    // Popisky Nákupů z katalogu (D.2): zdroj paywallu, režim, zkušební doba, plán, správa předplatného.
+    // Text = popisek, technický klíč v title (L.html). Prázdná hodnota má vlastní vysvětlení.
+    const fixedLab = (cs, en, raw) => lab(LANG === 'raw' ? raw : LANG === 'en' ? en : cs, raw, true);
+    const srcLab = (s) => (!s ? fixedLab('nezjištěno (bez paywallu v datech)', 'unknown (no paywall in data)', '(prázdné)') : L.value('paywall_viewed', 'source', s));
+    const modeLab = (m) => (!m ? fixedLab('neuvedeno (starší verze)', 'not given (older version)', '(prázdné)') : L.value('paywall_viewed', 'mode', m));
+    const trialLab = (t) => (t === 1 || t === 0 ? L.value('purchase_started', 'trial', String(t)) : fixedLab('neuvedeno (starší verze)', 'not given (older version)', '(prázdné)'));
+    const planLab = (p) => L.value('purchase_started', 'plan', p);
+    /** Kód nebo důvod selhání: nejdřív jako kód RevenueCatu, jinak jako důvod. */
+    const failLab = (name, x) => { const c = L.value(name, 'code', x); return c.known ? c : L.value(name, 'reason', x); };
 
     /** Sloupcový „výsledek“ (podíl ze základu); rows = [[popisek, počet, barva], …]. */
     function outcomePanel(title, hint, base, rows) {
       const html = rows.map(([l, v, c]) => {
         const pct = base ? Math.round((v / base) * 100) : 0;
-        return `<div class="bar"><span class="lbl">${esc(l)}</span><span class="val">${v} <span class="pct">· ${pct}%</span></span><div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:${c}"></div></div></div>`;
+        return `<div class="bar"><span class="lbl">${labelHtml(l)}</span><span class="val">${v} <span class="pct">· ${pct}&nbsp;%</span></span><div class="track"><div class="fill" style="width:${Math.max(2, pct)}%;background:${c}"></div></div></div>`;
       }).join('');
       return `<div class="panel funnel"><h3>${esc(title)} <span class="hint">${esc(hint)}</span></h3>${html}</div>`;
     }
@@ -2102,11 +2105,11 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         ['selhalo', n('purchase_failed'), '#ff8a8a'],
       ];
       const known = rows.reduce((a, r) => a + r[1], 0);
-      rows.push(['bez záznamu (před build282 / nákup už běžel)', Math.max(0, started - known), 'var(--line)']);
-      return outcomePanel('Výsledek pokusu o nákup', `${started} pokusů (purchase_started, bez obnovy)`, started, rows);
+      rows.push(['bez záznamu (před verzí 282 nebo nákup už běžel)', Math.max(0, started - known), 'var(--apricot)']);
+      return outcomePanel('Výsledek pokusu o nákup', `${started} ${pl(started, 'pokus', 'pokusy', 'pokusů')} o nákup, bez obnovy`, started, rows);
     }
 
-    /** Obnova nákupů: restore_* + starší purchase_* s product 'restore'. */
+    /** Obnova nákupů: vlastní záznamy obnovy + starší nákupní záznamy s produktem „obnova“. */
     function restoreOutcomePanel(m) {
       const n = (k) => m.restores.filter((r) => r.kind === k).length;
       const started = n('started');
@@ -2116,25 +2119,25 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         ['selhalo', n('failed'), '#ff8a8a'],
       ];
       const known = rows.reduce((a, r) => a + r[1], 0);
-      rows.push(['bez výsledku', Math.max(0, started - known), 'var(--line)']);
+      rows.push(['bez výsledku', Math.max(0, started - known), 'var(--apricot)']);
       const legacy = m.restores.filter((r) => r.kind === 'started' && r.legacy).length;
-      return outcomePanel('Obnova nákupů', `${started} pokusů · z toho ${legacy} ze starších verzí`, started, rows);
+      return outcomePanel('Obnova nákupů', `${started} ${pl(started, 'pokus', 'pokusy', 'pokusů')} · z toho ${legacy} ze starších verzí`, started, rows);
     }
 
     /** Trychtýř paywall → nákup po zařízeních (bez obnovy, dvojí zobrazení sloučená). */
     function monetFunnel(m) {
       const set = (arr) => new Set(arr.map((x) => x.installId));
-      return funnelFromSets('Monetizace', [
-        ['paywall_viewed', set(m.views)],
-        ['purchase_started', set(m.purchases.filter((p) => p.name === 'purchase_started'))],
-        ['purchase_completed', set(m.purchases.filter((p) => p.name === 'purchase_completed'))],
+      return funnelFromSets('Paywall → nákup (zařízení)', [
+        [H(L.html(L.event('paywall_viewed'))), set(m.views)],
+        [H(L.html(L.event('purchase_started'))), set(m.purchases.filter((p) => p.name === 'purchase_started'))],
+        [H(L.html(L.event('purchase_completed'))), set(m.purchases.filter((p) => p.name === 'purchase_completed'))],
       ], 'bez obnovy nákupů');
     }
 
     /**
      * Rozpad paywall → nákup podle jedné vlastnosti. Počty = různá zařízení (jako trychtýř).
      * viewKey = null → paywall vlastnost nezná (zkušební doba, plán): tabulka začíná pokusem o nákup.
-     * Klíč undefined = událost do rozpadu nepatří (např. plán u nákupu plemene).
+     * Klíč undefined = událost do rozpadu nepatří (např. plán u nákupu plemene). label(k) vrací popisek (lab).
      */
     function convPanel(title, m, viewKey, buyKey, label, hint) {
       const add = (map, k, iid) => { let s = map.get(k); if (!s) map.set(k, s = new Set()); s.add(iid); };
@@ -2152,7 +2155,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const head = viewKey
         ? '<tr><th></th><th class="n">zobrazení</th><th class="n">zařízení</th><th class="n">zahájili</th><th class="n">koupili</th><th class="n">konverze</th></tr>'
         : '<tr><th></th><th class="n">zahájili</th><th class="n">koupili</th><th class="n">úspěšnost</th></tr>';
-      const rows = keys.map((k) => `<tr><td>${esc(label(k))}</td>` + (viewKey
+      const rows = keys.map((k) => `<tr><td>${L.html(label(k))}</td>` + (viewKey
         ? `<td class="n">${viewsN.get(k) || 0}</td><td class="n">${sz(seen, k)}</td><td class="n">${sz(started, k)}</td><td class="n">${sz(done, k)}</td><td class="n">${pct(sz(done, k), sz(seen, k))}</td>`
         : `<td class="n">${sz(started, k)}</td><td class="n">${sz(done, k)}</td><td class="n">${pct(sz(done, k), sz(started, k))}</td>`) + '</tr>').join('');
       const h = hint ? ` <span class="hint">${esc(hint)}</span>` : '';
@@ -2168,230 +2171,27 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       if (activeTab === 'cesta') { renderJourney(); return; }
       // Filtry platí jen na Nákupech a Technice (lišta je jinde skrytá) → filtrovat jen tady.
       const ev = applyFilters(RAW);
-      $('count').textContent = 'Zobrazeno ' + ev.length + ' / ' + RAW.length + ' eventů · ' + batches + ' dávek' + (exhausted ? ' (kompletní)' : ' (jsou starší – Načíst starší)');
+      $('count').textContent = `Zobrazeno ${nf(ev.length)} z ${nf(RAW.length)} záznamů · ${nf(batches)} ${pl(batches, 'dávka', 'dávky', 'dávek')}` +
+        (exhausted ? ' (celá historie)' : ' (jsou i starší, Načíst starší v Technice)');
       if (activeTab === 'nakupy') renderPurchases(ev);
       else renderTech(ev);
     }
 
-    function renderUsers() {
-      const now = Date.now(); const DAY = 86400000;
-      const all = INSTALLS.filter((i) => i.platform === 'ios' || i.platform === 'android');
-      const testers = all.filter((i) => i.cls.kind === 'tester');
-      const robots = all.filter((i) => i.cls.kind === 'robot');
-      const users = FILTERS.testers ? all : all.filter((i) => i.cls.kind === 'real');
-      const within = (ms, d) => ms !== null && now - ms <= d * DAY;
-      const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
-      const ios = users.filter((i) => i.platform === 'ios').length, and = users.length - ios;
-      $('u-sub').textContent = (FILTERS.testers ? 'včetně ' : 'bez ') + testers.length + ' testerů a ' + robots.length + ' robotů · ' + all.length + ' zařízení v ledgeru';
-      $('u-kpis').innerHTML = [
-        k('zařízení celkem', users.length, `iOS ${ios} · Android ${and}`),
-        k('aktivní 7 dní', users.filter((i) => within(i.lastMs, 7)).length, `30 dní ${users.filter((i) => within(i.lastMs, 30)).length}`),
-        k('nové 7 dní', users.filter((i) => within(i.firstMs, 7)).length, `30 dní ${users.filter((i) => within(i.firstMs, 30)).length}`),
-        k('nové 24 h', users.filter((i) => within(i.firstMs, 1)).length),
-      ].join('');
-      const byDay = new Map();
-      for (let d = 29; d >= 0; d--) byDay.set(new Date(now - d * DAY).toLocaleDateString('cs-CZ'), 0);
-      users.forEach((i) => { if (within(i.firstMs, 30)) { const key = new Date(i.firstMs).toLocaleDateString('cs-CZ'); byDay.set(key, (byDay.get(key) || 0) + 1); } });
-      const regionName = (c) => { try { return c && c !== 'none' ? new Intl.DisplayNames(['cs'], { type: 'region' }).of(c) + ' (' + c + ')' : '– nehlásí (starší build)'; } catch { return c; } };
-      const langName = (c) => { try { return c ? new Intl.DisplayNames(['cs'], { type: 'language' }).of(c) + ' (' + c + ')' : '–'; } catch { return c; } };
-      $('u-panels').innerHTML = [
-        barPanel('Nová zařízení za den (30 dní)', [...byDay.entries()], 'var(--apricot)'),
-        barPanel('Jazyk aplikace', countBy(users, (i) => langName(i.locale)), 'var(--water)', 12, 'z nastavení aplikace'),
-        barPanel('Země zařízení', countBy(users, (i) => regionName(i.region)), 'var(--plum)', 12, 'z nastavení telefonu; sbírá se od OTA build281'),
-        barPanel('Jazyk telefonu', countBy(users, (i) => langName(i.deviceLocale === 'none' ? null : i.deviceLocale)), null, 12, 'co má člověk v systému'),
-        barPanel('Build aplikace', countBy(users, (i) => i.appBuild != null ? 'build' + i.appBuild : '?'), null, 10, 'podle poslední dávky'),
-        barPanel('Druh instalace', countBy(all, (i) => i.installKind), null, 8, 'app_store/device = běžní uživatelé; unknown = před build281'),
-        barPanel('Klasifikace', countBy(all, (i) => i.cls.kind + (i.cls.rule ? ' · ' + i.cls.rule : i.cls.source === 'manual' ? ' · ručně' : '')), 'var(--water)', 10, 'real = počítá se do uživatelů'),
-      ].join('');
-    }
-
-    function renderOverview(ev) {
-      renderUsers();
-      renderStoreStats();
-      const tsList = ev.map((e) => e.ts).filter(Boolean);
-      const sessions = new Set(ev.map((e) => e.installId + ':' + e.session)).size;
-      const span = tsList.length ? Math.round((Math.max(...tsList) - Math.min(...tsList)) / 86400000) : 0;
-      $('kpis').innerHTML = [
-        ['Eventy', ev.length], ['Instalace', uniqInstalls(ev)], ['Relace', sessions],
-        ['Rozsah (dny)', span], ['Poslední', tsList.length ? fmt(Math.max(...tsList)) : '–'],
-      ].map(([l, v]) => `<div class="card"><div class="kpi">${v}<small>${l}</small></div></div>`).join('');
-
-      const mon = monetization(ev);
-      $('funnels').innerHTML = [
-        funnelPanel('Aktivace', ['app_open','onboarding_step','quiz_completed','breed_selected','activated'], ev),
-        monetFunnel(mon),
-        funnelPanel('Mise (→ útulek)', ['activated','article_read','graduation_reached','shelter_opened'], ev),
-        purchaseOutcomePanel(mon),
-      ].join('');
-
-      $('overview-events').innerHTML = [
-        barPanel('Eventy dle typu', countBy(ev, (e) => e.name), 'var(--water)', 30),
-        barPanel('Otevření aplikace dle dne', countBy(evByName(ev, 'app_open'), (e) => new Date(e.ts).toLocaleDateString('cs-CZ')), 'var(--apricot)', 21),
-      ].join('');
-    }
-
-    function renderResearch(ev) {
-      // Onboarding funnel + dwell (průměrný čas na kroku z onboarding_step.dwellMs)
-      const dwell = (() => {
-        const m = new Map();
-        for (const e of evByName(ev, 'onboarding_step')) {
-          const k = e.props.fromStep; const d = +e.props.dwellMs;
-          if (!k || !Number.isFinite(d)) continue;
-          const a = m.get(k) || [0, 0]; a[0] += d; a[1]++; m.set(k, a);
-        }
-        return [...m.entries()].map(([k, [s, n]]) => [k + ' (' + n + '×)', Math.round(s / n / 1000)]).sort((a, b) => b[1] - a[1]);
-      })();
-      const flows = onboardingFlows(ev);
-      $('r-funnel').innerHTML = [
-        funnelFromSets('Nový onboarding (od 2.2.1) – kroky', flows.newPairs, flows.newHint),
-        funnelFromSets('Původní onboarding (do 2.2.0) – kroky', flows.oldPairs, flows.oldHint),
-        funnelFromSets('Pes doma z onboardingu', flows.ownerPairs, flows.ownerHint),
-        barPanel('Kde odešli – nový onboarding', flows.newExits, '#ff8a8a', 8, 'poslední krok instalací, které psa nezaložily'),
-        barPanel('Krok zpět (odkud → kam)', flows.backs, null, 8, 'onboarding_step s dir: back, od 2.2.1'),
-        barPanel('Založení psa – zvolený režim', flows.doneModes, 'var(--water)', 4, 'step done → mode, od 2.2.1'),
-        funnelPanel('Onboarding funnel (dle eventů)', ['app_open','onboarding_step','quiz_completed','breed_selected','activated'], ev),
-        barPanel('Průměrný čas na kroku (s)', dwell, 'var(--plum)', 8, 'z onboarding_step.dwellMs'),
-      ].join('');
-
-      // Readiness
-      const rc = evByName(ev, 'readiness_completed');
-      const perQ = ['q1','q2','q3','q4','q5','q6'].map((q) => {
-        const yes = rc.filter((e) => e.props[q] === 'yes').length;
-        const no = rc.filter((e) => e.props[q] === 'no').length;
-        const na = rc.filter((e) => e.props[q] === 'na').length;
-        return [q + ': ' + yes + '× ano / ' + no + '× ne / ' + na + '× ø', yes];
-      });
-      $('r-readiness').innerHTML = [
-        barPanel('Tier připravenosti', countBy(rc, (e) => e.props.tier), 'var(--water)', null, rc.length + '× vyplněno'),
-        barPanel('Odkud vyplněno', countBy(rc, (e) => ({ first: 'karta na Domů (od 2.2.1)', again: 'zopakování na výsledku výzvy' }[e.props.phase] || 'krok onboardingu (do 2.2.0)')), 'var(--plum)', 3),
-        barPanel('Odpovědi „ano" dle otázky', perQ, 'var(--apricot)', null, 'kolik z nich na danou otázku odpovědělo ano'),
-      ].join('');
-
-      // Quiz profil
-      const qc = evByName(ev, 'quiz_completed');
-      $('r-quiz').innerHTML = [
-        barPanel('Čas na péči (q1)', countBy(qc, (e) => 'volba ' + e.props.hours), 'var(--water)'),
-        barPanel('Bydlení (q2)', countBy(qc, (e) => 'volba ' + e.props.housing), 'var(--plum)'),
-        barPanel('Aktivita (q3)', countBy(qc, (e) => 'volba ' + e.props.activity), 'var(--apricot)'),
-      ].join('');
-
-      // Doporučení vs výběr
-      const bs = evByName(ev, 'breed_selected');
-      const matched = bs.filter((e) => e.props.matchedRecommendation === true).length;
-      const diff = bs.filter((e) => e.props.matchedRecommendation === false).length;
-      const premiumDiff = bs.filter((e) => e.props.matchedRecommendation === false && e.props.ownsPremium === true).length;
-      const premiumPicked = bs.filter((e) => e.props.isPremium === true).length;
-      $('r-breed').innerHTML = [
-        barPanel('Vybral doporučené plemeno?', [['ano (shoda)', matched], ['ne (jiné)', diff]], 'var(--water)'),
-        barPanel('Vybraná plemena', countBy(bs, (e) => e.props.breed), null, 13),
-        barPanel('Premium nabídka v onboardingu', countBy(evByName(ev, 'onboarding_premium_offer'), (e) => e.props.action), 'var(--apricot)', null, 'shown vs tapped'),
-        barPanel('„Koupil premium A vybral jiné"', [['premium + jiné než doporučené', premiumDiff], ['premium plemeno vybráno', premiumPicked]], '#caa6ff', null, 'TF otázka'),
-      ].join('');
-
-      // Engagement
-      const tch = countBy(evByName(ev, 'event_choice'), (e) => e.props.best ? 'nejlepší volba' : 'horší volba');
-      $('r-engage').innerHTML = [
-        barPanel('Splněné úkoly (task_done)', countBy(evByName(ev, 'task_done'), (e) => e.props.task), 'var(--water)'),
-        barPanel('Trénink povelů (training_done)', countBy(evByName(ev, 'training_done'), (e) => e.props.command), 'var(--apricot)', 12),
-        barPanel('Kvalita rozhodnutí v událostech', tch, 'var(--plum)'),
-        barPanel('Sdílení (share_initiated)', countBy(evByName(ev, 'share_initiated'), (e) => e.props.kind), 'var(--water)'),
-      ].join('');
-
-      // Mise + retence + délka session
-      const dayReach = (() => {
-        const maxDay = new Map();
-        for (const e of evByName(ev, 'day_advanced')) { const d = +e.props.day || 0; const cur = maxDay.get(e.installId) || 0; if (d > cur) maxDay.set(e.installId, d); }
-        return [1, 3, 7, 14, 30].map((b) => ['den ≥ ' + b, [...maxDay.values()].filter((d) => d >= b).length]);
-      })();
-      const returns = (() => {
-        const days = new Map();
-        for (const e of evByName(ev, 'app_open')) { const k = e.installId; const set = days.get(k) || new Set(); set.add(new Date(e.ts).toDateString()); days.set(k, set); }
-        const counts = [...days.values()].map((s) => s.size);
-        return [['1 den', counts.filter((c) => c === 1).length], ['2–3 dny', counts.filter((c) => c >= 2 && c <= 3).length], ['4–6 dní', counts.filter((c) => c >= 4 && c <= 6).length], ['7+ dní', counts.filter((c) => c >= 7).length]];
-      })();
-      const sess = evByName(ev, 'session_end').map((e) => +e.props.durationSec).filter((n) => Number.isFinite(n) && n >= 0);
-      const sessBuckets = [['< 30 s', sess.filter((s) => s < 30).length], ['30 s–2 min', sess.filter((s) => s >= 30 && s < 120).length], ['2–10 min', sess.filter((s) => s >= 120 && s < 600).length], ['10+ min', sess.filter((s) => s >= 600).length]];
-      $('r-mission').innerHTML = [
-        barPanel('Retence – instalace co dosáhly herního dne', dayReach, 'var(--apricot)'),
-        barPanel('Návraty – počet odlišných dní s otevřením', returns, 'var(--water)'),
-        barPanel('Délka relace (session_end)', sessBuckets, 'var(--plum)', null, sess.length + '× ukončeno'),
-        barPanel('Proklik na útulek dle útulku', countBy(evByName(ev, 'shelter_opened'), (e) => e.props.shelter || '(neznámý)'), 'var(--water)', 12),
-      ].join('');
-    }
-
-    /**
-     * Onboarding po krocích, zvlášť nový (2.2.1: úvod → věk → 3 otázky → doporučení → plemeno →
-     * jméno s režimem → hotovo) a původní (s dotazníkem připravenosti a krokem režimu).
-     * „Dosáhl kroku“ = onboarding_step se step == krok (bez dir: back). Instalace se do průběhu
-     * zařadí podle stop v datech (done/dir/věk → otázky = nový, readiness/mode = původní); kdo
-     * odešel dřív, podle buildu: od nejnižšího buildu, kde se nový průběh objevil, je nový.
-     */
-    function onboardingFlows(ev) {
-      const NEW = ['age', 'quiz', 'quiz_result', 'breed', 'name', 'done'];
-      const OLD = ['age', 'readiness', 'quiz', 'quiz_result', 'breed', 'name', 'mode'];
-      const LABEL = { intro: 'úvod (otevřeli aplikaci)', age: 'věk', readiness: 'dotazník připravenosti', quiz: '3 otázky', quiz_result: 'doporučení', breed: 'výběr plemene', name: 'jméno (+ režim od 2.2.1)', mode: 'režim', done: 'pes založen (done)', activated: 'pes založen (activated)' };
-      const per = new Map(); // installId → {steps:Set, isNew, isOld, build, last:{ts,step}, minTs, activated, owner…}
-      const get = (iid) => { let x = per.get(iid); if (!x) { x = { steps: new Set(), isNew: false, isOld: false, build: null, last: null, minTs: Infinity, hadStep: false, activated: false, ownerSetup: false, ownerAct: false, ownerBack: false }; per.set(iid, x); } return x; };
-      const backs = new Map(); const doneModes = new Map();
-      for (const e of ev) {
-        const x = get(e.installId);
-        const b = Number(e.dev.appBuild); if (Number.isFinite(b) && (x.build === null || b < x.build)) x.build = b;
-        if (e.ts < x.minTs) x.minTs = e.ts;
-        if (e.name === 'activated') x.activated = true;
-        else if (e.name === 'owner_activated' && e.props.from === 'onboarding') x.ownerAct = true;
-        else if (e.name === 'mode_switched' && e.props.source === 'onboarding' && e.props.from === 'owner' && e.props.to === 'trial') x.ownerBack = true;
-        else if (e.name === 'onboarding_step') {
-          const st = e.props.step; const from = e.props.fromStep;
-          x.hadStep = true;
-          if (e.props.dir === 'back') { x.isNew = true; const k = (from || '?') + ' → ' + (st || '?'); backs.set(k, (backs.get(k) || 0) + 1); continue; }
-          if (st === 'owner_setup') x.ownerSetup = true;
-          if (st === 'done') { x.isNew = true; const m = e.props.mode || '?'; doneModes.set(m, (doneModes.get(m) || 0) + 1); }
-          if (st === 'readiness' || st === 'mode') x.isOld = true;
-          if (from === 'age' && st === 'quiz') x.isNew = true;
-          if (st) x.steps.add(st);
-          if (!x.last || e.ts > x.last.ts) x.last = { ts: e.ts, step: st };
-        }
-      }
-      // Jen instalace, jejichž PRVNÍ relaci máme v datech (ledger firstSeenAt ≈ první načtený event);
-      // jinak by se do „úvodu“ počítali dávní uživatelé, kteří onboarding prošli dřív.
-      const FIRST = new Map(INSTALLS.map((i) => [i.id, i.firstMs]));
-      const all = [...per.entries()].filter(([id, x]) => { const f = FIRST.get(id); return f === null || f === undefined ? x.hadStep : x.minTs <= f + 2 * 3600000; });
-      const newBuilds = all.filter(([, x]) => x.isNew && !x.isOld && x.build !== null).map(([, x]) => x.build);
-      const from = newBuilds.length ? Math.min(...newBuilds) : null;
-      const isNewFlow = (x) => x.isNew && !x.isOld ? true : x.isOld ? false : (from !== null && x.build !== null && x.build >= from);
-      const cohort = (wantNew) => all.filter(([, x]) => isNewFlow(x) === wantNew);
-      const pairs = (rows, steps) => [['úvod (otevřeli aplikaci)', new Set(rows.map(([id]) => id))], ...steps.map((st) => [LABEL[st] || st, new Set(rows.filter(([, x]) => x.steps.has(st)).map(([id]) => id))])];
-      const nw = cohort(true), od = cohort(false);
-      const oldPairs = pairs(od, OLD);
-      oldPairs.push([LABEL.activated, new Set(od.filter(([, x]) => x.activated).map(([id]) => id))]);
-      const exits = new Map();
-      nw.filter(([, x]) => !x.steps.has('done') && !x.ownerAct).forEach(([, x]) => { const k = LABEL[x.last ? x.last.step : 'intro'] || (x.last && x.last.step) || '?'; exits.set(k, (exits.get(k) || 0) + 1); });
-      const ownerRows = all.filter(([, x]) => x.ownerSetup);
-      return {
-        newPairs: pairs(nw, NEW),
-        newHint: from !== null ? `instalace od buildu ${from} · ${nw.length}` : 'zatím žádná data (přijde s nativní 2.2.1)',
-        oldPairs,
-        oldHint: `${od.length} instalací`,
-        ownerPairs: [
-          ['zvolili „mám psa“', new Set(ownerRows.map(([id]) => id))],
-          ['skutečný pes založen (měří se od 2.2.1)', new Set(ownerRows.filter(([, x]) => x.ownerAct).map(([id]) => id))],
-        ],
-        ownerHint: `${ownerRows.filter(([, x]) => x.ownerBack).length}× se vrátili na Pes na zkoušku`,
-        newExits: [...exits.entries()].sort((a, b) => b[1] - a[1]),
-        backs: [...backs.entries()].sort((a, b) => b[1] - a[1]),
-        doneModes: [...doneModes.entries()].sort((a, b) => b[1] - a[1]),
-      };
-    }
-
-    // --- Nákupy (rc_events + párování se zařízením z analytiky) ---
+    // --- Nákupy (RevenueCat + párování se zařízením z analytiky) ---
     // MATCH_MS, productKey a pairPurchases jsou v jádru (stejné párování používá kontrola v Technice).
-    const PLAN_LABEL = { plan_monthly: 'Premium – měsíčně', plan_yearly: 'Premium – ročně', plan_lifetime: 'Premium – navždy', breed_bundle: 'Balíček plemen' };
-    const productLabel = (key) => PLAN_LABEL[key] || (key.startsWith('breed_') ? 'Plemeno: ' + key.slice(6).split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : key || '?');
-    const STORE_LABEL = { APP_STORE: 'App Store', PLAY_STORE: 'Google Play', MAC_APP_STORE: 'Mac App Store', AMAZON: 'Amazon', STRIPE: 'Stripe', PROMOTIONAL: 'promo RevenueCat' };
-    const TYPE_LABEL = { INITIAL_PURCHASE: 'první nákup', RENEWAL: 'obnova', NON_RENEWING_PURCHASE: 'jednorázový', PRODUCT_CHANGE: 'změna tarifu', CANCELLATION: 'zrušení', EXPIRATION: 'vypršení', BILLING_ISSUE: 'problém s platbou', SUBSCRIPTION_EXTENDED: 'prodloužení', UNCANCELLATION: 'obnovené předplatné', TRANSFER: 'převod', SUBSCRIPTION_PAUSED: 'pozastavení', TEST: 'test webhooku' };
-    const money = (v, cur) => { if (v === null || v === undefined || !cur) return '–'; try { return new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: cur }).format(v); } catch { return v + ' ' + cur; } };
-    const usd = (v) => (v === null || v === undefined) ? '' : '$' + Number(v).toFixed(2);
-    const langLabel = (c) => { if (!c || c === 'none' || c === 'unknown') return '–'; try { return new Intl.DisplayNames(['cs'], { type: 'language' }).of(c) + ' (' + c + ')'; } catch { return c; } };
+    // Mapy RevenueCatu zůstávají (SPEC D.2); čtou se jen přes Map (E.3).
+    const PLAN_LABEL = new Map([['plan_monthly', 'Premium\u00a0– měsíčně'], ['plan_yearly', 'Premium\u00a0– ročně'], ['plan_lifetime', 'Premium\u00a0– navždy'], ['breed_bundle', 'Balíček plemen']]);
+    const productLabel = (key) => PLAN_LABEL.get(key) || (String(key).startsWith('breed_') ? 'Plemeno: ' + String(key).slice(6).split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : String(key || '?'));
+    const STORE_LABEL = new Map([['APP_STORE', 'App Store'], ['PLAY_STORE', 'Google Play'], ['MAC_APP_STORE', 'Mac App Store'], ['AMAZON', 'Amazon'], ['STRIPE', 'Stripe'], ['PROMOTIONAL', 'promo RevenueCat']]);
+    const TYPE_LABEL = new Map([['INITIAL_PURCHASE', 'první nákup'], ['RENEWAL', 'obnova'], ['NON_RENEWING_PURCHASE', 'jednorázový'], ['PRODUCT_CHANGE', 'změna tarifu'], ['CANCELLATION', 'zrušení'], ['EXPIRATION', 'vypršení'], ['BILLING_ISSUE', 'problém s platbou'], ['SUBSCRIPTION_EXTENDED', 'prodloužení'], ['UNCANCELLATION', 'obnovené předplatné'], ['TRANSFER', 'převod'], ['SUBSCRIPTION_PAUSED', 'pozastavení'], ['TEST', 'test webhooku']]);
+    const storeLabel = (s) => STORE_LABEL.get(s) || String(s || '?');
+    const typeLabel = (t) => TYPE_LABEL.get(t) || String(t || '');
+    /** Částka v měně nákupu jako bezpečné HTML (E.2: i náhradní text přes esc). */
+    const money = (v, cur) => { if (v === null || v === undefined || !cur) return '–'; try { return esc(new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: cur }).format(v)); } catch { return esc(v + ' ' + cur); } };
+    const usd = (v) => (v === null || v === undefined || !Number.isFinite(Number(v))) ? '' : '$' + Number(v).toFixed(2);
+    /** Jazyk a země jako popisek přes Intl.DisplayNames, kód v title (D.4). */
+    const langHtml = (c) => (!c || c === 'none' || c === 'unknown' ? '–' : L.html(L.lang(c)));
+    const regionHtml = (c) => (!c || c === 'none' ? '–' : L.html(L.region(c)));
     let purchaseCoverage = false;
 
     function purchaseRows() {
@@ -2424,27 +2224,28 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     function renderPurchases(ev) {
       ensurePurchaseCoverage();
       renderMonetization(ev);
-      const fromTs = FILTERS.from ? new Date(FILTERS.from).getTime() : null;
-      const toTs = FILTERS.to ? new Date(FILTERS.to).getTime() + 86400000 : null;
+      const range = filterRange();
       const allRows = purchaseRows();
       // Bez záznamu v RevenueCatu = nákup mimo obchod (TestFlight, interní testování Play) → jako tester.
-      const rows = allRows.filter((x) => (FILTERS.testers || (x.rc && !x.sandbox && x.cls === 'real')) && (!fromTs || x.ts >= fromTs) && (!toTs || x.ts < toTs));
+      const rows = allRows.filter((x) => (FILTERS.testers || (x.rc && !x.sandbox && x.cls === 'real')) && inRange(x.ts, range));
       const hidden = allRows.length - rows.length;
       const paid = rows.filter((x) => x.rc && !x.refunded && (x.rc.priceLocal || 0) > 0);
       const trials = rows.filter((x) => x.rc && String(x.rc.periodType || '') === 'TRIAL');
       const byCur = new Map(); paid.forEach((x) => byCur.set(x.rc.currency, (byCur.get(x.rc.currency) || 0) + x.rc.priceLocal));
       const sum = (f) => paid.reduce((a, x) => a + (Number(f(x)) || 0), 0);
-      const k = (label, v, sub) => `<div class="card"><div class="kpi">${v}<small>${label}${sub ? ' · ' + sub : ''}</small></div></div>`;
-      $('p-sub').textContent = `· ${RC_EVENTS.filter((r) => r.isPurchase).length} nákupů v RevenueCatu` + (hidden ? ` · skryto ${hidden} (testovací / testeři)` : '');
+      // k(): popisek i podtext jsou konstanty nebo už escapované (E.2); hodnota se escapuje tady.
+      const k = (label, v, sub) => `<div class="card"><div class="kpi">${esc(v)}<small>${esc(label)}${sub ? ' · ' + sub : ''}</small></div></div>`;
+      const rcN = RC_EVENTS.filter((r) => r.isPurchase).length;
+      $('p-sub').textContent = `· ${rcN} ${pl(rcN, 'nákup', 'nákupy', 'nákupů')} v RevenueCatu` + (hidden ? ` · skryto ${hidden} (testovací nebo testeři)` : '');
       $('p-kpis').innerHTML = [
         k('placených nákupů', paid.length, `plemena ${paid.filter((x) => x.key.startsWith('breed_')).length} · Premium ${paid.filter((x) => x.key.startsWith('plan_')).length}`),
         k('tržba hrubě (s DPH)', usd(sum((x) => x.rc.priceUsd)) || '$0.00', [...byCur.entries()].map(([c, v]) => money(v, c)).join(' + ') || '–'),
         k('výnos po DPH a provizi', usd(sum((x) => x.rc.proceedsUsd)) || '$0.00', 'odhad RevenueCatu'),
         k('zkušební období', trials.length, 'Premium zdarma, 0 Kč'),
-        k('testovací nákupy', allRows.filter((x) => !x.rc || x.sandbox).length, FILTERS.testers ? 'v tabulce' : 'skryté, „včetně testerů“ je ukáže'),
+        k('testovací nákupy', allRows.filter((x) => !x.rc || x.sandbox).length, FILTERS.testers ? 'v tabulce' : 'skryté, zaškrtávátko „včetně testerů a robotů“ je ukáže'),
       ].join('');
       const tag = (t, cls) => `<span class="tag ${cls || ''}">${esc(t)}</span>`;
-      const head = '<tr><th>Čas</th><th>Co koupil</th><th>Částka</th><th>Výnos</th><th>Obchod</th><th>Země</th><th>Zařízení</th><th>Jazyk aplikace</th><th>Jazyk telefonu</th><th>Build</th><th>Druh</th><th>Pozn.</th></tr>';
+      const head = '<tr><th>Čas</th><th>Co koupil</th><th>Částka</th><th>Výnos</th><th>Obchod</th><th>Země</th><th>Zařízení</th><th>Jazyk aplikace</th><th>Jazyk telefonu</th><th>Verze</th><th>Druh</th><th>Pozn.</th></tr>';
       const body = rows.map((x) => {
         const r = x.rc, d = x.app ? x.app.dev : null;
         const notes = [
@@ -2455,26 +2256,28 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           x.sandbox ? tag('sandbox', 'auto') : '',
           x.cls !== 'real' ? tag(x.cls, 'manual') : '',
         ].join(' ');
-        const what = productLabel(x.key) + (r && r.periodType === 'TRIAL' ? ' · zkušební období' : '');
-        const amount = r ? money(r.priceLocal, r.currency) + (r.priceUsd !== null && r.priceUsd !== undefined ? ` <span style="color:var(--muted)">(${usd(r.priceUsd)})</span>` : '') : '–';
-        // `os` u starších buildů Androidu nese celý otisk sestavení → platforma + verze.
+        const what = esc(productLabel(x.key)) + (r && r.periodType === 'TRIAL' ? ' · zkušební období' : '');
+        const amount = r ? money(r.priceLocal, r.currency) + (r.priceUsd !== null && r.priceUsd !== undefined ? ` <span style="color:var(--muted)">(${esc(usd(r.priceUsd))})</span>` : '') : '–';
+        // `os` u starších verzí Androidu nese celý otisk sestavení → platforma + verze.
         const device = d ? esc((d.model || '?') + ' · ' + (d.platform === 'ios' ? 'iOS' : d.platform === 'android' ? 'Android' : (d.platform || '')) + ' ' + (d.osVersion || '')) : '–';
-        return `<tr class="${x.cls !== 'real' || x.sandbox ? 'tester' : ''}"><td>${esc(fmt(x.ts))}</td><td>${esc(what)}</td><td>${amount}</td><td>${r ? esc(usd(r.proceedsUsd) || '–') : '–'}</td>` +
-          `<td>${esc(r ? (STORE_LABEL[r.store] || r.store || '?') : (d && d.platform === 'ios' ? 'App Store?' : d ? 'Google Play?' : '?'))}</td><td>${esc((r && r.countryCode) || (d && d.region !== 'none' && d.region) || '–')}</td>` +
-          `<td>${device}</td><td>${esc(d ? langLabel(d.locale) : '–')}</td><td>${esc(d ? langLabel(d.deviceLocale) : '–')}</td><td>${esc(d && d.appBuild != null ? d.appBuild : '–')}</td>` +
-          `<td>${esc(r ? (TYPE_LABEL[r.type] || r.type) : 'purchase_completed')}</td><td>${notes}</td></tr>`;
+        const country = (r && r.countryCode) || (d && d.region !== 'none' && d.region) || '';
+        return `<tr class="${x.cls !== 'real' || x.sandbox ? 'tester' : ''}"><td>${esc(fmt(x.ts))}</td><td><span title="Technický název: ${esc(x.key)}">${what}</span></td><td>${amount}</td><td>${r ? esc(usd(r.proceedsUsd) || '–') : '–'}</td>` +
+          `<td>${esc(r ? storeLabel(r.store) : (d && d.platform === 'ios' ? 'App Store?' : d ? 'Google Play?' : '?'))}</td><td>${regionHtml(country)}</td>` +
+          `<td>${device}</td><td>${d ? langHtml(d.locale) : '–'}</td><td>${d ? langHtml(d.deviceLocale) : '–'}</td><td>${esc(d && d.appBuild != null ? d.appBuild : '–')}</td>` +
+          `<td>${r ? esc(typeLabel(r.type)) : L.html(L.event('purchase_completed'))}</td><td>${notes}</td></tr>`;
       }).join('');
       $('p-table').innerHTML = head + (body || '<tr><td colspan="12" style="color:var(--muted)">Žádné nákupy (nebo jsou skryté filtrem).</td></tr>');
       const matched = paid.filter((x) => x.app);
+      const labelled = (pairs, labOf) => pairs.map(([kk, v]) => [H(L.html(labOf(kk))), v]);
       $('p-panels').innerHTML = [
         barPanel('Placené nákupy podle produktu', countBy(paid, (x) => productLabel(x.key)), 'var(--apricot)', 12),
-        barPanel('Podle obchodu', countBy(paid, (x) => STORE_LABEL[x.rc.store] || x.rc.store || '?'), 'var(--water)', 4),
-        barPanel('Podle země', countBy(paid, (x) => x.rc.countryCode || '?'), 'var(--plum)', 12, 'země účtu v obchodě'),
-        barPanel('Podle jazyka aplikace', countBy(matched, (x) => langLabel(x.app.dev.locale)), 'var(--water)', 12, matched.length + ' spárováno se zařízením'),
-        barPanel('Podle zařízení', countBy(matched, (x) => x.app.dev.model || '?'), null, 12),
+        barPanel('Podle obchodu', countBy(paid, (x) => storeLabel(x.rc.store)), 'var(--water)', 4),
+        barPanel('Podle země', labelled(countBy(paid, (x) => x.rc.countryCode || '_none'), (c) => L.region(c)), 'var(--water)', 12, 'země účtu v obchodě'),
+        barPanel('Podle jazyka aplikace', labelled(countBy(matched, (x) => x.app.dev.locale || '_none'), (c) => L.lang(c)), 'var(--water)', 12, matched.length + ' spárováno se zařízením'),
+        barPanel('Podle zařízení', countBy(matched, (x) => x.app.dev.model || '?'), 'var(--apricot)', 12),
       ].join('');
       const other = RC_EVENTS.filter((r) => !r.isPurchase && r.type !== 'TEST' && (FILTERS.testers || String(r.environment || '').toUpperCase() !== 'SANDBOX')).sort((a, b) => (b.eventAtMs || 0) - (a.eventAtMs || 0));
-      $('p-other').innerHTML = '<tr><th>Čas</th><th>Událost</th><th>Produkt</th><th>Důvod</th><th>Obchod</th><th>Země</th></tr>' + (other.map((r) => `<tr><td>${esc(fmt(r.eventAtMs || r.purchasedAtMs))}</td><td>${esc(TYPE_LABEL[r.type] || r.type)}</td><td>${esc(productLabel(productKey(r.productId)))}</td><td>${esc(r.cancelReason || r.expirationReason || '–')}</td><td>${esc(STORE_LABEL[r.store] || r.store || '?')}</td><td>${esc(r.countryCode || '–')}</td></tr>`).join('') || '<tr><td colspan="6" style="color:var(--muted)">Žádné.</td></tr>');
+      $('p-other').innerHTML = '<tr><th>Čas</th><th>Událost</th><th>Produkt</th><th>Důvod</th><th>Obchod</th><th>Země</th></tr>' + (other.map((r) => `<tr><td>${esc(fmt(r.eventAtMs || r.purchasedAtMs))}</td><td>${esc(typeLabel(r.type))}</td><td>${esc(productLabel(productKey(r.productId)))}</td><td>${esc(r.cancelReason || r.expirationReason || '–')}</td><td>${esc(storeLabel(r.store))}</td><td>${regionHtml(r.countryCode)}</td></tr>`).join('') || '<tr><td colspan="6" style="color:var(--muted)">Žádné.</td></tr>');
     }
 
     /** Nákupy → „Paywall → nákup“: analytika aplikace (respektuje všechny filtry nahoře). */
@@ -2482,79 +2285,238 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       if (!$('m-panels')) return;
       const m = monetization(ev);
       const inferred = m.purchases.filter((p) => p.inferred).length;
-      $('m-sub').textContent = `· ${m.views.length} zobrazení paywallu` + (m.merged ? ` (${m.merged} dvojic sloučeno)` : '') +
-        ` · ${m.purchases.length} nákupních událostí` + (inferred ? ` (${inferred} se zdrojem z paywallu)` : '');
+      $('m-sub').textContent = `· ${m.views.length} ${pl(m.views.length, 'zobrazení', 'zobrazení', 'zobrazení')} paywallu` + (m.merged ? ` (${m.merged} ${pl(m.merged, 'dvojice sloučena', 'dvojice sloučeny', 'dvojic sloučeno')})` : '') +
+        ` · ${m.purchases.length} ${pl(m.purchases.length, 'záznam', 'záznamy', 'záznamů')} o nákupu` + (inferred ? ` (${inferred} se zdrojem z paywallu)` : '');
       const planOf = (p) => p.plan || undefined; // jen Premium plán, plemena do rozpadu nepatří
       $('m-panels').innerHTML = [
         monetFunnel(m),
         purchaseOutcomePanel(m),
-        convPanel('Podle zdroje paywallu', m, (v) => v.props.source || null, (p) => p.source, srcLabel, 'odkud člověk na paywall přišel'),
-        convPanel('Podle režimu', m, (v) => v.props.mode || null, (p) => p.mode, modeLabel, 'mode paywallu'),
-        convPanel('Podle zkušební doby', m, null, (p) => p.trial, trialLabel, 'trial u vybraného plánu, od vlny 1'),
-        convPanel('Podle plánu Premium', m, null, planOf, planLabel, 'jen Premium, bez plemen'),
+        convPanel('Podle zdroje paywallu', m, (v) => v.props.source || null, (p) => p.source, srcLab, 'odkud člověk na paywall přišel'),
+        convPanel('Podle režimu', m, (v) => v.props.mode || null, (p) => p.mode, modeLab, 'v jakém režimu byl paywall'),
+        convPanel('Podle zkušební doby', m, null, (p) => p.trial, trialLab, 'zkušební doba u vybraného plánu, od 16. 11. 2026'),
+        convPanel('Podle plánu Premium', m, null, planOf, planLab, 'jen Premium, bez plemen'),
       ].join('');
       const failed = m.restores.filter((r) => r.kind === 'failed');
+      const manage = new Map();
+      for (const e of m.manage) addCount(manage, valKey(e.props.source) + '\u0000' + valKey(e.props.via));
       $('m-restore').innerHTML = [
         restoreOutcomePanel(m),
-        barPanel('Obnova nákupů – odkud',countBy(m.restores.filter((r) => r.kind === 'started'), (r) => r.legacy ? 'starší verze (zdroj neposílá)' : srcLabel(r.source)), 'var(--water)', 10),
-        failed.length ? barPanel('Obnova nákupů – proč selhala',countBy(failed, (r) => r.reason || '?'), '#ff8a8a', 8, 'code / reason z RevenueCatu') : '',
-        barPanel('Spravovat předplatné', countBy(m.manage, (e) => (MANAGE_SOURCE_LABEL[e.props.source] || e.props.source || '?') + ' · ' + (MANAGE_VIA_LABEL[e.props.via] || e.props.via || '?')), 'var(--plum)', 8,
-          `${m.manage.length}× otevřeno (subscription_manage_opened, od vlny 1)`),
+        barPanel('Obnova nákupů: odkud', countBy(m.restores.filter((r) => r.kind === 'started'), (r) => r.legacy ? '\u0000legacy' : (r.source || '_none'))
+          .map(([kk, v]) => [kk === '\u0000legacy' ? 'starší verze (zdroj neposílá)' : H(L.html(srcLab(kk === '_none' ? null : kk))), v]), 'var(--water)', 10),
+        failed.length ? barPanel('Obnova nákupů: proč selhala', countBy(failed, (r) => r.reason || '?').map(([kk, v]) => [H(L.html(failLab('restore_failed', kk))), v]), '#ff8a8a', 8, 'kód nebo důvod z RevenueCatu') : '',
+        barPanel('Spravovat předplatné', breakdown(manage).map(([kk, v]) => {
+          const [src, via] = kk.split('\u0000');
+          return [H(L.html(L.value('subscription_manage_opened', 'source', src)) + ' · ' + L.html(L.value('subscription_manage_opened', 'via', via))), v];
+        }), 'var(--apricot)', 8, `${m.manage.length}× otevřeno (od 16. 11. 2026)`),
       ].join('');
     }
 
+    // --- Technika (SPEC C.3): nahoře kontrola dat z jádra (pevně 7 a 30 dní), pod ní panely podle filtrů ---
+    const INSTALL_KIND_LABEL = new Map([['app_store', 'App Store'], ['device', 'z obchodu (Android)'], ['unknown', 'neznámý (verze před 281)'],
+      ['emulator', 'emulátor'], ['test_lab', 'Test Lab Google'], ['simulator', 'simulátor'], ['development', 'vývojová verze'], ['expo_go', 'Expo Go'],
+      ['ad_hoc', 'ad hoc'], ['enterprise', 'firemní distribuce']]);
+    const CLS_KIND_LABEL = new Map([['real', 'skutečné'], ['tester', 'tester'], ['robot', 'robot']]);
+    const CLS_RULE_LABEL = new Map([['kind', 'podle druhu instalace'], ['sdk_gphone', 'emulátor Google'], ['oneplus8pro_android11_short', 'OnePlus 8 Pro, Android 11, krátká aktivita'],
+      ['ios_simulator_model', 'simulátor iPhonu']]);
+    const known = (m, v, raw) => (m.has(String(v)) ? lab(LANG === 'raw' ? String(raw ?? v) : m.get(String(v)), raw ?? v, true) : lab(`${v} (bez překladu)`, raw ?? v, false));
+    const REVIEW_REASON = new Map([['testerModel', 'stejný model jako označený tester'], ['purchaseNoRc', 'nákup bez záznamu v RevenueCatu']]);
+    const ACTION_STATE = new Map([['live', 'živá'], ['auto', 'automaticky'], ['noData', 'zatím bez dat'], ['removed', 'už se neposílá'], ['testers', 'jen testeři'], ['unknown', 'bez popisku']]);
+    const VERSION_MARK_LABEL = new Map([[335, 'Připomínky péče'], [337, 'Akce v plánu, deník a váha (Pes doma)'], [338, 'Procházky Psa doma'],
+      [342, 'Vstupy do aplikace'], [344, 'Test první péče'], [352, 'Zdroj instalace (Android)']]);
+    const fullDate = (iso) => (isIsoDay(iso) ? `${Number(iso.slice(8, 10))}. ${Number(iso.slice(5, 7))}. ${iso.slice(0, 4)}` : '–');
+    const pct1 = (k, n) => (n > 0 ? nf((100 * k) / n, 1) + '&nbsp;%' : '–');
+    const okPill = (state) => verdictPill(state === 'warn' ? 'Pozor' : 'V pořádku');
+
+    function renderTechChecks() {
+      const root = $('t-checks');
+      const st = dataReady ? coverState(30) : 'running';
+      const T = dataReady ? coreResult('tech') : null;
+      // T1 Načtená data (vždy, i během dočítání).
+      if (T) {
+        const LD = T.loaded, recs = num(LD.records) ?? 0, dups = num(LD.dups) ?? 0, b = num(LD.batches);
+        $('t-loaded').innerHTML = `Data od ${esc(fullDate(LD.oldestDay))} · načteno ${b === null ? '–' : nf(b)} ${pl(b ?? 0, 'dávka', 'dávky', 'dávek')} · ` +
+          `zdvojené záznamy vyřazeny: ${nf(dups)} ${zz(recs)} (${pct1(dups, recs)}) · ${LD.complete ? 'celá historie' : 'jsou i starší'}`;
+      } else $('t-loaded').textContent = 'Načítám…';
+      // Načíst starší / vše (E.12): po konci historie neaktivní; text se po Obnovit vrací (firstLoad).
+      if (exhausted) { $('loadOlder').textContent = 'Historie kompletní'; $('loadAll').textContent = 'Vše načteno'; }
+      $('loadOlder').disabled = exhausted; $('loadAll').disabled = exhausted;
+      if (st !== 'ok' || !T) { root.innerHTML = waitBox(st, 30); return; }
+
+      // T2 Pokrytí verzí
+      const V7 = T.versions7, act7 = num(V7.active) ?? 0, ST = V7.store;
+      const t2rows = CORE_LIMITS.VERSION_MARKS.map((sb) => {
+        const x = num(own(V7.atLeast, String(sb))) ?? 0;
+        return `<tr><td>${esc(VERSION_MARK_LABEL.get(sb) || '')}</td><td class="n" data-label="Od verze">${nf(sb)}</td><td class="n" data-label="Umí poslat">${kzn({ k: x, n: act7 })}</td></tr>`;
+      }).join('');
+      const t2 = card({
+        q: 'Pokrytí verzí (aktivní za 7 dní)',
+        sentence: `Z ${nf(act7)} aktivních za 7 dní je ${nf(ST.devices)} na verzi z obchodu ${nf(ST.build)}, z toho ${nf(ST.oneDay)} ${pl(ST.oneDay, 'byl aktivní', 'byly aktivní', 'bylo aktivních')} jediný den.`,
+        body: `<table class="qt narrow"><thead><tr><th>Měření</th><th class="n">Od verze</th><th class="n">Kolik aktivních ho umí poslat</th></tr></thead><tbody>${t2rows}</tbody></table>`,
+        how: 'Nová měření posílají jen telefony s novější verzí aplikace. Zařízení na verzi z obchodu s jediným aktivním dnem už aktualizaci nestáhnou. Proto u novějších měření počítáme podíl jen z telefonů, které je umí poslat.',
+        foot: 'Aktivní za 7 dní · nejvyšší verze v posledních 7 dnech · bez testerů a robotů',
+      });
+
+      // T3 Sedí data?
+      const C = T.check, chk = [];
+      const row = (state, text) => chk.push(`<div class="chk">${okPill(state)}<p>${text}</p></div>`);
+      row(C.dups30.state, `Zdvojené záznamy za 30 dní: ${nf(C.dups30.k)} ${zz(C.dups30.n)} (${pct1(C.dups30.k, C.dups30.n)}); počítají se jednou. Pozor nad 5&nbsp;%.`);
+      row(C.unknown.state, num(C.unknown.count) > 0
+        ? `Akce mimo katalog: ${nf(C.unknown.count)} (${(Array.isArray(C.unknown.names) ? C.unknown.names : []).map((n) => `<span class="raw">${esc(n)}</span>`).join(', ')}${num(C.unknown.count) > 10 ? ', …' : ''}). V tabulkách se ukazují jako „Neznámá akce“.`
+        : 'Akce mimo katalog: 0.');
+      row(C.invalid.state, num(C.invalid.count) > 0
+        ? `Neplatné záznamy: ${nf(C.invalid.count)}. Zápis do analytiky je anonymní, mohou být podvržené; jednotlivě se nevypisují.`
+        : 'Neplatné záznamy: 0.');
+      row(C.active30.state, `Aktivní za 30 dní podle událostí ${nf(C.active30.events)} ${num(C.active30.events) === num(C.active30.ledger) ? '=' : '×'} podle evidence zařízení ${nf(C.active30.ledger)}. Pozor při rozdílu nad 2.`);
+      row(C.outsideLedger.state, num(C.outsideLedger.records) > 0
+        ? `Záznamy zařízení, která ještě nejsou v evidenci: ${nf(C.outsideLedger.records)} ${zz(C.outsideLedger.devices)} ${pl(C.outsideLedger.devices, 'zařízení', 'zařízení', 'zařízení')} (čerstvá dávka); do Získávání a Cesty se nepočítají.`
+        : 'Záznamy zařízení mimo evidenci: 0.');
+      const NR = C.purchaseNoRc, nrRows = Array.isArray(NR.rows) ? NR.rows : [];
+      row(NR.state, num(NR.count) > 0
+        ? `${nf(NR.count)} ${pl(NR.count, 'nákup', 'nákupy', 'nákupů')} z aplikace bez záznamu v RevenueCatu do 10 min (${nrRows.map((r) => `${esc(dayLabel(r.day))}, ${esc(r.model ?? mapLabel(PLATFORM_NAME, r.platform))}`).join('; ')}), pravděpodobně testovací.`
+        : 'Nákupy z aplikace bez záznamu v RevenueCatu: 0.');
+      const D1 = C.d1Server;
+      if (D1.state === 'incomplete') chk.push(`<div class="chk">${verdictPill('Čeká')}<p>D1 se serverem porovnám po načtení celé historie (Načíst vše nahoře).</p></div>`);
+      else if (D1.state === null || !D1.server) chk.push(`<div class="chk">${verdictPill('Čeká')}<p>Retence ze serveru zatím není spočítaná, D1 nejde porovnat.</p></div>`);
+      else row(D1.state, `D1 v adminu ${kzn(D1.admin)} × na serveru ${kzn(D1.server)}. Pozor při rozdílu nad 2.`);
+      const anyWarn = [C.dups30, C.unknown, C.invalid, C.active30, C.outsideLedger, C.purchaseNoRc, C.d1Server].some((x) => x && x.state === 'warn');
+      const t3 = card({ q: 'Sedí data?', verdict: anyWarn ? 'Pozor' : 'V pořádku', body: chk.join(''),
+        foot: 'Zdvojené, mimo katalog a neplatné za 30 dní · aktivní a nákupy bez testerů a robotů · D1 nad všemi skutečnými zařízeními' });
+
+      // T4 K ověření
+      const RV = T.review, rvRows = Array.isArray(RV.rows) ? RV.rows : [];
+      const byModel = pairsOf(RV.byModel);
+      const t4body = rvRows.length
+        ? `<p class="ilist">Podle modelu: ${byModel.map(([m, v]) => `${esc(m === '_none' ? 'bez modelu' : m)} <b>${nf(v)}</b>`).join(' · ')}</p>` +
+          `<table class="qt"><thead><tr><th>Zařízení</th><th>Model</th><th>První spuštění</th><th class="n">Verze</th><th>Důvod</th><th></th></tr></thead><tbody>` +
+          rvRows.map((r) => `<tr><td><span class="raw">${esc(r.iid)}</span></td><td data-label="Model">${esc(r.model ?? '–')}</td><td data-label="První spuštění">${esc(dayLabel(r.firstDay))}</td>` +
+            `<td class="n" data-label="Verze">${esc(r.build ?? '–')}</td><td data-label="Důvod">${(Array.isArray(r.reasons) ? r.reasons : []).map((x) => esc(REVIEW_REASON.get(x) || x)).join(', ')}</td>` +
+            `<td data-label="Rozhodnutí"><button class="ghost sm" type="button" data-ov="${esc(r.id)}" data-kind="tester">Je to tester</button> <button class="ghost sm" type="button" data-ov="${esc(r.id)}" data-kind="real">Je skutečné</button></td></tr>`).join('') +
+          '</tbody></table>'
+        : '<p class="muted">Žádné zařízení k ověření.</p>';
+      const t4 = card({
+        q: 'K ověření: zařízení, která mohou být testovací',
+        sentence: rvRows.length ? `${nf(RV.active30)} ${pl(RV.active30, 'aktivní zařízení', 'aktivní zařízení', 'aktivních zařízení')} za 30 dní ${pl(RV.active30, 'vypadá', 'vypadají', 'vypadá')} jako testovací. Jen návrh, rozhoduješ ty.` : 'Žádné aktivní zařízení nevypadá jako testovací.',
+        body: t4body,
+        how: 'TestFlight a nové telefony zakladatele vypadají jako skutečná zařízení, dokud je nikdo neoznačí. Admin je sám neoznačí. Po označení ‚Je skutečné‘ zařízení ze seznamu zmizí.',
+        foot: 'Aktivní za 30 dní, skutečná podle klasifikace, bez ručního označení · se stejným modelem jako označený tester nebo s nákupem bez záznamu v RevenueCatu',
+      });
+
+      // T5 Limit Expo
+      const EX = T.expo, exLevel = EX.level === 'plan' ? 'Řešit tarif' : EX.level === 'warn' ? 'Pozor' : 'V pořádku';
+      const t5 = card({
+        q: 'Limit Expo', verdict: exLevel,
+        sentence: `Aktualizace za 30 dní: ${nf(EX.active30)} ${zz(EX.limit)} zařízení (včetně testerů a robotů).`,
+        how: 'Bezplatný tarif Expo dovolí aktualizace pro 1&nbsp;000 zařízení za měsíc. Přesné číslo ukáže Claude příkazem eas account:usage.',
+        foot: 'Aktivní za 30 dní podle evidence zařízení, iPhone i Android, včetně testerů a robotů · V pořádku pod 800, Pozor 800–899, Řešit tarif od 900',
+      });
+
+      // T6 Akce podle skupin (respektuje jen zaškrtávátko testerů)
+      const AC = FILTERS.testers ? T.actionsAll : T.actions;
+      const rowsObj = AC.rows && typeof AC.rows === 'object' ? AC.rows : {};
+      const byGroupRows = new Map();
+      for (const nm of Object.keys(rowsObj)) { const r = rowsObj[nm]; if (r && typeof r === 'object') { const g = typeof r.g === 'string' ? r.g : 'unknown'; if (!byGroupRows.has(g)) byGroupRows.set(g, []); byGroupRows.get(g).push([nm, r]); } }
+      const t6groups = pairsOf(AC.byGroup).map(([g]) => {
+        const list = (byGroupRows.get(g) || []).sort((a, b) => (num(b[1].d30) ?? 0) - (num(a[1].d30) ?? 0) || cmpStr(a[0], b[0]));
+        const withData = list.filter(([, r]) => (num(r.r30) ?? 0) > 0).length;
+        const key = 't6:' + g;
+        return `<details class="t6g" data-open="${esc(key)}"${openAttr(key)}><summary>${L.html(L.group(g))} <span>· ${nf(list.length)} ${pl(list.length, 'akce', 'akce', 'akcí')}, s daty za 30 dní ${nf(withData)}</span></summary>` +
+          `<table class="qt"><thead><tr><th>Akce</th><th>Technický název</th><th class="n">Zařízení 7 dní</th><th class="n">Zařízení 30 dní</th><th class="n">Záznamů 30 dní</th><th>Od</th><th>Stav</th></tr></thead><tbody>` +
+          list.map(([nm, r]) => `<tr><td>${L.html(L.event(nm))}</td><td class="raw" data-label="Technický název">${esc(nm)}</td>` +
+            `<td class="n" data-label="Zařízení 7 dní">${nf(r.d7)}</td><td class="n" data-label="Zařízení 30 dní">${nf(r.d30)}</td><td class="n" data-label="Záznamů 30 dní">${nf(r.r30)}</td>` +
+            `<td data-label="Od">${r.od ? esc(fullDate(r.od)) : '–'}${num(r.sb) !== null ? ` <span class="muted">(verze ${nf(r.sb)})</span>` : ''}</td>` +
+            `<td data-label="Stav">${esc(ACTION_STATE.get(r.state) || String(r.state ?? ''))}</td></tr>`).join('') +
+          '</tbody></table></details>';
+      }).join('');
+      const t6 = card({
+        q: 'Akce podle skupin',
+        sentence: `${nf(AC.catalog)} ${pl(AC.catalog, 'akce', 'akce', 'akcí')} v katalogu · za 30 dní se ${pl(AC.seen30, 'objevila', 'objevily', 'objevilo')} ${nf(AC.seen30)} · bez popisku ${nf(AC.unknown30)} · neplatné záznamy ${nf(AC.invalid30)} · vyřazeno ${nf(AC.dups30)} ${pl(AC.dups30, 'zdvojený záznam', 'zdvojené záznamy', 'zdvojených záznamů')}` +
+          (FILTERS.testers ? ' · včetně testerů a robotů' : ''),
+        body: t6groups,
+        how: 'Zařízení = různé telefony, které akci za 7 nebo 30 dní poslaly. „Automaticky“ = akci posílá aplikace sama (spuštění, obrazovka, odznak…), nejde o činnost lidí. „Bez popisku“ = akce, kterou katalog ještě nezná; v datech zůstává.',
+        foot: `Pevně 7 a 30 dní · ${FILTERS.testers ? 'včetně testerů a robotů (zaškrtávátko nahoře)' : 'bez testerů a robotů (zaškrtávátko nahoře je přidá)'}`,
+      });
+
+      root.innerHTML = `<div class="qcards">${t2}${t3}${t4}${t5}${t6}</div>`;
+      bindPane(root);
+      root.querySelectorAll('button[data-ov]').forEach((b) => { b.onclick = () => setOverride(b.dataset.ov, b.dataset.kind || null).catch((e) => alert('Nepodařilo se uložit: ' + e.message)); });
+    }
+
     function renderTech(ev) {
+      renderTechChecks();
+      // Zařízení podle filtrů: různá zařízení na hodnotu (E.10), nejaktivnější telefon nepřebije ostatní.
       const purchaseFailed = evByName(ev, 'purchase_failed').filter((e) => !isLegacyRestore(e)); // obnova není nákup
+      const ledger = INSTALLS.filter((i) => (i.platform === 'ios' || i.platform === 'android'));
+      const users = FILTERS.testers ? ledger : ledger.filter((i) => i.cls && i.cls.kind === 'real');
+      const lbl = (pairs, f) => pairs.map(([k, v]) => [H(L.html(f(k))), v]);
       $('t-devices').innerHTML = [
-        barPanel('Platforma', countBy(ev, (e) => e.dev.platform), 'var(--water)'),
-        barPanel('Model zařízení', countBy(ev, (e) => e.dev.model), null, 12),
-        barPanel('OS verze', countBy(ev, (e) => (e.dev.os || '') + ' ' + (e.dev.osVersion || '')), null, 10),
-        barPanel('Typ', countBy(ev, (e) => e.dev.type), 'var(--plum)'),
-        barPanel('Build aplikace', countBy(ev, (e) => e.dev.appBuild != null ? 'build' + e.dev.appBuild : '?')),
-        barPanel('Jazyk', countBy(ev, (e) => e.dev.locale), 'var(--apricot)'),
+        barPanel('Platforma', lbl(devicesBy(ev, (e) => e.dev.platform), (k) => known(PLATFORM_NAME, k)), 'var(--water)'),
+        barPanel('Model zařízení', devicesBy(ev, (e) => e.dev.model), 'var(--apricot)', 12),
+        barPanel('Verze systému', devicesBy(ev, (e) => ((e.dev.os || '') + ' ' + (e.dev.osVersion || '')).trim()), 'var(--water)', 10),
+        barPanel('Druh zařízení', lbl(devicesBy(ev, (e) => e.dev.type), (k) => known(DEVICE_TYPE_LABEL, k)), 'var(--water)'),
+        barPanel('Verze aplikace v\u00a0záznamech', devicesBy(ev, (e) => (e.dev.appBuild != null ? 'verze ' + e.dev.appBuild : '?')), 'var(--apricot)', 10, 'zařízení s víc verzemi je u každé'),
+        barPanel('Jazyk aplikace', lbl(devicesBy(ev, (e) => e.dev.locale), (k) => L.lang(k)), 'var(--apricot)'),
+        barPanel('Verze aplikace podle evidence zařízení', countBy(users, (i) => (i.appBuild != null ? 'verze ' + i.appBuild : '?')), 'var(--water)', 10, 'poslední hlášená verze; ' + (FILTERS.testers ? 'včetně testerů' : 'bez testerů a robotů')),
+        barPanel('Druh instalace', lbl(countBy(ledger, (i) => i.installKind), (k) => known(INSTALL_KIND_LABEL, k)), 'var(--apricot)', 10, 'celá evidence zařízení; App Store a z obchodu = běžní lidé'),
+        barPanel('Klasifikace', lbl(countBy(ledger, (i) => i.cls.kind + '\u0000' + (i.cls.source === 'manual' ? 'manual' : i.cls.rule || '')), (k) => {
+          const [kind, rule] = String(k).split('\u0000');
+          const kt = CLS_KIND_LABEL.get(kind) || kind, rt = rule === 'manual' ? 'ručně' : rule ? (CLS_RULE_LABEL.get(rule) || rule) : '';
+          return lab(LANG === 'raw' ? kind + (rule ? ' · ' + rule : '') : kt + (rt ? ' · ' + rt : ''), kind + (rule ? ' · ' + rule : ''), true);
+        }), 'var(--water)', 10, 'celá evidence zařízení; skutečné = počítá se do lidí'),
       ].join('');
 
+      // Selhání: selhané nákupy (pokusy, beze změny), odmítnutá poloha (zařízení), pes v útulku podle dne psa.
+      const failDays = countBy(evByName(ev, 'fail_state'), (e) => { const d = num(e.props.day); return d === null ? '?' : String(d); })
+        .sort((a, b) => (a[0] === '?' ? 1 : b[0] === '?' ? -1 : Number(a[0]) - Number(b[0])));
       $('t-quality').innerHTML = [
-        barPanel('Chyby (app_error) dle kontextu', countBy(evByName(ev, 'app_error'), (e) => e.props.context || '?'), '#ff8a8a', 12),
-        barPanel('Selhané nákupy – kód chyby', countBy(purchaseFailed, (e) => (e.props.code || e.props.reason || '?') + (e.props.code && e.props.reason && e.props.code !== e.props.reason ? ' (' + e.props.reason + ')' : '')), '#ff8a8a', 12, 'code = název chyby RevenueCatu (od build282), dřív jen reason; bez obnovy nákupů'),
-        barPanel('Selhané nákupy – produkt', countBy(purchaseFailed, (e) => e.props.product || '?'), '#ff8a8a', 10),
-        barPanel('Selhané nákupy – platforma', countBy(purchaseFailed, (e) => e.dev.platform || '?'), '#ff8a8a'),
-        barPanel('Selhané nákupy – hláška', countBy(purchaseFailed, (e) => (e.props.message || e.props.underlying || '').slice(0, 80) || '(bez hlášky)'), null, 8),
-        barPanel('GPS odmítnuto', countBy(evByName(ev, 'gps_denied'), () => 'gps_denied'), '#ff8a8a'),
-        barPanel('Fail-state (pes do útulku) dle dne', countBy(evByName(ev, 'fail_state'), (e) => 'den ' + (e.props.day ?? '?')), '#ff8a8a'),
+        barPanel('Selhané nákupy: kód chyby', countBy(purchaseFailed, (e) => valKey(e.props.code || e.props.reason || '?')).map(([k, v]) => [H(L.html(failLab('purchase_failed', k))), v]), '#ff8a8a', 12, 'pokusy; kód RevenueCatu od verze 282, u starších jen důvod; bez obnovy nákupů'),
+        barPanel('Selhané nákupy: produkt', lbl(countBy(purchaseFailed, (e) => valKey(e.props.product)), (k) => L.value('purchase_failed', 'product', k)), '#ff8a8a', 10),
+        barPanel('Selhané nákupy: platforma', lbl(countBy(purchaseFailed, (e) => e.dev.platform || '?'), (k) => known(PLATFORM_NAME, k)), '#ff8a8a'),
+        barPanel('Selhané nákupy: hláška', countBy(purchaseFailed, (e) => String(e.props.message || e.props.underlying || '').slice(0, 80) || '(bez hlášky)'), 'var(--apricot)', 8),
+        barPanel('Odmítnutá poloha: kde', lbl(devicesBy(evByName(ev, 'gps_denied'), (e) => valKey(e.props.stage)), (k) => L.value('gps_denied', 'stage', k)), 'var(--apricot)', null, 'zařízení'),
+        barPanel('Pes skončil v útulku: den psa', failDays.map(([k, v]) => [k === '?' ? 'den neuveden' : `${k}. den`, v]), 'var(--apricot)', null, 'případy, chronologicky'),
       ].join('');
 
-      // Ledger instalací s označením testerů (řazeno podle poslední aktivity).
+      // Evidence zařízení s označením testerů (řazeno podle poslední aktivity).
       const iidFilter = FILTERS.installId.trim();
       const rows = [...INSTALLS]
         .filter((i) => !iidFilter || i.id.startsWith(iidFilter))
         .sort((a, b) => (b.lastMs || 0) - (a.lastMs || 0))
         .slice(0, 300);
       $('i-sub').textContent = rows.length + ' z ' + INSTALLS.length;
-      $('inst').innerHTML = `<tr><th>installId</th><th>platforma</th><th>model</th><th>OS</th><th>jazyk</th><th>země</th><th>build</th><th>první</th><th>poslední</th><th>druh</th><th></th></tr>` +
+      $('inst').innerHTML = `<tr><th>Zařízení</th><th>platforma</th><th>model</th><th>systém</th><th>jazyk</th><th>země</th><th>verze</th><th>první</th><th>poslední</th><th>druh</th><th></th></tr>` +
         rows.map((i) => {
           const c = i.cls; const o = OVERRIDES.get(i.id);
-          const title = o ? esc(o.note || '') : (c.rule || '');
-          const tag = c.kind === 'robot' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">robot${c.source === 'auto' ? ' (auto)' : ''}</span>`
-            : c.kind === 'tester' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">tester${c.source === 'auto' ? ' (auto)' : ''}</span>`
-            : `<span class="tag store" title="${title}">${o ? 'real (ručně)' : esc(i.installKind)}</span>`;
+          const title = o ? esc(o.note || '') : esc(c.rule || '');
+          const auto = c.source === 'auto' ? ' (automaticky)' : '';
+          const tag = c.kind === 'robot' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">robot${auto}</span>`
+            : c.kind === 'tester' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">tester${auto}</span>`
+            : `<span class="tag store" title="${title}">${o ? 'skutečné (ručně)' : L.html(known(INSTALL_KIND_LABEL, i.installKind))}</span>`;
           const btns = o
-            ? `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="">zrušit přepis</button>`
+            ? `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="">zrušit označení</button>`
             : c.kind === 'real'
-              ? `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="tester">tester</button> <button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="robot">robot</button>`
-              : `<button class="ghost" style="padding:3px 8px;font-size:11px" data-ov="${esc(i.id)}" data-kind="real">není ${c.kind}</button>`;
-          return `<tr class="${c.kind !== 'real' ? 'tester' : ''}"><td><span class="iid" data-iid="${esc(i.id)}" style="cursor:pointer">${esc(i.id.slice(0, 10))}</span></td><td>${esc(i.platform || '?')}</td><td>${esc(i.model || '')}</td><td>${esc((i.os || '') + ' ' + (i.osVersion || ''))}</td><td>${esc(i.locale || '')}${i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + esc(i.deviceLocale) + ')</span>' : ''}</td><td>${esc(i.region && i.region !== 'none' ? i.region : '')}</td><td>${esc(i.appBuild ?? '')}</td><td>${i.firstMs ? fmt(i.firstMs) : ''}</td><td>${i.lastMs ? fmt(i.lastMs) : ''}</td><td>${tag}</td>
+              ? `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="tester">tester</button> <button class="ghost sm" data-ov="${esc(i.id)}" data-kind="robot">robot</button>`
+              : `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="real">není ${c.kind === 'robot' ? 'robot' : 'tester'}</button>`;
+          return `<tr class="${c.kind !== 'real' ? 'tester' : ''}"><td><span class="iid" data-iid="${esc(i.id)}" style="cursor:pointer">${esc(i.id.slice(0, 10))}</span></td><td>${esc(mapLabel(PLATFORM_NAME, i.platform || '?'))}</td><td>${esc(i.model || '')}</td><td>${esc((i.os || '') + ' ' + (i.osVersion || ''))}</td><td>${esc(i.locale || '')}${i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + esc(i.deviceLocale) + ')</span>' : ''}</td><td>${esc(i.region && i.region !== 'none' ? i.region : '')}</td><td>${esc(i.appBuild ?? '')}</td><td>${i.firstMs ? esc(fmt(i.firstMs)) : ''}</td><td>${i.lastMs ? esc(fmt(i.lastMs)) : ''}</td><td>${tag}</td>
             <td style="white-space:nowrap">${btns}</td></tr>`;
         }).join('');
       $('inst').querySelectorAll('button[data-ov]').forEach((b) => b.onclick = () => setOverride(b.dataset.ov, b.dataset.kind || null).catch((e) => alert('Nepodařilo se uložit: ' + e.message)));
       $('inst').querySelectorAll('.iid').forEach((el) => el.onclick = () => { FILTERS.installId = el.dataset.iid; $('f-iid').value = el.dataset.iid; render(); });
 
+      // Poslední záznamy (D.4): popisek akce a vlastností, technický zápis šedě pod tím.
       const recent = [...ev].sort((a, b) => b.ts - a.ts).slice(0, 80);
-      $('feed').innerHTML = recent.map((e) => `<div class="row">
-        <span><span class="ev">${esc(e.name)}</span> ${e.props && Object.keys(e.props).length ? '<span class="pill">' + esc(Object.entries(e.props).map(([k, v]) => k + '=' + v).join(' ')) + '</span>' : ''}</span>
-        <span class="meta"><span class="iid" data-iid="${esc(e.installId || '')}">${esc((e.installId || '?').slice(0, 6))}</span> · ${esc(e.dev.model || e.dev.platform || '?')} · ${esc(e.dev.locale || '')} · ${fmt(e.ts)}</span>
-      </div>`).join('') || '<p style="color:var(--muted)">Žádné eventy.</p>';
-      // drill-down: klik na installId ve feedu → nastav filtr + zůstaň
+      const short = (v) => { const t = v !== null && typeof v === 'object' ? stableJson(v) : String(v); return t.length > 120 ? t.slice(0, 120) + '…' : t; };
+      $('feed').innerHTML = recent.map((e) => {
+        const p = e.props && typeof e.props === 'object' ? e.props : {};
+        const keys = Object.keys(p);
+        const valText = (k) => (e.name === 'screen_view' && k === 'screen' && typeof p[k] === 'string' ? L.screen(p[k]).text
+          : L.value(e.name, k, p[k] !== null && typeof p[k] === 'object' ? stableJson(p[k]) : p[k]).text);
+        const human = [esc(L.event(e.name).text), ...keys.map((k) => `${esc(L.prop(e.name, k).text)}: ${esc(short(valText(k)))}`)].join(' · ');
+        const tech = validActionName(e.name) ? esc(e.name) + (keys.length ? ' ' + esc(keys.map((k) => k + '=' + short(p[k])).join(' ')) : '') : 'neplatný název';
+        return `<div class="row"><span><span class="ev">${human}</span><span class="tech">${tech}</span></span>
+        <span class="meta"><span class="iid" data-iid="${esc(e.installId || '')}">${esc(String(e.installId || '?').slice(0, 6))}</span> · ${esc(e.dev.model || e.dev.platform || '?')} · ${esc(e.dev.locale || '')} · ${esc(fmt(e.ts))}</span>
+      </div>`;
+      }).join('') || '<p style="color:var(--muted)">Žádné záznamy.</p>';
+      // Klik na kód zařízení → filtr na to zařízení.
       $('feed').querySelectorAll('.iid').forEach((el) => el.onclick = () => {
         FILTERS.installId = el.dataset.iid; $('f-iid').value = el.dataset.iid; render();
       });
@@ -2591,7 +2553,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const a = amount === null || amount === undefined ? NaN : Number(amount);
       const c = String(cur || '').toUpperCase();
       if (c === 'CZK' && Number.isFinite(a)) return { czk: a, approx: false, ecb: false };
-      const r = FX && FX.rates ? Number(FX.rates[c]) : NaN;
+      const r = FX && FX.rates && Object.hasOwn(FX.rates, c) ? Number(FX.rates[c]) : NaN; // měna z dat jen přes hasOwn (E.3)
       if (Number.isFinite(a) && r > 0) return { czk: a / r, approx: false, ecb: true };
       const u = amountUsd === null || amountUsd === undefined ? NaN : Number(amountUsd);
       return { czk: Number.isFinite(u) ? u * usdCzk().rate : 0, approx: true, ecb: false };
@@ -2610,7 +2572,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     const rtf = typeof Intl.RelativeTimeFormat === 'function' ? new Intl.RelativeTimeFormat('cs', { numeric: 'auto' }) : null;
     function ago(ms) {
       if (!Number.isFinite(ms)) return '';
-      const s = (ms - Date.now()) / 1000, a = Math.abs(s);
+      const s = (ms - nowMs()) / 1000, a = Math.abs(s);
       if (!rtf) return fmt(ms);
       if (a < 60) return 'právě teď';
       if (a < 3600) return rtf.format(Math.round(s / 60), 'minute');
@@ -2661,12 +2623,15 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       if (!dataReady) { $('dash-updated').textContent = 'Načítám…'; $('dash-cover').textContent = ''; return; }
       ensureDashCoverage();
       loadFx();
-      const now = Date.now();
+      // „Teď“ (C.4 bod 8): v produkci Date.now(), v demu čas výpisu.
+      const now = nowMs();
       const within = (ms, d) => ms !== null && ms !== undefined && now - ms <= d * DAY_MS;
-      $('dash-updated').textContent = (DEMO ? 'Demo · ' : '') + 'Aktualizováno ' + (LOADED_AT ? fmt(LOADED_AT) : '–') + ' · bez testerů a robotů';
+      // R3: zdvojené záznamy se počítají jednou; nesmí to změnit čísla potichu (C.4 bod 7).
+      $('dash-updated').textContent = (DEMO ? 'Demo · ' : '') + 'Aktualizováno ' + (LOADED_AT ? fmt(LOADED_AT) : '–') + ' · bez testerů a robotů' +
+        ` · Zdvojené záznamy z telefonů se počítají jednou (vyřazeno ${nf(DEDUP.dups)}).`;
       const oldestEv = rawOldest();
       $('dash-cover').textContent = DEMO ? '' : dashCovering ? '· dočítám události za 30 dní…'
-        : dashCovered() ? '' : '· události načtené jen od ' + (Number.isFinite(oldestEv) ? fmt(oldestEv) : '–') + ' (Načíst starší)';
+        : dashCovered() ? '' : '· události načtené jen od ' + (Number.isFinite(oldestEv) ? fmt(oldestEv) : '–') + ' (Načíst starší v Technice)';
       $('dash-refresh').disabled = refreshing || dashCovering;
 
       // ── Uživatelé (ledger instalací) ──
@@ -2693,7 +2658,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       // Klasická retence (den N přesně, kalendářní dny v Praze) po režimech – srovnatelná s trhem.
       // Počítá ji server denně (functions/cohortRetention.js), sem jdou jen počty (Number()).
       const RS = RETENTION.state === 'ok' ? RETENTION.data : null;
-      const seg = (k) => (RS && RS.segments && RS.segments[k]) || null;
+      const seg = (k) => own(RS && RS.segments, k);
       // Pod 10 zařízení by procenta klamala (1 z 1 = 100 %) → ukaž jen počet.
       const rPct = (x) => {
         const n = x ? Number(x.n) || 0 : 0, k = x ? Number(x.k) || 0 : 0;
@@ -2718,7 +2683,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
                 + ` <span style="color:var(--muted)">(vrátil se kdykoli ve dnech 7–13, resp. 28–34; celkem 2. týden ${rPct(allSeg.w1)})</span></div>`
               : '')
           : '',
-        desc: 'podíl zařízení, která aplikaci otevřela přesně 1., 7. a 30. den po prvním spuštění – stejně jako srovnávací studie trhu (Adjust, AppsFlyer); v závorce počet zařízení, při méně než 10 zařízeních jen počet (vrátilo se / základ); bez testerů a robotů; přepočet jednou denně'
+        desc: 'podíl zařízení, která aplikaci otevřela přesně 1., 7. a 30. den po prvním spuštění&nbsp;– stejně jako srovnávací studie trhu (Adjust, AppsFlyer); v závorce počet zařízení, při méně než 10 zařízeních jen počet (vrátilo se / základ); bez testerů a robotů; přepočet jednou denně'
           + (RS && anyMs(RS.updatedAt) ? ' · ' + esc(fmt(anyMs(RS.updatedAt))) : ''),
       });
       const new7 = real.filter((i) => within(i.firstMs, 7));
@@ -2740,11 +2705,11 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const lastTile = (title, x, emptyText, extra) => {
         if (!x) return tile({ title, big: '–', sub: extra || '', desc: emptyText });
         const r = x.rc;
-        const where = [fmt(x.ts), r.countryCode ? regionLabel(r.countryCode) : null, STORE_LABEL[r.store] || r.store || null].filter(Boolean).map(esc).join(' · ');
+        const where = [fmt(x.ts), r.countryCode ? regionLabel(r.countryCode) : null, r.store ? storeLabel(r.store) : null].filter(Boolean).map(esc).join(' · ');
         return tile({
           title,
-          big: esc(money(r.priceLocal, r.currency)),
-          sub: `${esc(productLabel(x.key))} · ${esc(TYPE_LABEL[r.type] || r.type || '')}<br>${where}` + (extra ? '<br>' + extra : ''),
+          big: money(r.priceLocal, r.currency),
+          sub: `${esc(productLabel(x.key))} · ${esc(typeLabel(r.type))}<br>${where}` + (extra ? '<br>' + extra : ''),
           desc: esc(ago(x.ts)) + ' · cena v měně nákupu včetně DPH',
         });
       };
@@ -2779,20 +2744,21 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         if (!productKey(r.productId).startsWith('plan_')) return;
         const a = byCust.get(r.customer) || []; a.push(r); byCust.set(r.customer, a);
       });
-      const act = { plan_monthly: 0, plan_yearly: 0, plan_lifetime: 0 }; let actTrial = 0;
+      // Počty podle plánu v Map (E.3: klíč z dat).
+      const act = new Map([['plan_monthly', 0], ['plan_yearly', 0], ['plan_lifetime', 0]]); let actTrial = 0;
       byCust.forEach((evs) => {
-        if (evs.some((r) => r.isPurchase && productKey(r.productId) === 'plan_lifetime' && !(r.transactionId && refundedTx.has(r.transactionId)))) { act.plan_lifetime++; return; }
+        if (evs.some((r) => r.isPurchase && productKey(r.productId) === 'plan_lifetime' && !(r.transactionId && refundedTx.has(r.transactionId)))) { addCount(act, 'plan_lifetime'); return; }
         const last = evs.filter((r) => productKey(r.productId) !== 'plan_lifetime').sort((a, b) => evAt(b) - evAt(a))[0];
         if (!last || last.type === 'EXPIRATION' || (last.type === 'CANCELLATION' && last.cancelReason === 'CUSTOMER_SUPPORT')) return;
         if (!(Number(last.expirationAtMs) > now)) return;
         if (String(last.periodType || '') === 'TRIAL') actTrial++;
-        else { const k = productKey(last.productId); act[k] = (act[k] || 0) + 1; }
+        else addCount(act, productKey(last.productId));
       });
-      const actPaid = Object.values(act).reduce((a, v) => a + v, 0);
+      const actPaid = [...act.values()].reduce((a, v) => a + v, 0);
       const tActivePremium = tile({
         title: 'Aktivní Premium',
         big: nf(actPaid),
-        sub: `Měsíčně ${nf(act.plan_monthly)} · ročně ${nf(act.plan_yearly)} · navždy ${nf(act.plan_lifetime)}<br>Ve zkušebním období navíc: ${nf(actTrial)}`,
+        sub: `Měsíčně ${nf(act.get('plan_monthly'))} · ročně ${nf(act.get('plan_yearly'))} · navždy ${nf(act.get('plan_lifetime'))}<br>Ve zkušebním období navíc: ${nf(actTrial)}`,
         desc: 'zákazníci, kterým Premium právě teď platí (předplatné před vypršením nebo navždy), bez zkušebního období',
       });
 
@@ -2850,15 +2816,16 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         });
       }
 
-      // ── Zapojení + zdraví (analytické eventy, bez testerů a robotů) ──
+      // ── Zapojení (analytika aplikace, bez testerů a robotů); lidé = různá zařízení (C.4 body 3–6) ──
       const ev = RAW.filter((e) => Number.isFinite(e.ts) && !isExcluded(e.installId, e.dev));
       const evIn = (name, d, pred) => ev.filter((e) => e.name === name && (!d || now - e.ts <= d * DAY_MS) && (!pred || pred(e)));
-      const shared = (e) => e.props && e.props.action === 'shared';
+      const devIn = (name, d, pred) => new Set(evIn(name, d, pred).map((e) => e.installId)).size;
+      const sharedIos = (e) => e.props && e.props.action === 'shared' && e.dev && e.dev.platform === 'ios';
       const tShare = tile({
         title: 'Sdílení',
-        cells: [[nf(evIn('share_initiated', 7).length), '7 dní'], [nf(evIn('share_initiated', 30).length), '30 dní']],
-        sub: `Opravdu odesláno (share_completed): 7 dní ${nf(evIn('share_completed', 7, shared).length)} · 30 dní ${nf(evIn('share_completed', 30, shared).length)}`,
-        desc: 'kolikrát lidé otevřeli sdílení (share_initiated)',
+        cells: [[nf(devIn('share_initiated', 7)), 'zařízení · 7 dní'], [nf(devIn('share_initiated', 30)), 'zařízení · 30 dní']],
+        sub: `Opravdu odeslali (jen iPhone, Android to nehlásí): 7 dní ${nf(devIn('share_completed', 7, sharedIos))} · 30 dní ${nf(devIn('share_completed', 30, sharedIos))}`,
+        desc: 'kolik zařízení otevřelo sdílení',
       });
       // Paywall → nákup za 30 dní (analytika aplikace): obnova se nepočítá, dvojí zobrazení sloučená.
       const mon30 = monetization(ev.filter((e) => now - e.ts <= 30 * DAY_MS));
@@ -2869,32 +2836,23 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const topSrc = countBy(buys30, (p) => p.source || null)[0];
       const tPaywall = tile({
         title: 'Paywall → nákup (30 dní)',
-        big: pctFmt(buyInst.size, pwInst.size, 1),
+        // Pod 10 zařízení s paywallem jen „k z n“ (R7, C.4 bod 4).
+        big: pwInst.size < SMALL_N ? `${nf(buyInst.size)} ${zz(pwInst.size)}` : pctFmt(buyInst.size, pwInst.size, 1),
         cells: [[nf(pwInst.size), 'zařízení s paywallem'], [nf(buyInst.size), 'dokončilo nákup']],
         sub: `Obnova nákupů: ${nf(rN('started'))}× (obnoveno ${nf(rN('completed'))} · nebylo co obnovit ${nf(rN('none'))} · selhalo ${nf(rN('failed'))})` +
           `<br>Spravovat předplatné: ${nf(mon30.manage.length)}×` +
-          (topSrc ? `<br>Nejvíc nákupů ze zdroje: ${esc(srcLabel(topSrc[0]))} (${nf(topSrc[1])})` : ''),
+          (topSrc ? `<br>Nejvíc nákupů ze zdroje: ${esc(srcLab(topSrc[0]).text)} (${nf(topSrc[1])})` : ''),
         desc: 'zařízení, která za 30 dní viděla paywall, a kolik jich nákup dokončilo (analytika aplikace); obnova nákupů se jako nákup nepočítá; rozpad podle zdroje, režimu a plánu v záložce Nákupy',
       });
-      const opened7 = evIn('care_reminder_opened', 7).length, done7 = evIn('care_reminder_done', 7).length;
       const tCare = tile({
         title: 'Připomínky péče',
-        cells: [[nf(opened7), 'otevřeno · 7 dní'], [nf(done7), 'splněno · 7 dní'], [pctFmt(done7, opened7), 'splněno z otevřených']],
-        desc: 'notifikace virtuálního psa podle zvyku (od 13. 11. 2026)',
+        cells: [[nf(devIn('care_reminder_opened', 7)), 'otevřeli · 7 dní'], [nf(devIn('care_reminder_done', 7)), 'splnili po připomínce · 7 dní']],
+        desc: 'Otevřeli = klepli na připomínku. Splnili = nakrmili nebo vyvenčili psa do 2 hodin po připomínce, i bez klepnutí, proto se tato dvě čísla nedělí. Měří se od 14. 11. 2026.',
       });
       const tChallenge = tile({
         title: '30denní výzva',
-        cells: [[nf(evIn('challenge_completed', 30).length), '30 dní'], [nf(evIn('challenge_completed').length), 'načtená historie' + (Number.isFinite(oldestEv) ? ' od ' + esc(dayLabel(isoDay(oldestEv))) : '')]],
-        desc: 'dokončené 30denní výzvy (challenge_completed)',
-      });
-      const errs = evIn('app_error', 7);
-      const topErr = countBy(errs, (e) => e.props && e.props.context ? String(e.props.context) : '?')[0];
-      const tErrors = tile({
-        title: 'Chyby v aplikaci',
-        alert: errs.length > 0,
-        cells: [[nf(errs.length), 'chyby · 7 dní'], [nf(uniqInstalls(errs)), 'zasažená zařízení']],
-        sub: topErr ? `Nejčastěji: ${esc(topErr[0].slice(0, 80))} (${nf(topErr[1])}×)` : 'Za 7 dní žádná chyba',
-        desc: 'zachycené chyby (app_error) za 7 dní; podrobnosti v záložce Technika',
+        cells: [[nf(devIn('challenge_completed', 30)), 'dokončili · 30 dní'], [nf(devIn('challenge_started', 30)), 'spustili · 30 dní']],
+        desc: 'Kolik zařízení za 30 dní výzvu spustilo a kolik ji dokončilo. Výzva trvá 30 dní, takže dokončit ji mohli jen ti, kdo začali dřív.',
       });
 
       $('dash-tiles').innerHTML = [
@@ -2902,7 +2860,6 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         section('Peníze', [tTotal, tActivePremium, tPayers, tPaywall, tLastPremium, tLastBreed]),
         section('Obchody', [tStore, tRatings]),
         section('Zapojení', [tShare, tCare, tChallenge]),
-        section('Zdraví aplikace', [tErrors]),
       ].join('');
     }
 
@@ -2945,7 +2902,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     const MONTH_GEN = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'];
     // Slovník verdiktů (C.0): barva jen doplňuje slovo, žádná červená.
     const VERDICT_CLASS = new Map([['Vyplatí se', 'v-good'], ['Nad trhem', 'v-good'], ['Nevyplatí se', 'v-warn'], ['Pod trhem', 'v-warn'], ['Roste', 'v-up'],
-      ['Zjištění', 'v-info'], ['Průkazný rozdíl', 'v-info'], ['Na úrovni trhu', 'v-info'], ['Drží', 'v-info'], ['Jen počty', 'v-info']]);
+      ['Zjištění', 'v-info'], ['Průkazný rozdíl', 'v-info'], ['Na úrovni trhu', 'v-info'], ['Drží', 'v-info'], ['Jen počty', 'v-info'],
+      ['V pořádku', 'v-good'], ['Pozor', 'v-warn'], ['Řešit tarif', 'v-warn']]);
     const PLATFORM_LABEL = new Map([['android', 'Android'], ['ios', 'iPhone']]);
     const NETWORK_LABEL = new Map([['tiktok', 'TikTok'], ['google', 'Google Ads'], ['apple', 'Apple Ads'], ['meta', 'Meta']]);
     const OPEN_DETAILS = new Set(); // rozbalené <details> přežijí překreslení (C.5)
@@ -3618,9 +3576,10 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           if ('AD_CAMPAIGNS' in d) AD_CAMPAIGNS = d.AD_CAMPAIGNS && typeof d.AD_CAMPAIGNS === 'object' ? d.AD_CAMPAIGNS : null;
           const nowIn = 'NOW' in d ? d.NOW : d.meta && typeof d.meta === 'object' ? d.meta.dumpedAt : undefined;
           if (nowIn !== undefined) { const t = anyMs(nowIn); NOW_FIXED = Number.isFinite(t) ? t : null; }
-          exhausted = true; dataReady = true; dashCoverage = true; purchaseCoverage = true; LOADED_AT = Date.now();
+          exhausted = true; dataReady = true; dashCoverage = true; purchaseCoverage = true; LOADED_AT = nowMs();
           DATA_VER++; OVERRIDES_VER++; CORE_CACHE.key = null;
           reclassify();
+          buildFilterOptions();
           render();
         },
         core() { return { meta: coreResult('meta'), acq: coreResult('acq'), jr: coreResult('jr'), tech: coreResult('tech') }; },

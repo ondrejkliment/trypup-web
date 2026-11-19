@@ -176,7 +176,7 @@ Signály režimů (B1, v období): **Pes doma** = `screen_view` s `mode: owner` 
 | `tech.check.d1Server` | `admin` = `cohortRetention` nad všemi skutečnými zařízeními (`all.d1`), `server` = `RETENTION.segments.all.d1` (`null`, když souhrn chybí), `state` `warn` při rozdílu `k` nebo `n` nad 2, `ok`, bez souhrnu `null`. Admin porovnává jen při načtené celé historii (výpis ji má vždy). | T3 |
 | `tech.unknown`, `tech.invalid`, `tech.purchaseNoRc` | zkratky `check.unknown.count`, `check.invalid.count`, `check.purchaseNoRc.count`. | G.3 |
 | `tech.actions30` | různé platné názvy akcí (vzor D.5, i mimo katalog) v událostech skutečných zařízení v 30denním okně. | G.3, T6 |
-| `tech.review` | aktivní za 30 dní, skutečná, bez ručního přepisu, s modelem jako ručně označený tester (přepis s `kind` ≠ `robot`/`real`, model z ledgeru) nebo s `purchaseNoRc`: `active30` počet, `byModel` rozpad, `byReason` rozpad (`testerModel`, `purchaseNoRc`), `rows[]` `{iid, model, firstDay, build (ledger appBuild), reasons}` řazené podle `iid`. | T4 |
+| `tech.review` | aktivní za 30 dní, skutečná, bez ručního přepisu, s modelem jako ručně označený tester (přepis s `kind` ≠ `robot`/`real`, model z ledgeru) nebo s `purchaseNoRc`: `active30` počet, `byModel` rozpad, `byReason` rozpad (`testerModel`, `purchaseNoRc`), `rows[]` `{id (celý identifikátor pro tlačítka Je to tester / Je skutečné), iid, model, firstDay, build (ledger appBuild), reasons}` řazené podle `iid`. | T4 |
 | `tech.expo` | `active30` = záznamy ledgeru `ios`/`android` s `lastMs` v 30denním okně **včetně** testerů a robotů; `limit` 1000; `level` `ok` pod 800, `warn` 800–899, `plan` od 900. | T5 |
 | `tech.actions.catalog` | akcí v katalogu (93). | T6 |
 | `tech.actions.seen30` | akcí katalogu, které mají v 30denním okně aspoň jeden záznam skutečného zařízení. | T6 |
@@ -184,6 +184,7 @@ Signály režimů (B1, v období): **Pes doma** = `screen_view` s `mode: owner` 
 | `tech.actions.dups30` | `dups30.k`. | T6 |
 | `tech.actions.rows.<akce>` | každá akce katalogu a každá platná neznámá akce s daty: `g` skupina (`unknown` mimo katalog), `d7` / `d30` = skutečná zařízení se záznamem za 7 / 30 dní, `r30` = záznamů za 30 dní, `sb`, `od` (katalog), `state` v tomto pořadí: `unknown` (mimo katalog), `removed` (`st: removed`), `testers` (`st: testers`), `noData` (`r30 = 0`), `auto` (`auto: 1`), jinak `live`. | T6 |
 | `tech.actions.byGroup` | `[[skupina, počet řádků], …]` v pořadí skupin katalogu. | T6 |
+| `tech.actionsAll` | totéž co `tech.actions` se zaškrtávátkem testerů: všechny záznamy po deduplikaci v 7 / 30denním okně (i testeři, roboti a zařízení mimo evidenci; `installId` jiného typu než řetězec = jedno zařízení `null`); `unknown30` = `check.unknown.count`, `invalid30` = `check.invalid.count`, `dups30` = vyřazené zdvojené záznamy všech zařízení v 30denním okně. | T6 |
 
 ## 6. Mapování tabulky SPEC G.3 na klíče
 

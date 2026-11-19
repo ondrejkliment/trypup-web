@@ -345,6 +345,7 @@ DEDUP = []          # všechny záznamy po deduplikaci (pořadí výpisu)
 dups_all = 0
 raw_real_30 = 0     # záznamy skutečných zařízení za 30 dní před deduplikací
 dups_real_all = 0   # z toho zdvojené
+dups_all_30 = 0     # zdvojené ze všech zařízení v 30denním okně (T6 se zaškrtávátkem testerů)
 W30_FROM, W7_FROM = NOW - 30 * DAY, NOW - 7 * DAY
 for e in DUMP.get('RAW') or []:
     if not isinstance(e, dict):
@@ -360,6 +361,8 @@ for e in DUMP.get('RAW') or []:
     if k in seen:
         dups_all += 1
         dups_real_all += iid in REAL
+        if ts is not None and W30_FROM < ts <= NOW:
+            dups_all_30 += 1
         continue
     seen.add(k)
     DEDUP.append({'name': name, 'props': props, 'ts': ts, 'installId': iid,
@@ -1458,7 +1461,7 @@ tech['purchaseNoRc'] = len(NORC)
 rv_models = Counter(key_of(REAL[i].get('model')) for i in REVIEW)
 tech['review'] = {'active30': len(REVIEW), 'byModel': breakdown(rv_models),
                   'byReason': breakdown(Counter(r for rs in REVIEW.values() for r in rs)),
-                  'rows': sorted([{'iid': i[:10], 'model': REAL[i].get('model'), 'firstDay': iso(pday(first_ms(i))),
+                  'rows': sorted([{'id': i, 'iid': i[:10], 'model': REAL[i].get('model'), 'firstDay': iso(pday(first_ms(i))),
                                    'build': REAL[i].get('appBuild'), 'reasons': REVIEW[i]} for i in REVIEW],
                                  key=lambda r: r['iid'])}
 
@@ -1466,7 +1469,40 @@ tech['review'] = {'active30': len(REVIEW), 'byModel': breakdown(rv_models),
 expo = sum(1 for x in INSTALLS if x.get('platform') in ('ios', 'android') and in_win(num(x.get('lastMs')), 30))
 tech['expo'] = {'active30': expo, 'limit': 1000, 'level': 'ok' if expo < 800 else 'warn' if expo < 900 else 'plan'}
 
-# T6 akce podle skupin (skuteční, pevně 7 a 30 dní)
+# T6 akce podle skupin (pevně 7 a 30 dní): výchozí = skuteční; actionsAll = se zaškrtávátkem testerů,
+# všechny záznamy po deduplikaci (i testeři, roboti a zařízení mimo evidenci; installId jiného typu = None).
+def action_table(d7c, d30c, r30c, invalid, dups):
+    actions = {}
+    for n in sorted(set(CATALOG) | {x for x in r30c if isinstance(x, str)}):
+        if n in CATALOG:
+            g, sb, od = CATALOG[n]
+        else:
+            g, sb, od = 'unknown', None, None
+        if not isinstance(n, str) or not NAME_RE.match(n):
+            continue
+        if n not in CATALOG:
+            st = 'unknown'
+        elif STATUS.get(n) == 'removed':
+            st = 'removed'
+        elif STATUS.get(n) == 'testers':
+            st = 'testers'
+        elif r30c.get(n, 0) == 0:
+            st = 'noData'
+        elif n in AUTO:
+            st = 'auto'
+        else:
+            st = 'live'
+        actions[n] = {'g': g, 'd7': len(d7c.get(n, ())), 'd30': len(d30c.get(n, ())), 'r30': r30c.get(n, 0),
+                      'sb': sb, 'od': od, 'state': st}
+    return {
+        'catalog': len(CATALOG), 'seen30': sum(1 for n in CATALOG if r30c.get(n, 0) > 0),
+        'unknown30': sum(1 for n in actions if actions[n]['state'] == 'unknown'),
+        'invalid30': invalid, 'dups30': dups,
+        'byGroup': [[g, sum(1 for a in actions.values() if a['g'] == g)] for g in GROUP_ORDER if any(a['g'] == g for a in actions.values())],
+        'rows': actions,
+    }
+
+
 d7c, d30c, r30c = defaultdict(set), defaultdict(set), Counter()
 for i in REAL:
     for e in win(i, 30):
@@ -1474,36 +1510,18 @@ for i in REAL:
         r30c[e['name']] += 1
         if e['ts'] > W7_FROM:
             d7c[e['name']].add(i)
-actions = {}
-for n in sorted(set(CATALOG) | {x for x in r30c if isinstance(x, str)}):
-    if n in CATALOG:
-        g, sb, od = CATALOG[n]
-    else:
-        g, sb, od = 'unknown', None, None
-    if not isinstance(n, str) or not NAME_RE.match(n):
+tech['actions'] = action_table(d7c, d30c, r30c,
+                               sum(1 for i in REAL for e in win(i, 30) if not (isinstance(e['name'], str) and NAME_RE.match(e['name']))),
+                               tech['dups30']['k'])
+a7c, a30c, ar30c = defaultdict(set), defaultdict(set), Counter()
+for e in rec30_all:
+    if not (isinstance(e['name'], str) and NAME_RE.match(e['name'])):
         continue
-    if n not in CATALOG:
-        st = 'unknown'
-    elif STATUS.get(n) == 'removed':
-        st = 'removed'
-    elif STATUS.get(n) == 'testers':
-        st = 'testers'
-    elif r30c.get(n, 0) == 0:
-        st = 'noData'
-    elif n in AUTO:
-        st = 'auto'
-    else:
-        st = 'live'
-    actions[n] = {'g': g, 'd7': len(d7c.get(n, ())), 'd30': len(d30c.get(n, ())), 'r30': r30c.get(n, 0),
-                  'sb': sb, 'od': od, 'state': st}
-tech['actions'] = {
-    'catalog': len(CATALOG), 'seen30': sum(1 for n in CATALOG if r30c.get(n, 0) > 0),
-    'unknown30': sum(1 for n in actions if actions[n]['state'] == 'unknown'),
-    'invalid30': sum(1 for i in REAL for e in win(i, 30) if not (isinstance(e['name'], str) and NAME_RE.match(e['name']))),
-    'dups30': tech['dups30']['k'],
-    'byGroup': [[g, sum(1 for a in actions.values() if a['g'] == g)] for g in GROUP_ORDER if any(a['g'] == g for a in actions.values())],
-    'rows': actions,
-}
+    a30c[e['name']].add(e['installId'])
+    ar30c[e['name']] += 1
+    if e['ts'] > W7_FROM:
+        a7c[e['name']].add(e['installId'])
+tech['actionsAll'] = action_table(a7c, a30c, ar30c, invalid30, dups_all_30)
 
 # ═════════════════════════ meta ═════════════════════════
 out['meta'] = {
