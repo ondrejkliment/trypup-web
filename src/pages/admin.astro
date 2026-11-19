@@ -1,4 +1,5 @@
 ---
+import labels from '../data/admin-labels.json';
 // Trypup – skrytý analytický dashboard (cross-device).
 // Čte kolekci `analytics_events` z Firestore (projekt trypupapp). Přístup jen pro
 // admin účet (Firestore rules: read jen pro o.kliment@gmail.com). Skryté pro roboty
@@ -8,6 +9,8 @@
 // technických dat) · TECHNIKA (zařízení/chyby/build). Filtr + fulltext nad daty.
 // Retence: stránkování (Načíst starší / Načíst vše) – data se drží od začátku měření.
 const ADMIN_EMAIL = 'o.kliment@gmail.com';
+// Katalog popisků akcí (SPEC D.1): vložený do stránky jako JSON, žádný další požadavek ani veřejný soubor.
+const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
 ---
 
 <!doctype html>
@@ -264,6 +267,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     </div>
   </div>
 
+  <script type="application/json" id="admin-labels" is:inline set:html={labelsJson}></script>
   <script type="module" is:inline>
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
@@ -316,13 +320,1107 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       }
     });
 
+    // == ADMIN CORE START ==
+    // Výpočetní jádro analytiky (SPEC C.5). Čisté funkce: žádné DOM, Firebase ani window, takže ho
+    // scripts/check-admin-core.mjs vyřízne, spustí v node:vm nad výpisem dat a porovná s nezávislým
+    // výpočtem (scripts/admin-reference.py, SPEC G.2). Výstup = objekty čísel se stabilními klíči
+    // (scripts/admin-keys.md); popisky a vykreslení jsou mimo jádro.
+    // Vstup D = { raw (události po deduplikaci), installs (ledger, každé zařízení s cls z classifyInstall),
+    //   overrides (Map přepisů testerů), rcEvents, store (dokumenty store_stats s date), retention
+    //   (store_stats/retention_summary nebo null), adCampaigns (store_stats/ad_campaigns nebo null),
+    //   catalog (admin-labels.json), now (ms, „teď“), loaded { dups, dupLog, batches, complete } }.
+
+    /** Pravidla verdiktů (SPEC C.0). Každé má důvod; patičky karet je citují. */
+    const VERDICT_RULES = Object.freeze({
+      // Pod 10 zařízení by procenta klamala (1 z 1 = 100 %), proto jen „k z n“ (dohodnuto se zakladatelem).
+      SMALL_N: 10,
+      // Od 30 zařízení v každé skupině má test dvou podílů smysl; „kdy bude jasno“ míří na tento základ.
+      SURE_N: 30,
+      // 95 % jistota: hranice testu dvou podílů i rozpětí Wilson.
+      Z: 1.96,
+      // Roste / Klesá jen při změně aspoň o pětinu a zároveň aspoň o 5 zařízení; menší výkyv je šum.
+      TREND_PCT: 20,
+      TREND_MIN: 5,
+      // Dohodnuto: kampaň se vyplatí do 5 € za zařízení nad běžný stav (aspoň 12 zařízení za 60 €).
+      CAMPAIGN_MAX_EUR: 5,
+      // Pásmo „těsně“ kolem hranice 5 €: rozdíl pár centů je v šumu jednoho dne.
+      CAMPAIGN_TIGHT: Object.freeze([4.5, 5.5]),
+      // Kampaň kratší než 3 dny je „Běží krátce“: z pár dní nejde odlišit náhodný výkyv.
+      CAMPAIGN_MIN_DAYS: 3,
+      // Běžný stav = průměr nejvýš 14 posledních dnů bez kampaně; z méně než 4 dnů ho určit nejde.
+      BASELINE_DAYS: 14,
+      BASELINE_MIN_DAYS: 4,
+      // Zralost pro první týden a „aspoň 2 různé dny“: kdo začal před méně než 7 × 24 h, nestihl se vrátit.
+      MATURE_DAYS: 7,
+      // Když akci umí poslat méně než 90 % základu, základ se zúží na telefony, které ji umí poslat (R8).
+      MEASURABLE_PCT: 90,
+      // Průměr aplikací na trhu (dohodnuto 14. 11. 2026, Adjust / AppsFlyer).
+      MARKET: Object.freeze({ d1: 0.26, d7: 0.13, d30: 0.07 }),
+    });
+    /** Pevné hodnoty mimo verdikty (SPEC C.1–C.3). */
+    const CORE_LIMITS = Object.freeze({
+      STORE_BUILD: 325,                                          // verze z obchodu (T2)
+      VERSION_MARKS: Object.freeze([335, 337, 338, 342, 344, 352]), // měření v T2 „od verze“
+      EXPO_LIMIT: 1000, EXPO_WARN: 800, EXPO_PLAN: 900,          // bezplatný tarif Expo (T5)
+      DUPS_WARN_PCT: 5,                                          // T3: zdvojených nad 5 % = Pozor
+      ACTIVE_DIFF_WARN: 2, D1_DIFF_WARN: 2,                      // T3: rozdíl nad 2 = Pozor
+      ACTIVE10_MS: 10 * 60 * 1000,                               // Z4: aktivní aspoň 10 min
+      AB_START: '2026-11-16', AB_NAME: 'first_care',             // A5: test první péče (verze 344)
+      UNKNOWN_NAMES_MAX: 10,                                     // T3: nanejvýš 10 neznámých názvů
+    });
+    const CORE_DAY = 86400000;
+    const CORE_EMPTY = Object.freeze({});
+    const CORE_EMPTY_SET = new Set();
+    const ISO_DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+    const ACTION_NAME_RE = /^[a-z][a-z0-9_]{0,59}$/;
+    const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
+    const validActionName = (n) => typeof n === 'string' && ACTION_NAME_RE.test(n);
+    const propsOf = (e) => (e && e.props && typeof e.props === 'object' ? e.props : CORE_EMPTY);
+    /** Klíč hodnoty z dat: null, chybějící a '' → '_none'; objekt nebo pole (jen podvržené zápisy) → JSON
+     *  se seřazenými klíči; jinak String(). Klíče jsou technické, popisky řeší vykreslení. */
+    const valKey = (v) => (v === null || v === undefined || v === '' ? '_none' : typeof v === 'object' ? stableJson(v) : String(v));
+    const cmpStr = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+    const roundTo = (x, d) => { const f = 10 ** d; return Math.round(x * f) / f; };
+    /** Vlastnost s klíčem z dat (i „__proto__“) bez zásahu do prototypu. */
+    function setKey(o, k, v) { Object.defineProperty(o, k, { value: v, enumerable: true, writable: true, configurable: true }); return o; }
+    function addCount(m, k, c = 1) { m.set(k, (m.get(k) || 0) + c); }
+    function addToSet(m, k, v) { let s = m.get(k); if (!s) m.set(k, s = new Set()); s.add(v); }
+    /** Rozpad [[klíč, počet], …]: sestupně podle počtu, při shodě podle klíče; nulové řádky ne. */
+    function breakdown(m) { return [...m.entries()].filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1] || cmpStr(a[0], b[0])); }
+    /** Rozpad zařízení: Map klíč → Set(installId) → [[klíč, zařízení], …]. */
+    function breakdownSets(m) { return breakdown(new Map([...m.entries()].map(([k, s]) => [k, s.size]))); }
+
+    // ── Pražské dny (R4): stejný vzorec jako server (functions/cohortRetention.js), nikdy toISOString.
+    const PRAGUE_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague', year: 'numeric', month: '2-digit', day: '2-digit' });
+    const PRAGUE_DAY_CACHE = new Map();
+    /** Pořadové číslo kalendářního dne v Praze (dny od 1970). Mezipaměť podle hodiny UTC: Praha má posun
+     *  v celých hodinách, takže celá hodina leží v jednom pražském dni. */
+    function pragueDay(ms) {
+      if (!isNum(ms) || Math.abs(ms) > 8.64e15) return NaN;
+      const h = Math.floor(ms / 3600000);
+      let d = PRAGUE_DAY_CACHE.get(h);
+      if (d === undefined) {
+        if (PRAGUE_DAY_CACHE.size > 200000) PRAGUE_DAY_CACHE.clear();
+        d = Math.round(Date.parse(`${PRAGUE_DATE.format(new Date(ms))}T00:00:00Z`) / CORE_DAY);
+        PRAGUE_DAY_CACHE.set(h, d);
+      }
+      return d;
+    }
+    /** Pořadové číslo dne → 'YYYY-MM-DD' (den je půlnoc UTC daného čísla, žádné časové pásmo). */
+    function dayIso(n) {
+      if (!Number.isFinite(n)) return null;
+      const d = new Date(n * CORE_DAY), p = (x) => String(x).padStart(2, '0');
+      return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`;
+    }
+    /** 'YYYY-MM-DD' → pořadové číslo dne; jinak null. */
+    function isoDayNum(s) {
+      if (typeof s !== 'string' || !ISO_DAY_RE.test(s)) return null;
+      const t = Date.parse(`${s}T00:00:00Z`);
+      return Number.isFinite(t) ? Math.round(t / CORE_DAY) : null;
+    }
+
+    // ── Deduplikace (R3): installId + název + ts + vlastnosti se seřazenými klíči. Stejný čas s jinými
+    //    vlastnostmi zůstává (dohánění dnů, víc odznaků naráz). Používá fetchPage i setData.
+    function stableJson(v) {
+      if (v === null || typeof v !== 'object') { const s = JSON.stringify(v); return s === undefined ? 'null' : s; }
+      if (Array.isArray(v)) return '[' + v.map(stableJson).join(',') + ']';
+      return '{' + Object.keys(v).sort().map((k) => JSON.stringify(k) + ':' + stableJson(v[k])).join(',') + '}';
+    }
+    function dedupeKey(e) { return stableJson([e.installId ?? null, e.name ?? null, e.ts ?? null, e.props ?? null]); }
+    /** Globální množina klíčů a čítač vyřazených; log = [installId, ts] vyřazených (pro T1 a T3). */
+    function makeDeduper() {
+      const seen = new Set();
+      const st = {
+        dups: 0, log: [],
+        add(e) { const k = dedupeKey(e); if (seen.has(k)) { st.dups++; st.log.push([e.installId, e.ts]); return false; } seen.add(k); return true; },
+        reset() { seen.clear(); st.dups = 0; st.log = []; },
+      };
+      return st;
+    }
+
+    // ── Retence = DOSLOVNÉ ZRCADLO computeRetention z pawprint-mobile/functions/cohortRetention.js.
+    //    Při změně upravit obě místa (stejně jako classifyInstall ↔ installClass.js). Jen přejmenováno
+    //    computeRetention → cohortRetention; pragueDay je výše (stejný vzorec, navíc mezipaměť).
+    const DAYS = [1, 7, 30];
+    const WEEKS = [['w1', 7, 13], ['w4', 28, 34]]; // 2. týden, 5. týden
+    const SEGMENTS = ['all', 'challenge', 'trial', 'owner', 'notActivated'];
+    function segmentOf(a) {
+      if (!a) return 'notActivated';
+      if (a.owner) return 'owner';
+      if (a.challenge) return 'challenge';
+      if (a.trial) return 'trial';
+      return 'notActivated';
+    }
+    /**
+     * @param installs [{ id, firstMs }] jen skutečná zařízení (bez testerů a robotů)
+     * @param activity Map(id → { days:Set<pragueDay>, owner, challenge, trial })
+     * @returns { segments: { [seg]: { installs, d1:{k,n}, d7:{k,n}, d30:{k,n} } } }  Čistá funkce.
+     */
+    function cohortRetention(installs, activity, nowMs) {
+      const today = pragueDay(nowMs);
+      const empty = () => ({ installs: 0, ...Object.fromEntries([...DAYS.map((d) => `d${d}`), ...WEEKS.map(([w]) => w)].map((key) => [key, { k: 0, n: 0 }])) });
+      const segments = Object.fromEntries(SEGMENTS.map((s) => [s, empty()]));
+      for (const i of installs) {
+        if (!Number.isFinite(i.firstMs)) continue;
+        const a = activity.get(i.id);
+        const first = pragueDay(i.firstMs);
+        for (const seg of ['all', segmentOf(a)]) {
+          const s = segments[seg];
+          s.installs += 1;
+          for (const d of DAYS) {
+            if (today - first <= d) continue; // den N ještě celý neproběhl
+            s[`d${d}`].n += 1;
+            if (a && a.days.has(first + d)) s[`d${d}`].k += 1;
+          }
+          for (const [w, from, to] of WEEKS) {
+            if (today - first <= to) continue; // týden ještě celý neproběhl
+            s[w].n += 1;
+            if (a) { for (let x = from; x <= to; x++) if (a.days.has(first + x)) { s[w].k += 1; break; } }
+          }
+        }
+      }
+      return { segments };
+    }
+
+    // ── Statistika (R7)
+    /** Rozpětí Wilson 95 % podílu k z n → [dolní, horní] v 0–1; null při n = 0. */
+    function wilson(k, n, z = VERDICT_RULES.Z) {
+      if (!(n > 0)) return null;
+      const p = k / n, z2 = z * z, den = 1 + z2 / n;
+      const mid = (p + z2 / (2 * n)) / den;
+      const half = (z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / den;
+      return [Math.max(0, mid - half), Math.min(1, mid + half)];
+    }
+    /** Test dvou podílů se sdruženým podílem: z = (pa − pb) / se; prázdná skupina nebo se = 0 → 0. */
+    function twoProp(a, b) {
+      if (!a || !b || !(a.n > 0) || !(b.n > 0)) return 0;
+      const p = (a.k + b.k) / (a.n + b.n);
+      const se = Math.sqrt(p * (1 - p) * (1 / a.n + 1 / b.n));
+      return se > 0 ? (a.k / a.n - b.k / b.n) / se : 0;
+    }
+    /** Srovnání dvou skupin podle R7 → { verdict, z }. */
+    function compareGroups(a, b) {
+      const R = VERDICT_RULES, z = twoProp(a, b);
+      const verdict = Math.min(a.n, b.n) < R.SMALL_N ? 'Málo dat'
+        : a.n >= R.SURE_N && b.n >= R.SURE_N && Math.abs(z) >= R.Z ? 'Průkazný rozdíl' : 'Zatím neprůkazné';
+      return { verdict, z: roundTo(z, 3) };
+    }
+    /** „Kdy bude jasno“ (C.0): základ ≥ 30 → null; nic nepřibylo → neznámé; jinak den, kdy základ dosáhne 30. */
+    function whenClear(base, added, today) {
+      if (base >= VERDICT_RULES.SURE_N) return null;
+      if (!(added > 0)) return { state: 'unknown' };
+      const days = Math.ceil(((VERDICT_RULES.SURE_N - base) * 7) / added);
+      const date = dayIso(today + days), dom = Number(date.slice(8, 10));
+      return { days, date, part: dom <= 10 ? 'start' : dom <= 20 ? 'mid' : 'end' };
+    }
+    /** Z víc odhadů pozdější; neznámý má přednost, null (už jasno) se nepočítá. */
+    function laterClear(list) {
+      let best = null;
+      for (const w of list) {
+        if (!w) continue;
+        if (w.state === 'unknown') return { state: 'unknown' };
+        if (!best || w.days > best.days) best = w;
+      }
+      return best;
+    }
+    /** Měřitelnost (R8): Y = základ, X = zařízení základu s verzí ≥ sb. Vrací { base, x, y } nebo { unmeasured }. */
+    function measurable(base, versionOf, sb) {
+      const R = VERDICT_RULES, y = base.length, xs = base.filter((d) => versionOf(d) >= sb), x = xs.length;
+      if (x * 100 >= R.MEASURABLE_PCT * y) return { base, x, y };
+      if (x * 10 < y || x < R.SMALL_N) return { unmeasured: true, x, y };
+      return { base: xs, x, y };
+    }
+    function measuredFraction(m, kOf) {
+      return m.unmeasured ? { state: 'unmeasured', x: m.x, y: m.y } : { k: m.base.filter(kOf).length, n: m.base.length, x: m.x, y: m.y };
+    }
+
+    // ── Katalog akcí (admin-labels.json, SPEC D.1)
+    const CATALOG_INFO = new WeakMap();
+    function catalogInfo(cat) {
+      if (!cat || typeof cat !== 'object') return { ev: new Map(), groups: [] };
+      let c = CATALOG_INFO.get(cat);
+      if (c) return c;
+      const ev = new Map();
+      if (cat.ev && typeof cat.ev === 'object') for (const k of Object.keys(cat.ev)) if (cat.ev[k] && typeof cat.ev[k] === 'object') ev.set(k, cat.ev[k]);
+      const groups = Array.isArray(cat.groups) ? cat.groups.filter((g) => Array.isArray(g) && typeof g[0] === 'string').map((g) => g[0]) : [];
+      c = { ev, groups };
+      CATALOG_INFO.set(cat, c);
+      return c;
+    }
+    /** Verze, od které telefony akci (vlastnost, hodnotu) posílají; bez katalogu náhradní hodnota ze SPEC. */
+    function catalogSb(ci, name, prop, val, fallback) {
+      const e = ci.ev.get(name);
+      if (!e) return fallback;
+      if (prop && e.p && typeof e.p === 'object' && Object.hasOwn(e.p, prop)) {
+        const p = e.p[prop];
+        if (val !== undefined && p && p.v && typeof p.v === 'object' && Object.hasOwn(p.v, val) && Array.isArray(p.v[val]) && isNum(p.v[val][2])) return p.v[val][2];
+        if (p && isNum(p.sb)) return p.sb;
+      }
+      return isNum(e.sb) ? e.sb : fallback;
+    }
+
+    // ── Nákupy: párování RevenueCatu s analytikou (záložka Nákupy i kontrola T3 / T4).
+    const MATCH_MS = 10 * 60 * 1000;
+    const PURCHASE_EVENTS = new Set(['purchase_started', 'purchase_completed', 'purchase_cancelled', 'purchase_pending', 'purchase_failed']);
+    const isLegacyRestore = (e) => PURCHASE_EVENTS.has(e.name) && !!e.props && e.props.product === 'restore';
+    const productKey = (id) => {
+      const s = String(id || '').toLowerCase();
+      if (/lifetime/.test(s)) return 'plan_lifetime';
+      if (/year|annual/.test(s)) return 'plan_yearly';
+      if (/month/.test(s)) return 'plan_monthly';
+      if (/bundle/.test(s)) return 'breed_bundle';
+      return s.replace(/^trypup_/, '');
+    };
+    /** Nákup v RevenueCatu (ne RENEWAL) ↔ purchase_completed se stejným produktem do 10 min, nejbližší
+     *  nepoužitý, v pořadí rcEvents. Obnova ze starších verzí (product 'restore') se nepáruje. */
+    function pairPurchases(rcEvents, raw) {
+      const app = (Array.isArray(raw) ? raw : []).filter((e) => e && e.name === 'purchase_completed' && !isLegacyRestore(e));
+      const used = new Set();
+      const rows = (Array.isArray(rcEvents) ? rcEvents : []).filter((r) => r && r.isPurchase).map((r) => {
+        const key = productKey(r.productId); const t = r.purchasedAtMs || r.eventAtMs || 0;
+        let best = null, bestD = Infinity;
+        if (r.type !== 'RENEWAL') for (const e of app) {
+          if (used.has(e) || productKey(propsOf(e).product) !== key) continue;
+          const d = Math.abs(e.ts - t); if (d <= MATCH_MS && d < bestD) { best = e; bestD = d; }
+        }
+        if (best) used.add(best);
+        return { rc: r, app: best, ts: t, key, inherited: false };
+      });
+      return { rows, app, used };
+    }
+
+    // ── Signály režimů (B1, jediná definice režimu pro celý admin). Bit 1 = Pes na zkoušku, 2 = Pes doma.
+    const MODE_OWNER_EVENTS = new Set(['owner_activated', 'owner_setup_exit', 'plan_item', 'diary_entry', 'weight_entry', 'setup_checklist',
+      'real_reminder_opened', 'training_logged', 'training_stage_confirmed', 'training_help_opened', 'map_opened',
+      'calendar_event_opened', 'dog_photo', 'dog_document', 'family']);
+    const MODE_TRIAL_EVENTS = new Set(['activated', 'task_done', 'day_advanced', 'training_done', 'event_choice', 'trip_sitter',
+      'vet_visit_done', 'challenge_started', 'fail_state']);
+    const MODE_TRIAL_SCREENS = new Set(['feed', 'play', 'brush', 'training', 'walk', 'walk-summary', 'health', '(main)/health',
+      'achievements', 'breeddex', 'breed-select', 'timeline', 'challenge-result', 'graduation', 'fail-state']);
+    function modeBits(e, p) {
+      const n = e.name;
+      if (n === 'screen_view') {
+        const s = typeof p.screen === 'string' ? p.screen : '';
+        let b = 0;
+        if (p.mode === 'owner' || s.startsWith('pesdoma/')) b |= 2;
+        if (MODE_TRIAL_SCREENS.has(s) || (s === '(main)/home' && p.mode !== 'owner')) b |= 1;
+        return b;
+      }
+      if (MODE_OWNER_EVENTS.has(n)) return 2;
+      if ((n === 'walk_started' || n === 'walk_completed') && p.mode === 'owner') return 2;
+      if (MODE_TRIAL_EVENTS.has(n)) return 1;
+      return 0;
+    }
+    // Místa Psa doma (B3): obrazovky přesně podle SPEC, výcvik podle začátku trasy; vets a family i akcí.
+    const OWNER_PLACES = [
+      ['plan', (s) => s === 'pesdoma/dog/[id]/plan', null],
+      ['diary', (s) => s === 'pesdoma/dog/[id]/diary' || s === 'pesdoma/dog/[id]/entry' || s === 'pesdoma/dog/[id]/weight', null],
+      ['docs', (s) => s === 'pesdoma/dog/[id]/passport' || s === 'pesdoma/dog/[id]/documents' || s === 'pesdoma/dog/[id]/scan' || s === 'pesdoma/dog/[id]/summary', null],
+      ['firstaid', (s) => s === 'pesdoma/first-aid' || s === 'pesdoma/first-aid/[topic]', null],
+      ['training', (s) => s.startsWith('pesdoma/dog/[id]/training') || s.startsWith('pesdoma/training/'), null],
+      ['vets', (s) => s === 'pesdoma/vets' || s === 'pesdoma/vet/[id]', 'map_opened'],
+      ['walk', (s) => s === 'pesdoma/walk' || s === 'pesdoma/walk-summary', null],
+      ['family', (s) => s === 'pesdoma/dog/[id]/family' || s === 'pesdoma/family-join', 'family'],
+    ];
+    const LEARNING_EVENTS = new Set(['article_opened', 'article_read', 'lesson_answered', 'myth_answered', 'review_answered']);
+    const screenOf = (e, p) => (e.name === 'screen_view' && typeof p.screen === 'string' ? p.screen : null);
+
+    // ── Index (C.5): jednou na verzi dat. Události skutečných zařízení podle installId seřazené podle
+    //    času, dny aktivity, nejvyšší verze za 7 a 30 dní, zařízení podle názvu akce v okně, signály
+    //    režimů s prvním časem. Ukládají se jen mapy a odkazy na záznamy RAW.
+    function lowerIdx(evs, t) { let lo = 0, hi = evs.length; while (lo < hi) { const m = (lo + hi) >> 1; if (evs[m].ts > t) hi = m; else lo = m + 1; } return lo; }
+    const inWin = (ms, from, to) => ms !== null && ms !== undefined && ms > from && ms <= to;
+    function buildIndex(D) {
+      const now = D.now, today = pragueDay(now);
+      const w7 = now - 7 * CORE_DAY, w30 = now - 30 * CORE_DAY;
+      const ledger = new Map(), devs = new Map();
+      for (const i of Array.isArray(D.installs) ? D.installs : []) {
+        if (!i || typeof i !== 'object' || typeof i.id !== 'string') continue;
+        ledger.set(i.id, i);
+        if ((i.platform === 'ios' || i.platform === 'android') && i.cls && i.cls.kind === 'real') {
+          devs.set(i.id, {
+            id: i.id, inst: i, platform: i.platform,
+            firstMs: isNum(i.firstMs) ? i.firstMs : null, lastMs: isNum(i.lastMs) ? i.lastMs : null,
+            evs: [], days: null, i30: 0, end: 0, b7: 0, b30: 0, names: new Set(), dogScreen: false,
+            act: { days: new Set(), owner: false, challenge: false, trial: false },
+            mode: { trial: null, owner: null },
+          });
+        }
+      }
+      const raw = Array.isArray(D.raw) ? D.raw : [];
+      for (let j = 0; j < raw.length; j++) {
+        const e = raw[j];
+        if (!e || !isNum(e.ts)) continue;
+        const dv = devs.get(e.installId);
+        if (dv) dv.evs.push(e);
+      }
+      const byName7 = new Map(), byName30 = new Map(), rec30 = new Map();
+      const sig = (dv, k, ts, d) => { let s = dv.mode[k]; if (!s) dv.mode[k] = s = { first: ts, days: new Set() }; s.days.add(d); };
+      for (const dv of devs.values()) {
+        const evs = dv.evs;
+        if (evs.length > 1) evs.sort((a, b) => a.ts - b.ts); // stabilní: při shodě pořadí v RAW
+        const days = dv.days = new Array(evs.length);
+        let i30 = -1, end = evs.length;
+        for (let j = 0; j < evs.length; j++) {
+          const e = evs[j], ts = e.ts, d = pragueDay(ts), p = propsOf(e), nm = e.name;
+          days[j] = d;
+          // Aktivita pro retenci: všechny události zařízení, příznaky jako server (cohortRetention.js).
+          dv.act.days.add(d);
+          if (nm === 'owner_activated' || (nm === 'mode_switched' && e.props && e.props.to === 'owner')) dv.act.owner = true;
+          else if (nm === 'challenge_started') dv.act.challenge = true;
+          else if (nm === 'activated') dv.act.trial = true;
+          dv.names.add(nm);
+          if (nm === 'screen_view' && typeof p.screen === 'string' && p.screen.startsWith('pesdoma/dog/')) dv.dogScreen = true;
+          if (ts > now) { if (end > j) end = j; continue; }
+          if (ts <= w30) continue;
+          if (i30 < 0) i30 = j;
+          const b = e.dev ? e.dev.appBuild : null;
+          if (isNum(b) && b > dv.b30) dv.b30 = b;
+          addToSet(byName30, nm, dv.id); addCount(rec30, nm);
+          if (ts > w7) { if (isNum(b) && b > dv.b7) dv.b7 = b; addToSet(byName7, nm, dv.id); }
+          const mb = modeBits(e, p);
+          if (mb & 1) sig(dv, 'trial', ts, d);
+          if (mb & 2) sig(dv, 'owner', ts, d);
+        }
+        dv.i30 = i30 < 0 ? end : i30; dv.end = end;
+      }
+      const real = [...devs.values()];
+      const activity = new Map(real.map((dv) => [dv.id, dv.act]));
+      return { D, now, today, w1: now - CORE_DAY, w7, w14: now - 14 * CORE_DAY, w30, ledger, devs, real, activity,
+        byName7, byName30, rec30, ci: catalogInfo(D.catalog), memo: new Map() };
+    }
+    /** Záznamy zařízení v (from, to], které splňují pred → { n, first, last, days }. */
+    function scanDev(dv, from, to, pred) {
+      const evs = dv.evs, r = { n: 0, first: null, last: null, days: new Set() };
+      for (let j = from === -Infinity ? 0 : lowerIdx(evs, from); j < evs.length; j++) {
+        const e = evs[j];
+        if (e.ts > to) break;
+        if (!pred(e, propsOf(e))) continue;
+        r.n++; if (r.first === null) r.first = e.ts; r.last = e; r.days.add(dv.days[j]);
+      }
+      return r;
+    }
+    /** Nejvyšší číselná verze zařízení v (from, to]; bez událostí 0. */
+    function buildIn(dv, from, to) {
+      let b = 0;
+      for (let j = from === -Infinity ? 0 : lowerIdx(dv.evs, from); j < dv.evs.length && dv.evs[j].ts <= to; j++) {
+        const v = dv.evs[j].dev ? dv.evs[j].dev.appBuild : null;
+        if (isNum(v) && v > b) b = v;
+      }
+      return b;
+    }
+    const isName = (name) => (e) => e.name === name;
+    const coreMemo = (idx, key, fn) => { if (!idx.memo.has(key)) idx.memo.set(key, fn()); return idx.memo.get(key); };
+    const firstDayOf = (d) => (d.firstMs === null ? null : pragueDay(d.firstMs));
+    /** R6: z těch, kdo signál v období poprvé použili aspoň před 7 × 24 h, kolik ho mělo aspoň ve 2 dnech. */
+    function twoDaysOf(list, sigOf, matureAt) {
+      let k = 0, n = 0;
+      for (const d of list) { const s = sigOf(d); if (!s || s.first === null || s.first > matureAt) continue; n++; if (s.days.size >= 2) k++; }
+      return { k, n };
+    }
+    const d1Of = (idx, list) => cohortRetention(list.map((d) => ({ id: d.id, firstMs: d.firstMs })), idx.activity, idx.now).segments.all.d1;
+    /** Zařízení, která za posledních 7 dní dozrála pro D1 (den prvního spuštění + 2 ∈ [dnes − 6, dnes]). */
+    const addedD1 = (idx, list) => list.filter((d) => { const f = firstDayOf(d); return f !== null && f + 2 >= idx.today - 6 && f + 2 <= idx.today; }).length;
+
+    // Nákupy z aplikace bez záznamu v RevenueCatu (T3) a seznam „K ověření“ (T4); sdílí Technika i A5.
+    function purchaseNoRcInfo(idx) {
+      return coreMemo(idx, 'purchaseNoRc', () => {
+        const { app, used } = pairPurchases(idx.D.rcEvents, idx.D.raw);
+        const list = [];
+        for (const e of app) {
+          if (used.has(e) || !isNum(e.ts) || !inWin(e.ts, idx.w30, idx.now)) continue;
+          const d = idx.devs.get(e.installId);
+          if (d) list.push({ e, d });
+        }
+        list.sort((a, b) => (pragueDay(a.e.ts) - pragueDay(b.e.ts)) || cmpStr(a.d.id, b.d.id));
+        return {
+          ids: new Set(list.map((x) => x.d.id)),
+          rows: list.map(({ e, d }) => ({ day: dayIso(pragueDay(e.ts)), platform: d.platform, model: d.inst.model ?? null, product: String(propsOf(e).product ?? ''), iid: d.id.slice(0, 10) })),
+        };
+      });
+    }
+    function reviewInfo(idx) {
+      return coreMemo(idx, 'review', () => {
+        const ovr = idx.D.overrides && typeof idx.D.overrides.get === 'function' ? idx.D.overrides : new Map();
+        const testerModels = new Set();
+        for (const [id, o] of ovr) {
+          const kind = o && typeof o === 'object' ? o.kind : undefined;
+          if (kind === 'robot' || kind === 'real') continue;
+          const inst = idx.ledger.get(id), m = inst ? inst.model : null;
+          if (m !== null && m !== undefined && m !== '') testerModels.add(String(m));
+        }
+        const noRc = purchaseNoRcInfo(idx).ids;
+        const rows = [];
+        for (const d of idx.real) {
+          if (!inWin(d.lastMs, idx.w30, idx.now) || ovr.has(d.id)) continue;
+          const reasons = [], m = d.inst.model;
+          if (m !== null && m !== undefined && m !== '' && testerModels.has(String(m))) reasons.push('testerModel');
+          if (noRc.has(d.id)) reasons.push('purchaseNoRc');
+          if (reasons.length) rows.push({ d, reasons });
+        }
+        rows.sort((a, b) => cmpStr(a.d.id, b.d.id));
+        return { ids: new Set(rows.map((r) => r.d.id)), rows };
+      });
+    }
+
+    // ── Kampaně (Z3): dokument store_stats/ad_campaigns. Platná kampaň = platforma ios/android a datum from.
+    function campaignsOf(doc) {
+      if (!doc || typeof doc !== 'object') return null;
+      const out = [];
+      (Array.isArray(doc.campaigns) ? doc.campaigns : []).forEach((c, i) => {
+        if (!c || typeof c !== 'object' || (c.platform !== 'ios' && c.platform !== 'android')) return;
+        const from = isoDayNum(c.from);
+        if (from === null) return;
+        out.push({ raw: c, i, platform: c.platform, from, to: isoDayNum(c.to) }); // to null = běží dál
+      });
+      return out;
+    }
+    const campaignRuns = (c, n) => c.from <= n && (c.to === null || n <= c.to);
+    /** Obchody: součty po dnech (iOS firstTime, Android installs), poslední den s daty, dokumenty. */
+    function storeInfo(store) {
+      const byDay = new Map(), last = { ios: null, android: null }, docs = [];
+      for (const x of Array.isArray(store) ? store : []) {
+        if (!x || typeof x !== 'object' || (x.platform !== 'ios' && x.platform !== 'android') || typeof x.date !== 'string' || !ISO_DAY_RE.test(x.date)) continue;
+        docs.push(x);
+        const p = x.platform;
+        if (last[p] === null || x.date > last[p]) last[p] = x.date;
+        let s = byDay.get(x.date);
+        if (!s) byDay.set(x.date, s = { ios: 0, android: 0 });
+        const v = p === 'ios' ? x.firstTime : x.installs;
+        if (isNum(v)) s[p] += v;
+      }
+      return { byDay, last, docs };
+    }
+
+    // ── Získávání (SPEC C.1)
+    function computeAcquisition(idx) {
+      const R = VERDICT_RULES, { D, now, today, w1, w7, w14, w30, real, ci } = idx;
+      const firstIn = (from, to = now) => real.filter((d) => inWin(d.firstMs, from, to));
+      const byPlat = (list) => ({ all: list.length, ios: list.filter((d) => d.platform === 'ios').length, android: list.filter((d) => d.platform === 'android').length });
+      const n24 = firstIn(w1), n7 = firstIn(w7), p7 = firstIn(w14, w7), n30 = firstIn(w30);
+      const diff = n7.length - p7.length;
+      const trend = Math.abs(diff) >= R.TREND_MIN && Math.abs(diff) * 100 >= R.TREND_PCT * p7.length ? (diff > 0 ? 'Roste' : 'Klesá') : 'Drží';
+
+      // Z1 po dnech: noví podle pražského dne prvního spuštění, obchody, dny kampaní.
+      const st = storeInfo(D.store), camps = campaignsOf(D.adCampaigns);
+      const newByDay = new Map();
+      for (const d of real) {
+        const f = firstDayOf(d);
+        if (f === null) continue;
+        let c = newByDay.get(f);
+        if (!c) newByDay.set(f, c = { all: 0, ios: 0, android: 0 });
+        c.all++; c[d.platform]++;
+      }
+      const PLATFORMS = ['android', 'ios'];
+      const byDay = [];
+      for (let n = today - 29; n <= today; n++) {
+        const iso = dayIso(n), c = newByDay.get(n) || { all: 0, ios: 0, android: 0 }, s = st.byDay.get(iso);
+        const storeVal = (p) => (st.last[p] !== null && iso <= st.last[p] ? (s ? s[p] : 0) : null);
+        byDay.push({ day: iso, all: c.all, ios: c.ios, android: c.android, store: { ios: storeVal('ios'), android: storeVal('android') },
+          partial: n === today, campaign: camps ? PLATFORMS.filter((p) => camps.some((k) => k.platform === p && campaignRuns(k, n))) : [] });
+      }
+
+      // Z2 kanály: Android noví za 30 dní; měřitelní = ledger srcChannel nebo verze ≥ install_source.
+      const and30 = n30.filter((d) => d.platform === 'android');
+      const sbSrc = catalogSb(ci, 'install_source', null, undefined, 352);
+      const chanOf = (d) => valKey(d.inst.srcChannel);
+      const measured = and30.filter((d) => chanOf(d) !== '_none' || d.b30 >= sbSrc);
+      const chanGroups = new Map();
+      for (const d of measured) { const k = chanOf(d); const l = chanGroups.get(k); if (l) l.push(d); else chanGroups.set(k, [d]); }
+      const byChannel = breakdown(new Map([...chanGroups].map(([k, l]) => [k, l.length])));
+
+      // Z4 kvalita: aktivní 10+ min, jiný den, D1 (port serveru), psa založili.
+      const hasDog = (d) => d.names.has('activated') || d.names.has('owner_activated') || d.dogScreen;
+      const qRow = (list) => {
+        const n = list.length; let a10 = 0, other = 0, dog = 0;
+        for (const d of list) {
+          if (d.firstMs !== null && d.lastMs !== null) {
+            if (d.lastMs - d.firstMs >= CORE_LIMITS.ACTIVE10_MS) a10++;
+            if (pragueDay(d.lastMs) > pragueDay(d.firstMs)) other++;
+          }
+          if (hasDog(d)) dog++;
+        }
+        return { n, active10: { k: a10, n }, otherDay: { k: other, n }, d1: d1Of(idx, list), dog: { k: dog, n } };
+      };
+      const qAll = qRow(n30);
+      const qChannel = {};
+      const comparisons = [], sides = [];
+      for (const [k, cnt] of byChannel) {
+        const list = chanGroups.get(k), ids = new Set(list.map((d) => d.id)), rest = n30.filter((d) => !ids.has(d.id));
+        const row = qRow(list); setKey(qChannel, k, row);
+        const b = d1Of(idx, rest), c = compareGroups(row.d1, b);
+        comparisons.push({ group: 'channel:' + k, eligible: cnt >= R.SURE_N, a: row.d1, b, verdict: c.verdict, z: c.z });
+        sides.push([list, rest]);
+      }
+      let qCampaign = null;
+      if (camps) {
+        qCampaign = {};
+        for (const p of PLATFORMS) {
+          if (!camps.some((k) => k.platform === p)) continue;
+          const list = n30.filter((d) => d.platform === p);
+          const isIn = (d) => { const f = firstDayOf(d); return f !== null && camps.some((k) => k.platform === p && campaignRuns(k, f)); };
+          const inL = list.filter(isIn), outL = list.filter((d) => !isIn(d));
+          const row = { in: qRow(inL), out: qRow(outL) };
+          qCampaign[p] = row;
+          const c = compareGroups(row.in.d1, row.out.d1);
+          comparisons.push({ group: 'campaign:' + p, eligible: true, a: row.in.d1, b: row.out.d1, verdict: c.verdict, z: c.z });
+          sides.push([inL, outL]);
+        }
+      }
+      const topChannel = byChannel.length ? { key: byChannel[0][0], devices: byChannel[0][1] } : null;
+
+      // Z3 kampaně: nová zařízení nad běžný stav a cena za zařízení.
+      let campaigns, z3 = 'Chybí útrata';
+      if (camps) {
+        const yesterday = today - 1;
+        const newIn = (p, ranges) => { let s = 0; for (const [f, c] of newByDay) if (ranges.some(([a, b]) => f >= a && f <= b)) s += c[p]; return s; };
+        const counted = (c) => [c.from, c.to === null ? yesterday : Math.min(c.to, yesterday)];
+        const baselineOf = (p, from) => {
+          let days = 0, devices = 0;
+          for (let n = from - R.BASELINE_DAYS; n < from; n++) {
+            if (camps.some((k) => k.platform === p && campaignRuns(k, n))) continue;
+            days++; devices += (newByDay.get(n) || { [p]: 0 })[p];
+          }
+          return days < R.BASELINE_MIN_DAYS ? { state: 'missing', days, devices } : { days, devices, perDay: roundTo(devices / days, 4) };
+        };
+        const aboveOf = (nw, base, days) => (base.state ? null : nw - (base.devices * days) / base.days);
+        // Skupiny překryvu: kampaně stejné platformy se společným dnem (to null = bez konce).
+        const parent = camps.map((_, i) => i);
+        const find = (i) => { while (parent[i] !== i) i = parent[i] = parent[parent[i]]; return i; };
+        for (let i = 0; i < camps.length; i++) for (let j = i + 1; j < camps.length; j++) {
+          const a = camps[i], b = camps[j];
+          if (a.platform !== b.platform) continue;
+          const s = a.from > b.from ? a.from : b.from;
+          const e = (a.to === null ? Infinity : a.to) < (b.to === null ? Infinity : b.to) ? (a.to === null ? Infinity : a.to) : (b.to === null ? Infinity : b.to);
+          if (s <= e) { const ra = find(i), rb = find(j); if (ra !== rb) { if (ra < rb) parent[rb] = ra; else parent[ra] = rb; } }
+        }
+        const members = new Map();
+        camps.forEach((c, i) => { const r = find(i); const l = members.get(r); if (l) l.push(i); else members.set(r, [i]); });
+        const groupOf = (i) => { const r = find(i); return members.get(r).length > 1 ? camps[r].raw.id ?? null : null; };
+        const list = camps.map((c, i) => {
+          const [f, t] = counted(c), days = Math.max(0, t - f + 1), nw = days > 0 ? newIn(c.platform, [[f, t]]) : 0;
+          const base = baselineOf(c.platform, c.from), aboveRaw = aboveOf(nw, base, days);
+          const spend = isNum(c.raw.spendEur) ? c.raw.spendEur : null;
+          const cost = aboveRaw !== null && aboveRaw > 0 && spend !== null ? roundTo(spend / aboveRaw, 2) : null;
+          const inGroup = members.get(find(i)).length > 1;
+          let verdict, note = null;
+          if (days < R.CAMPAIGN_MIN_DAYS) verdict = 'Běží krátce';
+          else if (spend === null) verdict = 'Chybí útrata';
+          else if (inGroup) verdict = 'Nelze oddělit';
+          else if (base.state) { verdict = 'Málo dat'; note = 'noBaseline'; }
+          else if (aboveRaw <= 0) { verdict = 'Nevyplatí se'; note = 'nothingExtra'; }
+          else verdict = cost <= R.CAMPAIGN_MAX_EUR ? 'Vyplatí se' : 'Nevyplatí se';
+          const tight = (verdict === 'Vyplatí se' || verdict === 'Nevyplatí se') && cost !== null && cost >= R.CAMPAIGN_TIGHT[0] && cost <= R.CAMPAIGN_TIGHT[1];
+          return { id: c.raw.id ?? null, name: c.raw.name ?? null, network: c.raw.network ?? null, platform: c.platform, from: c.raw.from, to: c.raw.to ?? null,
+            days, new: nw, baseline: base, above: aboveRaw === null ? null : roundTo(aboveRaw, 2), spendEur: spend, spendAt: c.raw.spendAt ?? null,
+            cost, verdict, note, tight, group: groupOf(i) };
+        });
+        const joint = [];
+        for (const [r, ids] of members) {
+          if (ids.length < 2) continue;
+          const p = camps[r].platform, ranges = ids.map((i) => counted(camps[i])).filter(([a, b]) => b >= a).sort((x, y) => x[0] - y[0]);
+          let days = 0, curA = null, curB = null;
+          for (const [a, b] of ranges) {
+            if (curB !== null && a <= curB + 1) { if (b > curB) curB = b; continue; }
+            if (curB !== null) days += curB - curA + 1;
+            curA = a; curB = b;
+          }
+          if (curB !== null) days += curB - curA + 1;
+          let minFrom = camps[ids[0]].from;
+          for (const i of ids) if (camps[i].from < minFrom) minFrom = camps[i].from;
+          const nw = ranges.length ? newIn(p, ranges) : 0, base = baselineOf(p, minFrom), aboveRaw = aboveOf(nw, base, days);
+          const spends = ids.map((i) => camps[i].raw.spendEur);
+          const spend = spends.every(isNum) ? roundTo(spends.reduce((a, v) => a + v, 0), 2) : null;
+          joint.push({ group: camps[r].raw.id ?? null, ids: ids.map((i) => camps[i].raw.id ?? null), platform: p, days, new: nw, baseline: base,
+            above: aboveRaw === null ? null : roundTo(aboveRaw, 2), spendEur: spend,
+            cost: aboveRaw !== null && aboveRaw > 0 && spend !== null ? roundTo(spend / aboveRaw, 2) : null });
+        }
+        campaigns = { state: 'ok', updatedAt: D.adCampaigns.updatedAt ?? null, list, joint };
+        let newest = -1;
+        camps.forEach((c, i) => { if (newest < 0 || c.from >= camps[newest].from) newest = i; });
+        if (newest >= 0) z3 = list[newest].verdict;
+      } else campaigns = { state: 'missing' };
+
+      // Z5 šíření: aktivní za 30 dní.
+      const active30 = real.filter((d) => inWin(d.lastMs, w30, now));
+      const set30 = (name) => idx.byName30.get(name) || CORE_EMPTY_SET;
+      const sharers = active30.filter((d) => set30('share_initiated').has(d.id));
+      const kinds = new Map();
+      for (const d of sharers) {
+        const seen = new Set();
+        scanDev(d, w30, now, (e, p) => { if (e.name === 'share_initiated') seen.add(valKey(p.kind)); return false; });
+        for (const k of seen) addCount(kinds, k);
+      }
+      const iosSent = active30.filter((d) => d.platform === 'ios' && scanDev(d, w30, now, (e, p) => e.name === 'share_completed' && p.action === 'shared').n > 0).length;
+
+      // Z6 odkud: noví za 30 dní podle ledgeru; obchody podle země za posledních 30 pražských dnů.
+      const geoKey = (v) => (v === null || v === undefined || v === '' || v === 'none' || v === 'unknown' ? '_none' : String(v));
+      const geo = (field) => { const m = new Map(); for (const d of n30) addCount(m, geoKey(d.inst[field])); return breakdown(m); };
+      const storeRegion = new Map(), fromIso = dayIso(today - 29), toIso = dayIso(today);
+      for (const x of st.docs) {
+        if (x.date < fromIso || x.date > toIso) continue;
+        const m = x.platform === 'ios' ? x.byTerritory : x.byCountry;
+        if (!m || typeof m !== 'object') continue;
+        for (const k of Object.keys(m)) if (isNum(m[k])) addCount(storeRegion, k, m[k]);
+      }
+
+      // Verdikty a „kdy bude jasno“.
+      const elig = comparisons.map((c, i) => [c, sides[i]]).filter(([c]) => c.eligible);
+      const z4 = elig.some(([c]) => c.verdict === 'Průkazný rozdíl') ? 'Průkazný rozdíl'
+        : elig.some(([c]) => c.verdict === 'Zatím neprůkazné') ? 'Zatím neprůkazné' : 'Málo dat';
+      let wz4 = null;
+      if (z4 !== 'Průkazný rozdíl') {
+        if (elig.length) wz4 = laterClear(elig.flatMap(([c, [sa, sb]]) => [whenClear(c.a.n, addedD1(idx, sa), today), whenClear(c.b.n, addedD1(idx, sb), today)]));
+        else if (topChannel) { const l = chanGroups.get(topChannel.key); wz4 = whenClear(getKey(qChannel, topChannel.key).d1.n, addedD1(idx, l), today); }
+        else wz4 = { state: 'unknown' };
+      }
+      return {
+        new: { h24: byPlat(n24), d7: byPlat(n7), prev7: byPlat(p7), d30: byPlat(n30) },
+        trend, byDay,
+        store: { lastDay: { ios: st.last.ios, android: st.last.android } },
+        channel: { measured: measured.length, of: and30.length, byChannel, unmeasured: and30.length - measured.length, ios: n30.length - and30.length },
+        quality: { all: qAll, channel: qChannel, campaign: qCampaign, comparisons, topChannel },
+        campaigns,
+        share: {
+          active: active30.length, shared: { k: sharers.length, n: active30.length }, kind: breakdown(kinds),
+          ios: { shared: sharers.filter((d) => d.platform === 'ios').length, sent: iosSent },
+          coop: { invited: active30.filter((d) => set30('coop_invite_created').has(d.id)).length, joined: active30.filter((d) => set30('coop_joined').has(d.id)).length },
+          link: active30.filter((d) => d.inst.srcChannel === 'trypup_link').length,
+          family: { state: 'testers' },
+        },
+        region: geo('region'), locale: geo('locale'), deviceLocale: geo('deviceLocale'),
+        storeRegion30: breakdown(storeRegion),
+        verdicts: { z1: trend, z2: measured.length < R.SMALL_N ? 'Málo dat' : 'Zjištění', z3, z4, z5: 'Zjištění', z6: 'Zjištění' },
+        whenClear: { z4: wz4 },
+      };
+    }
+    const getKey = (o, k) => (Object.hasOwn(o, k) ? o[k] : undefined);
+
+    // ── Cesta (SPEC C.2)
+    function computeJourney(idx) {
+      const R = VERDICT_RULES, { now, today, w7, w14, w30, real, ci } = idx;
+      const K = real.filter((d) => inWin(d.firstMs, w30, now));
+      const matureAt = now - R.MATURE_DAYS * CORE_DAY;
+
+      // A1 a A2: úvod po zařízeních (všechny události zařízení, seřazené podle času).
+      const side = (v) => (valKey(v) === '_none' ? '?' : String(v));
+      const onb = new Map();
+      for (const d of K) {
+        const o = { has: false, lastChoice: null, reached: new Set(), lastStep: null, back: false };
+        for (const e of d.evs) {
+          if (e.name !== 'onboarding_step') continue;
+          const p = propsOf(e);
+          o.has = true; o.lastStep = valKey(p.step);
+          if (valKey(p.choice) !== '_none') o.lastChoice = String(p.choice);
+          if (p.dir === 'back') o.back = true; else o.reached.add(valKey(p.step));
+        }
+        onb.set(d.id, o);
+      }
+      const O = (d) => onb.get(d.id);
+      const saved = (d) => d.names.has('owner_activated') || d.dogScreen;
+      const onbL = K.filter((d) => O(d).has);
+      const forkL = onbL.filter((d) => O(d).reached.has('fork') || O(d).lastChoice !== null);
+      const forkChoice = new Map();
+      for (const d of forkL) addCount(forkChoice, valKey(O(d).lastChoice));
+      const trialB = onbL.filter((d) => O(d).lastChoice !== 'owner');
+      const ownerB = onbL.filter((d) => O(d).lastChoice === 'owner');
+      const reached = (list, step) => list.filter((d) => O(d).reached.has(step)).length;
+      const ownerSaved = ownerB.filter(saved), ownerNot = ownerB.filter((d) => !saved(d));
+      const hasDog = (d) => d.names.has('activated') || saved(d);
+      const noDog = new Map();
+      for (const d of K) if (!hasDog(d)) addCount(noDog, O(d).has ? O(d).lastStep : '_none');
+      const dwellM = new Map(), backT = new Map();
+      let backDevices = 0;
+      for (const d of K) {
+        let back = false;
+        for (const e of d.evs) {
+          if (e.name !== 'onboarding_step') continue;
+          const p = propsOf(e);
+          if (p.dir === 'back') { back = true; addCount(backT, side(p.fromStep) + '>' + side(p.step)); continue; }
+          if (isNum(p.dwellMs) && valKey(p.fromStep) !== '_none') { const k = String(p.fromStep); const a = dwellM.get(k); if (a) a.push(p.dwellMs); else dwellM.set(k, [p.dwellMs]); }
+        }
+        if (back) backDevices++;
+      }
+      const dwell = {};
+      for (const [k, arr] of [...dwellM].sort((a, b) => cmpStr(a[0], b[0]))) {
+        if (arr.length < R.SMALL_N) continue;
+        arr.sort((a, b) => a - b);
+        const m = arr.length >> 1, ms = arr.length % 2 ? arr[m] : (arr[m - 1] + arr[m]) / 2;
+        setKey(dwell, k, { n: arr.length, ms, s: Math.round(ms / 1000) });
+      }
+
+      // A3 první týden: jen zralí, vše do 7 × 24 h od prvního spuštění.
+      const mature = K.filter((d) => d.firstMs !== null && d.firstMs <= matureAt);
+      const wTrial = mature.filter((d) => O(d).has && O(d).lastChoice !== 'owner' && d.names.has('activated'));
+      const wOwner = mature.filter((d) => O(d).has && O(d).lastChoice === 'owner' && saved(d));
+      const wkEnd = (d) => d.firstMs + 7 * CORE_DAY;
+      const wk = (d, pred) => scanDev(d, -Infinity, wkEnd(d), pred);
+      const wkBuild = (d) => buildIn(d, -Infinity, wkEnd(d));
+      const frac = (list, kOf) => ({ k: list.filter(kOf).length, n: list.length });
+      const careDays = (d) => wk(d, isName('task_done')).days.size;
+      const isOwnerScreen = (e, p) => { const s = screenOf(e, p); return s !== null && s.startsWith('pesdoma/'); };
+      const week = {
+        mature: mature.length, trial: wTrial.length, owner: wOwner.length,
+        trialUse: {
+          care: frac(wTrial, (d) => careDays(d) >= 1), care2: frac(wTrial, (d) => careDays(d) >= 2), care3: frac(wTrial, (d) => careDays(d) >= 3),
+          challenge: frac(wTrial, (d) => wk(d, isName('challenge_started')).n > 0),
+          notif: measuredFraction(measurable(wTrial, wkBuild, catalogSb(ci, 'notification_permission', null, undefined, 288)),
+            (d) => wk(d, (e, p) => e.name === 'notification_permission' && p.status === 'granted').n > 0),
+        },
+        ownerUse: {
+          plan: frac(wOwner, (d) => wk(d, (e, p) => screenOf(e, p) === 'pesdoma/dog/[id]/plan').n > 0),
+          diary: frac(wOwner, (d) => wk(d, (e, p) => { const s = screenOf(e, p); return s === 'pesdoma/dog/[id]/diary' || s === 'pesdoma/dog/[id]/entry' || s === 'pesdoma/dog/[id]/weight'; }).n > 0),
+          returned: frac(wOwner, (d) => wk(d, isOwnerScreen).days.size >= 2),
+          planItem: measuredFraction(measurable(wOwner, wkBuild, catalogSb(ci, 'plan_item', null, undefined, 337)), (d) => wk(d, isName('plan_item')).n > 0),
+        },
+      };
+
+      // A4 retence nových (zrcadlo serveru).
+      const ret = cohortRetention(K.map((d) => ({ id: d.id, firstMs: d.firstMs })), idx.activity, now).segments;
+      const wr = wilson(ret.all.d1.k, ret.all.d1.n);
+      const a4 = ret.all.d1.n < R.SURE_N ? 'Málo dat' : wr[0] > R.MARKET.d1 ? 'Nad trhem' : wr[1] < R.MARKET.d1 ? 'Pod trhem' : 'Na úrovni trhu';
+
+      // A5 test první péče: první přiřazení zařízení od pražské půlnoci 16. 11. 2026, bez omezení 30 dny.
+      const abDay = isoDayNum(CORE_LIMITS.AB_START), review = reviewInfo(idx).ids;
+      const abGroups = new Map();
+      for (const d of real) {
+        const first = d.evs.find((e) => e.name === 'experiment_assigned' && propsOf(e).name === CORE_LIMITS.AB_NAME && pragueDay(e.ts) >= abDay);
+        if (!first) continue;
+        const v = valKey(propsOf(first).variant), l = abGroups.get(v);
+        if (l) l.push(d); else abGroups.set(v, [d]);
+      }
+      const variants = {};
+      let abReview = 0;
+      for (const [v, list] of [...abGroups].sort((a, b) => cmpStr(a[0], b[0]))) {
+        const rv = list.filter((d) => review.has(d.id)).length;
+        abReview += rv;
+        setKey(variants, v, { assigned: list.length, d1: d1Of(idx, list),
+          tapped: list.filter((d) => scanDev(d, -Infinity, Infinity, (e, p) => e.name === 'home_banner' && p.kind === 'first_care' && p.action === 'tap').n > 0).length,
+          review: rv });
+      }
+      const va = abGroups.has('a') ? getKey(variants, 'a') : null, vb = abGroups.has('b') ? getKey(variants, 'b') : null;
+      const a5 = va && vb && va.d1.n >= R.SURE_N && vb.d1.n >= R.SURE_N ? compareGroups(va.d1, vb.d1).verdict : 'Málo dat';
+
+      // B1 režimy aktivních za 30 dní.
+      const active = real.filter((d) => inWin(d.lastMs, w30, now));
+      const mTrial = active.filter((d) => d.mode.trial), mOwner = active.filter((d) => d.mode.owner);
+      const tdTrial = twoDaysOf(mTrial, (d) => d.mode.trial, matureAt), tdOwner = twoDaysOf(mOwner, (d) => d.mode.owner, matureAt);
+      const b1c = compareGroups(tdTrial, tdOwner);
+
+      // B2 Pes na zkoušku: řádky v období, „aspoň 2 různé dny“ podle R6.
+      const in30 = (d, pred) => scanDev(d, w30, now, pred);
+      const notOwner = (p) => p.mode !== 'owner';
+      const TRIAL_ROWS = [
+        ['care', (e) => e.name === 'task_done', true],
+        ['training', (e) => e.name === 'training_done', true],
+        ['walk', (e, p) => (e.name === 'walk_started' && notOwner(p)) || screenOf(e, p) === 'walk', true],
+        ['walkGps', (e, p) => e.name === 'walk_completed' && notOwner(p), true],
+        ['learning', (e, p) => LEARNING_EVENTS.has(e.name) && notOwner(p), true],
+        ['event', (e) => e.name === 'event_choice', true],
+        ['challenge', (e) => e.name === 'challenge_started', false],
+        ['day7', (e, p) => e.name === 'day_advanced' && isNum(p.day) && p.day >= 7, false],
+        ['shelter', (e) => e.name === 'fail_state', false],
+      ];
+      const trialUse = { base: mTrial.length };
+      for (const [key, pred, two] of TRIAL_ROWS) {
+        const scans = new Map(mTrial.map((d) => [d.id, in30(d, pred)]));
+        const row = { used: { k: mTrial.filter((d) => scans.get(d.id).n > 0).length, n: mTrial.length } };
+        if (two) row.twoDays = twoDaysOf(mTrial, (d) => scans.get(d.id), matureAt);
+        trialUse[key] = row;
+      }
+      const failChoice = new Map();
+      for (const d of mTrial) {
+        const seen = new Set();
+        in30(d, (e, p) => { if (e.name === 'fail_state_choice') seen.add(valKey(p.choice)); return false; });
+        for (const k of seen) addCount(failChoice, k);
+      }
+      trialUse.failChoice = breakdown(failChoice);
+
+      // B3 Pes doma: místa (obrazovky, u vets a family i akce) a akce s měřitelností podle R8.
+      const opened = {}, ownerTwo = {};
+      for (const [place, test, action] of OWNER_PLACES) {
+        const scans = new Map(mOwner.map((d) => [d.id, in30(d, (e, p) => { const s = screenOf(e, p); return (s !== null && test(s)) || (action !== null && e.name === action); })]));
+        opened[place] = { k: mOwner.filter((d) => scans.get(d.id).n > 0).length, n: mOwner.length };
+        ownerTwo[place] = twoDaysOf(mOwner, (d) => scans.get(d.id), matureAt);
+      }
+      const b30 = (d) => d.b30;
+      const did = (place, sb, pred) => ({ place, sb, ...measuredFraction(measurable(mOwner, b30, sb), (d) => in30(d, pred).n > 0) });
+      const walkSb = catalogSb(ci, 'walk_started', 'mode', 'owner', 338);
+      const owner = {
+        base: mOwner.length, opened, twoDays: ownerTwo,
+        did: {
+          planItem: did('plan', catalogSb(ci, 'plan_item', null, undefined, 337), isName('plan_item')),
+          calendar: did('plan', catalogSb(ci, 'calendar_event_opened', null, undefined, 292), isName('calendar_event_opened')),
+          entry: did('diary', catalogSb(ci, 'diary_entry', null, undefined, 337), (e) => e.name === 'diary_entry' || e.name === 'weight_entry'),
+          document: did('docs', catalogSb(ci, 'dog_document', null, undefined, 304), isName('dog_document')),
+          trainingSession: did('training', catalogSb(ci, 'training_logged', null, undefined, 312), (e) => e.name === 'training_logged' || e.name === 'training_stage_confirmed'),
+          walkStarted: did('walk', walkSb, (e, p) => e.name === 'walk_started' && p.mode === 'owner'),
+          walkCompleted: did('walk', walkSb, (e, p) => e.name === 'walk_completed' && p.mode === 'owner'),
+          family: { place: 'family', state: 'testers' },
+        },
+      };
+
+      // B4 přepnutí režimu (zařízení, ne přepnutí).
+      const sw = { total: 0, onbOwner: 0, onbTrial: 0, laterOwner: 0, laterTrial: 0, ownerBy: new Map(), trialBy: new Map() };
+      for (const d of active) {
+        let any = false, oo = false, ot = false, lo = false, lt = false;
+        const srcO = new Set(), srcT = new Set();
+        in30(d, (e, p) => {
+          if (e.name !== 'mode_switched') return false;
+          any = true;
+          const src = valKey(p.source), onbSrc = src === 'onboarding';
+          if (p.to === 'owner') { if (onbSrc) oo = true; else { lo = true; srcO.add(src); } }
+          else if (p.to === 'trial') { if (onbSrc) ot = true; else { lt = true; srcT.add(src); } }
+          return false;
+        });
+        if (any) sw.total++;
+        if (oo) sw.onbOwner++; if (ot) sw.onbTrial++; if (lo) sw.laterOwner++; if (lt) sw.laterTrial++;
+        for (const s of srcO) addCount(sw.ownerBy, s);
+        for (const s of srcT) addCount(sw.trialBy, s);
+      }
+
+      // B5 vstupy (7 dní), upozornění a připomínky péče (30 dní).
+      const active7 = real.filter((d) => inWin(d.lastMs, w7, now));
+      const mEntry = measurable(active7, (d) => d.b7, catalogSb(ci, 'app_entry', null, undefined, 342));
+      let entry;
+      if (mEntry.unmeasured) entry = { state: 'unmeasured', x: mEntry.x, y: mEntry.y };
+      else {
+        const bySrc = new Map(), cnt = new Map(); let devices = 0;
+        for (const d of mEntry.base) {
+          const r = scanDev(d, w7, now, (e, p) => { if (e.name !== 'app_entry') return false; const k = valKey(p.source); addCount(cnt, k); addToSet(bySrc, k, d.id); return true; });
+          if (r.n > 0) devices++;
+        }
+        entry = { x: mEntry.x, y: mEntry.y, n: mEntry.base.length, devices, bySource: breakdownSets(bySrc), countBySource: breakdown(cnt) };
+      }
+      const notifStatus = new Map(); let answered = 0;
+      for (const d of active) {
+        const r = in30(d, isName('notification_permission'));
+        if (!r.last) continue;
+        answered++; addCount(notifStatus, valKey(propsOf(r.last).status));
+      }
+      const notif = { answered, granted: notifStatus.get('granted') || 0, denied: notifStatus.get('denied') || 0, byStatus: breakdown(notifStatus) };
+      const mCare = measurable(mTrial, b30, catalogSb(ci, 'care_reminder_opened', null, undefined, 335));
+      let care, b5 = 'Zatím neměříme', wb5 = null;
+      if (mCare.unmeasured) care = { state: 'unmeasured', x: mCare.x, y: mCare.y };
+      else {
+        const slot = new Map(), variant = new Map(), timing = new Map(), firstByVar = new Map();
+        let openedN = 0, doneN = 0;
+        for (const d of mCare.base) {
+          if (in30(d, isName('care_reminder_opened')).n > 0) openedN++;
+          const r = in30(d, (e, p) => {
+            if (e.name !== 'care_reminder_done') return false;
+            addToSet(slot, valKey(p.slot), d.id); addToSet(variant, valKey(p.variant), d.id); addToSet(timing, valKey(p.timing), d.id);
+            const k = valKey(p.variant) + '\u0000' + d.id;
+            if (!firstByVar.has(k)) firstByVar.set(k, e.ts);
+            return true;
+          });
+          if (r.n > 0) doneN++;
+        }
+        const byVar = breakdownSets(variant);
+        care = { x: mCare.x, y: mCare.y, n: mCare.base.length, opened: openedN, done: doneN,
+          doneBySlot: breakdownSets(slot), doneByVariant: byVar, doneByTiming: breakdownSets(timing) };
+        if (!byVar.some(([, c]) => c >= R.SURE_N)) {
+          b5 = 'Zatím neprůkazné';
+          if (!byVar.length) wb5 = { state: 'unknown' };
+          else {
+            const [top, base] = byVar[0];
+            const added = [...variant.get(top)].filter((id) => firstByVar.get(top + '\u0000' + id) > idx.w7).length;
+            wb5 = whenClear(base, added, today);
+          }
+        } else { b5 = 'Zjištění'; care.best = byVar[0][0]; }
+      }
+
+      // B6 mise (jen počty zařízení za 30 dní).
+      const has30 = (d, name) => (idx.byName30.get(name) || CORE_EMPTY_SET).has(d.id);
+      const decision = new Map(), shelterBy = new Map();
+      let shelterDev = 0, clicks = 0;
+      for (const d of active) {
+        const r = in30(d, isName('challenge_decision'));
+        if (r.last) addCount(decision, valKey(propsOf(r.last).choice));
+        const s = in30(d, (e, p) => {
+          if (e.name !== 'shelter_opened' && e.name !== 'graduation_shelter_cta') return false;
+          const v = valKey(p.shelter);
+          addCount(shelterBy, v === '_none' ? '_graduation' : v.split(' - ').join(' – '));
+          return true;
+        });
+        if (s.n > 0) { shelterDev++; clicks += s.n; }
+      }
+      const mission = {
+        started: active.filter((d) => has30(d, 'challenge_started')).length,
+        graduation: active.filter((d) => has30(d, 'graduation_reached')).length,
+        completed: active.filter((d) => has30(d, 'challenge_completed')).length,
+        decided: active.filter((d) => has30(d, 'challenge_decision')).length,
+        decision: breakdown(decision),
+        wait: active.filter((d) => has30(d, 'graduation_wait_cta')).length,
+        shelter: { devices: shelterDev, clicks, byShelter: breakdown(shelterBy) },
+      };
+
+      // B7 odpovědi v úvodu: poslední záznam za zařízení v období (aktivní za 30 dní).
+      const lastOf = (name) => active.map((d) => in30(d, isName(name)).last).filter(Boolean);
+      const brk = (list, field) => { const m = new Map(); for (const e of list) addCount(m, valKey(propsOf(e)[field])); return breakdown(m); };
+      const rc = lastOf('readiness_completed'), qc = lastOf('quiz_completed'), bs = lastOf('breed_selected');
+      const q = {};
+      for (const k of ['q1', 'q2', 'q3', 'q4', 'q5', 'q6']) q[k] = { yes: rc.filter((e) => propsOf(e)[k] === 'yes').length, no: rc.filter((e) => propsOf(e)[k] === 'no').length, na: rc.filter((e) => propsOf(e)[k] === 'na').length };
+      const offer = (action) => active.filter((d) => in30(d, (e, p) => e.name === 'onboarding_premium_offer' && p.action === action).n > 0).length;
+      const answers = {
+        readiness: { n: rc.length, tier: brk(rc, 'tier'), phase: brk(rc, 'phase'), q },
+        quiz: { n: qc.length, hours: brk(qc, 'hours'), housing: brk(qc, 'housing'), activity: brk(qc, 'activity') },
+        breed: { n: bs.length, matched: bs.filter((e) => propsOf(e).matchedRecommendation === true).length, other: bs.filter((e) => propsOf(e).matchedRecommendation === false).length, breed: brk(bs, 'breed') },
+        premiumOffer: { shown: offer('shown'), tapped: offer('tapped') },
+      };
+
+      // „Kdy bude jasno“.
+      const wa4 = a4 === 'Málo dat' ? whenClear(ret.all.d1.n, addedD1(idx, K), today) : null;
+      let wa5 = null;
+      if (a5 === 'Málo dat' || a5 === 'Zatím neprůkazné') {
+        wa5 = abGroups.size < 2 ? { state: 'unknown' } : laterClear([...abGroups].map(([v, list]) => whenClear(getKey(variants, v).d1.n, addedD1(idx, list), today)));
+      }
+      let wb1 = null;
+      if (b1c.verdict === 'Málo dat' || b1c.verdict === 'Zatím neprůkazné') {
+        const addedSig = (list, k) => list.filter((d) => d.mode[k].first > w14 && d.mode[k].first <= w7).length;
+        wb1 = laterClear([tdTrial.n < R.SURE_N ? whenClear(tdTrial.n, addedSig(mTrial, 'trial'), today) : null,
+          tdOwner.n < R.SURE_N ? whenClear(tdOwner.n, addedSig(mOwner, 'owner'), today) : null]);
+      }
+      return {
+        cohort: K.length, onb: onbL.length, noOnb: K.length - onbL.length,
+        fork: { n: forkL.length, choice: breakdown(forkChoice) },
+        branch: {
+          trial: { entered: trialB.length, quiz: reached(trialB, 'quiz'), quiz_result: reached(trialB, 'quiz_result'), name: reached(trialB, 'name'), activated: trialB.filter((d) => d.names.has('activated')).length },
+          owner: { entered: ownerB.length, owner_setup: reached(ownerB, 'owner_setup'), saved: ownerSaved.length, savedEvent: ownerB.filter((d) => d.names.has('owner_activated')).length,
+            notSaved: ownerNot.length, closed: ownerNot.filter((d) => d.names.has('owner_setup_exit')).length },
+        },
+        dogAny: { k: K.filter(hasDog).length, n: K.length },
+        noDog: breakdown(noDog), dwell,
+        back: { devices: backDevices, transitions: breakdown(backT) },
+        week, ret,
+        retMarket: { d1Range: wr ? [Math.round(100 * wr[0]), Math.round(100 * wr[1])] : null },
+        ab: { variants, review: abReview },
+        modes: { active: active.length, trial: mTrial.length, owner: mOwner.length,
+          both: active.filter((d) => d.mode.trial && d.mode.owner).length, neither: active.filter((d) => !d.mode.trial && !d.mode.owner).length,
+          twoDays: { trial: tdTrial, owner: tdOwner, z: b1c.z } },
+        trialUse, owner,
+        switch: { total: sw.total, onboarding: { owner: sw.onbOwner, trial: sw.onbTrial },
+          later: { owner: sw.laterOwner, trial: sw.laterTrial, ownerBySource: breakdown(sw.ownerBy), trialBySource: breakdown(sw.trialBy) } },
+        entry, notif, care, mission, answers,
+        verdicts: { a1: 'Zjištění', a2: 'Zjištění', a3: 'Zjištění', a4, a5, b1: b1c.verdict, b2: 'Zjištění', b3: 'Zjištění', b4: 'Zjištění', b5, b6: 'Jen počty' },
+        whenClear: { a4: wa4, a5: wa5, b1: wb1, b5: wb5 },
+      };
+    }
+
+    // ── Technika (SPEC C.3). Čísla jako se zaškrtávátkem testerů vypnutým; kontrola zápisů ze všech zařízení.
+    function computeTech(idx) {
+      const L = CORE_LIMITS, { D, now, w7, w30, real, ci } = idx;
+      const raw = Array.isArray(D.raw) ? D.raw : [], loaded = D.loaded || {};
+      const dups = isNum(loaded.dups) ? loaded.dups : 0, dupLog = Array.isArray(loaded.dupLog) ? loaded.dupLog : [];
+      let oldest = Infinity;
+      for (const e of raw) if (e && isNum(e.ts) && e.ts < oldest) oldest = e.ts;
+      const dupsReal = dupLog.filter(([iid]) => idx.devs.has(iid)).length;
+      const dupsReal30 = dupLog.filter(([iid, ts]) => idx.devs.has(iid) && isNum(ts) && inWin(ts, w30, now)).length;
+      let kept30 = 0;
+      for (const d of real) kept30 += d.end - d.i30;
+      const dups30 = { k: dupsReal30, n: kept30 + dupsReal30 };
+
+      // T2 pokrytí verzí (aktivní za 7 dní, verze v 7denním okně).
+      const active7 = real.filter((d) => inWin(d.lastMs, w7, now));
+      const onStore = active7.filter((d) => d.b7 === L.STORE_BUILD);
+      const atLeast = {};
+      for (const sb of L.VERSION_MARKS) atLeast[sb] = active7.filter((d) => d.b7 >= sb).length;
+      const oneDay = onStore.filter((d) => { const s = new Set(); for (let j = d.i30; j < d.end; j++) s.add(d.days[j]); return s.size === 1; }).length;
+
+      // T3 kontroly: neznámé a neplatné názvy, zařízení mimo ledger (všechna načtená zařízení).
+      const unknownAll = new Set(); let invalidAll = 0, outRec = 0;
+      const outDev = new Set();
+      for (const e of raw) {
+        if (!e || !isNum(e.ts) || !inWin(e.ts, w30, now)) continue;
+        if (!validActionName(e.name)) invalidAll++;
+        else if (!ci.ev.has(e.name)) unknownAll.add(e.name);
+        if (!idx.ledger.has(e.installId)) { outRec++; outDev.add(e.installId); }
+      }
+      const unknownNames = [...unknownAll].sort(cmpStr);
+      const unknownReal = new Set(); let invalidReal = 0;
+      const valid30 = new Set();
+      for (const [nm, c] of idx.rec30) {
+        if (!validActionName(nm)) { invalidReal += c; continue; }
+        valid30.add(nm);
+        if (!ci.ev.has(nm)) unknownReal.add(nm);
+      }
+      const events30 = real.filter((d) => d.end > d.i30).length, ledger30 = real.filter((d) => inWin(d.lastMs, w30, now)).length;
+      const noRc = purchaseNoRcInfo(idx);
+      const all = cohortRetention(real.map((d) => ({ id: d.id, firstMs: d.firstMs })), idx.activity, now).segments.all.d1;
+      const srv = D.retention && D.retention.segments && D.retention.segments.all && D.retention.segments.all.d1;
+      const server = srv && typeof srv === 'object' ? { k: Number(srv.k), n: Number(srv.n) } : null;
+      const complete = loaded.complete === true;
+      const d1State = !complete ? 'incomplete' : server === null ? null
+        : !Number.isFinite(server.k) || !Number.isFinite(server.n) || Math.abs(all.k - server.k) > L.D1_DIFF_WARN || Math.abs(all.n - server.n) > L.D1_DIFF_WARN ? 'warn' : 'ok';
+
+      // T4 k ověření, T5 Expo.
+      const rv = reviewInfo(idx);
+      const byModel = new Map(), byReason = new Map();
+      for (const r of rv.rows) { addCount(byModel, valKey(r.d.inst.model)); for (const x of r.reasons) addCount(byReason, x); }
+      let expo = 0;
+      for (const i of idx.ledger.values()) if ((i.platform === 'ios' || i.platform === 'android') && isNum(i.lastMs) && inWin(i.lastMs, w30, now)) expo++;
+
+      // T6 akce podle skupin.
+      const rows = {}, groupRows = new Map();
+      let seen30 = 0;
+      const addRow = (nm, e) => {
+        const r30 = idx.rec30.get(nm) || 0;
+        const g = e ? (typeof e.g === 'string' ? e.g : 'unknown') : 'unknown';
+        const state = !e ? 'unknown' : e.st === 'removed' ? 'removed' : e.st === 'testers' ? 'testers' : r30 === 0 ? 'noData' : e.auto === 1 ? 'auto' : 'live';
+        setKey(rows, nm, { g, d7: (idx.byName7.get(nm) || CORE_EMPTY_SET).size, d30: (idx.byName30.get(nm) || CORE_EMPTY_SET).size, r30,
+          sb: e && isNum(e.sb) ? e.sb : null, od: e && typeof e.od === 'string' ? e.od : null, state });
+        addCount(groupRows, g);
+      };
+      for (const [nm, e] of ci.ev) { addRow(nm, e); if ((idx.rec30.get(nm) || 0) > 0) seen30++; }
+      for (const nm of [...unknownReal].sort(cmpStr)) addRow(nm, null);
+      const groupOrder = ci.groups.includes('unknown') ? ci.groups : [...ci.groups, 'unknown'];
+      const byGroup = groupOrder.filter((g) => (groupRows.get(g) || 0) > 0).map((g) => [g, groupRows.get(g)]);
+      for (const [g, c] of groupRows) if (!groupOrder.includes(g)) byGroup.push([g, c]);
+
+      const warnIf = (c) => (c ? 'warn' : 'ok');
+      const check = {
+        dups30: { ...dups30, state: dups30.n && dups30.k * 100 > L.DUPS_WARN_PCT * dups30.n ? 'warn' : 'ok' },
+        unknown: { count: unknownNames.length, names: unknownNames.slice(0, L.UNKNOWN_NAMES_MAX), state: warnIf(unknownNames.length > 0) },
+        invalid: { count: invalidAll, state: warnIf(invalidAll > 0) },
+        active30: { events: events30, ledger: ledger30, state: warnIf(Math.abs(events30 - ledger30) > L.ACTIVE_DIFF_WARN) },
+        outsideLedger: { records: outRec, devices: outDev.size, state: warnIf(outRec > 0) },
+        purchaseNoRc: { count: noRc.rows.length, rows: noRc.rows, state: warnIf(noRc.rows.length > 0) },
+        d1Server: { admin: all, server, state: d1State },
+      };
+      return {
+        loaded: { records: raw.length + dups, kept: raw.length, dups, batches: isNum(loaded.batches) ? loaded.batches : null,
+          oldestDay: oldest === Infinity ? null : dayIso(pragueDay(oldest)), complete },
+        dupsAll: dups, dupsAllReal: dupsReal, dups30,
+        versions7: { active: active7.length, store: { build: L.STORE_BUILD, devices: onStore.length, oneDay }, atLeast },
+        check,
+        unknown: check.unknown.count, invalid: check.invalid.count, actions30: valid30.size, purchaseNoRc: check.purchaseNoRc.count,
+        review: { active30: rv.rows.length, byModel: breakdown(byModel), byReason: breakdown(byReason),
+          rows: rv.rows.map((r) => ({ iid: r.d.id.slice(0, 10), model: r.d.inst.model ?? null, firstDay: r.d.firstMs === null ? null : dayIso(pragueDay(r.d.firstMs)), build: r.d.inst.appBuild ?? null, reasons: r.reasons })) },
+        expo: { active30: expo, limit: L.EXPO_LIMIT, level: expo >= L.EXPO_PLAN ? 'plan' : expo >= L.EXPO_WARN ? 'warn' : 'ok' },
+        actions: { catalog: ci.ev.size, seen30, unknown30: unknownReal.size, invalid30: invalidReal, dups30: dups30.k, rows, byGroup },
+      };
+    }
+    /** Informační hlavička výpočtu (kontrola jádra ji neporovnává). */
+    function computeMeta(idx) {
+      return { now: new Date(idx.now).toISOString(), nowMs: idx.now, today: dayIso(idx.today), schema: 1,
+        cohortFrom: dayIso(pragueDay(idx.w30)), cohortTo: dayIso(idx.today), realDevices: idx.real.length, campaignsDoc: !!campaignsOf(idx.D.adCampaigns) };
+    }
+    // == ADMIN CORE END ==
+
     // --- Data load (stránkování – drží data od začátku měření) ---
     const PAGE = 500;
-    let RAW = [];          // ploché eventy ze všech načtených dávek
+    let RAW = [];          // ploché eventy ze všech načtených dávek (po deduplikaci R3)
     let lastDoc = null;    // cursor pro startAfter
     let batches = 0;       // počet načtených dávek
     let exhausted = false; // už není co načítat
     let loading = false;
+    // Zdvojené záznamy z telefonů (R3): stejná funkce ve fetchPage i v setData; nuluje se ve firstLoad.
+    const DEDUP = makeDeduper();
+    // „Teď“ pro výpočty (R4): v produkci Date.now(), v demu čas výpisu (setData NOW / meta.dumpedAt).
+    let NOW_FIXED = null;
+    const nowMs = () => (NOW_FIXED !== null ? NOW_FIXED : Date.now());
+    // Verze dat pro mezipaměť jádra (C.5): zvýší se při každém načtení nebo podstrčení dat.
+    let DATA_VER = 0, OVERRIDES_VER = 0;
 
     async function fetchPage() {
       if (loading || exhausted) return 0;
@@ -332,18 +1430,40 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         const q = lastDoc ? query(...base, startAfter(lastDoc), limit(PAGE)) : query(...base, limit(PAGE));
         const snap = await getDocs(q);
         snap.forEach((d) => {
-          const b = d.data();
+          const b = d.data() || {};
           const dev = b.device || {};
-          (b.events || []).forEach((e) => RAW.push({
-            name: e.name, props: e.props || {}, ts: e.ts, session: e.session,
-            installId: b.installId, dev,
-          }));
+          (Array.isArray(b.events) ? b.events : []).forEach((e) => {
+            if (!e || typeof e !== 'object') return;
+            const x = { name: e.name, props: e.props || {}, ts: e.ts, session: e.session, installId: b.installId, dev };
+            if (DEDUP.add(x)) RAW.push(x);
+          });
         });
         lastDoc = snap.docs.length ? snap.docs[snap.docs.length - 1] : lastDoc;
         batches += snap.size;
+        DATA_VER++;
         if (snap.size < PAGE) exhausted = true;
         return snap.size;
       } finally { loading = false; }
+    }
+
+    // Společný zámek načítání (C.5, E.12): Souhrn, Nákupy, nové záložky i Načíst starší / vše čtou
+    // stránky po jednom. Kdo přijde během načítání, počká na konec; nikdy nedostane „hotovo“ předčasně.
+    let LOAD_CHAIN = Promise.resolve();
+    function withLoadLock(fn) {
+      const run = LOAD_CHAIN.then(fn, fn);
+      LOAD_CHAIN = run.then(() => {}, () => {});
+      return run;
+    }
+    /** Dočítá stránky, dokud needMore() platí (nejvýš maxPages); vrací, jestli je pokryto. */
+    function ensureCoverageWhile(needMore, maxPages = 40) {
+      return withLoadLock(async () => {
+        let pages = 0;
+        while (!exhausted && needMore() && pages < maxPages) {
+          const n = await fetchPage(); pages++;
+          if (!n) break;
+        }
+        return exhausted || !needMore();
+      });
     }
 
     // --- Ledger instalací + testeři (docs/ANALYTICS_DASHBOARD_PLAN.md) ---
@@ -354,6 +1474,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     // ── Klasifikace = ZRCADLO functions/installClass.js (pawprint-mobile). Při změně upravit obě místa.
     //    Robot = Google Play pre-launch report (Firebase Test Lab): emulátory sdk_gphone* a OnePlus8Pro
     //    na Androidu 11 s krátkou aktivitou (< 60 min). Tester = simulátor / vývoj / Expo Go / ručně.
+    //    Blok mezi značkami čte i scripts/check-admin-core.mjs (klasifikace jako vstup jádra).
+    // == ADMIN CLASSIFY START ==
     const TESTER_KINDS = new Set(['simulator', 'development', 'ad_hoc', 'enterprise', 'expo_go']);
     const ROBOT_KINDS = new Set(['emulator', 'test_lab']);
     const ROBOT_RULES = [
@@ -372,6 +1494,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       for (const r of TESTER_RULES) if (r.test(d, span)) return { kind: 'tester', source: 'auto', rule: r.id };
       return { kind: 'real', source: 'none', rule: null };
     }
+    // == ADMIN CLASSIFY END ==
     const clsOf = (iid) => CLS_BY_ID.get(iid) || 'real';
     // Eventy bez záznamu v ledgeru (čerstvá dávka) posuzujeme podle device kontextu dávky.
     const isExcluded = (iid, dev) => {
@@ -389,6 +1512,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     async function loadRcEvents() {
       const snap = await getDocs(collection(db, 'rc_events'));
       RC_EVENTS = snap.docs.map((d) => d.data()).filter((x) => x && x.type);
+      DATA_VER++;
     }
     let STORE = [];
     // Hodnocení v obchodech: dokument store_stats/ratings_summary (stejná kolekce, nemá date/platform,
@@ -397,13 +1521,20 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     // Retence po režimech: store_stats/retention_summary (functions/cohortRetention.js, denně se syncStoreStats).
     // {updatedAt, method, segments:{all|challenge|trial|owner|notActivated:{installs, d1:{k,n}, d7, d30}}}
     let RETENTION = { state: 'missing', data: null };
+    // Zápis placených kampaní (Z3): store_stats/ad_campaigns ze stejného dotazu, žádné nové čtení.
+    // {updatedAt, campaigns:[{id, name, network, platform, country, from, to, spendEur, spendAt}]}; null = chybí.
+    let AD_CAMPAIGNS = null;
     async function loadStoreStats() {
       const snap = await getDocs(collection(db, 'store_stats'));
-      STORE = snap.docs.map((d) => d.data()).filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
+      STORE = snap.docs.filter((d) => d.id !== 'ad_campaigns').map((d) => d.data()).filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
       const rs = snap.docs.find((d) => d.id === 'ratings_summary');
       RATINGS = rs ? { state: 'ok', data: rs.data() || {} } : { state: 'missing', data: null };
       const rt = snap.docs.find((d) => d.id === 'retention_summary');
       RETENTION = rt ? { state: 'ok', data: rt.data() || {} } : { state: 'missing', data: null };
+      const ac = snap.docs.find((d) => d.id === 'ad_campaigns');
+      const acd = ac ? ac.data() || null : null;
+      AD_CAMPAIGNS = acd ? { ...acd, updatedAt: anyMs(acd.updatedAt) !== null ? new Date(anyMs(acd.updatedAt)).toISOString() : null } : null;
+      DATA_VER++;
     }
     // Stažení podle obchodu: iOS = první stažení (firstTime), Android = nové instalace (installs).
     const storeN = (x) => x.platform === 'ios' ? (Number(x.firstTime) || 0) : (Number(x.installs) || 0);
@@ -450,8 +1581,11 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     }
     async function loadInstalls() {
       const [inst, over] = await Promise.all([getDocs(collection(db, 'install_platforms')), getDocs(collection(db, 'tester_installs'))]);
-      INSTALLS = inst.docs.map((d) => { const x = d.data(); return { id: d.id, platform: x.platform || null, firstMs: tsMs(x.firstSeenAt), lastMs: tsMs(x.lastSeenAt), locale: x.locale, deviceLocale: x.deviceLocale, region: x.region, installKind: x.installKind || 'unknown', model: x.model, os: x.os, osVersion: x.osVersion, appBuild: x.appBuild }; });
+      // srcChannel … srcAds = zdroj instalace (Android od verze 352, Z2 a Z4; E.11).
+      INSTALLS = inst.docs.map((d) => { const x = d.data(); return { id: d.id, platform: x.platform || null, firstMs: tsMs(x.firstSeenAt), lastMs: tsMs(x.lastSeenAt), locale: x.locale, deviceLocale: x.deviceLocale, region: x.region, installKind: x.installKind || 'unknown', model: x.model, os: x.os, osVersion: x.osVersion, appBuild: x.appBuild,
+        srcChannel: x.srcChannel ?? null, srcSource: x.srcSource ?? null, srcMedium: x.srcMedium ?? null, srcCampaign: x.srcCampaign ?? null, srcAds: x.srcAds ?? null }; });
       OVERRIDES = new Map(over.docs.map((d) => [d.id, d.data() || {}]));
+      DATA_VER++; OVERRIDES_VER++;
       reclassify();
     }
     /** kind: 'tester' | 'robot' | 'real' (ruční přepis) | null (zrušit přepis → automatika). */
@@ -461,20 +1595,23 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
         if (note === null) return;
         await setDoc(doc(db, 'tester_installs', iid), { kind, note, at: serverTimestamp() }); OVERRIDES.set(iid, { kind, note });
       } else { await deleteDoc(doc(db, 'tester_installs', iid)); OVERRIDES.delete(iid); }
+      OVERRIDES_VER++;
       reclassify(); render();
     }
 
     async function firstLoad() {
-      RAW = []; lastDoc = null; batches = 0; exhausted = false;
+      // Reset dat pod zámkem: běžící dočítání (Souhrn, Nákupy, Načíst vše) nejdřív doběhne.
+      await withLoadLock(() => { RAW = []; lastDoc = null; batches = 0; exhausted = false; DEDUP.reset(); DATA_VER++; });
       // Obnovit (dashboard) volá firstLoad znovu → dočítání starší analytiky musí proběhnout znovu.
       dataReady = false; dashCoverage = false; purchaseCoverage = false;
+      $('loadOlder').textContent = 'Načíst starší'; $('loadAll').textContent = 'Načíst vše';
       $('status').classList.remove('hidden');
       $('status').textContent = 'Načítám…';
       try {
         await loadInstalls().catch((e) => console.warn('ledger instalací nenačten', e));
-        await loadStoreStats().catch((e) => { console.warn('store_stats nenačteny', e); RATINGS = { state: 'error', data: null }; RETENTION = { state: 'error', data: null }; });
+        await loadStoreStats().catch((e) => { console.warn('store_stats nenačteny', e); RATINGS = { state: 'error', data: null }; RETENTION = { state: 'error', data: null }; AD_CAMPAIGNS = null; });
         await loadRcEvents().catch((e) => console.warn('rc_events nenačteny', e));
-        await fetchPage();
+        await withLoadLock(() => fetchPage());
         dataReady = true; LOADED_AT = Date.now();
         buildFilterOptions();
         render();
@@ -486,17 +1623,17 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       }
     }
 
+    // Načíst starší / vše: přes společný zámek (E.12), „Vše načteno“ až po skutečném konci historie.
     $('loadOlder').onclick = async () => {
-      const n = await fetchPage();
+      const n = await withLoadLock(() => fetchPage());
       buildFilterOptions(); render();
       if (!n || exhausted) $('loadOlder').textContent = 'Historie kompletní';
     };
     $('loadAll').onclick = async () => {
       $('loadAll').textContent = 'Načítám…';
-      let guard = 0;
-      while (!exhausted && guard++ < 200) { await fetchPage(); }
+      await ensureCoverageWhile(() => true, 200).catch((e) => console.warn('načtení celé historie selhalo', e));
       buildFilterOptions(); render();
-      $('loadAll').textContent = 'Vše načteno';
+      $('loadAll').textContent = exhausted ? 'Vše načteno' : 'Načíst vše';
     };
 
     // --- Filtry ---
@@ -633,9 +1770,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     //  • Starší verze u zdrojů article a health_tip logují paywall_viewed dvakrát (z článku s article,
     //    z paywallu bez něj) → dvojice téhož zařízení a zdroje do 60 s = jedno zobrazení. Od vlny 1
     //    loguje jen paywall, jednou a s article: dvojice nevznikají, takže netřeba hranice buildu.
-    const PURCHASE_EVENTS = new Set(['purchase_started', 'purchase_completed', 'purchase_cancelled', 'purchase_pending', 'purchase_failed']);
+    // PURCHASE_EVENTS a isLegacyRestore jsou v jádru (sdílí je kontrola nákupů v Technice).
     const RESTORE_KIND = { restore_started: 'started', restore_completed: 'completed', restore_none: 'none', restore_failed: 'failed' };
-    const isLegacyRestore = (e) => PURCHASE_EVENTS.has(e.name) && !!e.props && e.props.product === 'restore';
     const DOUBLE_VIEW_SOURCES = new Set(['article', 'health_tip']);
     const DOUBLE_VIEW_MS = 60 * 1000;
     const ATTRIBUTION_MS = 60 * 60 * 1000;
@@ -1034,15 +2170,7 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     }
 
     // --- Nákupy (rc_events + párování se zařízením z analytiky) ---
-    const MATCH_MS = 10 * 60 * 1000;
-    const productKey = (id) => {
-      const s = String(id || '').toLowerCase();
-      if (/lifetime/.test(s)) return 'plan_lifetime';
-      if (/year|annual/.test(s)) return 'plan_yearly';
-      if (/month/.test(s)) return 'plan_monthly';
-      if (/bundle/.test(s)) return 'breed_bundle';
-      return s.replace(/^trypup_/, '');
-    };
+    // MATCH_MS, productKey a pairPurchases jsou v jádru (stejné párování používá kontrola v Technice).
     const PLAN_LABEL = { plan_monthly: 'Premium – měsíčně', plan_yearly: 'Premium – ročně', plan_lifetime: 'Premium – navždy', breed_bundle: 'Balíček plemen' };
     const productLabel = (key) => PLAN_LABEL[key] || (key.startsWith('breed_') ? 'Plemeno: ' + key.slice(6).split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : key || '?');
     const STORE_LABEL = { APP_STORE: 'App Store', PLAY_STORE: 'Google Play', MAC_APP_STORE: 'Mac App Store', AMAZON: 'Amazon', STRIPE: 'Stripe', PROMOTIONAL: 'promo RevenueCat' };
@@ -1053,19 +2181,8 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     let purchaseCoverage = false;
 
     function purchaseRows() {
-      // Obnova (starší verze: purchase_completed s product 'restore') není nákup → nepáruje se.
-      const app = RAW.filter((e) => e.name === 'purchase_completed' && !isLegacyRestore(e));
-      const used = new Set();
-      const rows = RC_EVENTS.filter((r) => r.isPurchase).map((r) => {
-        const key = productKey(r.productId); const t = r.purchasedAtMs || r.eventAtMs || 0;
-        let best = null, bestD = Infinity;
-        if (r.type !== 'RENEWAL') for (const e of app) {
-          if (used.has(e) || productKey(e.props.product) !== key) continue;
-          const d = Math.abs(e.ts - t); if (d <= MATCH_MS && d < bestD) { best = e; bestD = d; }
-        }
-        if (best) used.add(best);
-        return { rc: r, app: best, ts: t, key, inherited: false };
-      });
+      // Obnova (starší verze: purchase_completed s product 'restore') není nákup → nepáruje se (pairPurchases v jádru).
+      const { rows, app, used } = pairPurchases(RC_EVENTS, RAW);
       // Obnova předplatného: zařízení z prvního nákupu téhož zákazníka (hash, ne ID).
       const firstByCustomer = new Map();
       [...rows].sort((a, b) => a.ts - b.ts).forEach((x) => { if (x.app && x.rc.customer && !firstByCustomer.has(x.rc.customer)) firstByCustomer.set(x.rc.customer, x.app); });
@@ -1076,16 +2193,17 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       return rows.sort((a, b) => b.ts - a.ts);
     }
 
-    /** Zařízení ke starším nákupům: dočti analytiku, dokud nepokryje nejstarší nákup (nejvýš 40 stránek). */
+    /** Zařízení ke starším nákupům: dočti analytiku, dokud nepokryje nejstarší nákup (nejvýš 40 stránek,
+     *  společný zámek s ostatním dočítáním). */
     async function ensurePurchaseCoverage() {
       if (purchaseCoverage) return; purchaseCoverage = true;
-      const oldest = Math.min(...RC_EVENTS.filter((r) => r.isPurchase).map((r) => r.purchasedAtMs || Infinity));
+      let oldest = Infinity;
+      for (const r of RC_EVENTS) if (r.isPurchase) { const t = r.purchasedAtMs || Infinity; if (t < oldest) oldest = t; }
       if (!Number.isFinite(oldest)) return;
-      let guard = 0;
       const rawOldest = () => RAW.reduce((m, e) => Math.min(m, e.ts || Infinity), Infinity);
       if (rawOldest() <= oldest - MATCH_MS || exhausted) return;
       $('p-sub').textContent = '· dočítám starší analytiku kvůli zařízení…';
-      while (!exhausted && guard++ < 40 && rawOldest() > oldest - MATCH_MS) await fetchPage();
+      await ensureCoverageWhile(() => rawOldest() > oldest - MATCH_MS, 40).catch((e) => console.warn('dočtení analytiky k nákupům selhalo', e));
       buildFilterOptions(); render();
     }
 
@@ -1294,21 +2412,21 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
     // načtená dávka) je starší než 30 dní – všechny nenačtené dávky jsou ještě starší – nebo už není co načíst.
     const rawOldest = () => RAW.reduce((m, e) => Math.min(m, Number.isFinite(e.ts) ? e.ts : Infinity), Infinity);
     const cursorTs = () => { const v = lastDoc && typeof lastDoc.get === 'function' ? tsMs(lastDoc.get('lastTs')) : null; return v !== null ? v : rawOldest(); };
-    const dashCovered = () => exhausted || cursorTs() <= Date.now() - 30 * DAY_MS;
+    const coveredDays = (days) => exhausted || cursorTs() <= nowMs() - days * DAY_MS;
+    const dashCovered = () => coveredDays(30);
+    /** Dočte analytiku na posledních `days` dní (nejvýš maxPages stránek) přes společný zámek; Souhrn,
+     *  Získávání, Cesta i Nákupy čtou tytéž stránky. Promise skončí až po doběhnutí, nikdy předčasně. */
+    function ensureCoverage(days = 30, maxPages = 40) {
+      if (DEMO) return Promise.resolve(true);
+      return ensureCoverageWhile(() => !coveredDays(days), maxPages);
+    }
     function ensureDashCoverage() {
       if (dashCoverage || DEMO) return dashCoverPromise;
       dashCoverage = true;
       if (dashCovered()) return dashCoverPromise;
       dashCovering = true;
-      dashCoverPromise = (async () => {
-        let pages = 0, waits = 0;
-        while (!dashCovered() && pages < 40 && waits < 300) {
-          // Souběh s jiným dočítáním (Nákupy): fetchPage by vrátil 0 → počkej, nepočítej jako stránku.
-          if (loading) { waits++; await new Promise((r) => setTimeout(r, 100)); continue; }
-          const n = await fetchPage(); pages++;
-          if (!n) break;
-        }
-      })().catch((e) => console.warn('dočtení analytiky na 30 dní selhalo', e))
+      dashCoverPromise = ensureCoverage(30, 40)
+        .catch((e) => console.warn('dočtení analytiky na 30 dní selhalo', e))
         .finally(() => { dashCovering = false; buildFilterOptions(); render(); });
       return dashCoverPromise;
     }
@@ -1586,21 +2704,67 @@ const ADMIN_EMAIL = 'o.kliment@gmail.com';
       } finally { refreshing = false; b.disabled = dashCovering; }
     };
 
-    // Lokální ověření (jen localhost): ?demo ukáže dashboard bez přihlášení a bez Firestore,
-    // window.__dash.setData({INSTALLS, RC_EVENTS, STORE, RAW, RATINGS}) podstrčí vlastní data.
+    // --- Jádro v paměti (C.5): index a výsledky compute* pod klíčem verze dat (počet událostí, konec
+    //     historie, verze přepisů testerů, „teď“ na minuty). Přepnutí záložky, jazyka ani rozbalení
+    //     sekce nic nepřepočítává. Katalog akcí je ve stránce jako JSON (#admin-labels, SPEC D.1).
+    let LABELS = null;
+    try { const el = $('admin-labels'); LABELS = el ? JSON.parse(el.textContent || 'null') : null; }
+    catch (e) { console.warn('katalog popisků nenačten', e); }
+    let CORE_CACHE = { key: null, idx: null, out: new Map() };
+    const coreKey = () => [DATA_VER, RAW.length, exhausted ? 1 : 0, OVERRIDES_VER, Math.floor(nowMs() / 60000)].join('|');
+    function coreIndex() {
+      const key = coreKey();
+      if (CORE_CACHE.key !== key) {
+        CORE_CACHE = { key, out: new Map(), idx: buildIndex({
+          raw: RAW, installs: INSTALLS, overrides: OVERRIDES, rcEvents: RC_EVENTS, store: STORE,
+          retention: RETENTION.state === 'ok' ? RETENTION.data : null, adCampaigns: AD_CAMPAIGNS, catalog: LABELS, now: nowMs(),
+          loaded: { dups: DEDUP.dups, dupLog: DEDUP.log, batches, complete: exhausted },
+        }) };
+      }
+      return CORE_CACHE.idx;
+    }
+    const CORE_FNS = new Map([['acq', computeAcquisition], ['jr', computeJourney], ['tech', computeTech], ['meta', computeMeta]]);
+    /** Výsledek jedné části jádra ('acq' | 'jr' | 'tech' | 'meta') pro aktuální data, z mezipaměti. */
+    function coreResult(part) {
+      const idx = coreIndex(), fn = CORE_FNS.get(part);
+      if (!fn) return null;
+      if (!CORE_CACHE.out.has(part)) CORE_CACHE.out.set(part, fn(idx));
+      return CORE_CACHE.out.get(part);
+    }
+
+    // Lokální ověření (jen localhost): ?demo ukáže dashboard bez přihlášení a bez Firestore.
+    // window.__dash.setData(výpis) podstrčí data jedním voláním: {INSTALLS, OVERRIDES (objekt nebo dvojice),
+    // RC_EVENTS, STORE, RAW (projde stejnou deduplikací jako fetchPage), RATINGS, RETENTION, AD_CAMPAIGNS,
+    // NOW nebo meta.dumpedAt (= „teď“ výpočtů), meta.batches}. __dash.core() vrátí výstupy jádra.
     if (location.hostname === 'localhost') {
       window.__dash = {
         setData(d = {}) {
-          if (d.INSTALLS) INSTALLS = d.INSTALLS.map((i) => ({ installKind: 'unknown', ...i, firstMs: anyMs(i.firstMs), lastMs: anyMs(i.lastMs) }));
-          if (d.RC_EVENTS) RC_EVENTS = d.RC_EVENTS.filter((x) => x && x.type);
-          if (d.STORE) STORE = d.STORE.filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
-          if (d.RAW) { RAW = d.RAW.map((e) => ({ ...e, ts: anyMs(e.ts), props: e.props || {}, dev: e.dev || {} })); batches = 0; exhausted = true; }
+          if (!d || typeof d !== 'object') return;
+          if (Array.isArray(d.INSTALLS)) INSTALLS = d.INSTALLS.filter((i) => i && typeof i === 'object').map((i) => ({ installKind: 'unknown', ...i, firstMs: anyMs(i.firstMs), lastMs: anyMs(i.lastMs) }));
+          if (d.OVERRIDES && typeof d.OVERRIDES === 'object') OVERRIDES = new Map(Array.isArray(d.OVERRIDES) ? d.OVERRIDES.filter((x) => Array.isArray(x)) : Object.entries(d.OVERRIDES));
+          if (Array.isArray(d.RC_EVENTS)) RC_EVENTS = d.RC_EVENTS.filter((x) => x && x.type);
+          if (Array.isArray(d.STORE)) STORE = d.STORE.filter((x) => x && x.date && (x.platform === 'ios' || x.platform === 'android'));
+          if (Array.isArray(d.RAW)) {
+            DEDUP.reset(); RAW = [];
+            for (const e of d.RAW) {
+              if (!e || typeof e !== 'object') continue;
+              const x = { ...e, ts: anyMs(e.ts), props: e.props || {}, dev: e.dev || {} };
+              if (DEDUP.add(x)) RAW.push(x);
+            }
+            const mb = d.meta && typeof d.meta === 'object' ? Number(d.meta.batches) : NaN;
+            batches = Number.isFinite(mb) ? mb : 0;
+          }
           if ('RATINGS' in d) RATINGS = d.RATINGS ? { state: 'ok', data: d.RATINGS } : { state: 'missing', data: null };
           if ('RETENTION' in d) RETENTION = d.RETENTION ? { state: 'ok', data: d.RETENTION } : { state: 'missing', data: null };
+          if ('AD_CAMPAIGNS' in d) AD_CAMPAIGNS = d.AD_CAMPAIGNS && typeof d.AD_CAMPAIGNS === 'object' ? d.AD_CAMPAIGNS : null;
+          const nowIn = 'NOW' in d ? d.NOW : d.meta && typeof d.meta === 'object' ? d.meta.dumpedAt : undefined;
+          if (nowIn !== undefined) { const t = anyMs(nowIn); NOW_FIXED = Number.isFinite(t) ? t : null; }
+          exhausted = true; dataReady = true; dashCoverage = true; purchaseCoverage = true; LOADED_AT = Date.now();
+          DATA_VER++; OVERRIDES_VER++; CORE_CACHE.key = null;
           reclassify();
-          dataReady = true; dashCoverage = true; LOADED_AT = Date.now();
           render();
         },
+        core() { return { meta: coreResult('meta'), acq: coreResult('acq'), jr: coreResult('jr'), tech: coreResult('tech') }; },
         render: renderDashboard,
       };
     }

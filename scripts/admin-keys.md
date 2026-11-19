@@ -25,7 +25,7 @@ Výpis zařízení (`demo.json`) ani `ref.json` se nikdy necommitují.
 | verze zařízení v okně | nejvyšší číselné `dev.appBuild` z událostí zařízení v daném okně; bez událostí 0. | R8 |
 | zralost (R6) | „aspoň 2 různé dny“: zařízení, které funkci (režim) v období použilo poprvé nejpozději teď − 7 × 24 h; z nich ti, kdo ji v období použili aspoň ve 2 různých pražských dnech. | R6 |
 | měřitelnost (R8) | Y = základ, X = zařízení základu s verzí v okně ≥ `sb`. `X × 100 ≥ 90 × Y` → základ zůstává Y; jinak `X × 10 < Y` nebo `X < 10` → neměříme; jinak základ = těch X. | R8 |
-| klíč hodnoty | `String()` hodnoty z dat; `null`, chybějící a `''` → `_none`; celé číslo bez `.0`; bool `true`/`false`. Klíče jsou technické, popisky řeší vykreslení. | – |
+| klíč hodnoty | `String()` hodnoty z dat; `null`, chybějící a `''` → `_none`; celé číslo bez `.0`; bool `true`/`false`; objekt nebo pole (jen podvržené zápisy) → kompaktní JSON se seřazenými klíči (`{"x":1}`). Klíče jsou technické, popisky řeší vykreslení. | – |
 | zlomek | `{"k": int, "n": int}`; procento se nevrací (počítá ho vykreslení z k a n). | R7 |
 | zlomek s R8 | `{"k", "n", "x", "y"}`; `n == y` = bez zúžení, `n == x < y` = „měřitelné u X z Y“. Neměřitelné: `{"state": "unmeasured", "x", "y"}`. | R8 |
 | rozpad | `[[klíč, počet], …]` sestupně podle počtu, při shodě vzestupně podle klíče (porovnání řetězců po znacích); nulové řádky se nevypisují. | – |
@@ -232,3 +232,4 @@ Signály režimů (B1, v období): **Pes doma** = `screen_view` s `mode: owner` 
 11. **B3 místa** `vets` a `family` počítají i akce `map_opened` a `family` (SPEC B3), mapování obrazovek v katalogu (`screens[…][2]`) je jen obrazovkové.
 12. **`tech.check.unknown` a `invalid`** se počítají ze všech načtených zařízení (kontrola podvržených zápisů), hlavička T6 (`tech.actions.unknown30`, `invalid30`) jen ze skutečných.
 13. **Pořadí při stejném `ts`** (poslední volba, poslední krok, poslední stav): stabilní řazení podle `ts`, při shodě pořadí záznamů ve výpisu / `RAW`.
+14. **`sb` a `od` v T6** se berou z katalogu (`admin-labels.json`), nikdy z výpisu. U 8 akcí bez verze v poli `since` (`widget_offer`, `tutorial_done`, `trip_sitter`, `level_up`, `fail_state_choice`, `home_banner`, `walk_manual_logged`, `store_rating_blocked`) jsou v referenci zmrazené hodnoty z výpisu 19. 11. (oprava v kroku jádra: dřív se počítaly znovu z každého výpisu a na jiném výpisu by se lišily od katalogu).

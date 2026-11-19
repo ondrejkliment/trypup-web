@@ -59,35 +59,38 @@ NONE_KEY = '_none'            # chybějící / prázdná hodnota v rozpadu
 # Pořadí skupin = SPEC D.1 („groups“); `quality` a `experiments` přejmenované, `unknown` na konci.
 GROUP_ORDER = ['start', 'onboarding', 'care', 'walk', 'training', 'learning', 'challenge', 'mission', 'owner',
                'reminders', 'social', 'money', 'account', 'feedback', 'quality', 'experiments', 'navigation', 'unknown']
-# název → (skupina, sb z katalogu nebo ruční hodnota D.1 / None = první verze v datech, od ISO / None)
+# název → (skupina, sb z katalogu nebo ruční hodnota D.1, od ISO / None)
+# Oprava (krok jádra, 19. 11.): 8 akcí bez verze v poli since dřív dostávalo sb z každého výpisu („první
+# verze v datech“). Podle D.1 se to počítá jednou při tvorbě katalogu a dál platí admin-labels.json, takže
+# jsou tu zmrazené hodnoty z výpisu 19. 11. (stejné jako v katalogu adminu): 285, 285, 287, 285, 268, 284, 268, 290.
 CATALOG = {
     'app_open': ('start', 40, '2026-06-02'),
     'install_source': ('start', 352, '2026-11-18'),
     'session_end': ('start', 214, '2026-06-28'),
-    'widget_offer': ('start', None, '2026-10-06'),
+    'widget_offer': ('start', 285, '2026-10-06'),
     'language_offer': ('start', 252, '2026-08-21'),
     'onboarding_step': ('onboarding', 40, '2026-06-02'),
     'readiness_completed': ('onboarding', 214, '2026-06-28'),
     'quiz_completed': ('onboarding', 40, '2026-06-02'),
     'breed_selected': ('onboarding', 40, '2026-06-02'),
     'activated': ('onboarding', 40, '2026-06-02'),
-    'tutorial_done': ('onboarding', None, '2026-10-06'),
+    'tutorial_done': ('onboarding', 285, '2026-10-06'),
     'task_done': ('care', 214, '2026-06-28'),
     'event_choice': ('care', 214, '2026-06-28'),
-    'trip_sitter': ('care', None, '2026-10-11'),
+    'trip_sitter': ('care', 287, '2026-10-11'),
     'day_advanced': ('care', 40, '2026-06-02'),
-    'level_up': ('care', None, '2026-10-06'),
+    'level_up': ('care', 285, '2026-10-06'),
     'vet_visit_done': ('care', 221, '2026-07-05'),
     'fail_state': ('care', 40, '2026-06-02'),
-    'fail_state_choice': ('care', None, '2026-09-25'),
-    'home_banner': ('care', None, '2026-10-06'),
+    'fail_state_choice': ('care', 268, '2026-09-25'),
+    'home_banner': ('care', 284, '2026-10-06'),
     'walk_started': ('walk', 40, '2026-06-02'),
     'walk_completed': ('walk', 40, '2026-06-02'),
-    'walk_manual_logged': ('walk', None, '2026-09-25'),
+    'walk_manual_logged': ('walk', 268, '2026-09-25'),
     'gps_denied': ('walk', 40, '2026-06-02'),
     'training_done': ('training', 214, '2026-06-28'),
     'onboarding_premium_offer': ('money', 214, '2026-06-28'),
-    'store_rating_blocked': ('feedback', None, '2026-10-06'),
+    'store_rating_blocked': ('feedback', 290, '2026-10-06'),
     'app_error': ('quality', 0, None),
     'experiment_assigned': ('experiments', 344, '2026-11-16'),
     'mode_switched': ('owner', 292, '2026-10-23'),
@@ -199,7 +202,9 @@ def key_of(v):
         return repr(v)
     if isinstance(v, str):
         return v
-    return json.dumps(v, sort_keys=True, ensure_ascii=False)
+    # Objekt nebo pole (jen podvržené zápisy): kompaktní JSON se seřazenými klíči jako v jádru adminu
+    # (oprava v kroku jádra: dřív s mezerami za ':' a ',', jádro by ho nikdy netrefilo).
+    return json.dumps(v, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
 
 
 def breakdown(counter):
@@ -1464,17 +1469,10 @@ for i in REAL:
         r30c[e['name']] += 1
         if e['ts'] > W7_FROM:
             d7c[e['name']].add(i)
-first_build = {}
-for e in DEDUP:
-    b = build_of(e)
-    if b is not None and (e['name'] not in first_build or b < first_build[e['name']]):
-        first_build[e['name']] = b
 actions = {}
 for n in sorted(set(CATALOG) | {x for x in r30c if isinstance(x, str)}):
     if n in CATALOG:
         g, sb, od = CATALOG[n]
-        if sb is None:
-            sb = first_build.get(n)
     else:
         g, sb, od = 'unknown', None, None
     if not isinstance(n, str) or not NAME_RE.match(n):

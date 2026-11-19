@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "check:site": "node scripts/check-site.mjs",
-    "check:labels": "node scripts/check-admin-labels.mjs"
+    "check:labels": "node scripts/check-admin-labels.mjs",
+    "check:core": "node scripts/check-admin-core.mjs"
   },
   "dependencies": {
     "astro": "^5.1.0"
