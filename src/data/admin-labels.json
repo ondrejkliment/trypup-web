@@ -1,0 +1,541 @@
+{
+"v":2,
+"groups":[
+["start","Spuštění a vstup","Launch & entry"],
+["onboarding","Úvod a založení psa","Onboarding & activation"],
+["care","Péče o psa na zkoušku","Trial dog care"],
+["walk","Procházky","Walks"],
+["training","Výcvik","Training"],
+["learning","Vzdělávání","Learning"],
+["challenge","30denní výzva","30-day challenge"],
+["mission","Mise a útulky","Mission & shelters"],
+["owner","Pes doma","Dog at home"],
+["reminders","Připomínky a oznámení","Reminders & notifications"],
+["social","Sdílení a společná péče","Sharing & co-care"],
+["money","Premium a nákupy","Premium & purchases"],
+["account","Účet a záloha","Account & backup"],
+["feedback","Hodnocení a podpora","Ratings & support"],
+["quality","Chyby a kvalita","Errors & quality"],
+["experiments","Testy variant","A/B tests"],
+["navigation","Obrazovky","Screens"],
+["unknown","Nezařazené","Unclassified"]
+],
+"ev":{
+"app_open":{"g":"start","cs":"Spuštění aplikace","en":"App launch","sb":40,"od":"2026-06-02","st":"live","auto":1,"m":"none","p":{}},
+"install_source":{"g":"start","cs":"Zdroj instalace","en":"Install source","sb":352,"od":"2026-11-18","st":"live","auto":1,"m":"none","p":{
+"channel":{"cs":"Kanál","en":"Channel","v":{"google_ads":["Google Ads","Google Ads"],"meta":["Meta (Facebook, Instagram)","Meta (Facebook, Instagram)"],"tiktok":["TikTok","TikTok"],"trypup_link":["Náš odkaz (trypup.life/v/…, web)","Our link (trypup.life/v/…, web)"],"play_organic":["Google Play organicky","Google Play organic"],"play_unknown":["Google Play bez odkazu","Google Play, no link"],"other":["Jiný zdroj","Other source"],"none":["Zdroj nezjištěn","Unknown source"]}},
+"source":{"cs":"Zdroj odkazu","en":"Link source","f":1,"v":{"google-play":["Google Play","Google Play"],"not_set":["Nenastaveno","Not set"],"":["Neuvedeno","Not given"],"google":["Google","Google"],"ig":["Instagram (náš odkaz)","Instagram (our link)"],"igad":["Instagram, reklama (náš odkaz)","Instagram ad (our link)"],"fb":["Facebook (náš odkaz)","Facebook (our link)"],"tz":["Tisková zpráva (náš odkaz)","Press release (our link)"],"utulky":["Útulky (náš odkaz)","Shelters (our link)"],"blog":["Blog (náš odkaz)","Blog (our link)"],"gs":["Google, placené hledání (web)","Google paid search (web)"],"sk":["Sklik, placené hledání (web)","Sklik paid search (web)"],"web":["Web trypup.life","trypup.life website"],"app":["Aplikace (sdílení)","App (sharing)"]}},
+"medium":{"cs":"Druh odkazu","en":"Link type","f":1,"v":{"":["Neuvedeno","Not given"],"organic":["Organicky","Organic"],"kampan":["Kampaň (náš odkaz)","Campaign (our link)"],"cpc":["Placené kliky","Paid clicks"],"not_set":["Nenastaveno","Not set"]}},
+"campaign":{"cs":"Kampaň","en":"Campaign","f":1,"v":{"":["Bez kampaně","No campaign"]}},
+"ads":{"cs":"Klik z Google Ads","en":"Google Ads click","v":{"0":["Ne","No"],"1":["Ano","Yes"]}}
+}},
+"session_end":{"g":"start","cs":"Konec relace","en":"Session end","sb":214,"od":"2026-06-28","st":"live","auto":1,"m":"none","p":{
+"durationSec":{"cs":"Délka relace (s)","en":"Session length (s)"},
+"events":{"cs":"Počet akcí v relaci","en":"Actions in session"},
+"onbStep":{"cs":"Krok úvodu při odchodu","en":"Onboarding step at exit","v":{"intro":["Úvod","Intro"],"age":["Věková brána","Age gate"],"fork":["Rozcestí „Máš už doma psa?“","Fork: already have a dog?"],"quiz":["Tři otázky o životním stylu","Lifestyle quiz"],"quiz_result":["Doporučené plemeno","Breed recommendation"],"breed":["Seznam všech plemen","All breeds list"],"name":["Jméno psa","Dog name"]}},
+"onbAnswered":{"cs":"Zodpovězené otázky kvízu","en":"Quiz answers given"}
+}},
+"widget_offer":{"g":"start","cs":"Nabídka widgetu na plochu","en":"Home screen widget offer","sb":285,"od":"2026-10-06","st":"live","auto":0,"m":"both","p":{
+"outcome":{"cs":"Výsledek","en":"Outcome","v":{"pinned":["Dialog připnutí zobrazen","Pin dialog shown"],"manual":["Návod k ručnímu přidání","Manual how-to shown"],"already":["Widget už na ploše je","Already on home screen"],"ignored":["Telefon nic neukázal","Phone showed nothing"],"none":["Widget není podporován","Widget not supported"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"tutorial":["Průvodce aplikací","App tour"],"settings":["Nastavení","Settings"]}}
+}},
+"language_offer":{"g":"start","cs":"Nabídka jazyka telefonu","en":"Phone language offer","sb":252,"od":"2026-08-21","st":"live","auto":0,"m":"trial","p":{
+"action":{"cs":"Akce","en":"Action","v":{"shown":["Zobrazení nabídky","Offer shown"],"switched":["Přepnutí jazyka","Language switched"],"kept":["Ponechání jazyka","Language kept"]}},
+"from":{"cs":"Jazyk aplikace","en":"App language","v":{"cs":["Čeština","Czech"],"en":["Angličtina","English"],"sk":["Slovenština","Slovak"],"pl":["Polština","Polish"],"de":["Němčina","German"],"es":["Španělština","Spanish"],"fr":["Francouzština","French"],"it":["Italština","Italian"],"nl":["Nizozemština","Dutch"],"pt":["Portugalština","Portuguese"],"uk":["Ukrajinština","Ukrainian"],"bg":["Bulharština","Bulgarian"]}},
+"to":{"cs":"Nabízený jazyk","en":"Offered language","v":{"cs":["Čeština","Czech"],"en":["Angličtina","English"],"sk":["Slovenština","Slovak"],"pl":["Polština","Polish"],"de":["Němčina","German"],"es":["Španělština","Spanish"],"fr":["Francouzština","French"],"it":["Italština","Italian"],"nl":["Nizozemština","Dutch"],"pt":["Portugalština","Portuguese"],"uk":["Ukrajinština","Ukrainian"],"bg":["Bulharština","Bulgarian"]}}
+}},
+"push_opened":{"g":"start","cs":"Otevření push oznámení","en":"Push notification opened","sb":280,"od":"2026-10-04","st":"live","auto":0,"m":"both","p":{
+"campaign":{"cs":"Kampaň","en":"Campaign","f":1,"v":{"unknown":["Neznámá kampaň","Unknown campaign"],"sched-2026-10-28-pes-doma":["Plánovaná kampaň 28. 10. 2026 – Pes doma","Scheduled campaign 28 Oct 2026 – Dog at home"],"BzsdczvBmhDKZHS86Ljb":["Kampaň z adminu 5. 10. 2026","Admin campaign 5 Oct 2026"],"simtest1":["Test na simulátoru","Simulator test"]}}
+}},
+"app_entry":{"g":"start","cs":"Vstup do aplikace","en":"App entry","sb":342,"od":"2026-11-16","st":"live","auto":1,"m":"both","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"direct":["Přímo","Direct"],"notification":["Oznámení","Notification"],"widget":["Widget","Widget"],"walk":["Oznámení procházky","Walk notification"],"shortcut":["Rychlá akce u ikony","Home screen quick action"],"link":["Odkaz","Link"]}},
+"launch":{"cs":"Druh otevření","en":"Launch type","v":{"cold":["Nové spuštění","Fresh launch"],"warm":["Návrat z pozadí","Back from background"]}},
+"notif":{"cs":"Druh oznámení","en":"Notification type","v":{"push":["Push z adminu","Admin push"],"care":["Připomínka péče (Pes na zkoušku)","Care reminder (Trial dog)"],"real":["Připomínka Psa doma","Dog at home reminder"],"other":["Jiné oznámení","Other notification"]}},
+"action":{"cs":"Rychlá akce","en":"Quick action","v":{"feed":["Nakrmit","Feed"],"walk":["Na procházku (Pes na zkoušku)","Go for a walk (Trial dog)"],"training":["Výcvik","Training"],"dog_walk":["Vyrazit na procházku (Pes doma)","Go for a walk (Dog at home)"],"diary":["Zapsat do deníku","Add diary entry"],"first_aid":["První pomoc","First aid"]}}
+}},
+"onboarding_step":{"g":"onboarding","cs":"Krok úvodu","en":"Onboarding step","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"step":{"cs":"Krok","en":"Step","v":{"intro":["Úvod","Intro"],"age":["Věková brána","Age gate"],"fork":["Rozcestí „Máš už doma psa?“","Fork: already have a dog?"],"quiz":["Tři otázky o životním stylu","Lifestyle quiz"],"quiz_result":["Doporučené plemeno","Breed recommendation"],"breed":["Seznam všech plemen","All breeds list"],"name":["Jméno psa","Dog name"],"owner_setup":["Odchod do založení skutečného psa","Went to real dog setup",293,"2026-10-26"],"done":["Pes založen","Dog created"],"readiness":["Dotazník připravenosti","Readiness check"],"mode":["Volba režimu","Mode choice"],"permissions":["Oprávnění (poloha, oznámení)","Permissions (location, notifications)"]}},
+"fromStep":{"cs":"Předchozí krok","en":"From step","v":{"intro":["Úvod","Intro"],"age":["Věková brána","Age gate"],"fork":["Rozcestí „Máš už doma psa?“","Fork: already have a dog?"],"quiz":["Tři otázky o životním stylu","Lifestyle quiz"],"quiz_result":["Doporučené plemeno","Breed recommendation"],"breed":["Seznam všech plemen","All breeds list"],"name":["Jméno psa","Dog name"],"readiness":["Dotazník připravenosti","Readiness check"],"owner_setup":["Odchod do založení skutečného psa","Off to real dog setup"],"done":["Pes založen","Dog created"],"mode":["Volba režimu","Mode choice"],"permissions":["Oprávnění (poloha, oznámení)","Permissions (location, notifications)"]}},
+"dwellMs":{"cs":"Doba na předchozím kroku (ms)","en":"Time on previous step (ms)"},
+"dir":{"cs":"Směr","en":"Direction","sb":314,"od":"2026-11-01","v":{"back":["Zpět","Back"]}},
+"choice":{"cs":"Volba na rozcestí","en":"Fork choice","sb":293,"od":"2026-10-26","v":{"owner":["Psa už mám (Pes doma)","I already have a dog (Dog at home)"],"trial":["Chci si psa vyzkoušet (Pes na zkoušku)","I want to try a dog (Trial dog)"]}},
+"mode":{"cs":"Zvolený režim péče","en":"Care mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"firstCare":{"cs":"Varianta testu první péče","en":"First care variant","v":{"a":["A: průvodce aplikací","A: app tour"],"b":["B: první péče místo průvodce","B: first care instead of tour"]}}
+}},
+"readiness_completed":{"g":"onboarding","cs":"Vyplnění dotazníku připravenosti","en":"Readiness check completed","sb":214,"od":"2026-06-28","st":"live","auto":0,"m":"trial","p":{
+"phase":{"cs":"Odkud vyplněno","en":"Where filled in","v":{"first":["Poprvé (karta na Domů)","First time (Home card)"],"again":["Znovu (výsledek výzvy)","Again (challenge result)"]}},
+"tier":{"cs":"Výsledek","en":"Result","v":{"high":["Připravený (5–6× ano)","Ready (5–6 yes)"],"mid":["Částečně připravený (3–4× ano)","Partly ready (3–4 yes)"],"low":["Nepřipravený (0–2× ano)","Not ready (0–2 yes)"],"incomplete":["Nedokončený (méně než 6 odpovědí)","Incomplete (under 6 answers)"]}},
+"answered":{"cs":"Počet odpovědí","en":"Answers given"},
+"yes":{"cs":"Počet ano","en":"Yes answers"},
+"risks":{"cs":"Počet rizik","en":"Risks"},
+"q1":{"cs":"Závazek na 10–15 let","en":"Long-term commitment (10–15 years)","v":{"yes":["Ano","Yes"],"no":["Ne","No"],"na":["Bez odpovědi","No answer"]}},
+"q2":{"cs":"Péče při nemoci nebo cestování","en":"Care covered when ill or away","v":{"yes":["Ano","Yes"],"no":["Ne","No"],"na":["Bez odpovědi","No answer"]}},
+"q3":{"cs":"Finanční rezerva na veterináře","en":"Financial cushion for the vet","v":{"yes":["Ano","Yes"],"no":["Ne","No"],"na":["Bez odpovědi","No answer"]}},
+"q4":{"cs":"Denně 2–3 hodiny času","en":"2–3 hours a day","v":{"yes":["Ano","Yes"],"no":["Ne","No"],"na":["Bez odpovědi","No answer"]}},
+"q5":{"cs":"Souhlas celé domácnosti","en":"Whole household on board","v":{"yes":["Ano","Yes"],"no":["Ne","No"],"na":["Bez odpovědi","No answer"]}},
+"q6":{"cs":"Zvládnutí prvních týdnů","en":"Getting through the first weeks","v":{"yes":["Ano","Yes"],"no":["Ne","No"],"na":["Bez odpovědi","No answer"]}}
+}},
+"quiz_completed":{"g":"onboarding","cs":"Dokončení kvízu o životním stylu","en":"Lifestyle quiz completed","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{
+"hours":{"cs":"Čas na psa denně","en":"Daily time for a dog","v":{"1":["Méně než 4 h","Under 4 h"],"2":["4–8 h","4–8 h"],"3":["Více než 8 h","Over 8 h"]}},
+"housing":{"cs":"Bydlení","en":"Housing","v":{"1":["Malý byt","Small flat"],"2":["Velký byt","Large flat"],"3":["Dům se zahradou","House with garden"]}},
+"activity":{"cs":"Aktivita","en":"Activity","v":{"1":["Klidnější","Calm"],"2":["Průměrně","Average"],"3":["Velmi aktivní","Very active"]}},
+"recommended":{"cs":"Doporučené plemeno","en":"Recommended breed","v":{"small":["Jezevčík","Dachshund"],"medium":["Bígl","Beagle"],"large":["Labradorský retrívr","Labrador Retriever"]}},
+"premiumPick":{"cs":"Doporučené Premium plemeno","en":"Recommended Premium breed","v":{"border_collie":["Border kolie","Border Collie"],"husky":["Sibiřský husky","Siberian Husky"],"chihuahua":["Čivava","Chihuahua"],"german_shepherd":["Německý ovčák","German Shepherd"],"golden_retriever":["Zlatý retrívr","Golden Retriever"],"frenchie":["Francouzský buldoček","French Bulldog"],"jack_russell":["Jack Russell teriér","Jack Russell Terrier"],"yorkshire":["Jorkšírský teriér","Yorkshire Terrier"],"bernese":["Bernský salašnický pes","Bernese Mountain Dog"],"pitbull":["Americký pitbulteriér","American Pit Bull Terrier"]}}
+}},
+"breed_selected":{"g":"onboarding","cs":"Výběr plemene","en":"Breed selected","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{
+"breed":{"cs":"Plemeno","en":"Breed","v":{"small":["Jezevčík","Dachshund"],"medium":["Bígl","Beagle"],"large":["Labradorský retrívr","Labrador Retriever"],"rescue":["Voříšek z útulku","Shelter mix"],"border_collie":["Border kolie","Border Collie"],"husky":["Sibiřský husky","Siberian Husky"],"chihuahua":["Čivava","Chihuahua"],"german_shepherd":["Německý ovčák","German Shepherd"],"golden_retriever":["Zlatý retrívr","Golden Retriever"],"frenchie":["Francouzský buldoček","French Bulldog"],"jack_russell":["Jack Russell teriér","Jack Russell Terrier"],"yorkshire":["Jorkšírský teriér","Yorkshire Terrier"],"bernese":["Bernský salašnický pes","Bernese Mountain Dog"],"pitbull":["Americký pitbulteriér","American Pit Bull Terrier"]}},
+"adopted":{"cs":"Voříšek z útulku","en":"Shelter mix","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"recommended":{"cs":"Doporučené plemeno","en":"Recommended breed","v":{"small":["Jezevčík","Dachshund"],"medium":["Bígl","Beagle"],"large":["Labradorský retrívr","Labrador Retriever"]}},
+"matchedRecommendation":{"cs":"Shoda s doporučením","en":"Matched recommendation","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"premiumPick":{"cs":"Doporučené Premium plemeno","en":"Recommended Premium breed","v":{"border_collie":["Border kolie","Border Collie"],"husky":["Sibiřský husky","Siberian Husky"],"chihuahua":["Čivava","Chihuahua"],"german_shepherd":["Německý ovčák","German Shepherd"],"golden_retriever":["Zlatý retrívr","Golden Retriever"],"frenchie":["Francouzský buldoček","French Bulldog"],"jack_russell":["Jack Russell teriér","Jack Russell Terrier"],"yorkshire":["Jorkšírský teriér","Yorkshire Terrier"],"bernese":["Bernský salašnický pes","Bernese Mountain Dog"],"pitbull":["Americký pitbulteriér","American Pit Bull Terrier"]}},
+"isPremium":{"cs":"Premium plemeno","en":"Premium breed","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"ownsPremium":{"cs":"Má Premium","en":"Has Premium","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"activated":{"g":"onboarding","cs":"Založení psa na zkoušku","en":"Trial dog created","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{
+"breed":{"cs":"Plemeno","en":"Breed","v":{"small":["Jezevčík","Dachshund"],"medium":["Bígl","Beagle"],"large":["Labradorský retrívr","Labrador Retriever"],"rescue":["Voříšek z útulku","Shelter mix"],"border_collie":["Border kolie","Border Collie"],"husky":["Sibiřský husky","Siberian Husky"],"chihuahua":["Čivava","Chihuahua"],"german_shepherd":["Německý ovčák","German Shepherd"],"golden_retriever":["Zlatý retrívr","Golden Retriever"],"frenchie":["Francouzský buldoček","French Bulldog"],"jack_russell":["Jack Russell teriér","Jack Russell Terrier"],"yorkshire":["Jorkšírský teriér","Yorkshire Terrier"],"bernese":["Bernský salašnický pes","Bernese Mountain Dog"],"pitbull":["Americký pitbulteriér","American Pit Bull Terrier"]}},
+"mode":{"cs":"Zvolený režim péče","en":"Care mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"firstCare":{"cs":"Varianta testu první péče","en":"First care variant","v":{"a":["A: průvodce aplikací","A: app tour"],"b":["B: první péče místo průvodce","B: first care instead of tour"]}}
+}},
+"tutorial_done":{"g":"onboarding","cs":"Zavření průvodce aplikací","en":"App tour closed","sb":285,"od":"2026-10-06","st":"live","auto":0,"m":"both","p":{
+"skipped":{"cs":"Přeskočeno","en":"Skipped","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"slides":{"cs":"Karta při zavření","en":"Slide at close"},
+"firstRun":{"cs":"První zobrazení","en":"First run","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"via":{"cs":"Způsob dokončení","en":"Finished via","v":{"premium":["Odkaz na Premium","Premium link"]}},
+"firstCare":{"cs":"Varianta testu první péče","en":"First care variant","v":{"a":["A: průvodce aplikací","A: app tour"],"b":["B: první péče místo průvodce","B: first care instead of tour"]}}
+}},
+"task_done":{"g":"care","cs":"Splněný denní úkol","en":"Daily task done","sb":214,"od":"2026-06-28","st":"live","auto":0,"m":"trial","p":{
+"task":{"cs":"Úkol","en":"Task","v":{"morning_walk":["Ranní procházka","Morning walk"],"feed":["Krmení","Feeding"],"play":["Hra","Play"],"evening_walk":["Večerní procházka","Evening walk"],"brush":["Čištění","Brushing"]}},
+"day":{"cs":"Den psa","en":"Dog day"},
+"firstToday":{"cs":"První splnění dne","en":"First today","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"event_choice":{"g":"care","cs":"Volba v denní události","en":"Daily event choice","sb":214,"od":"2026-06-28","st":"live","auto":0,"m":"trial","p":{
+"event":{"cs":"Událost","en":"Event","v":{"night_wake":["Probdělá noc","A broken night"],"puppy_ad":["Podezřele levné štěně","A suspiciously cheap puppy"],"chocolate":["Pes sežral čokoládu","Your dog ate chocolate"],"heatstroke":["Rychlý nákup v horku","A quick errand in the heat"],"teething_chew":["Okousaná noha od stolu","A chewed-up table leg"],"winter_salt":["Posypová sůl na chodníku","Road salt on the sidewalk"],"doorbell_barking":["Štěká na zvonek","Barking at the doorbell"],"sock":["Pes spolkl ponožku","Your dog swallowed a sock"],"home_alone_howl":["Soused hlásí vytí","Neighbor reports howling"],"tick":["Klíště za uchem","You found a tick"],"grapes":["Sežral hrozny","Ate some grapes"],"fear_phase":["Najednou se bojí popelnice","Suddenly afraid of the trash bin"],"late_diarrhea":["Průjem pozdě večer","Diarrhea late at night"],"hot_asphalt":["Rozpálený chodník","Scorching sidewalk"],"leash":["Tahá na vodítku","Pulling on the leash"],"chewed_shoe":["Rozkousaná bota","A chewed-up shoe"],"heat":["Horký letní den","A hot summer day"],"neighbor":["Soused si stěžuje na štěkot","A neighbor complains about barking"],"noteat":["Nechce žrát","Won't eat"],"thunderstorm":["Bojí se bouřky","Scared of the storm"],"adolescence_ignore":["Puberta udeřila","Adolescence strikes"],"limping":["Kulhá po divoké hře","Limping after rough play"],"grass_seed":["Po louce třepe hlavou","Head shaking after the meadow"],"mud":["Vyválel se v blátě","Rolled in the mud"],"table_begging":["Loudí u stolu","Begging at the table"],"dog_park_conflict":["Dusno na psí louce","Tension at the dog park"],"fireworks":["Silvestrovský ohňostroj","New Year's fireworks"]}},
+"option":{"cs":"Zvolená možnost","en":"Option"},
+"best":{"cs":"Nejlepší volba","en":"Best choice","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"source":{"cs":"Kde","en":"Where","v":{"home":["Domů","Home"],"learn":["Vzdělávání","Learn"]}},
+"bill":{"cs":"Účet za veterinu (Kč)","en":"Vet bill (CZK)"}
+}},
+"trip_sitter":{"g":"care","cs":"Volba hlídání na dovolené","en":"Trip sitter choice","sb":287,"od":"2026-10-11","st":"live","auto":0,"m":"trial","p":{
+"sitter":{"cs":"Hlídání","en":"Sitter","v":{"family":["Rodina nebo známí","Family or friends"],"hotel":["Psí hotel","Dog hotel"]}},
+"day":{"cs":"Den psa","en":"Dog day"}
+}},
+"day_advanced":{"g":"care","cs":"Nový den psa","en":"Dog day advanced","sb":40,"od":"2026-06-02","st":"live","auto":1,"m":"trial","p":{
+"day":{"cs":"Nový den psa","en":"New dog day"}
+}},
+"level_up":{"g":"care","cs":"Vyšší úroveň pečovatele","en":"Caretaker level up","sb":285,"od":"2026-10-06","st":"live","auto":1,"m":"trial","p":{
+"level":{"cs":"Nová úroveň","en":"New level","v":{"1":["1 – Nováček","1 – Newcomer"],"2":["2 – Pečovatel","2 – Caretaker"],"3":["3 – Zkušený pečovatel","3 – Seasoned Caretaker"],"4":["4 – Spolehlivý parťák","4 – Reliable Buddy"],"5":["5 – Psí znalec","5 – Dog Whisperer"],"6":["6 – Mistr péče","6 – Care Master"],"7":["7 – Psí expert","7 – Dog Expert"],"8":["8 – Průvodce adopcí","8 – Adoption Guide"],"9":["9 – Velmistr péče","9 – Grandmaster of Care"]}}
+}},
+"vet_visit_done":{"g":"care","cs":"Návštěva veterináře","en":"Vet visit done","sb":221,"od":"2026-07-05","st":"live","auto":0,"m":"trial","p":{
+"kind":{"cs":"Druh návštěvy","en":"Visit type","v":{"deworm":["Odčervení","Deworming"],"annual":["Roční prohlídka a přeočkování","Annual check-up and booster"]}},
+"day":{"cs":"Den psa","en":"Dog day"}
+}},
+"fail_state":{"g":"care","cs":"Pes skončil v útulku","en":"Dog ended up in a shelter","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{
+"day":{"cs":"Den psa","en":"Dog day"}
+}},
+"fail_state_choice":{"g":"care","cs":"Volba po útulku","en":"Shelter screen choice","sb":268,"od":"2026-09-25","st":"live","auto":0,"m":"trial","p":{
+"choice":{"cs":"Volba","en":"Choice","v":{"revive":["Vyzvednutí z útulku","Pick up from shelter"],"learn":["Zjistit víc (Vzdělávání)","Learn more"],"restart":["Nový začátek s novým psem","Start over"]}},
+"day":{"cs":"Den psa","en":"Dog day"}
+}},
+"home_banner":{"g":"care","cs":"Karta na Domů","en":"Home banner","sb":284,"od":"2026-10-06","st":"live","auto":0,"m":"trial","p":{
+"kind":{"cs":"Karta","en":"Banner","v":{"newDogShare":["Pochlub se psem nanečisto","Share your new dog"],"invite":["Pozvánka ke společné péči","Co-care invite"],"backup":["Záloha psa (účet)","Back up your dog (account)"],"readiness":["Dotazník připravenosti","Readiness check"],"first_care":["Začni snídaní (test první péče)","Start with breakfast (first care test)"]}},
+"action":{"cs":"Akce","en":"Action","v":{"tap":["Klepnutí","Tap"],"dismiss":["Zavření","Dismiss"],"later":["Později","Later"]}}
+}},
+"achievement_unlocked":{"g":"care","cs":"Nový odznak","en":"Badge unlocked","sb":284,"od":"2026-10-06","st":"live","auto":1,"m":"trial","p":{
+"id":{"cs":"Odznak","en":"Badge","v":{"first_day":["První den","First day"],"fed_once":["Pečující (první krmení)","Caregiver (first feeding)"],"walked":["Na procházce","On a walk"],"educator":["Vzdělavatel (první článek)","Educator (first article)"],"vacc_1":["Zdravotník (první vakcinace)","Medic (first vaccination)"],"trained_first":["První povel","First command"],"streak_3":["Série 3","Streak 3"],"streak_7":["Série 7","Streak 7"],"doctor":["Doktor (všechna očkování)","Doctor (all vaccinations)"],"team_care":["Týmová péče","Team care"],"bookworm":["Knihomol (9 článků)","Bookworm (9 articles)"],"day_30":["Měsíc spolu","One month"],"streak_14":["Série 14","Streak 14"],"scholar":["Učenec","Scholar"],"collector":["Sběratel","Collector"],"day_100":["Stovka","The hundred"],"trainer_pro":["Psí profesor","Dog professor"],"points_1000":["Tisícovka","Thousand club"],"premium":["Mecenáš (Premium)","Patron (Premium)"],"streak_30":["Série 30","Streak 30"],"day_180":["Půl roku","Half a year"],"year_one":["Rok první","Year one"]}}
+}},
+"walk_started":{"g":"walk","cs":"Zahájená procházka","en":"Walk started","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home",338,"2026-11-15"]}},
+"dogs":{"cs":"Počet psů","en":"Dogs"}
+}},
+"walk_completed":{"g":"walk","cs":"Dokončená procházka","en":"Walk completed","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"distanceM":{"cs":"Vzdálenost (m)","en":"Distance (m)"},
+"durationSec":{"cs":"Délka (s)","en":"Duration (s)"},
+"valid":{"cs":"Započítaná","en":"Counted","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home",338,"2026-11-15"]}},
+"dogs":{"cs":"Počet psů","en":"Dogs"}
+}},
+"walk_manual_logged":{"g":"walk","cs":"Ruční zápis procházky","en":"Manual walk logged","sb":268,"od":"2026-09-25","st":"live","auto":0,"m":"trial","p":{
+"source":{"cs":"Důvod","en":"Reason","v":{"settings":["Zapnuto v Nastavení","Enabled in Settings"],"no_location":["Bez polohy (odmítnutá)","No location (denied)"]}},
+"kind":{"cs":"Druh","en":"Kind","v":{"top_up":["Doplnění denního cíle","Daily goal top-up"]}}
+}},
+"gps_denied":{"g":"walk","cs":"Odmítnutá poloha","en":"Location denied","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"stage":{"cs":"Kde odmítnuto","en":"Stage","v":{"disclosure":["Naše vysvětlení polohy","Our location disclosure"],"os":["Systémový dotaz","System prompt"]}}
+}},
+"training_done":{"g":"training","cs":"Procvičení povelu","en":"Command practiced","sb":214,"od":"2026-06-28","st":"live","auto":0,"m":"trial","p":{
+"command":{"cs":"Povel","en":"Command","v":{"sit":["Sedni","Sit"],"stay":["Zůstaň","Stay"],"come":["Ke mně","Come"],"heel":["K noze","Heel"],"down":["Lehni","Down"],"leave_it":["Nech to","Leave it"],"paw":["Dej pac","Paw"],"fetch":["Aport","Fetch"],"spin":["Otoč se","Spin"]}},
+"mastery":{"cs":"Zvládnutí (%)","en":"Mastery (%)"},
+"leveledUp":{"cs":"Průlom","en":"Breakthrough","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"day":{"cs":"Den psa","en":"Dog day"}
+}},
+"training_logged":{"g":"training","cs":"Uložené sezení výcviku","en":"Training session logged","sb":312,"od":"2026-10-31","st":"live","auto":0,"m":"owner","p":{
+"skill":{"cs":"Dovednost","en":"Skill","v":{"name":["Jméno a pozornost","Name and attention"],"sit":["Sedni","Sit"],"recall":["Ke mně","Recall"],"leave_it":["Nech to","Leave it"],"loose_lead":["Chůze na volném vodítku","Loose-leash walking"],"handling":["Péče a manipulace","Handling and care"]}},
+"result":{"cs":"Jak to šlo","en":"Result","v":{"good":["Na signál","On cue"],"partial":["S pomocí","With help"],"hard":["Zatím ne","Not yet"]}},
+"timer":{"cs":"S časovačem","en":"With timer","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"training_stage_confirmed":{"g":"training","cs":"Potvrzená fáze dovednosti","en":"Training stage confirmed","sb":312,"od":"2026-10-31","st":"live","auto":0,"m":"owner","p":{
+"skill":{"cs":"Dovednost","en":"Skill","v":{"name":["Jméno a pozornost","Name and attention"],"sit":["Sedni","Sit"],"recall":["Ke mně","Recall"],"leave_it":["Nech to","Leave it"],"loose_lead":["Chůze na volném vodítku","Loose-leash walking"],"handling":["Péče a manipulace","Handling and care"]}},
+"stage":{"cs":"Fáze","en":"Stage","v":{"home":["Umí doma","Knows it at home"],"outdoors":["Umí venku","Knows it outdoors"],"distractions":["Umí s rozptýlením","Knows it with distractions"]}}
+}},
+"training_help_opened":{"g":"training","cs":"Otevření „Kdy k odborníkovi“","en":"Expert help opened","sb":312,"od":"2026-10-31","st":"live","auto":0,"m":"owner","p":{
+"from":{"cs":"Odkud","en":"From","v":{"hub":["Přehled výcviku","Training overview"],"skill":["Detail dovednosti","Skill detail"],"session":["Sezení výcviku","Training session"]}}
+}},
+"article_opened":{"g":"learning","cs":"Otevření článku","en":"Article opened","sb":284,"od":"2026-10-06","st":"live","auto":0,"m":"both","p":{
+"article":{"cs":"Článek","en":"Article","v":{"costs":["Skutečné náklady na psa","The real cost of a dog"],"adopt_vs_buy":["Adopce vs. nákup z chovu","Adoption vs. buying from a breeder"],"choose_shelter":["Jak vybrat správný útulek","How to choose the right shelter"],"before_decision":["Před rozhodnutím: 10 otázek","Before deciding: 10 questions"],"first_weeks":["První dva týdny s pejskem z útulku","The first two weeks with a rescue dog"],"time_needs":["Kolik času pes opravdu zabere","How much time a dog really takes"],"kids":["Pes a děti","Dogs and children"],"home_alone":["Sám doma","Home alone"],"body_language":["Řeč těla psa","Dog body language"],"socialization":["Socializace (Premium)","Socialization (Premium)"],"training_basics":["Základy pozitivního výcviku (Premium)","Positive training basics (Premium)"],"vet_health":["Prevence a zdraví (Premium)","Prevention and health (Premium)"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"list":["Seznam článků","Article list"],"link":["Odkaz z jiné obrazovky","Link from another screen"]}}
+}},
+"article_read":{"g":"learning","cs":"Dočtený článek","en":"Article read","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"article":{"cs":"Článek","en":"Article","v":{"costs":["Skutečné náklady na psa","The real cost of a dog"],"adopt_vs_buy":["Adopce vs. nákup z chovu","Adoption vs. buying from a breeder"],"choose_shelter":["Jak vybrat správný útulek","How to choose the right shelter"],"before_decision":["Před rozhodnutím: 10 otázek","Before deciding: 10 questions"],"first_weeks":["První dva týdny s pejskem z útulku","The first two weeks with a rescue dog"],"time_needs":["Kolik času pes opravdu zabere","How much time a dog really takes"],"kids":["Pes a děti","Dogs and children"],"home_alone":["Sám doma","Home alone"],"body_language":["Řeč těla psa","Dog body language"],"socialization":["Socializace (Premium)","Socialization (Premium)"],"training_basics":["Základy pozitivního výcviku (Premium)","Positive training basics (Premium)"],"vet_health":["Prevence a zdraví (Premium)","Prevention and health (Premium)"]}}
+}},
+"myth_answered":{"g":"learning","cs":"Odpověď na mýtus o plemeni","en":"Breed myth answered","sb":284,"od":"2026-10-06","st":"live","auto":0,"m":"both","p":{
+"breed":{"cs":"Plemeno","en":"Breed","v":{"small":["Jezevčík","Dachshund"],"medium":["Bígl","Beagle"],"large":["Labradorský retrívr","Labrador Retriever"],"rescue":["Voříšek z útulku","Shelter mix"],"border_collie":["Border kolie","Border Collie"],"husky":["Sibiřský husky","Siberian Husky"],"chihuahua":["Čivava","Chihuahua"],"german_shepherd":["Německý ovčák","German Shepherd"],"golden_retriever":["Zlatý retrívr","Golden Retriever"],"frenchie":["Francouzský buldoček","French Bulldog"],"jack_russell":["Jack Russell teriér","Jack Russell Terrier"],"yorkshire":["Jorkšírský teriér","Yorkshire Terrier"],"bernese":["Bernský salašnický pes","Bernese Mountain Dog"],"pitbull":["Americký pitbulteriér","American Pit Bull Terrier"]}},
+"correct":{"cs":"Správně","en":"Correct","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}}
+}},
+"review_answered":{"g":"learning","cs":"Odpověď v opakování","en":"Review answered","sb":284,"od":"2026-10-06","st":"live","auto":0,"m":"both","p":{
+"kind":{"cs":"Druh","en":"Kind","v":{"event":["Denní událost","Daily event"],"article":["Otázka k článku","Article question"]}},
+"correct":{"cs":"Správně","en":"Correct","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"lesson_answered":{"g":"learning","cs":"Odpověď v kvízu","en":"Quiz answered","sb":282,"od":"2026-10-05","st":"live","auto":0,"m":"both","p":{
+"quiz":{"cs":"Otázka","en":"Question","v":{"lip_lick":["Olíznutí pysků","Lip licking"],"tail_wag":["Vrtění ocasem","Tail wagging"],"hot_pavement":["Horký asfalt","Hot pavement"],"whale_eye":["Bělmo v očích","Whale eye"],"yawn":["Zívání","Yawning"],"bloat":["Torze žaludku","Bloat"],"play_bow":["Hravá úklona","Play bow"],"xylitol":["Xylitol","Xylitol"],"dry_nose":["Suchý čumák","Dry nose"],"dog_years":["Psí roky","Dog years"],"growl":["Vrčení","Growling"],"seizure":["Záchvat","Seizure"],"teeth":["Zuby a parodontitida","Teeth and gum disease"],"guilty_look":["Provinilý pohled","Guilty look"],"onion":["Cibule a česnek","Onion and garlic"],"colors":["Jak pes vidí barvy","Colour vision"],"gums":["Barva dásní","Gum colour"],"reward_timing":["Načasování odměny","Reward timing"],"sticks":["Klacky","Sticks"],"body_condition":["Tělesná kondice","Body condition"],"hackles":["Naježená srst","Raised hackles"],"rat_poison":["Jed na hlodavce","Rat poison"],"sweat":["Jak se pes chladí","How dogs cool down"],"child_supervision":["Dítě a pes pod dohledem","Supervising kids with dogs"],"thirst":["Nadměrná žízeň","Excessive thirst"],"alpha_roll":["Mýtus o dominanci","Dominance myth"],"algae":["Sinice","Blue-green algae"],"fleas":["Blechy v prostředí","Fleas in the home"],"sniff_walk":["Čichací procházka","Sniffing walk"],"ibuprofen":["Lidské léky proti bolesti","Human painkillers"],"bleeding":["Krvácení","Bleeding"],"eating_grass":["Pojídání trávy","Eating grass"],"recall_punish":["Trest za příchod","Punishing recall"],"cooked_bones":["Vařené kosti","Cooked bones"],"pain_signs":["Známky bolesti","Signs of pain"],"adder":["Uštknutí zmijí","Adder bite"],"nails":["Dlouhé drápy","Long nails"],"punish_accident":["Trest za nehodu v bytě","Punishing house accidents"],"reverse_sneeze":["Obrácené kýchání","Reverse sneezing"],"deworm":["Odčervení","Deworming"],"scooting":["Jezdění po zadku","Scooting"],"costs_reserve":["Rezerva na náklady","Cost reserve"],"kids_bites_home":["Pokousání dětí doma","Child bites at home"],"social_window":["Socializační okno","Socialization window"],"weeks_333":["Pravidlo 3-3-3","The 3-3-3 rule"],"vet_checkup":["Preventivní prohlídka","Health check"],"alone_gradual":["Postupné zvykání na samotu","Gradual alone time"],"adopt_adults":["Dospělí psi v útulcích","Adult dogs in shelters"],"train_reward_vs_punish":["Odměna místo trestu","Rewards vs. punishment"],"time_alone":["Jak dlouho může být sám","How long alone"],"body_ignored_signals":["Přehlížené signály","Overlooked signals"],"decision_years":["Pes na 10–15 let","A dog for 10–15 years"],"shelter_website":["Seriózní útulek","A responsible shelter"],"costs_biggest":["Největší pravidelný výdaj","Biggest regular cost"],"kids_teeth":["Děti a cenění zubů","Kids and bared teeth"],"social_vaccines":["Socializace a očkování","Socialization and vaccines"],"weeks_return":["Vracení psů v prvních týdnech","Returns in the first weeks"],"vet_ticks_season":["Sezóna klíšťat","Tick season"],"alone_punish":["Trest po návratu domů","Punishing after coming home"],"adopt_puppy_age":["Věk odběru štěněte","Puppy pick-up age"],"train_problems_surrender":["Problémy s chováním a odevzdání","Behaviour problems and surrender"],"time_exercise":["Denní pohyb","Daily exercise"],"decision_allergy":["Alergie na psa","Dog allergy"],"shelter_visit":["Návštěva útulku","Shelter visit"],"costs_size":["Velikost psa a náklady","Dog size and costs"],"social_fear_punish":["Trest a strach","Punishment and fear"],"weeks_change":["Chování se mění ještě měsíce","Behaviour keeps changing"],"vet_neuter":["Kastrace","Neutering"],"alone_second_dog":["Druhý pes proti samotě","A second dog against loneliness"],"adopt_hypoallergenic":["Hypoalergenní plemena","Hypoallergenic breeds"],"time_reason":["„Nemám čas“ jako důvod","“No time” as a reason"],"adopt_parking_lot":["Předání na parkovišti","Parking-lot handover"],"vet_rabies":["Vzteklina a čip","Rabies and microchip"]}},
+"correct":{"cs":"Správně","en":"Correct","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"home":["Otázka dne na Domů","Question of the day on Home"],"learn":["Kvíz ve Vzdělávání","Quiz in Learn"],"article":["Otázky po článku","Questions after an article"],"exam":["Závěrečný test výzvy","Challenge final test"]}}
+}},
+"challenge_exam_started":{"g":"challenge","cs":"Spuštění testu výzvy","en":"Challenge test started","sb":284,"od":"2026-10-06","st":"live","auto":0,"m":"trial","p":{}},
+"challenge_started":{"g":"challenge","cs":"Spuštění výzvy","en":"Challenge started","sb":222,"od":"2026-07-09","st":"live","auto":0,"m":"trial","p":{
+"breed":{"cs":"Plemeno","en":"Breed","v":{"small":["Jezevčík","Dachshund"],"medium":["Bígl","Beagle"],"large":["Labradorský retrívr","Labrador Retriever"],"rescue":["Voříšek z útulku","Shelter mix"],"border_collie":["Border kolie","Border Collie"],"husky":["Sibiřský husky","Siberian Husky"],"chihuahua":["Čivava","Chihuahua"],"german_shepherd":["Německý ovčák","German Shepherd"],"golden_retriever":["Zlatý retrívr","Golden Retriever"],"frenchie":["Francouzský buldoček","French Bulldog"],"jack_russell":["Jack Russell teriér","Jack Russell Terrier"],"yorkshire":["Jorkšírský teriér","Yorkshire Terrier"],"bernese":["Bernský salašnický pes","Bernese Mountain Dog"],"pitbull":["Americký pitbulteriér","American Pit Bull Terrier"]}},
+"repeat":{"cs":"Opakovaná","en":"Repeat","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"challenge_completed":{"g":"challenge","cs":"Dokončená výzva","en":"Challenge completed","sb":222,"od":"2026-07-09","st":"live","auto":0,"m":"trial","p":{
+"verdict":{"cs":"Verdikt","en":"Verdict","v":{"excellent":["Skvělá práce","Excellent"],"good":["Dobrá práce","Good"],"rough":["Náročný měsíc","Rough month"]}},
+"mistakes":{"cs":"Chyby","en":"Mistakes"},
+"testCorrect":{"cs":"Správně v testu","en":"Test correct"},
+"testPassed":{"cs":"Test splněn","en":"Test passed","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"walkShort":{"cs":"Dny bez cíle procházek","en":"Short-walk days"},
+"tripDays":{"cs":"Dny na Dovolené","en":"Trip days"},
+"metrics":{"cs":"Úplnost údajů","en":"Data completeness","v":{"full":["Úplné","Complete"],"partial":["Částečné","Partial"]}},
+"verdictModel":{"cs":"Verze výpočtu verdiktu","en":"Verdict model version"},
+"careDays":{"cs":"Dny plné péče","en":"Full-care days"},
+"spendVet":{"cs":"Útrata za veterinu (Kč)","en":"Vet spend (CZK)"},
+"spendHotel":{"cs":"Útrata za psí hotel (Kč)","en":"Dog hotel spend (CZK)"},
+"repeat":{"cs":"Opakovaná","en":"Repeat","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"challenge_decision":{"g":"challenge","cs":"Rozhodnutí po výzvě","en":"Post-challenge decision","sb":287,"od":"2026-10-11","st":"live","auto":0,"m":"trial","p":{
+"choice":{"cs":"Volba","en":"Choice","v":{"yes":["Chci psa","I want a dog"],"not_yet":["Zatím počkám","I’ll wait"],"no":["Pes teď není pro mě","Not for me now"],"skipped":["Přeskočeno","Skipped"]}},
+"verdict":{"cs":"Verdikt","en":"Verdict","v":{"excellent":["Skvělá práce","Excellent"],"good":["Dobrá práce","Good"],"rough":["Náročný měsíc","Rough month"]}},
+"failed":{"cs":"Pes v útulku","en":"Dog in shelter","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"phase":{"cs":"Kde","en":"Where","v":{"report":["Přehled výsledků","Results report"],"certificate":["Certifikát","Certificate"]}},
+"walkShort":{"cs":"Dny bez cíle procházek","en":"Short-walk days"},
+"tripDays":{"cs":"Dny na Dovolené","en":"Trip days"},
+"metrics":{"cs":"Úplnost údajů","en":"Data completeness","v":{"full":["Úplné","Complete"],"partial":["Částečné","Partial"]}},
+"repeat":{"cs":"Opakovaná","en":"Repeat","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"challenge_result_cta":{"g":"challenge","cs":"Volba na výsledku výzvy","en":"Challenge result action","sb":289,"od":"2026-10-11","st":"live","auto":0,"m":"trial","p":{
+"action":{"cs":"Akce","en":"Action","v":{"continue_life":["Pes zůstane na celý život","Keep the dog for life"],"repeat":["Zkusit výzvu znovu","Repeat the challenge"],"pes_doma":["Přepnutí na Pes doma","Switch to Dog at home"],"adoption":["Zvažuješ adopci?","Considering adoption?"],"shelter_walk":["Venčení psů z útulku","Walking shelter dogs"],"share":["Sdílení výsledku","Share result"],"continue":["Pokračování v péči (pes v útulku)","Continue care (dog in shelter)"],"close":["Zavření","Close"]}}
+}},
+"shelter_opened":{"g":"mission","cs":"Proklik na útulek","en":"Shelter opened","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{
+"shelter":{"cs":"Útulek","en":"Shelter","f":1,"v":{"map":["Mapa útulků","Shelter map"]}}
+}},
+"graduation_reached":{"g":"mission","cs":"Promoce","en":"Graduation reached","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{
+"day":{"cs":"Den psa","en":"Dog day"},
+"streak":{"cs":"Série","en":"Streak"}
+}},
+"graduation_shelter_cta":{"g":"mission","cs":"Z promoce k útulkům","en":"Graduation: to shelters","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{}},
+"graduation_wait_cta":{"g":"mission","cs":"Rozhodnutí počkat","en":"Decided to wait","sb":219,"od":"2026-07-04","st":"live","auto":0,"m":"trial","p":{}},
+"mode_switched":{"g":"owner","cs":"Přepnutí režimu","en":"Mode switched","sb":292,"od":"2026-10-23","st":"live","auto":0,"m":"both","p":{
+"from":{"cs":"Z režimu","en":"From mode","v":{"trial":["Pes na zkoušku","Trial dog"],"owner":["Pes doma","Dog at home"]}},
+"to":{"cs":"Do režimu","en":"To mode","v":{"trial":["Pes na zkoušku","Trial dog"],"owner":["Pes doma","Dog at home"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"onboarding":["Úvod (rozcestí Mám psa / Nemám)","Onboarding fork"],"settings":["Nastavení","Settings"],"profile":["Profil (přepínač, už není)","Profile (switch, removed)"],"home":["Nabídka na Domů Psa doma","Offer on Dog-at-home Home"],"home_offer":["Nabídka „Máš už doma psa?“ 3. den","Day-3 “Got a dog already?” offer"],"home_row":["Řádek dole na Domů","Row at bottom of Home"],"challenge_end":["Konec 30denní výzvy","End of 30-day challenge"],"restore":["Obnova ze zálohy","Restore from backup"],"invite":["Připojení ke společnému psovi","Joining a shared dog"]}},
+"challenge":{"cs":"Ukončilo výzvu","en":"Ended challenge","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"owner_setup_exit":{"g":"owner","cs":"Odchod ze založení psa","en":"Dog setup abandoned","sb":319,"od":"2026-11-06","st":"live","auto":0,"m":"owner","p":{
+"step":{"cs":"Krok","en":"Step","v":{"basic":["Základní údaje","Basics"]}},
+"touched":{"cs":"Něco vyplněno","en":"Touched","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"from":{"cs":"Odkud","en":"Source","v":{"onboarding":["Úvod (rozcestí)","Onboarding fork"],"add_dog":["„Přidat psa“ na Domů","“Add dog” on Home"],"profile":["„Přidat psa“ v Profilu","“Add dog” in Profile"],"settings":["Nastavení (zatím se neposílá)","Settings (not sent yet)"]}}
+}},
+"owner_dog_choice":{"g":"owner","cs":"Volba psa po přihlášení","en":"Dog choice after sign-in","sb":318,"od":"2026-11-04","st":"live","auto":0,"m":"owner","p":{
+"keep":{"cs":"Ponechat","en":"Keep","v":{"phone":["Psa z telefonu","Dog on this phone"],"cloud":["Psa z účtu","Dog from the account"],"premium":["Oba (přechod na Premium)","Both (go to Premium)"]}}
+}},
+"owner_activated":{"g":"owner","cs":"Založení psa doma","en":"Dog at home created","sb":320,"od":"2026-11-06","st":"live","auto":0,"m":"owner","p":{
+"from":{"cs":"Odkud","en":"Source","v":{"onboarding":["Úvod (rozcestí)","Onboarding fork"],"add_dog":["„Přidat psa“ na Domů","“Add dog” on Home"],"profile":["„Přidat psa“ v Profilu","“Add dog” in Profile"],"settings":["Nastavení (zatím se neposílá)","Settings (not sent yet)"]}},
+"vet":{"cs":"Má veterinu","en":"Has vet","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"carePlanItems":{"cs":"Položek plánu","en":"Care plan items"},
+"birthPrecision":{"cs":"Přesnost data narození","en":"Birth date precision","v":{"day":["Přesné datum","Exact date"],"month":["Měsíc a rok","Month and year"],"year":["Jen rok","Year only"],"estimate":["Odhad věku","Estimated age"],"none":["Bez narození","No birth date"]}},
+"puppy":{"cs":"Štěně","en":"Puppy","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"map_opened":{"g":"owner","cs":"Otevření mapy veteriny","en":"Vet map opened","sb":292,"od":"2026-10-23","st":"live","auto":0,"m":"owner","p":{
+"kind":{"cs":"Co","en":"Kind","v":{"vet":["Veterina","Vet"],"emergency":["Pohotovost","Emergency vet"]}},
+"via":{"cs":"Čím","en":"Via","v":{"system":["Aplikace map","Maps app"],"web":["Prohlížeč","Web browser"]}}
+}},
+"calendar_event_opened":{"g":"owner","cs":"Přidání do kalendáře","en":"Add to calendar","sb":292,"od":"2026-10-23","st":"live","auto":0,"m":"owner","p":{
+"kind":{"cs":"Druh položky","en":"Item kind","v":{"vaccination":["Očkování","Vaccination"],"antiparasitic":["Ochrana proti klíšťatům a blechám","Tick and flea protection"],"deworming":["Odčervení","Deworming"],"puppy":["Péče o štěně","Puppy care"],"checkup":["Preventivní prohlídka","Health check"],"tax":["Poplatek ze psa","Dog tax"],"custom":["Vlastní připomínka","Custom reminder"]}},
+"result":{"cs":"Výsledek","en":"Result","v":{"saved":["Uloženo (iPhone)","Saved (iPhone)"],"canceled":["Zrušeno","Cancelled"],"sent":["Předáno kalendáři (Android, nejde ověřit)","Sent to calendar (Android, unverified)"],"error":["Chyba","Error"]}}
+}},
+"dog_photo":{"g":"owner","cs":"Fotka psa","en":"Dog photo","sb":301,"od":"2026-10-28","st":"live","auto":0,"m":"owner","p":{
+"action":{"cs":"Akce","en":"Action","v":{"set":["Nastavení fotky","Photo set"],"removed":["Odebrání fotky","Photo removed"],"failed":["Chyba","Failed"]}},
+"source":{"cs":"Zdroj","en":"Source","v":{"library":["Galerie","Photo library"],"camera":["Fotoaparát","Camera"]}},
+"picker":{"cs":"Výběr","en":"Picker","v":{"system":["Systémový výběr (iPhone)","System picker (iPhone)"]}}
+}},
+"dog_document":{"g":"owner","cs":"Dokument psa","en":"Dog document","sb":304,"od":"2026-10-28","st":"live","auto":0,"m":"owner","p":{
+"action":{"cs":"Akce","en":"Action","v":{"added":["Přidání dokumentu","Document added"],"attached":["Připojení souboru","File attached"],"opened":["Otevření","Opened"],"deleted":["Smazání","Deleted"],"failed":["Chyba","Failed"]}},
+"category":{"cs":"Kategorie","en":"Category","v":{"pedigree":["Průkaz původu","Pedigree"],"exam":["Zkouška","Exam"],"hunting_exam":["Lovecká zkouška","Hunting exam"],"show_sport":["Výstava nebo sport","Show or sport"],"diploma":["Diplom nebo ocenění","Diploma or award"],"vaccination_booklet":["Očkovací průkaz","Vaccination record"],"insurance":["Pojištění","Insurance"],"vet_report":["Zpráva z veteriny","Vet report"],"other":["Jiný dokument","Other document"]}},
+"step":{"cs":"Krok chyby","en":"Failed step","v":{"pick":["Výběr souboru","File picking"],"type":["Nepodporovaný typ","Unsupported type"],"size":["Příliš velký soubor","File too large"],"import":["Uložení do aplikace","Import into the app"],"open":["Otevření","Opening"]}}
+}},
+"plan_item":{"g":"owner","cs":"Položka plánu péče","en":"Care plan item","sb":337,"od":"2026-11-15","st":"live","auto":0,"m":"owner","p":{
+"action":{"cs":"Akce","en":"Action","v":{"added":["Přidání","Added"],"confirmed":["Potvrzení","Confirmed"],"done":["Splnění","Done"],"deleted":["Smazání","Deleted"]}},
+"kind":{"cs":"Druh","en":"Kind","v":{"vaccination":["Očkování","Vaccination"],"antiparasitic":["Ochrana proti klíšťatům a blechám","Tick and flea protection"],"deworming":["Odčervení","Deworming"],"puppy":["Péče o štěně","Puppy care"],"checkup":["Preventivní prohlídka","Health check"],"tax":["Poplatek ze psa","Dog tax"],"custom":["Vlastní připomínka","Custom reminder"],"mixed":["Více druhů najednou","Several kinds at once"]}},
+"kinds":{"cs":"Druhy","en":"Kinds","v":{"checkup,deworming":["Prohlídka a odčervení","Health check and deworming"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"manual":["Ruční přidání","Added manually"],"puppy_offer":["Nabídka kalendáře štěněte","Puppy calendar offer"],"baseline":["Doporučený základ v plánu","Recommended basics in plan"],"deworming_offer":["Nabídka odčervení","Deworming offer"],"diary":["Očkování z deníku nebo z fotky","Vaccination from diary or photo"],"setup_auto":["Kalendář štěněte při založení","Puppy calendar at setup"],"checklist":["„Přidat základ“ v seznamu „Doplň“","“Add basics” in the checklist"]}},
+"count":{"cs":"Počet","en":"Count"}
+}},
+"diary_entry":{"g":"owner","cs":"Nový záznam v deníku","en":"Diary entry added","sb":337,"od":"2026-11-15","st":"live","auto":0,"m":"owner","p":{
+"kind":{"cs":"Druh","en":"Kind","v":{"vet":["Veterina","Vet visit"],"vaccination":["Očkování","Vaccination"],"med":["Lék","Medication"],"weight":["Váha","Weight"],"symptom":["Příznak","Symptom"],"exam":["Zkouška","Exam"],"show":["Výstava","Show"],"walk":["Procházka","Walk"],"training":["Výcvik","Training"],"note":["Poznámka","Note"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"plan":["Z plánu péče („Hotovo“)","From care plan (Done)"],"scan":["Z fotky dokumentu","From a document photo"],"session":["Ze sezení výcviku","From a training session"]}}
+}},
+"weight_entry":{"g":"owner","cs":"Nový zápis váhy","en":"Weight logged","sb":337,"od":"2026-11-15","st":"live","auto":0,"m":"owner","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"scan":["Z fotky dokumentu","From a document photo"]}}
+}},
+"setup_checklist":{"g":"owner","cs":"Seznam „Doplň“","en":"Setup checklist","sb":337,"od":"2026-11-15","st":"live","auto":0,"m":"owner","p":{
+"action":{"cs":"Akce","en":"Action","v":{"tap":["Klepnutí na položku","Item tapped"],"hide":["Skrytí seznamu","List hidden"],"complete":["Seznam dokončen","List completed"]}},
+"item":{"cs":"Položka","en":"Item","v":{"basics":["Jméno a narození","Name and birth date"],"sex":["Pes, nebo fena","Male or female"],"origin":["Původ a plemeno","Origin and breed"],"vet":["Veterina","Vet"],"plan":["Plán péče","Care plan"],"reminders":["Připomínky","Reminders"],"backup":["Záloha k účtu (od 16. 11. 2026)","Account backup (since 16 Nov 2026)"]}},
+"offer":{"cs":"Nabídka","en":"Offer","v":{"baseline":["„Přidat základ“","“Add basics”"]}},
+"done":{"cs":"Hotových položek","en":"Items done"},
+"total":{"cs":"Položek celkem","en":"Items total"}
+}},
+"family":{"g":"owner","cs":"Rodina psa","en":"Dog family","sb":345,"od":"2026-11-16","st":"testers","auto":0,"m":"owner","p":{
+"action":{"cs":"Akce","en":"Action","v":{"create":["Založení rodiny","Family created"],"invite":["Nový kód pozvánky","New invite code"],"share":["Sdílení pozvánky","Invite shared"],"join":["Připojení","Joined"],"leave":["Odchod z rodiny","Left the family"],"remove":["Odebrání člena","Member removed"],"dissolve":["Zrušení rodiny","Family dissolved"]}},
+"outcome":{"cs":"Výsledek","en":"Outcome","v":{"ok":["Úspěch","Success"],"invalid":["Neplatný kód","Invalid code"],"expired":["Kód vypršel","Code expired"],"full":["Rodina je plná","Family full"],"rate_limited":["Příliš mnoho pokusů","Too many attempts"],"disabled":["Rodina není zapnutá","Family not enabled"],"premium":["Vyžaduje Premium","Premium required"],"premium_check":["Premium nejde ověřit","Premium check failed"],"taken":["Pes už je sdílený jinde","Dog already shared"],"gone":["Rodina mezitím zanikla","Family no longer exists"],"not_owner":["Akce jen pro vlastníka","Owner only"],"owner":["Vlastník rodinu jen ruší","Owner must dissolve"],"offline":["Bez sítě","Offline"],"signed_out":["Bez přihlášení","Signed out"],"unavailable":["Cloud nedostupný","Cloud unavailable"],"failed":["Jiná chyba","Other error"]}},
+"via":{"cs":"Čím","en":"Via","v":{"link":["Odkaz","Link"],"code":["Kód","Code"]}}
+}},
+"real_reminder_opened":{"g":"reminders","cs":"Otevření připomínky Psa doma","en":"Dog at home reminder opened","sb":337,"od":"2026-11-15","st":"live","auto":0,"m":"owner","p":{
+"kind":{"cs":"Druh","en":"Kind","v":{"health":["Zdravotní připomínka","Health reminder"],"overdue":["Po termínu","Overdue"],"moment":["Výročí, narozeniny, svátek","Anniversary, birthday, name day"],"puppy_week":["Týden štěněte","Puppy week"]}}
+}},
+"care_reminder_prompt":{"g":"reminders","cs":"Odpověď na nabídku připomínek","en":"Reminder offer answered","sb":288,"od":"2026-10-13","st":"live","auto":0,"m":"both","p":{
+"action":{"cs":"Volba","en":"Choice","v":{"enable":["Zapnout připomínky","Turn on reminders"],"later":["Teď ne","Not now"]}},
+"ask":{"cs":"Pořadí nabídky","en":"Offer number","v":{"1":["První nabídka","First offer"],"2":["Druhá nabídka","Second offer"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"care_plan":["Plán péče Psa doma","Dog at home care plan"]}},
+"trigger":{"cs":"Spoušť","en":"Trigger","v":{"setup_auto":["Založení psa s kalendářem štěněte","Dog setup with puppy calendar"],"checklist":["„Přidat základ“ v seznamu „Doplň“","“Add basics” in the checklist"]}}
+}},
+"notification_permission":{"g":"reminders","cs":"Odpověď na povolení upozornění","en":"Notification permission result","sb":288,"od":"2026-10-13","st":"live","auto":0,"m":"both","p":{
+"status":{"cs":"Stav","en":"Status","v":{"granted":["Povoleno","Granted"],"denied":["Zamítnuto","Denied"],"undetermined":["Nerozhodnuto","Undetermined"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"care_reminders":["Připomínky Psa na zkoušku","Trial dog care reminders"],"settings":["Pruh v Nastavení","Settings banner"],"settings_push":["Push novinky v Nastavení","News push in Settings"],"care_plan":["Plán péče Psa doma","Dog at home care plan"]}},
+"prompted":{"cs":"Systém se ptal","en":"System prompted","v":{"true":["Ano","Yes"],"false":["Ne","No"]}},
+"trigger":{"cs":"Spoušť","en":"Trigger","v":{"first_item":["První potvrzená položka plánu","First confirmed plan item"],"banner":["Pruh „Upozornění jsou vypnutá“","“Notifications are off” banner"],"setup_auto":["Dialog po založení psa","Dialog after dog setup"],"checklist":["Po „Přidat základ“ v seznamu „Doplň“","After “Add basics” in the checklist"]}}
+}},
+"care_reminder_opened":{"g":"reminders","cs":"Otevření připomínky péče","en":"Care reminder opened","sb":335,"od":"2026-11-14","st":"live","auto":0,"m":"trial","p":{
+"slot":{"cs":"Čas připomínky","en":"Reminder slot","v":{"feedMorning":["Ranní krmení","Morning feeding"],"walk":["Procházka","Walk"],"feedEvening":["Večerní krmení","Evening feeding"],"pause":["Poslední připomínka před pauzou","Last reminder before a pause"],"shelter":["Pes v útulku","Dog in shelter"]}},
+"variant":{"cs":"Varianta textu","en":"Copy variant","v":{"1":["Varianta textu 1","Copy variant 1"],"2":["Varianta textu 2","Copy variant 2"],"3":["Varianta textu 3","Copy variant 3"],"4":["Varianta textu 4","Copy variant 4"],"5":["Varianta textu 5","Copy variant 5"]}},
+"hour":{"cs":"Plánovaná hodina","en":"Scheduled hour"},
+"timing":{"cs":"Načasování","en":"Timing","v":{"habit":["Podle zvyku","Habit-based"],"default":["Výchozí čas","Default time"]}},
+"minutesAfter":{"cs":"Minut od plánovaného času","en":"Minutes after scheduled time"}
+}},
+"care_reminder_done":{"g":"reminders","cs":"Péče splněná po připomínce","en":"Care done after reminder","sb":335,"od":"2026-11-14","st":"live","auto":0,"m":"trial","p":{
+"slot":{"cs":"Čas připomínky","en":"Reminder slot","v":{"feedMorning":["Ranní krmení","Morning feeding"],"walk":["Procházka","Walk"],"feedEvening":["Večerní krmení","Evening feeding"]}},
+"variant":{"cs":"Varianta textu","en":"Copy variant","v":{"1":["Varianta textu 1","Copy variant 1"],"2":["Varianta textu 2","Copy variant 2"],"3":["Varianta textu 3","Copy variant 3"],"4":["Varianta textu 4","Copy variant 4"],"5":["Varianta textu 5","Copy variant 5"]}},
+"timing":{"cs":"Načasování","en":"Timing","v":{"habit":["Podle zvyku","Habit-based"],"default":["Výchozí čas","Default time"]}},
+"minutesAfter":{"cs":"Minut po připomínce","en":"Minutes after"}
+}},
+"share_initiated":{"g":"social","cs":"Zahájení sdílení","en":"Share started","sb":216,"od":"2026-07-02","st":"live","auto":0,"m":"both","p":{
+"kind":{"cs":"Co sdílel","en":"What was shared","v":{"badge":["Odznak","Badge"],"newDog":["Nový pes","New dog"],"walk":["Procházka","Walk"],"firstCommand":["První povel","First command"],"streak":["Série","Streak"],"challenge":["Výsledek výzvy","Challenge result"],"graduation":["Promoce","Graduation"],"invite":["Pozvánka parťáka","Co-carer invite"],"nameDay":["Svátek psa (Pes doma)","Dog’s name day (Dog at home)"]}},
+"via":{"cs":"Čím","en":"Via","v":{"share":["Systémové sdílení","Share sheet"],"copy":["Zkopírování kódu","Code copied"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"profile":["Profil","Profile"]}}
+}},
+"share_completed":{"g":"social","cs":"Dokončení sdílení","en":"Share finished","sb":284,"od":"2026-10-07","st":"live","auto":0,"m":"both","p":{
+"kind":{"cs":"Co sdílel","en":"What was shared","v":{"badge":["Odznak","Badge"],"newDog":["Nový pes","New dog"],"walk":["Procházka","Walk"],"firstCommand":["První povel","First command"],"streak":["Série","Streak"],"challenge":["Výsledek výzvy","Challenge result"],"graduation":["Promoce","Graduation"],"invite":["Pozvánka parťáka","Co-carer invite"],"nameDay":["Svátek psa (Pes doma)","Dog’s name day (Dog at home)"]}},
+"action":{"cs":"Výsledek","en":"Result","v":{"shared":["Sdíleno","Shared"],"dismissed":["Zavřeno bez sdílení","Dismissed"],"copied":["Kód zkopírován","Code copied"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"profile":["Profil","Profile"]}}
+}},
+"coop_invite_created":{"g":"social","cs":"Vytvoření pozvánky parťáka","en":"Co-carer invite created","sb":284,"od":"2026-10-07","st":"live","auto":0,"m":"trial","p":{}},
+"coop_joined":{"g":"social","cs":"Připojení ke společné péči","en":"Joined co-care","sb":284,"od":"2026-10-07","st":"live","auto":0,"m":"trial","p":{
+"via":{"cs":"Čím","en":"Via","v":{"code":["Kód na obrazovce Spolu","Code on the Together screen"],"link":["Odkaz pozvánky","Invite link"]}}
+}},
+"onboarding_premium_offer":{"g":"money","cs":"Nabídka Premium plemene v úvodu","en":"Premium breed offer in onboarding","sb":214,"od":"2026-06-28","st":"live","auto":0,"m":"trial","p":{
+"breed":{"cs":"Plemeno","en":"Breed","v":{"border_collie":["Border kolie","Border Collie"],"husky":["Sibiřský husky","Siberian Husky"],"chihuahua":["Čivava","Chihuahua"],"german_shepherd":["Německý ovčák","German Shepherd"],"golden_retriever":["Zlatý retrívr","Golden Retriever"],"frenchie":["Francouzský buldoček","French Bulldog"],"jack_russell":["Jack Russell teriér","Jack Russell Terrier"],"yorkshire":["Jorkšírský teriér","Yorkshire Terrier"],"bernese":["Bernský salašnický pes","Bernese Mountain Dog"],"pitbull":["Americký pitbulteriér","American Pit Bull Terrier"]}},
+"action":{"cs":"Akce","en":"Action","v":{"shown":["Zobrazení nabídky","Offer shown"],"tapped":["Klepnutí na nákup","Purchase tapped"]}}
+}},
+"paywall_viewed":{"g":"money","cs":"Zobrazení paywallu","en":"Paywall viewed","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"]}},
+"mode":{"cs":"Režim paywallu","en":"Paywall mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"article":{"cs":"Článek","en":"Article","v":{"socialization":["Socializace: základ vyrovnaného psa","Socialization: the foundation of a balanced dog"],"training_basics":["Základy pozitivního výcviku","Positive-reinforcement training basics"],"vet_health":["Prevence: zdraví psa pod kontrolou","Prevention: keep your dog's health in check"]}},
+"from":{"cs":"Odkud (starší verze)","en":"From (older versions)","v":{"article":["Článek","Article"]}}
+}},
+"purchase_started":{"g":"money","cs":"Zahájení nákupu","en":"Purchase started","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"product":{"cs":"Produkt","en":"Product","v":{"plan_monthly":["Premium – měsíčně","Premium – monthly"],"plan_yearly":["Premium – ročně","Premium – yearly"],"plan_lifetime":["Premium – navždy","Premium – lifetime"],"breed_bundle":["Všechna plemena (balíček)","All breeds (bundle)"],"breed_border_collie":["Plemeno: Border kolie","Breed: Border Collie"],"breed_husky":["Plemeno: Sibiřský husky","Breed: Siberian Husky"],"breed_chihuahua":["Plemeno: Čivava","Breed: Chihuahua"],"breed_german_shepherd":["Plemeno: Německý ovčák","Breed: German Shepherd"],"breed_golden_retriever":["Plemeno: Zlatý retrívr","Breed: Golden Retriever"],"breed_frenchie":["Plemeno: Francouzský buldoček","Breed: French Bulldog"],"breed_jack_russell":["Plemeno: Jack Russell teriér","Breed: Jack Russell Terrier"],"breed_yorkshire":["Plemeno: Jorkšírský teriér","Breed: Yorkshire Terrier"],"breed_bernese":["Plemeno: Bernský salašnický pes","Breed: Bernese Mountain Dog"],"breed_pitbull":["Plemeno: Americký pitbulteriér","Breed: American Pit Bull Terrier"],"restore":["Obnova nákupů (do 16. 11. 2026)","Restore purchases (until 16 Nov 2026)"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"]}},
+"mode":{"cs":"Režim paywallu","en":"Paywall mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"trial":{"cs":"Zkušební doba","en":"Free trial","v":{"0":["Bez zkušební doby","No free trial"],"1":["Se zkušební dobou","With free trial"]}},
+"plan":{"cs":"Plán","en":"Plan","v":{"monthly":["Měsíčně","Monthly"],"yearly":["Ročně","Yearly"],"lifetime":["Navždy","Lifetime"]}}
+}},
+"purchase_completed":{"g":"money","cs":"Dokončený nákup","en":"Purchase completed","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"product":{"cs":"Produkt","en":"Product","v":{"plan_monthly":["Premium – měsíčně","Premium – monthly"],"plan_yearly":["Premium – ročně","Premium – yearly"],"plan_lifetime":["Premium – navždy","Premium – lifetime"],"breed_bundle":["Všechna plemena (balíček)","All breeds (bundle)"],"breed_border_collie":["Plemeno: Border kolie","Breed: Border Collie"],"breed_husky":["Plemeno: Sibiřský husky","Breed: Siberian Husky"],"breed_chihuahua":["Plemeno: Čivava","Breed: Chihuahua"],"breed_german_shepherd":["Plemeno: Německý ovčák","Breed: German Shepherd"],"breed_golden_retriever":["Plemeno: Zlatý retrívr","Breed: Golden Retriever"],"breed_frenchie":["Plemeno: Francouzský buldoček","Breed: French Bulldog"],"breed_jack_russell":["Plemeno: Jack Russell teriér","Breed: Jack Russell Terrier"],"breed_yorkshire":["Plemeno: Jorkšírský teriér","Breed: Yorkshire Terrier"],"breed_bernese":["Plemeno: Bernský salašnický pes","Breed: Bernese Mountain Dog"],"breed_pitbull":["Plemeno: Americký pitbulteriér","Breed: American Pit Bull Terrier"],"restore":["Obnova nákupů (do 16. 11. 2026)","Restore purchases (until 16 Nov 2026)"]}},
+"kind":{"cs":"Druh","en":"Kind","v":{"premium":["Premium","Premium"],"breed":["Plemeno","Breed"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"]}},
+"mode":{"cs":"Režim paywallu","en":"Paywall mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"trial":{"cs":"Zkušební doba","en":"Free trial","v":{"0":["Bez zkušební doby","No free trial"],"1":["Se zkušební dobou","With free trial"]}},
+"plan":{"cs":"Plán","en":"Plan","v":{"monthly":["Měsíčně","Monthly"],"yearly":["Ročně","Yearly"],"lifetime":["Navždy","Lifetime"]}}
+}},
+"purchase_cancelled":{"g":"money","cs":"Zrušený nákup","en":"Purchase cancelled","sb":282,"od":"2026-10-05","st":"live","auto":0,"m":"both","p":{
+"product":{"cs":"Produkt","en":"Product","v":{"plan_monthly":["Premium – měsíčně","Premium – monthly"],"plan_yearly":["Premium – ročně","Premium – yearly"],"plan_lifetime":["Premium – navždy","Premium – lifetime"],"breed_bundle":["Všechna plemena (balíček)","All breeds (bundle)"],"breed_border_collie":["Plemeno: Border kolie","Breed: Border Collie"],"breed_husky":["Plemeno: Sibiřský husky","Breed: Siberian Husky"],"breed_chihuahua":["Plemeno: Čivava","Breed: Chihuahua"],"breed_german_shepherd":["Plemeno: Německý ovčák","Breed: German Shepherd"],"breed_golden_retriever":["Plemeno: Zlatý retrívr","Breed: Golden Retriever"],"breed_frenchie":["Plemeno: Francouzský buldoček","Breed: French Bulldog"],"breed_jack_russell":["Plemeno: Jack Russell teriér","Breed: Jack Russell Terrier"],"breed_yorkshire":["Plemeno: Jorkšírský teriér","Breed: Yorkshire Terrier"],"breed_bernese":["Plemeno: Bernský salašnický pes","Breed: Bernese Mountain Dog"],"breed_pitbull":["Plemeno: Americký pitbulteriér","Breed: American Pit Bull Terrier"],"restore":["Obnova nákupů (do 16. 11. 2026)","Restore purchases (until 16 Nov 2026)"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"]}},
+"mode":{"cs":"Režim paywallu","en":"Paywall mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"trial":{"cs":"Zkušební doba","en":"Free trial","v":{"0":["Bez zkušební doby","No free trial"],"1":["Se zkušební dobou","With free trial"]}},
+"plan":{"cs":"Plán","en":"Plan","v":{"monthly":["Měsíčně","Monthly"],"yearly":["Ročně","Yearly"],"lifetime":["Navždy","Lifetime"]}}
+}},
+"purchase_pending":{"g":"money","cs":"Čekající platba","en":"Purchase pending","sb":282,"od":"2026-10-05","st":"live","auto":0,"m":"both","p":{
+"product":{"cs":"Produkt","en":"Product","v":{"plan_monthly":["Premium – měsíčně","Premium – monthly"],"plan_yearly":["Premium – ročně","Premium – yearly"],"plan_lifetime":["Premium – navždy","Premium – lifetime"],"breed_bundle":["Všechna plemena (balíček)","All breeds (bundle)"],"breed_border_collie":["Plemeno: Border kolie","Breed: Border Collie"],"breed_husky":["Plemeno: Sibiřský husky","Breed: Siberian Husky"],"breed_chihuahua":["Plemeno: Čivava","Breed: Chihuahua"],"breed_german_shepherd":["Plemeno: Německý ovčák","Breed: German Shepherd"],"breed_golden_retriever":["Plemeno: Zlatý retrívr","Breed: Golden Retriever"],"breed_frenchie":["Plemeno: Francouzský buldoček","Breed: French Bulldog"],"breed_jack_russell":["Plemeno: Jack Russell teriér","Breed: Jack Russell Terrier"],"breed_yorkshire":["Plemeno: Jorkšírský teriér","Breed: Yorkshire Terrier"],"breed_bernese":["Plemeno: Bernský salašnický pes","Breed: Bernese Mountain Dog"],"breed_pitbull":["Plemeno: Americký pitbulteriér","Breed: American Pit Bull Terrier"],"restore":["Obnova nákupů (do 16. 11. 2026)","Restore purchases (until 16 Nov 2026)"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"]}},
+"mode":{"cs":"Režim paywallu","en":"Paywall mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"trial":{"cs":"Zkušební doba","en":"Free trial","v":{"0":["Bez zkušební doby","No free trial"],"1":["Se zkušební dobou","With free trial"]}},
+"plan":{"cs":"Plán","en":"Plan","v":{"monthly":["Měsíčně","Monthly"],"yearly":["Ročně","Yearly"],"lifetime":["Navždy","Lifetime"]}}
+}},
+"purchase_failed":{"g":"money","cs":"Neúspěšný nákup","en":"Purchase failed","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
+"product":{"cs":"Produkt","en":"Product","v":{"plan_monthly":["Premium – měsíčně","Premium – monthly"],"plan_yearly":["Premium – ročně","Premium – yearly"],"plan_lifetime":["Premium – navždy","Premium – lifetime"],"breed_bundle":["Všechna plemena (balíček)","All breeds (bundle)"],"breed_border_collie":["Plemeno: Border kolie","Breed: Border Collie"],"breed_husky":["Plemeno: Sibiřský husky","Breed: Siberian Husky"],"breed_chihuahua":["Plemeno: Čivava","Breed: Chihuahua"],"breed_german_shepherd":["Plemeno: Německý ovčák","Breed: German Shepherd"],"breed_golden_retriever":["Plemeno: Zlatý retrívr","Breed: Golden Retriever"],"breed_frenchie":["Plemeno: Francouzský buldoček","Breed: French Bulldog"],"breed_jack_russell":["Plemeno: Jack Russell teriér","Breed: Jack Russell Terrier"],"breed_yorkshire":["Plemeno: Jorkšírský teriér","Breed: Yorkshire Terrier"],"breed_bernese":["Plemeno: Bernský salašnický pes","Breed: Bernese Mountain Dog"],"breed_pitbull":["Plemeno: Americký pitbulteriér","Breed: American Pit Bull Terrier"],"restore":["Obnova nákupů (do 16. 11. 2026)","Restore purchases (until 16 Nov 2026)"]}},
+"reason":{"cs":"Důvod","en":"Reason","v":{"error":["Obecná chyba","General error"],"network":["Chyba sítě","Network error"],"store_problem":["Problém obchodu","Store problem"],"not_allowed":["Nákupy v zařízení nejsou povolené","Purchases not allowed on device"],"product_unavailable":["Produkt teď není k dispozici","Product unavailable"],"config":["Chyba konfigurace","Configuration error"],"not_configured":["Nákupy nejsou nastavené","Purchases not configured"],"already_owned":["Už koupeno","Already owned"],"nothing_to_restore":["Není co obnovit (do 16. 11. 2026)","Nothing to restore (until 16 Nov 2026)"]}},
+"code":{"cs":"Kód chyby","en":"Error code","v":{"UNKNOWN_ERROR":["Neznámá chyba","Unknown error"],"PURCHASE_CANCELLED_ERROR":["Nákup zrušen","Purchase cancelled"],"STORE_PROBLEM_ERROR":["Problém obchodu","Store problem"],"PURCHASE_NOT_ALLOWED_ERROR":["Nákupy nejsou povolené","Purchase not allowed"],"PURCHASE_INVALID_ERROR":["Neplatný nákup","Invalid purchase"],"PRODUCT_NOT_AVAILABLE_FOR_PURCHASE_ERROR":["Produkt není k dispozici","Product not available"],"PRODUCT_ALREADY_PURCHASED_ERROR":["Produkt už je koupený","Product already purchased"],"RECEIPT_ALREADY_IN_USE_ERROR":["Účtenka patří jinému účtu","Receipt already in use"],"INVALID_RECEIPT_ERROR":["Neplatná účtenka","Invalid receipt"],"NETWORK_ERROR":["Chyba sítě","Network error"],"INVALID_CREDENTIALS_ERROR":["Neplatné přístupové údaje","Invalid credentials"],"UNEXPECTED_BACKEND_RESPONSE_ERROR":["Nečekaná odpověď serveru","Unexpected backend response"],"OPERATION_ALREADY_IN_PROGRESS_ERROR":["Operace už probíhá","Operation already in progress"],"UNKNOWN_BACKEND_ERROR":["Neznámá chyba serveru","Unknown backend error"],"INELIGIBLE_ERROR":["Bez nároku","Ineligible"],"PAYMENT_PENDING_ERROR":["Platba čeká","Payment pending"],"CONFIGURATION_ERROR":["Chyba konfigurace","Configuration error"],"PRODUCT_REQUEST_TIMED_OUT_ERROR":["Načtení produktu vypršelo","Product request timed out"],"API_ENDPOINT_BLOCKED":["Server RevenueCatu zablokovaný","API endpoint blocked"],"OFFLINE_CONNECTION_ERROR":["Bez připojení","Offline"],"package_not_found":["Balíček v RevenueCatu chybí","Package not found"],"product_not_found":["Produkt v RevenueCatu chybí","Product not found"],"UNKNOWN":["Kód chyby neznámý","Unknown code"]}},
+"message":{"cs":"Hláška","en":"Message","f":1},
+"underlying":{"cs":"Podrobnost","en":"Underlying error","f":1},
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"]}},
+"mode":{"cs":"Režim paywallu","en":"Paywall mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}},
+"trial":{"cs":"Zkušební doba","en":"Free trial","v":{"0":["Bez zkušební doby","No free trial"],"1":["Se zkušební dobou","With free trial"]}},
+"plan":{"cs":"Plán","en":"Plan","v":{"monthly":["Měsíčně","Monthly"],"yearly":["Ročně","Yearly"],"lifetime":["Navždy","Lifetime"]}}
+}},
+"restore_started":{"g":"money","cs":"Zahájení obnovy nákupů","en":"Restore started","sb":343,"od":"2026-11-16","st":"live","auto":0,"m":"both","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"],"account_link":["Účet – nabídka obnovy po napojení na účet","Account – restore offer after linking"]}},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}}
+}},
+"restore_completed":{"g":"money","cs":"Obnovené nákupy","en":"Purchases restored","sb":343,"od":"2026-11-16","st":"live","auto":0,"m":"both","p":{
+"kind":{"cs":"Druh","en":"Kind","v":{"premium":["Premium","Premium"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"],"account_link":["Účet – nabídka obnovy po napojení na účet","Account – restore offer after linking"]}},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}}
+}},
+"restore_none":{"g":"money","cs":"Obnova bez nákupů","en":"Nothing to restore","sb":343,"od":"2026-11-16","st":"live","auto":0,"m":"both","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"],"account_link":["Účet – nabídka obnovy po napojení na účet","Account – restore offer after linking"]}},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}}
+}},
+"restore_failed":{"g":"money","cs":"Neúspěšná obnova nákupů","en":"Restore failed","sb":343,"od":"2026-11-16","st":"live","auto":0,"m":"both","p":{
+"reason":{"cs":"Důvod","en":"Reason","v":{"error":["Obecná chyba","General error"],"network":["Chyba sítě","Network error"],"store_problem":["Problém obchodu","Store problem"],"not_allowed":["Nákupy v zařízení nejsou povolené","Purchases not allowed on device"],"product_unavailable":["Produkt teď není k dispozici","Product unavailable"],"config":["Chyba konfigurace","Configuration error"],"not_configured":["Nákupy nejsou nastavené","Purchases not configured"],"already_owned":["Už koupeno","Already owned"],"nothing_to_restore":["Není co obnovit (do 16. 11. 2026)","Nothing to restore (until 16 Nov 2026)"]}},
+"code":{"cs":"Kód chyby","en":"Error code","v":{"UNKNOWN_ERROR":["Neznámá chyba","Unknown error"],"PURCHASE_CANCELLED_ERROR":["Nákup zrušen","Purchase cancelled"],"STORE_PROBLEM_ERROR":["Problém obchodu","Store problem"],"PURCHASE_NOT_ALLOWED_ERROR":["Nákupy nejsou povolené","Purchase not allowed"],"PURCHASE_INVALID_ERROR":["Neplatný nákup","Invalid purchase"],"PRODUCT_NOT_AVAILABLE_FOR_PURCHASE_ERROR":["Produkt není k dispozici","Product not available"],"PRODUCT_ALREADY_PURCHASED_ERROR":["Produkt už je koupený","Product already purchased"],"RECEIPT_ALREADY_IN_USE_ERROR":["Účtenka patří jinému účtu","Receipt already in use"],"INVALID_RECEIPT_ERROR":["Neplatná účtenka","Invalid receipt"],"NETWORK_ERROR":["Chyba sítě","Network error"],"INVALID_CREDENTIALS_ERROR":["Neplatné přístupové údaje","Invalid credentials"],"UNEXPECTED_BACKEND_RESPONSE_ERROR":["Nečekaná odpověď serveru","Unexpected backend response"],"OPERATION_ALREADY_IN_PROGRESS_ERROR":["Operace už probíhá","Operation already in progress"],"UNKNOWN_BACKEND_ERROR":["Neznámá chyba serveru","Unknown backend error"],"INELIGIBLE_ERROR":["Bez nároku","Ineligible"],"PAYMENT_PENDING_ERROR":["Platba čeká","Payment pending"],"CONFIGURATION_ERROR":["Chyba konfigurace","Configuration error"],"PRODUCT_REQUEST_TIMED_OUT_ERROR":["Načtení produktu vypršelo","Product request timed out"],"API_ENDPOINT_BLOCKED":["Server RevenueCatu zablokovaný","API endpoint blocked"],"OFFLINE_CONNECTION_ERROR":["Bez připojení","Offline"],"package_not_found":["Balíček v RevenueCatu chybí","Package not found"],"product_not_found":["Produkt v RevenueCatu chybí","Product not found"],"UNKNOWN":["Kód chyby neznámý","Unknown code"]}},
+"message":{"cs":"Hláška","en":"Message","f":1},
+"underlying":{"cs":"Podrobnost","en":"Underlying error","f":1},
+"source":{"cs":"Odkud","en":"Source","v":{"engagement":["Bez určeného zdroje","Unspecified source"],"onboarding":["Úvod – prémiové plemeno","Onboarding – premium breed"],"article":["Zamčený článek","Locked article"],"health_tip":["Zdravotní tip (zamčený článek)","Health tip (locked article)"],"quiz":["Kvíz – odkaz na zamčený článek","Quiz – locked article link"],"challenge_result":["Výsledek výzvy – odkaz na zamčený článek","Challenge result – locked article link"],"coop":["Společná péče – založení sdílení","Shared care – start sharing"],"timeline":["Časová osa","Timeline"],"profile_timeline":["Profil – zamčená časová osa","Profile – locked timeline"],"profile":["Profil – karta Premium","Profile – Premium card"],"owner_profile":["Profil Psa doma – karta Premium","Dog at home profile – Premium card"],"tutorial":["Průvodce aplikací – tip na Premium","App tour – Premium tip"],"breed_select":["Změna plemena","Change breed"],"breeddex":["Sbírka plemen","Breed collection"],"owner_add_dog":["Pes doma – další pes","Dog at home – another dog"],"owner_docs_limit":["Pes doma – limit dokumentů","Dog at home – document limit"],"owner_family":["Pes doma – založení rodiny","Dog at home – create family"],"owner_cloud":["Pes doma – soubory v cloudu","Dog at home – cloud files"],"owner_vet_pdf":["Pes doma – PDF pro veterináře","Dog at home – vet PDF"],"owner_calendar":["Pes doma – kalendář na měsíc a rok","Dog at home – month and year calendar"],"owner_year":["Pes doma – roční přehled","Dog at home – year overview"],"account_link":["Účet – nabídka obnovy po napojení na účet","Account – restore offer after linking"]}},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}}
+}},
+"subscription_manage_opened":{"g":"money","cs":"Otevření správy předplatného","en":"Subscription management opened","sb":343,"od":"2026-11-16","st":"live","auto":0,"m":"both","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"settings":["Nastavení – Předplatné","Settings – Subscription"],"paywall":["Paywall při aktivním Premium","Paywall with active Premium"],"account_delete":["Smazání účtu","Account deletion"]}},
+"via":{"cs":"Jak","en":"Via","v":{"sheet":["Systémové okno (iPhone)","System sheet (iPhone)"],"link":["Odkaz do obchodu","Store link"]}}
+}},
+"purchases_link":{"g":"money","cs":"Napojení nákupů na účet","en":"Purchases linked to account","sb":344,"od":"2026-11-16","st":"live","auto":0,"m":"none","p":{
+"outcome":{"cs":"Výsledek","en":"Outcome","v":{"linked":["Napojeno","Linked"],"recovered":["Napojeno po dohledání nákupů","Linked after recovery"],"lost":["Nákupy se nepřipojily","Purchases lost"],"failed":["Selhalo","Failed"]}},
+"via":{"cs":"Kdy","en":"Trigger","v":{"signin":["Při přihlášení","On sign-in"],"background":["Na pozadí","In background"]}},
+"hadPurchases":{"cs":"Měl nákupy","en":"Had purchases","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"account_signup":{"g":"account","cs":"Registrace e-mailem","en":"Email sign-up","sb":40,"od":"2026-06-02","st":"removed","auto":0,"m":"none","p":{}},
+"account_signin":{"g":"account","cs":"Přihlášení k účtu","en":"Account sign-in","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{}},
+"cloud_backup":{"g":"account","cs":"Ruční záloha","en":"Manual backup","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"trial","p":{}},
+"account_deleted":{"g":"account","cs":"Smazání účtu","en":"Account deleted","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{}},
+"restore_key_created":{"g":"account","cs":"Vytvoření klíče pro obnovení","en":"Restore key created","sb":321,"od":"2026-11-04","st":"live","auto":0,"m":"none","p":{
+"cloudBackup":{"cs":"Záloha Google","en":"Google backup","v":{"true":["Ano","Yes"],"false":["Ne","No"]}}
+}},
+"restore_key_result":{"g":"account","cs":"Výsledek přihlášení klíčem","en":"Restore key sign-in result","sb":321,"od":"2026-11-04","st":"live","auto":1,"m":"none","p":{
+"kind":{"cs":"Výsledek","en":"Result","v":{"none":["Bez klíče","No key"],"signed_in":["Přihlášeno klíčem","Signed in with key"],"not_found":["Klíč nenalezen","Key not found"],"error":["Chyba","Error"]}}
+}},
+"store_rating_blocked":{"g":"feedback","cs":"Zablokovaná žádost o hodnocení","en":"Rating prompt blocked","sb":290,"od":"2026-10-06","st":"live","auto":1,"m":"trial","p":{
+"reason":{"cs":"Důvod","en":"Reason","v":{"already_asked_this_version":["Na této verzi už se ptala","Already asked on this version"],"cooldown":["Od minulé žádosti neuplynulo 125 dní","Within 125-day cooldown"],"streak_too_short":["Krátká série dobrých dní","Streak too short"],"recent_setback":["Do 14 dní po útulku","Within 14 days of shelter"],"empathy_tip":["Návrat po nepřítomnosti nebo zmrazená série","Away recap or frozen streak"],"too_few_active_days":["Méně než 3 aktivní dny","Fewer than 3 active days"],"challenge_exam_pending":["Čeká závěrečný test výzvy","Challenge exam pending"],"age_unknown":["Věk nezadán","Age not set"],"kid_safe":["Uživatel pod 16 let","User under 16"],"dog_not_alive":["Pes není doma","Dog not at home"],"disabled":["Žádost vypnutá","Prompt disabled"],"unavailable":["Obchod žádost nepodporuje","Store prompt unavailable"]}}
+}},
+"store_rating_prompt":{"g":"feedback","cs":"Žádost o hodnocení v obchodě","en":"Store rating prompt","sb":274,"od":"2026-10-01","st":"live","auto":0,"m":"both","p":{
+"trigger":{"cs":"Spoušť","en":"Trigger","v":{"perfect_day":["Dokonalý den péče","Perfect care day"],"active_days":["7 dní používání","7 active days"]}},
+"result":{"cs":"Výsledek","en":"Result","v":{"requested":["Vyžádáno u systému","Requested from the system"],"failed":["Selhalo","Failed"],"unavailable":["Nedostupné","Unavailable"]}},
+"activeDays":{"cs":"Aktivní dny","en":"Active days"},
+"streak":{"cs":"Série","en":"Streak"},
+"mode":{"cs":"Režim","en":"Mode","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}}
+}},
+"store_rating_link":{"g":"feedback","cs":"Odkaz na hodnocení v obchodě","en":"Store rating link","sb":274,"od":"2026-10-01","st":"live","auto":0,"m":"both","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"settings":["Nastavení","Settings"]}}
+}},
+"support_contact":{"g":"feedback","cs":"Kontakt na podporu","en":"Support contact","sb":285,"od":"2026-10-07","st":"live","auto":0,"m":"both","p":{
+"source":{"cs":"Odkud","en":"Source","v":{"settings":["Nastavení","Settings"]}},
+"outcome":{"cs":"Výsledek","en":"Outcome","v":{"mail":["Otevřela se pošta","Mail app opened"],"no_mail_app":["Pošta v telefonu není","No mail app"],"copied":["Adresa zkopírována","Address copied"],"copy_failed":["Kopírování selhalo","Copy failed"]}}
+}},
+"app_error":{"g":"quality","cs":"Chyba aplikace","en":"App error","sb":0,"od":null,"st":"removed","auto":0,"m":"none","p":{
+"context":{"cs":"Kde nastala","en":"Where it happened","f":1}
+}},
+"experiment_assigned":{"g":"experiments","cs":"Přiřazení do testu variant","en":"Assigned to an A/B test","sb":344,"od":"2026-11-16","st":"live","auto":1,"m":"trial","p":{
+"name":{"cs":"Test","en":"Test","v":{"first_care":["První péče místo průvodce","First care instead of tour"]}},
+"variant":{"cs":"Varianta","en":"Variant","v":{"a":["A: průvodce aplikací (kontrola)","A: app tour (control)"],"b":["B: rovnou Domů s prvním nakrmením","B: straight Home with first feeding"]}}
+}},
+"screen_view":{"g":"navigation","cs":"Zobrazení obrazovky","en":"Screen view","sb":214,"od":"2026-06-28","st":"live","auto":1,"m":"both","p":{
+"screen":{"cs":"Obrazovka","en":"Screen","ref":"screens"},
+"mode":{"cs":"Režim","en":"Mode","sb":291,"od":"2026-10-23","v":{"trial":["Pes na zkoušku","Trial dog"],"challenge":["30denní výzva","30-day challenge"],"challenge30":["30denní výzva","30-day challenge"],"classic":["Pes na zkoušku bez výzvy","Trial dog, no challenge"],"owner":["Pes doma","Dog at home"]}}
+}}
+},
+"screens":{
+"(main)/home":["Domů (záložka Pes)","Home (Dog tab)",null],
+"(main)/adoption":["Vzdělávání (záložka)","Learn (tab)",null],
+"(main)/profile":["Profil (záložka)","Profile (tab)",null],
+"(main)/health":["Zdraví","Health",null,"health"],
+"(main)/friends":["Společná péče","Shared care",null,"friends"],
+"index":["Start aplikace","App start",null],
+"onboarding":["Úvod","Onboarding",null],
+"tutorial":["Průvodce aplikací","App tour",null],
+"premium":["Trypup Premium (paywall)","Trypup Premium (paywall)",null],
+"settings":["Nastavení","Settings",null],
+"account":["Účet","Account",null],
+"language":["Jazyk","Language",null],
+"notices":["Novinky a akce","News & events",null],
+"dog-names":["Jména pro psa","Dog names",null],
+"friends":["Společná péče","Shared care",null],
+"join/[code]":["Pozvánka (odkaz s kódem)","Invite link",null],
+"analytics":["Ladicí analytika (testeři)","Debug analytics (testers)",null],
+"+not-found":["Neznámý odkaz","Unknown link",null],
+"feed":["Krmení","Feeding",null],
+"play":["Hra","Play",null],
+"brush":["Čištění","Brushing",null],
+"training":["Výcvik (Pes na zkoušku)","Training (Trial dog)",null],
+"walk":["Procházka (Pes na zkoušku)","Walk (Trial dog)",null],
+"walk-summary":["Souhrn procházky (Pes na zkoušku)","Walk summary (Trial dog)",null],
+"health":["Zdraví","Health",null],
+"achievements":["Odznaky","Badges",null],
+"breeddex":["Sbírka plemen","Breed collection",null],
+"breed-select":["Změna plemena","Change breed",null],
+"timeline":["Časová osa","Timeline",null],
+"challenge-result":["Výsledek 30denní výzvy","30-day challenge result",null],
+"graduation":["Gratulace a certifikát","Graduation & certificate",null],
+"fail-state":["Pes v útulku","Dog in the shelter",null],
+"readiness":["Dotazník připravenosti","Readiness questionnaire",null],
+"pesdoma/setup":["Nový pes (založení)","New dog (setup)",null,null,291,"2026-10-23"],
+"pesdoma/dog/[id]":["Detail psa","Dog details",null,null,291,"2026-10-23"],
+"pesdoma/dog/[id]/edit":["Upravit údaje","Edit details",null,null,291,"2026-10-23"],
+"pesdoma/dog/[id]/plan":["Plán péče","Care plan","plan",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/diary":["Deník","Diary","diary",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/entry":["Záznam v deníku","Diary entry","diary",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/passport":["Psí pas","Dog passport","docs",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/scan":["Načíst z fotky","Read from photo","docs",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/summary":["Souhrn zdraví","Health summary","docs",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/weight":["Váha","Weight","diary",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/documents":["Dokumenty","Documents","docs",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/family":["Rodina","Family","family",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/training":["Výcvik (Pes doma)","Training (Dog at home)","training",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/training/[skill]":["Dovednost výcviku","Training skill","training",null,291,"2026-10-23"],
+"pesdoma/dog/[id]/training/session":["Sezení výcviku","Training session","training",null,291,"2026-10-23"],
+"pesdoma/training/guide":["Jak se pes učí","How dogs learn","training",null,291,"2026-10-23"],
+"pesdoma/training/help":["Kdy k odborníkovi","When to see a specialist","training",null,291,"2026-10-23"],
+"pesdoma/training/puppy":["Socializace štěněte","Puppy socialization","training",null,291,"2026-10-23"],
+"pesdoma/first-aid":["První pomoc","First aid","firstaid",null,291,"2026-10-23"],
+"pesdoma/first-aid/[topic]":["První pomoc – téma","First aid topic","firstaid",null,291,"2026-10-23"],
+"pesdoma/vets":["Veteriny","Vets","vets",null,291,"2026-10-23"],
+"pesdoma/vet/[id]":["Veterina (detail)","Vet details","vets",null,291,"2026-10-23"],
+"pesdoma/walk":["Procházka (Pes doma)","Walk (Dog at home)","walk",null,291,"2026-10-23"],
+"pesdoma/walk-summary":["Konec procházky (Pes doma)","Walk finished (Dog at home)","walk",null,291,"2026-10-23"],
+"pesdoma/family-join":["Připojit se k rodině","Join a family","family",null,291,"2026-10-23"]
+},
+"places":{
+"plan":["Plán péče","Care plan"],
+"diary":["Deník a váha","Diary & weight"],
+"docs":["Pas a dokumenty","Passport & documents"],
+"firstaid":["První pomoc","First aid"],
+"training":["Výcvik","Training"],
+"vets":["Veteriny a mapa","Vets & map"],
+"walk":["Procházka","Walk"],
+"family":["Rodina","Family"]
+}
+}

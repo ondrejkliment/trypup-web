@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "check:site": "node scripts/check-site.mjs"
+    "check:site": "node scripts/check-site.mjs",
+    "check:labels": "node scripts/check-admin-labels.mjs"
   },
   "dependencies": {
     "astro": "^5.1.0"
