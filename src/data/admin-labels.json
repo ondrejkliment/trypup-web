@@ -10,7 +10,7 @@
 ["challenge","30denní výzva","30-day challenge"],
 ["mission","Mise a útulky","Mission & shelters"],
 ["owner","Pes doma","Dog at home"],
-["reminders","Připomínky a oznámení","Reminders & notifications"],
+["reminders","Připomínky a upozornění","Reminders & notifications"],
 ["social","Sdílení a společná péče","Sharing & co-care"],
 ["money","Premium a nákupy","Premium & purchases"],
 ["account","Účet a záloha","Account & backup"],
@@ -44,18 +44,18 @@
 "from":{"cs":"Jazyk aplikace","en":"App language","v":{"cs":["Čeština","Czech"],"en":["Angličtina","English"],"sk":["Slovenština","Slovak"],"pl":["Polština","Polish"],"de":["Němčina","German"],"es":["Španělština","Spanish"],"fr":["Francouzština","French"],"it":["Italština","Italian"],"nl":["Nizozemština","Dutch"],"pt":["Portugalština","Portuguese"],"uk":["Ukrajinština","Ukrainian"],"bg":["Bulharština","Bulgarian"]}},
 "to":{"cs":"Nabízený jazyk","en":"Offered language","v":{"cs":["Čeština","Czech"],"en":["Angličtina","English"],"sk":["Slovenština","Slovak"],"pl":["Polština","Polish"],"de":["Němčina","German"],"es":["Španělština","Spanish"],"fr":["Francouzština","French"],"it":["Italština","Italian"],"nl":["Nizozemština","Dutch"],"pt":["Portugalština","Portuguese"],"uk":["Ukrajinština","Ukrainian"],"bg":["Bulharština","Bulgarian"]}}
 }},
-"push_opened":{"g":"start","cs":"Otevření push oznámení","en":"Push notification opened","sb":280,"od":"2026-10-04","st":"live","auto":0,"m":"both","p":{
+"push_opened":{"g":"start","cs":"Otevření upozornění","en":"Push notification opened","sb":280,"od":"2026-10-04","st":"live","auto":0,"m":"both","p":{
 "campaign":{"cs":"Kampaň","en":"Campaign","f":1,"v":{"unknown":["Neznámá kampaň","Unknown campaign"],"sched-2026-10-28-pes-doma":["Plánovaná kampaň 28. 10. 2026 – Pes doma","Scheduled campaign 28 Oct 2026 – Dog at home"],"BzsdczvBmhDKZHS86Ljb":["Kampaň z adminu 5. 10. 2026","Admin campaign 5 Oct 2026"],"simtest1":["Test na simulátoru","Simulator test"]}}
 }},
 "app_entry":{"g":"start","cs":"Vstup do aplikace","en":"App entry","sb":342,"od":"2026-11-16","st":"live","auto":1,"m":"both","p":{
-"source":{"cs":"Odkud","en":"Source","v":{"direct":["Přímo","Direct"],"notification":["Oznámení","Notification"],"widget":["Widget","Widget"],"walk":["Oznámení procházky","Walk notification"],"shortcut":["Rychlá akce u ikony","Home screen quick action"],"link":["Odkaz","Link"]}},
+"source":{"cs":"Odkud","en":"Source","v":{"direct":["Přímo","Direct"],"notification":["Upozornění","Notification"],"widget":["Widget","Widget"],"walk":["Upozornění procházky","Walk notification"],"shortcut":["Rychlá akce u ikony","Home screen quick action"],"link":["Odkaz","Link"]}},
 "launch":{"cs":"Druh otevření","en":"Launch type","v":{"cold":["Nové spuštění","Fresh launch"],"warm":["Návrat z pozadí","Back from background"]}},
-"notif":{"cs":"Druh oznámení","en":"Notification type","v":{"push":["Push z adminu","Admin push"],"care":["Připomínka péče (Pes na zkoušku)","Care reminder (Trial dog)"],"real":["Připomínka Psa doma","Dog at home reminder"],"other":["Jiné oznámení","Other notification"]}},
+"notif":{"cs":"Druh upozornění","en":"Notification type","v":{"push":["Push z adminu","Admin push"],"care":["Připomínka péče (Pes na zkoušku)","Care reminder (Trial dog)"],"real":["Připomínka Psa doma","Dog at home reminder"],"other":["Jiné upozornění","Other notification"]}},
 "action":{"cs":"Rychlá akce","en":"Quick action","v":{"feed":["Nakrmit","Feed"],"walk":["Na procházku (Pes na zkoušku)","Go for a walk (Trial dog)"],"training":["Výcvik","Training"],"dog_walk":["Vyrazit na procházku (Pes doma)","Go for a walk (Dog at home)"],"diary":["Zapsat do deníku","Add diary entry"],"first_aid":["První pomoc","First aid"]}}
 }},
 "onboarding_step":{"g":"onboarding","cs":"Krok úvodu","en":"Onboarding step","sb":40,"od":"2026-06-02","st":"live","auto":0,"m":"both","p":{
-"step":{"cs":"Krok","en":"Step","v":{"intro":["Úvod","Intro"],"age":["Věková brána","Age gate"],"fork":["Rozcestí „Máš už doma psa?“","Fork: already have a dog?"],"quiz":["Tři otázky o životním stylu","Lifestyle quiz"],"quiz_result":["Doporučené plemeno","Breed recommendation"],"breed":["Seznam všech plemen","All breeds list"],"name":["Jméno psa","Dog name"],"owner_setup":["Odchod do založení skutečného psa","Went to real dog setup",293,"2026-10-26"],"done":["Pes založen","Dog created"],"readiness":["Dotazník připravenosti","Readiness check"],"mode":["Volba režimu","Mode choice"],"permissions":["Oprávnění (poloha, oznámení)","Permissions (location, notifications)"]}},
-"fromStep":{"cs":"Předchozí krok","en":"From step","v":{"intro":["Úvod","Intro"],"age":["Věková brána","Age gate"],"fork":["Rozcestí „Máš už doma psa?“","Fork: already have a dog?"],"quiz":["Tři otázky o životním stylu","Lifestyle quiz"],"quiz_result":["Doporučené plemeno","Breed recommendation"],"breed":["Seznam všech plemen","All breeds list"],"name":["Jméno psa","Dog name"],"readiness":["Dotazník připravenosti","Readiness check"],"owner_setup":["Odchod do založení skutečného psa","Off to real dog setup"],"done":["Pes založen","Dog created"],"mode":["Volba režimu","Mode choice"],"permissions":["Oprávnění (poloha, oznámení)","Permissions (location, notifications)"]}},
+"step":{"cs":"Krok","en":"Step","v":{"intro":["Úvod","Intro"],"age":["Věková brána","Age gate"],"fork":["Rozcestí „Máš už doma psa?“","Fork: already have a dog?"],"quiz":["Tři otázky o životním stylu","Lifestyle quiz"],"quiz_result":["Doporučené plemeno","Breed recommendation"],"breed":["Seznam všech plemen","All breeds list"],"name":["Jméno psa","Dog name"],"owner_setup":["Odchod do založení skutečného psa","Went to real dog setup",293,"2026-10-26"],"done":["Pes založen","Dog created"],"readiness":["Dotazník připravenosti","Readiness check"],"mode":["Volba režimu","Mode choice"],"permissions":["Oprávnění (poloha, upozornění)","Permissions (location, notifications)"]}},
+"fromStep":{"cs":"Předchozí krok","en":"From step","v":{"intro":["Úvod","Intro"],"age":["Věková brána","Age gate"],"fork":["Rozcestí „Máš už doma psa?“","Fork: already have a dog?"],"quiz":["Tři otázky o životním stylu","Lifestyle quiz"],"quiz_result":["Doporučené plemeno","Breed recommendation"],"breed":["Seznam všech plemen","All breeds list"],"name":["Jméno psa","Dog name"],"readiness":["Dotazník připravenosti","Readiness check"],"owner_setup":["Odchod do založení skutečného psa","Off to real dog setup"],"done":["Pes založen","Dog created"],"mode":["Volba režimu","Mode choice"],"permissions":["Oprávnění (poloha, upozornění)","Permissions (location, notifications)"]}},
 "dwellMs":{"cs":"Doba na předchozím kroku (ms)","en":"Time on previous step (ms)"},
 "dir":{"cs":"Směr","en":"Direction","sb":314,"od":"2026-11-01","v":{"back":["Zpět","Back"]}},
 "choice":{"cs":"Volba na rozcestí","en":"Fork choice","sb":293,"od":"2026-10-26","v":{"owner":["Psa už mám (Pes doma)","I already have a dog (Dog at home)"],"trial":["Chci si psa vyzkoušet (Pes na zkoušku)","I want to try a dog (Trial dog)"]}},
@@ -461,7 +461,7 @@
 }},
 "experiment_assigned":{"g":"experiments","cs":"Přiřazení do testu variant","en":"Assigned to an A/B test","sb":344,"od":"2026-11-16","st":"live","auto":1,"m":"trial","p":{
 "name":{"cs":"Test","en":"Test","v":{"first_care":["První péče místo průvodce","First care instead of tour"]}},
-"variant":{"cs":"Varianta","en":"Variant","v":{"a":["A: průvodce aplikací (kontrola)","A: app tour (control)"],"b":["B: rovnou Domů s prvním nakrmením","B: straight Home with first feeding"]}}
+"variant":{"cs":"Varianta","en":"Variant","v":{"a":["A: průvodce aplikací (dosavadní úvod)","A: app tour (current onboarding)"],"b":["B: rovnou Domů s kartou „Začni snídaní“","B: straight Home with the Start with breakfast card"]}}
 }},
 "screen_view":{"g":"navigation","cs":"Zobrazení obrazovky","en":"Screen view","sb":214,"od":"2026-06-28","st":"live","auto":1,"m":"both","p":{
 "screen":{"cs":"Obrazovka","en":"Screen","ref":"screens"},

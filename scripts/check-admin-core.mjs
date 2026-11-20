@@ -63,23 +63,24 @@ for (const [name, code] of [['ADMIN CORE', coreCode], ['ADMIN CLASSIFY', classif
 
 function loadCore() {
   const ctx = vm.createContext({});
-  const exportsCode = ';({ classifyInstall, makeDeduper, buildIndex, computeAcquisition, computeJourney, computeTech, computeMeta, VERDICT_RULES })';
+  const exportsCode = ';({ classifyInstall, makeDeduper, plainEvent, plainMap, plainInstall, buildIndex, computeAcquisition, computeJourney, computeTech, computeMeta, VERDICT_RULES })';
   return vm.runInContext(`${classifyCode}\n${coreCode}\n${exportsCode}`, ctx, { filename: 'admin-core.js' });
 }
 
-// ── Vstup stejně jako window.__dash.setData (výpis má všechna ts jako čísla).
+// ── Vstup stejně jako window.__dash.setData: stejná normalizace (plainEvent, plainInstall) jako fetchPage a
+//    loadInstalls v produkci, pak deduplikace (výpis má všechna ts jako čísla).
 const anyMs = (v) => (typeof v === 'number' ? v : typeof v === 'string' && Number.isFinite(Date.parse(v)) ? Date.parse(v) : null);
 function makeInput(core, adCampaigns) {
   const dedup = core.makeDeduper();
   const raw = [];
   for (const e of Array.isArray(dump.RAW) ? dump.RAW : []) {
     if (!e || typeof e !== 'object') continue;
-    const x = { ...e, ts: anyMs(e.ts), props: e.props || {}, dev: e.dev || {} };
+    const x = core.plainEvent(e, e.installId, core.plainMap(e.dev), anyMs(e.ts));
     if (dedup.add(x)) raw.push(x);
   }
   const overrides = new Map(dump.OVERRIDES && typeof dump.OVERRIDES === 'object' ? Object.entries(dump.OVERRIDES) : []);
   const installs = (Array.isArray(dump.INSTALLS) ? dump.INSTALLS : []).filter((i) => i && typeof i === 'object')
-    .map((i) => ({ installKind: 'unknown', ...i, firstMs: anyMs(i.firstMs), lastMs: anyMs(i.lastMs) }));
+    .map((i) => core.plainInstall(i, anyMs(i.firstMs), anyMs(i.lastMs)));
   for (const i of installs) i.cls = core.classifyInstall(i, overrides.get(i.id) || null);
   const meta = dump.meta || {};
   const now = Date.parse(meta.dumpedAt);

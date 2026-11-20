@@ -46,7 +46,11 @@ BASELINE_MIN_DAYS = 4
 MATURE_DAYS = 7
 MEASURABLE_PCT = 90     # R8
 MARKET = {'d1': 0.26, 'd7': 0.13, 'd30': 0.07}
-STORE_BUILD = 325       # verze z obchodu (T2)
+WALK_MIN_SEC, WALK_MIN_M = 300, 150   # procházka psa na zkoušku se započítá (walkMeasure.ts, cisla-3)
+CAMPAIGN_MAX_SPEND = 1e6               # útrata nad 1 000 000 € = neplatná (provoz-8)
+ISO_DAY = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+DASH_RE = re.compile('[ \u00a0]+[-\u2013\u2014][ \u00a0]+')   # pomlčka mezi slovy v názvu útulku (cisla-12)
+MODE_SINCE_DAY = '2026-10-23'          # B1: režim podle obrazovek (verze 291)
 T2_SB = (335, 337, 338, 342, 344, 352)
 AB_START_DAY = '2026-11-16'   # A5, verze 344
 CHANNEL_SB = 352              # Z2 zdroj instalace
@@ -210,6 +214,12 @@ def key_of(v):
 def breakdown(counter):
     """Rozpad = [[klíč, počet], …] sestupně podle počtu, pak vzestupně podle klíče."""
     return [[k, n] for k, n in sorted(counter.items(), key=lambda x: (-x[1], x[0])) if n > 0]
+
+
+def short_id(i):
+    """Zkrácený kód zařízení: znaky 6–10 a poslední čtyři (prvních 10 znaků je časová předpona, texty-7)."""
+    s = str(i)
+    return s[5:10] + '…' + s[-4:] if len(s) > 12 else s
 
 
 def frac(k, n):
@@ -489,23 +499,29 @@ def r8_frac(base, sb, pred, evs_of):
     return {'k': k, 'n': len(b), 'x': x, 'y': y}
 
 
-def when_clear(base, entered7):
-    """„Kdy bude jasno“: tempo = přibylo do základu za 7 dní / 7; dny = ⌈(30 − základ) / tempo⌉."""
-    if base >= SURE_N:
+def when_clear(base, entered7, target=SURE_N, since=None, lag=0):
+    """„Kdy bude jasno“: tempo = přibylo do základu za 7 dní / 7; dny = ⌈(cíl − základ) / tempo⌉.
+    Měření mladší než 7 dní + zralost (since = den začátku, lag = dny do zralosti) → {'state': 'young'}."""
+    if base >= target:
         return None
+    if since is not None and TODAY - since < MATURE_DAYS + lag:
+        return {'state': 'young', 'since': iso(since)}
     if entered7 <= 0:
         return {'state': 'unknown'}
-    days = -(-(SURE_N - base) * 7 // entered7)
+    days = -(-(target - base) * 7 // entered7)
     d = EPOCH + datetime.timedelta(days=TODAY + days)
     part = 'start' if d.day <= 10 else 'mid' if d.day <= 20 else 'end'
     return {'days': days, 'date': d.isoformat(), 'part': part}
 
 
 def later_clear(items):
-    """Ze dvou a více „kdy bude jasno“ ta pozdější (neznámá vyhrává)."""
+    """Ze dvou a více „kdy bude jasno“ ta pozdější (mladé měření, pak neznámá vyhrávají)."""
     items = [x for x in items if x is not None]
     if not items:
         return None
+    for x in items:
+        if x.get('state') == 'young':
+            return x
     if any(x.get('state') == 'unknown' for x in items):
         return {'state': 'unknown'}
     return max(items, key=lambda x: x['days'])
@@ -664,21 +680,44 @@ else:
 AV['z1'] = acq['trend']
 
 # --- kampaně (Z3), potřebné i pro Z1 (podbarvení dnů) a Z4 ---
-CAMP = []
+CAMP, UPCOMING = [], []
+
+
+def iso_day(v):
+    """Den 'YYYY-MM-DD' → číslo dne, jinak None (jen řetězec přesně ve tvaru ISO dne)."""
+    if not isinstance(v, str) or not ISO_DAY.match(v):
+        return None
+    try:
+        return day_of_iso(v)
+    except ValueError:
+        return None
+
+
+def str_or_none(v):
+    return v if isinstance(v, str) else None
+
+
 if isinstance(CAMPAIGNS_DOC, dict) and isinstance(CAMPAIGNS_DOC.get('campaigns'), list):
     for c in CAMPAIGNS_DOC['campaigns']:
         if not isinstance(c, dict) or c.get('platform') not in ('ios', 'android'):
             continue
-        try:
-            fr = day_of_iso(str(c.get('from')))
-        except ValueError:
+        fr = iso_day(c.get('from'))
+        if fr is None:
             continue
         to = c.get('to')
-        try:
-            to_d = day_of_iso(str(to)) if to else None
-        except ValueError:
-            to_d = None
-        CAMP.append({'raw': c, 'id': str(c.get('id') if c.get('id') is not None else ''), 'platform': c['platform'], 'from': fr, 'to': to_d})
+        to_d = None
+        if to is not None and to != '':
+            to_d = iso_day(to)
+            if to_d is None:
+                continue   # neplatné datum konce = neplatný řádek (provoz-8)
+        cid = c.get('id')
+        sp = num(c.get('spendEur'))
+        x = {'raw': c, 'id': cid if isinstance(cid, str) else key_of(cid) if num(cid) is not None else None,
+             'platform': c['platform'], 'from': fr, 'to': to_d,
+             'name': str_or_none(c.get('name')), 'network': str_or_none(c.get('network')),
+             'spendEur': sp if sp is not None and 0 <= sp <= CAMPAIGN_MAX_SPEND else None,
+             'spendAt': c.get('spendAt') if iso_day(c.get('spendAt')) is not None else None}
+        (UPCOMING if fr > TODAY else CAMP).append(x)
 
 
 def camp_running(platform, day):
@@ -720,6 +759,18 @@ ch_count = Counter(key_of(REAL[i].get('srcChannel')) for i in meas)
 acq['channel'] = {'measured': len(meas), 'of': len(AND30), 'byChannel': breakdown(ch_count),
                   'unmeasured': len(AND30) - len(meas), 'ios': len(IOS30)}
 AV['z2'] = 'Zjištění' if len(meas) >= SMALL_N else 'Málo dat'
+SRC_SINCE = day_of_iso(CATALOG['install_source'][2])
+AW['z2'] = when_clear(len(meas), sum(1 for i in meas if in_win(first_ms(i), 7)), target=SMALL_N, since=SRC_SINCE, lag=0) if len(meas) < SMALL_N else None
+
+
+def first_build(i):
+    """Verze první události zařízení (0 bez čísla) – zdroj změřený od prvního spuštění (cisla-2)."""
+    return (num(EV[i][0]['dev'].get('appBuild')) or 0) if EV[i] else 0
+
+
+MEAS4 = [i for i in meas if first_build(i) >= CHANNEL_SB]
+LATE = [i for i in meas if first_build(i) < CHANNEL_SB]
+ch4 = Counter(key_of(REAL[i].get('srcChannel')) for i in MEAS4)
 
 # --- Z4 kvalita ---
 
@@ -738,8 +789,8 @@ def quality(ids):
 
 q = {'all': quality(N30), 'channel': {}, 'campaign': None, 'comparisons': []}
 CH_IDS = {}
-for ch, _ in breakdown(ch_count):
-    ids = [i for i in meas if key_of(REAL[i].get('srcChannel')) == ch]
+for ch, _ in breakdown(ch4):
+    ids = [i for i in MEAS4 if key_of(REAL[i].get('srcChannel')) == ch]
     CH_IDS[ch] = ids
     q['channel'][ch] = quality(ids)
     rest = [i for i in N30 if i not in set(ids)]
@@ -769,17 +820,19 @@ elif any(c['verdict'] == 'Zatím neprůkazné' for c in elig):
     AV['z4'] = 'Zatím neprůkazné'
 else:
     AV['z4'] = 'Málo dat'
-top = breakdown(ch_count)
+top = [x for x in breakdown(ch4) if x[0] not in (NONE_KEY, 'none')]
 q['topChannel'] = {'key': top[0][0], 'devices': top[0][1]} if top else None
+q['lateMeasured'] = quality(LATE)
 if AV['z4'] == 'Průkazný rozdíl':
     AW['z4'] = None
 elif elig:
-    AW['z4'] = later_clear([when_clear(c[side]['n'], d1_entered7(c['_ids'][x]))
+    AW['z4'] = later_clear([when_clear(c[side]['n'], d1_entered7(c['_ids'][x]),
+                                       **({'since': SRC_SINCE, 'lag': 2} if c['group'].startswith('channel:') else {}))
                             for c in elig for x, side in ((0, 'a'), (1, 'b'))])
 elif top:
-    AW['z4'] = when_clear(q['channel'][top[0][0]]['d1']['n'], d1_entered7(CH_IDS[top[0][0]]))
+    AW['z4'] = when_clear(q['channel'][top[0][0]]['d1']['n'], d1_entered7(CH_IDS[top[0][0]]), since=SRC_SINCE, lag=2)
 else:
-    AW['z4'] = {'state': 'unknown'}
+    AW['z4'] = when_clear(0, 0, since=SRC_SINCE, lag=2)
 for c in q['comparisons']:
     del c['_ids']
 acq['quality'] = q
@@ -840,7 +893,7 @@ else:
     for c in CAMP:
         raw = c['raw']
         days = camp_days(c)
-        spend = num(raw.get('spendEur'))
+        spend = c['spendEur']
         newn = new_on(c['platform'], days)
         base = baseline(c['platform'], c['from'])
         above, cost = price(newn, len(days), base, spend)
@@ -860,10 +913,10 @@ else:
         else:
             v = 'Nevyplatí se'
         tight = v in ('Vyplatí se', 'Nevyplatí se') and cost is not None and CAMPAIGN_TIGHT[0] <= cost <= CAMPAIGN_TIGHT[1]
-        rows.append({'id': c['id'], 'name': raw.get('name'), 'network': raw.get('network'), 'platform': c['platform'],
+        rows.append({'id': c['id'], 'name': c['name'], 'network': c['network'], 'platform': c['platform'],
                      'from': iso(c['from']), 'to': iso(c['to']) if c['to'] is not None else None,
                      'days': len(days), 'new': newn, 'baseline': base, 'above': above, 'spendEur': spend,
-                     'spendAt': raw.get('spendAt'), 'cost': cost, 'verdict': v,
+                     'spendAt': c['spendAt'], 'cost': cost, 'verdict': v,
                      'note': ('nothingExtra' if v == 'Nevyplatí se' and above is not None and above <= 0 else
                               'noBaseline' if v == 'Málo dat' else None),
                      'tight': tight, 'group': gname[groups[id(c)]] if shared else None})
@@ -871,15 +924,18 @@ else:
         if len(cs) < 2:
             continue
         days = sorted({d for c in cs for d in camp_days(c)})
-        spends = [num(c['raw'].get('spendEur')) for c in cs]
+        spends = [c['spendEur'] for c in cs]
         spend = None if any(s is None for s in spends) else dec(sum(spends), 2)
         start = min(c['from'] for c in cs)
         newn = new_on(cs[0]['platform'], days)
         base = baseline(cs[0]['platform'], start)
         above, cost = price(newn, len(days), base, spend)
-        joint.append({'group': gname[g], 'ids': [c['id'] for c in cs], 'platform': cs[0]['platform'], 'days': len(days),
+        joint.append({'group': gname[g], 'ids': [c['id'] for c in cs], 'names': [c['name'] for c in cs], 'platform': cs[0]['platform'], 'days': len(days),
                       'new': newn, 'baseline': base, 'above': above, 'spendEur': spend, 'cost': cost})
-    acq['campaigns'] = {'state': 'ok', 'updatedAt': CAMPAIGNS_DOC.get('updatedAt'), 'list': rows, 'joint': joint}
+    acq['campaigns'] = {'state': 'ok', 'updatedAt': CAMPAIGNS_DOC.get('updatedAt'), 'list': rows, 'joint': joint,
+                        'upcoming': [{'id': c['id'], 'name': c['name'], 'network': c['network'], 'platform': c['platform'],
+                                      'from': iso(c['from']), 'to': iso(c['to']) if c['to'] is not None else None,
+                                      'spendEur': c['spendEur']} for c in UPCOMING]}
     # verdikt karty = verdikt nejnovější kampaně (největší `from`, při shodě pozdější ve vstupu)
     newest = None
     for r in rows:
@@ -958,6 +1014,8 @@ jr['branch'] = {'trial': tb, 'owner': ob}
 DOG = [i for i in K if activated(i) or owner_saved(i)]
 DOGs = set(DOG)
 jr['dogAny'] = frac(len(DOG), len(K))
+ONBs = set(ONB)
+jr['noOnbDog'] = sum(1 for i in DOG if i not in ONBs)
 JV['a1'] = 'Zjištění'
 JV['a2'] = 'Zjištění'
 JV['a3'] = 'Zjištění'
@@ -1126,11 +1184,11 @@ for var in sorted(set(ab_var.values())):
     ab[var] = {'assigned': len(ids), 'd1': dd,
                'tapped': sum(1 for i in ids if has(i, lambda e: e['name'] == 'home_banner' and P(e).get('kind') == 'first_care' and P(e).get('action') == 'tap')),
                'review': sum(1 for i in ids if i in REVIEW), 'd1Range': pct_range(dd['k'], dd['n'])}
-    ab_whens.append(when_clear(dd['n'], d1_entered7(ids)))
+    ab_whens.append(when_clear(dd['n'], d1_entered7(ids), since=day_of_iso(AB_START_DAY), lag=2))
 vs = list(ab.values())
 if len(vs) < 2 or any(x['d1']['n'] < SURE_N for x in vs):
     ab_verdict = 'Málo dat'
-    ab_when = later_clear(ab_whens) if len(vs) >= 2 else {'state': 'unknown'}
+    ab_when = later_clear(ab_whens) if len(vs) >= 2 else when_clear(0, 0, since=day_of_iso(AB_START_DAY), lag=2)
 else:
     ab_verdict = compare(ab['a']['d1'], ab['b']['d1'])['verdict'] if 'a' in ab and 'b' in ab else 'Málo dat'
     ab_when = None if ab_verdict == 'Průkazný rozdíl' else later_clear(ab_whens)
@@ -1164,7 +1222,8 @@ def entered_mature7(base, pred):
 
 
 if JV['b1'] in ('Málo dat', 'Zatím neprůkazné'):
-    JW['b1'] = later_clear([when_clear(len(tm), entered_mature7(T, trial_sig)), when_clear(len(om), entered_mature7(O, owner_sig))])
+    _b1 = {'since': day_of_iso(MODE_SINCE_DAY), 'lag': MATURE_DAYS}
+    JW['b1'] = later_clear([when_clear(len(tm), entered_mature7(T, trial_sig), **_b1), when_clear(len(om), entered_mature7(O, owner_sig), **_b1)])
 else:
     JW['b1'] = None
 jr['modes']['twoDays'] = two
@@ -1177,6 +1236,8 @@ B2_ROWS = [
     ('training', lambda e: e['name'] == 'training_done', True),
     ('walk', lambda e: (e['name'] == 'walk_started' and not MODE_OWNER(e)) or sc(e) == 'walk', True),
     ('walkGps', lambda e: e['name'] == 'walk_completed' and not MODE_OWNER(e), True),
+    ('walkCounted', lambda e: e['name'] == 'walk_completed' and not MODE_OWNER(e) and (num(P(e).get('durationSec')) or 0) >= WALK_MIN_SEC
+     and num(P(e).get('durationSec')) is not None and num(P(e).get('distanceM')) is not None and num(P(e).get('distanceM')) >= WALK_MIN_M, True),
     ('learning', lambda e: e['name'] in LEARN and not MODE_OWNER(e), True),
     ('event', lambda e: e['name'] == 'event_choice', True),
     ('challenge', lambda e: e['name'] == 'challenge_started', False),
@@ -1213,7 +1274,7 @@ DID = [
     ('planItem', 'plan', SB['plan_item'], lambda e: e['name'] == 'plan_item'),
     ('calendar', 'plan', SB['calendar_event_opened'], lambda e: e['name'] == 'calendar_event_opened'),
     ('entry', 'diary', SB['diary_weight'], lambda e: e['name'] in ('diary_entry', 'weight_entry')),
-    ('document', 'docs', SB['dog_document'], lambda e: e['name'] == 'dog_document'),
+    ('document', 'docs', SB['dog_document'], lambda e: e['name'] == 'dog_document' and P(e).get('action') in ('added', 'attached')),
     ('trainingSession', 'training', SB['training_session'], lambda e: e['name'] in ('training_logged', 'training_stage_confirmed')),
     ('walkStarted', 'walk', SB['walk_owner'], lambda e: e['name'] == 'walk_started' and MODE_OWNER(e)),
     ('walkCompleted', 'walk', SB['walk_owner'], lambda e: e['name'] == 'walk_completed' and MODE_OWNER(e)),
@@ -1303,10 +1364,12 @@ else:
     opened = [i for i in cb if any(e['name'] == 'care_reminder_opened' for e in win(i, 30))]
     done = [i for i in cb if any(e['name'] == 'care_reminder_done' for e in win(i, 30))]
     by = {'slot': Counter(), 'variant': Counter(), 'timing': Counter()}
+    var_rec = Counter()   # splnění (záznamy) podle varianty
     for i in done:
         vals = {'slot': set(), 'variant': set(), 'timing': set()}
         for e in win(i, 30):
             if e['name'] == 'care_reminder_done':
+                var_rec[key_of(P(e).get('variant'))] += 1
                 for k in vals:
                     vals[k].add(key_of(P(e).get(k)))
         for k in vals:
@@ -1314,24 +1377,10 @@ else:
                 by[k][v_] += 1
     care.update({'n': len(cb), 'opened': len(opened), 'done': len(done),
                  'doneBySlot': breakdown(by['slot']), 'doneByVariant': breakdown(by['variant']),
-                 'doneByTiming': breakdown(by['timing'])})
-    top = breakdown(by['variant'])
-    if not top or top[0][1] < SURE_N:
-        JV['b5'] = 'Zatím neprůkazné'
-        if top:
-            vkey = top[0][0]
-            ent = 0
-            for i in done:
-                hits = [e for e in win(i, 30) if e['name'] == 'care_reminder_done' and key_of(P(e).get('variant')) == vkey]
-                if hits and hits[0]['ts'] > NOW - 7 * DAY:
-                    ent += 1
-            JW['b5'] = when_clear(top[0][1], ent)
-        else:
-            JW['b5'] = {'state': 'unknown'}
-    else:
-        JV['b5'] = 'Zjištění'
-        care['best'] = top[0][0]
-        JW['b5'] = None
+                 'doneByVariantRecords': breakdown(var_rec), 'doneByTiming': breakdown(by['timing'])})
+    # Varianty textu se nesrovnávají (cisla-1): telefon je dostává střídavě a doručení aplikace neposílá.
+    JV['b5'] = 'Zjištění'
+    JW['b5'] = None
 jr['entry'] = entry
 jr['notif'] = notif
 jr['care'] = care
@@ -1357,7 +1406,7 @@ for i in A30:
     for e in win(i, 30):
         if e['name'] in SHELTER_EV:
             s = P(e).get('shelter')
-            k = '_graduation' if s in (None, '') else key_of(s).replace(' - ', ' – ')
+            k = '_graduation' if s in (None, '') else DASH_RE.sub(' – ', key_of(s))
             clicks[k] += 1
 jr['mission'] = {
     'started': count_dev('challenge_started'), 'graduation': count_dev('graduation_reached'),
@@ -1419,10 +1468,24 @@ tech['dupsAll'] = dups_all
 tech['dupsAllReal'] = dups_real_all
 
 # T2 pokrytí verzí (aktivní 7 dní, nejvyšší verze za 7 dní)
-on325 = [i for i in A7 if maxbuild(win(i, 7)) == STORE_BUILD]
-tech['versions7'] = {'active': len(A7), 'store': {'build': STORE_BUILD, 'devices': len(on325),
-                                                  'oneDay': sum(1 for i in on325 if len({pday(e['ts']) for e in win(i, 30)}) == 1)},
-                     'atLeast': {str(sb): sum(1 for i in A7 if maxbuild(win(i, 7)) >= sb) for sb in T2_SB}}
+# verze z obchodu podle platformy: nejčastější verze první události nových za 14 dní, při shodě vyšší (cisla-5)
+def store_build(platform):
+    c = Counter()
+    for i in new_ids(14):
+        if REAL[i]['platform'] == platform and EV[i]:
+            b = num(EV[i][0]['dev'].get('appBuild'))
+            if b is not None:
+                c[b] += 1
+    return max(c.items(), key=lambda x: (x[1], x[0]))[0] if c else None
+
+
+SB_STORE = {'android': store_build('android'), 'ios': store_build('ios')}
+on_store = [i for i in A7 if SB_STORE[REAL[i]['platform']] is not None and maxbuild(win(i, 7)) == SB_STORE[REAL[i]['platform']]]
+AND7 = [i for i in A7 if REAL[i]['platform'] == 'android']
+tech['versions7'] = {'active': len(A7), 'store': {'builds': SB_STORE, 'devices': len(on_store),
+                                                  'oneDay': sum(1 for i in on_store if len({pday(e['ts']) for e in win(i, 30)}) == 1)},
+                     'atLeast': {str(sb): sum(1 for i in A7 if maxbuild(win(i, 7)) >= sb) for sb in T2_SB},
+                     'android': {'active': len(AND7), 'sb': CHANNEL_SB, 'atLeastSb': sum(1 for i in AND7 if maxbuild(win(i, 7)) >= CHANNEL_SB)}}
 
 # T3 sedí data?
 rec30_all = [e for e in DEDUP if e['ts'] is not None and W30_FROM < e['ts'] <= NOW]
@@ -1445,9 +1508,9 @@ tech['check'] = {
                  'state': 'warn' if abs(len(act_by_events) - len(A30)) > 2 else 'ok'},
     'outsideLedger': {'records': len(not_in_ledger), 'devices': len({e['installId'] for e in not_in_ledger}),
                       'state': 'warn' if not_in_ledger else 'ok'},
-    'purchaseNoRc': {'count': len(NORC), 'rows': sorted(
-        [{'day': iso(pday(e['ts'])), 'platform': REAL[e['installId']]['platform'], 'model': REAL[e['installId']].get('model'),
-          'product': P(e).get('product'), 'iid': e['installId'][:10]} for e in NORC], key=lambda r: (r['day'], r['iid'])),
+    'purchaseNoRc': {'count': len(NORC), 'rows': [
+        {'day': iso(pday(e['ts'])), 'platform': REAL[e['installId']]['platform'], 'model': REAL[e['installId']].get('model'),
+         'product': P(e).get('product'), 'iid': short_id(e['installId'])} for e in sorted(NORC, key=lambda e: (pday(e['ts']), e['installId']))],
         'state': 'warn' if NORC else 'ok'},
     'd1Server': {'admin': d1_admin, 'server': srv,
                  'state': None if srv is None else ('warn' if abs(d1_admin['k'] - srv['k']) > 2 or abs(d1_admin['n'] - srv['n']) > 2 else 'ok')},
@@ -1461,9 +1524,9 @@ tech['purchaseNoRc'] = len(NORC)
 rv_models = Counter(key_of(REAL[i].get('model')) for i in REVIEW)
 tech['review'] = {'active30': len(REVIEW), 'byModel': breakdown(rv_models),
                   'byReason': breakdown(Counter(r for rs in REVIEW.values() for r in rs)),
-                  'rows': sorted([{'id': i, 'iid': i[:10], 'model': REAL[i].get('model'), 'firstDay': iso(pday(first_ms(i))),
+                  'rows': sorted([{'id': i, 'iid': short_id(i), 'model': REAL[i].get('model'), 'firstDay': iso(pday(first_ms(i))),
                                    'build': REAL[i].get('appBuild'), 'reasons': REVIEW[i]} for i in REVIEW],
-                                 key=lambda r: r['iid'])}
+                                 key=lambda r: r['id'])}
 
 # T5 limit Expo
 expo = sum(1 for x in INSTALLS if x.get('platform') in ('ios', 'android') and in_win(num(x.get('lastMs')), 30))
@@ -1487,7 +1550,8 @@ def action_table(d7c, d30c, r30c, invalid, dups):
         elif STATUS.get(n) == 'testers':
             st = 'testers'
         elif r30c.get(n, 0) == 0:
-            st = 'noData'
+            # bez záznamu za 30 dní: akce se posílá déle než 30 dní → 'none30', jinak 'noData' (texty-23)
+            st = 'none30' if od is not None and day_of_iso(od) <= TODAY - 30 else 'noData'
         elif n in AUTO:
             st = 'auto'
         else:
