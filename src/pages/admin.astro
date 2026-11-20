@@ -125,6 +125,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     .tile .t-list b { font-variant-numeric:tabular-nums; }
     .tile .t-sub { font-size:12.5px; line-height:1.45; overflow-wrap:anywhere; } /* hodnoty z dat (zdroj nákupu) bez mezer nesmí roztáhnout stránku */
     .tile .t-sub .warn { color:var(--apricot); font-weight:700; }
+    .tile .t-sub .t-wait { color:var(--muted); font-size:13.5px; padding:4px 0; } /* dlaždice z událostí během dočítání (provoz-2) */
     .tile table.t-ret { width:100%; border-collapse:collapse; margin-top:2px; }
     .tile table.t-ret th, .tile table.t-ret td { padding:4px 4px; border-bottom:1px solid var(--line); font-size:12.5px; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
     .tile table.t-ret th:first-child, .tile table.t-ret td:first-child { text-align:left; white-space:normal; }
@@ -1340,7 +1341,13 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       // B1 režimy aktivních za 30 dní.
       const active = real.filter((d) => inWin(d.lastMs, w30, now));
       const mTrial = active.filter((d) => d.mode.trial), mOwner = active.filter((d) => d.mode.owner);
-      const tdTrial = twoDaysOf(mTrial, (d) => d.mode.trial, matureAt), tdOwner = twoDaysOf(mOwner, (d) => d.mode.owner, matureAt);
+      // „Aspoň 2 různé dny“: srovnání, z, verdikt i „kdy bude jasno“ jen u nových za 30 dní (ledger firstMs v období,
+      // rozhodnutí 20. 11., cisla-10). U Psa na zkoušku jsou mezi všemi aktivními i lidé z doby před Psem doma, kteří
+      // aplikaci používají déle, takže srovnání všech by ukazovalo složení lidí, ne režim. Všichni zralí jen jako doplněk.
+      const isNew = (d) => inWin(d.firstMs, w30, now);
+      const nTrial = mTrial.filter(isNew), nOwner = mOwner.filter(isNew);
+      const tdTrial = twoDaysOf(nTrial, (d) => d.mode.trial, matureAt), tdOwner = twoDaysOf(nOwner, (d) => d.mode.owner, matureAt);
+      const tdTrialAll = twoDaysOf(mTrial, (d) => d.mode.trial, matureAt), tdOwnerAll = twoDaysOf(mOwner, (d) => d.mode.owner, matureAt);
       const b1c = compareGroups(tdTrial, tdOwner);
 
       // B2 Pes na zkoušku: řádky v období, „aspoň 2 různé dny“ podle R6.
@@ -1515,8 +1522,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         const addedSig = (list, k) => list.filter((d) => d.mode[k].first > w14 && d.mode[k].first <= w7).length;
         // Signály režimů z obrazovek od 23. 10. 2026; do základu se vstupuje po 7 dnech (R6).
         const youngB1 = { since: isoDayNum(CORE_LIMITS.MODE_SINCE), lag: R.MATURE_DAYS };
-        wb1 = laterClear([tdTrial.n < R.SURE_N ? whenClear(tdTrial.n, addedSig(mTrial, 'trial'), today, youngB1) : null,
-          tdOwner.n < R.SURE_N ? whenClear(tdOwner.n, addedSig(mOwner, 'owner'), today, youngB1) : null]);
+        wb1 = laterClear([tdTrial.n < R.SURE_N ? whenClear(tdTrial.n, addedSig(nTrial, 'trial'), today, youngB1) : null,
+          tdOwner.n < R.SURE_N ? whenClear(tdOwner.n, addedSig(nOwner, 'owner'), today, youngB1) : null]);
       }
       return {
         // noOnbDog (cisla-7): bez úvodu (obnova ze zálohy, pozvánka), a přesto se psem; větve úvodu je nepočítají.
@@ -1535,7 +1542,9 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         ab: { variants, review: abReview },
         modes: { active: active.length, trial: mTrial.length, owner: mOwner.length,
           both: active.filter((d) => d.mode.trial && d.mode.owner).length, neither: active.filter((d) => !d.mode.trial && !d.mode.owner).length,
-          twoDays: { trial: tdTrial, owner: tdOwner, z: b1c.z, ranges: { trial: pctRange(tdTrial), owner: pctRange(tdOwner) } } },
+          // new = základ srovnání (noví za 30 dní), all = všichni zralí aktivní (doplněk); z a rozpětí z new (cisla-10).
+          twoDays: { new: { trial: tdTrial, owner: tdOwner }, all: { trial: tdTrialAll, owner: tdOwnerAll }, z: b1c.z,
+            ranges: { trial: pctRange(tdTrial), owner: pctRange(tdOwner) } } },
         trialUse, owner,
         switch: { total: sw.total, onboarding: { owner: sw.onbOwner, trial: sw.onbTrial },
           later: { owner: sw.laterOwner, trial: sw.laterTrial, ownerBySource: breakdown(sw.ownerBy), trialBySource: breakdown(sw.trialBy) } },
@@ -1873,6 +1882,9 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     const TESTER_RULES = [
       { id: 'kind', test: (d) => TESTER_KINDS.has(String(d.installKind || '')) },
       { id: 'ios_simulator_model', test: (d) => /simulator/i.test(String(d.model || '')) },
+      // Kontrolní zařízení Applu při schvalování verze (App Review): model iPhone99,x / iPad99,x se neprodává.
+      // Zakladatel je dřív označoval ručně, automatiku schválil 20. 11. 2026 (cisla-9, installClass.js 37712830).
+      { id: 'apple_review_model', test: (d) => /^(iPhone|iPad)99,/.test(String(d.model || '')) },
     ];
     function classifyInstall(d, o) {
       if (o) return { kind: o.kind === 'robot' ? 'robot' : o.kind === 'real' ? 'real' : 'tester', source: 'manual', rule: null };
@@ -2512,7 +2524,18 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       rows.forEach((x) => { if (!x.app && x.rc.customer && firstByCustomer.has(x.rc.customer)) { x.app = firstByCustomer.get(x.rc.customer); x.inherited = true; } });
       app.filter((e) => !used.has(e)).forEach((e) => rows.push({ rc: null, app: e, ts: e.ts, key: productKey(e.props.product), inherited: false }));
       const refunded = new Set(RC_EVENTS.filter((r) => r.type === 'CANCELLATION' && r.cancelReason === 'CUSTOMER_SUPPORT').map((r) => r.transactionId).filter(Boolean));
-      rows.forEach((x) => { x.refunded = !!(x.rc && x.rc.transactionId && refunded.has(x.rc.transactionId)); x.sandbox = !!(x.rc && String(x.rc.environment || '').toUpperCase() === 'SANDBOX'); x.cls = x.app ? (CLS_BY_ID.get(x.app.installId) || (isExcluded(x.app.installId, x.app.dev) ? 'tester' : 'real')) : 'real'; });
+      rows.forEach((x) => {
+        x.refunded = !!(x.rc && x.rc.transactionId && refunded.has(x.rc.transactionId));
+        x.sandbox = !!(x.rc && String(x.rc.environment || '').toUpperCase() === 'SANDBOX');
+        // Automatická klasifikace spárovaného zařízení: pravidla nad evidencí, mimo evidenci kontext zařízení z dávky.
+        x.autoCls = x.app ? (CLS_BY_ID.get(x.app.installId) || (isExcluded(x.app.installId, x.app.dev) ? 'tester' : 'real')) : 'real';
+        // R9 (rozhodnutí zakladatele 20. 11., bezpecnost2-2): skutečný nákup z RevenueCatu skryje jen sandbox (výše) nebo
+        // ruční označení spárovaného zařízení v tester_installs. Zápis do anonymní analytiky ani automatická klasifikace
+        // ho neskryjí (podvržené dávky by jinak „ukradly“ párování a schovaly skutečné peníze), jen ho označí štítkem.
+        // Řádky jen z aplikace (bez RevenueCatu) se klasifikují jako dřív.
+        x.cls = x.rc ? (x.app && OVERRIDES.has(x.app.installId) ? classifyInstall({}, OVERRIDES.get(x.app.installId)).kind : 'real') : x.autoCls;
+        x.autoTester = !!(x.rc && x.cls === 'real' && x.autoCls !== 'real');
+      });
       return rows.sort((a, b) => b.ts - a.ts);
     }
 
@@ -2553,8 +2576,11 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const byCur = new Map(); paid.forEach((x) => byCur.set(x.rc.currency, (byCur.get(x.rc.currency) || 0) + x.rc.priceLocal));
       const sum = (f) => paid.reduce((a, x) => a + (Number(f(x)) || 0), 0);
       // k(): popisek i podtext jsou konstanty nebo už escapované (E.2); hodnota se escapuje tady.
-      const k = (label, v, sub) => `<div class="card"><div class="kpi">${esc(v)}<small>${esc(label)}${sub ? ' · ' + sub : ''}</small></div></div>`;
+      const k = (label, v, sub) => `<div class="card"><div class="kpi">${esc(typeof v === 'number' ? nf(v) : v)}<small>${esc(label)}${sub ? ' · ' + sub : ''}</small></div></div>`;
       const rcN = RC_EVENTS.filter((r) => r.isPurchase).length;
+      // Nákupy z RevenueCatu ze zařízení, které automatika bere jako testovací: počítají se, jen se přiznají (R9).
+      const autoRows = rows.filter((x) => x.autoTester), nAuto = autoRows.length, nAutoDev = new Set(autoRows.map((x) => x.app.installId)).size;
+      const autoNote = nAuto ? ` · ${nf(nAuto)} ${pl(nAuto, 'nákup', 'nákupy', 'nákupů')} ze ${nAutoDev === 1 ? 'zařízení, které vypadá' : 'zařízení, která vypadají'} jako testovací (${pl(nAuto, 'počítá', 'počítají', 'počítá')} se; ověř zařízení v Technice)` : '';
       // Během dočítání analytiky k nákupům nejsou zařízení spárovaná: testovací a skryté nákupy by byly špatně (provoz-7).
       const pending = purchaseCovering || !dataReady;
       $('p-sub').textContent = !dataReady ? (LOAD_FAILED ? '· načtení selhalo, zkus Obnovit na Souhrnu' : '· Načítám…')
@@ -2562,7 +2588,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         : LOAD_ERR.has('installs') ? `· ${rcN} ${pl(rcN, 'nákup', 'nákupy', 'nákupů')} v RevenueCatu · evidenci zařízení se nepodařilo načíst, testery teď nejde skrýt`
         : `· ${rcN} ${pl(rcN, 'nákup', 'nákupy', 'nákupů')} v RevenueCatu` + (purchaseCovering ? ' · dočítám starší analytiku kvůli zařízení…'
           : purchaseShort() ? ' · starší analytiku k nákupům se nepodařilo dočíst, párování zařízení je neúplné, zkus Obnovit'
-          : hidden ? ` · skryto ${hidden} (testovací nebo testeři)` : '');
+          : (hidden ? ` · skryto ${nf(hidden)} (testovací nebo testeři)` : '') + autoNote);
       // Před načtením, po selhání a bez rc_events by karty ukázaly nuly, věčné „Načítám…“ nebo „zařízení
       // nespárováno“ (provoz2-1, provoz2-4): místo čísel jen hláška.
       if (!dataReady || LOAD_ERR.has('rc')) {
@@ -2592,6 +2618,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           x.refunded ? tag('vráceno', 'manual') : '',
           x.sandbox ? tag('sandbox', 'auto') : '',
           x.cls !== 'real' ? tag(x.cls, 'manual') : '',
+          // R9: automaticky testovací zařízení nákup z RevenueCatu neskryje, jen označí (bezpecnost2-2).
+          x.autoTester ? `<span class="tag auto" title="Automatická klasifikace zařízení: ${esc(clsKindText(x.autoCls))}. Nákup se počítá; skryje ho jen ruční označení zařízení v Technice (evidence zařízení) nebo sandbox.">zařízení vypadá jako testovací, ověř ho</span>` : '',
         ].join(' ');
         const what = esc(productLabel(x.key)) + (r && r.periodType === 'TRIAL' ? ' · zkušební období' : '');
         const amount = r ? money(r.priceLocal, r.currency) + (r.priceUsd !== null && r.priceUsd !== undefined ? ` <span style="color:var(--muted)">(${esc(usd(r.priceUsd))})</span>` : '') : '–';
@@ -2658,9 +2686,14 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     const INSTALL_KIND_LABEL = new Map([['app_store', 'App Store'], ['device', 'z obchodu (Android)'], ['unknown', 'neznámý (verze před 281)'],
       ['emulator', 'emulátor'], ['test_lab', 'Test Lab Google'], ['simulator', 'simulátor'], ['development', 'vývojová verze'], ['expo_go', 'Expo Go'],
       ['ad_hoc', 'ad hoc'], ['enterprise', 'firemní distribuce']]);
-    const CLS_KIND_LABEL = new Map([['real', 'skutečné'], ['tester', 'tester'], ['robot', 'robot']]);
-    const CLS_RULE_LABEL = new Map([['kind', 'podle druhu instalace'], ['sdk_gphone', 'emulátor Google'], ['oneplus8pro_android11_short', 'OnePlus 8 Pro, Android 11, krátká aktivita'],
-      ['ios_simulator_model', 'simulátor iPhonu']]);
+    // Klasifikace a pravidla [cs, en] podle přepínače popisků; v režimu Technické názvy id pravidla (cisla-9).
+    const CLS_KIND_LABEL = new Map([['real', ['skutečné', 'real']], ['tester', ['tester', 'tester']], ['robot', ['robot', 'robot']]]);
+    const CLS_RULE_LABEL = new Map([['kind', ['podle druhu instalace', 'by install kind']], ['sdk_gphone', ['emulátor Google', 'Google emulator']],
+      ['oneplus8pro_android11_short', ['OnePlus 8 Pro, Android 11, krátká aktivita', 'OnePlus 8 Pro, Android 11, short activity']],
+      ['ios_simulator_model', ['simulátor iPhonu', 'iPhone simulator']], ['apple_review_model', ['kontrolní zařízení Applu (iPhone99)', 'Apple review device (iPhone99)']]]);
+    /** Popisek pravidla klasifikace podle přepínače (D.3); neznámé pravidlo = jeho id. */
+    const clsRuleText = (rule) => { const r = String(rule ?? ''); const m = CLS_RULE_LABEL.get(r); return LANG === 'raw' || !m ? r : pickLang(m, r, LANG); };
+    const clsKindText = (kind) => { const k = String(kind ?? ''); const m = CLS_KIND_LABEL.get(k); return LANG === 'raw' || !m ? k : pickLang(m, k, LANG); };
     const known = (m, v, raw) => { const k = valKey(v), r = raw === undefined || raw === null ? k : valKey(raw); return m.has(k) ? lab(LANG === 'raw' ? r : m.get(k), r, true) : lab(`${k} (bez překladu)`, r, false); };
     const REVIEW_REASON = new Map([['testerModel', 'stejný model jako označený tester'], ['purchaseNoRc', 'nákup bez záznamu v RevenueCatu']]);
     const ACTION_STATE = new Map([['live', 'živá'], ['auto', 'automaticky'], ['noData', 'zatím bez dat'], ['none30', 'za 30 dní nic'], ['removed', 'už se neposílá'], ['testers', 'jen testeři'], ['unknown', 'bez popisku']]);
@@ -2752,7 +2785,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         // Shodný model ještě neznamená tester (texty-6): stejné telefony mají i běžní lidé.
         sentence: rvRows.length ? `${nf(RV.active30)} ${pl(RV.active30, 'aktivní zařízení', 'aktivní zařízení', 'aktivních zařízení')} za 30 dní ${pl(RV.active30, 'má', 'mají', 'má')} stejný model jako označený tester nebo nákup bez záznamu v RevenueCatu, takže ${pl(RV.active30, 'může', 'mohou', 'mohou')} být testovací. Stejné modely mají i běžní lidé: označ jen ta, která poznáš. Jen návrh, rozhoduješ ty.` : 'Žádné aktivní zařízení nemá znaky testovacího.',
         body: t4body,
-        how: 'TestFlight a nové telefony zakladatele vypadají jako skutečná zařízení, dokud je nikdo neoznačí. Admin je sám neoznačí. Po označení „Je skutečné“ zařízení ze seznamu zmizí.',
+        // Kontrolní zařízení Applu jsou tester automaticky (cisla-9), proto v seznamu nejsou.
+        how: 'TestFlight a nové telefony zakladatele vypadají jako skutečná zařízení, dokud je nikdo neoznačí. Admin je sám neoznačí; výjimkou je pravidlo „kontrolní zařízení Applu (iPhone99)“: telefony, na kterých Apple schvaluje verzi, jsou tester automaticky a v seznamu nejsou. Po označení „Je skutečné“ zařízení ze seznamu zmizí.',
         foot: 'Aktivní za 30 dní, skutečná podle klasifikace, bez ručního označení · se stejným modelem jako označený tester nebo s nákupem bez záznamu v RevenueCatu',
       });
 
@@ -2826,7 +2860,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         barPanel('Druh instalace', lbl(countBy(ledger, (i) => dataKey(i.installKind)), (k) => known(INSTALL_KIND_LABEL, k)), 'var(--apricot)', 10, 'celá evidence zařízení; App Store a z obchodu = běžní lidé'),
         barPanel('Klasifikace', lbl(countBy(ledger, (i) => i.cls.kind + '\u0000' + (i.cls.source === 'manual' ? 'manual' : i.cls.rule || '')), (k) => {
           const [kind, rule] = String(k).split('\u0000');
-          const kt = CLS_KIND_LABEL.get(kind) || kind, rt = rule === 'manual' ? 'ručně' : rule ? (CLS_RULE_LABEL.get(rule) || rule) : '';
+          const kt = clsKindText(kind), rt = rule === 'manual' ? (LANG === 'en' ? 'manually' : 'ručně') : rule ? clsRuleText(rule) : '';
           return lab(LANG === 'raw' ? kind + (rule ? ' · ' + rule : '') : kt + (rt ? ' · ' + rt : ''), kind + (rule ? ' · ' + rule : ''), true);
         }), 'var(--water)', 10, 'celá evidence zařízení; skutečné = počítá se do lidí'),
         ]),
@@ -2857,10 +2891,13 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         .sort((a, b) => (b.lastMs || 0) - (a.lastMs || 0))
         .slice(0, 300);
       $('i-sub').textContent = `(zobrazeno ${nf(rows.length)} naposledy aktivních ${zePrep(INSTALLS.length)}\u00a0${nf(INSTALLS.length)})`;
+      // Automaticky testovací zařízení s nákupem z RevenueCatu: nákup se počítá a Nákupy ho označí „ověř ho“ (R9).
+      const autoBuyIds = new Set(purchaseRows().filter((x) => x.autoTester).map((x) => x.app.installId));
       $('inst').innerHTML = `<tr><th>Zařízení</th><th>platforma</th><th>model</th><th>systém</th><th>jazyk</th><th>země</th><th>verze</th><th>první</th><th>poslední</th><th>druh</th><th></th></tr>` +
         rows.map((i) => {
           const c = i.cls; const o = OVERRIDES.get(i.id);
-          const title = o ? esc(dataKey(o.note) ?? '') : esc(c.rule || '');
+          // Automatické pravidlo popiskem (cisla-9: kontrolní zařízení Applu), ruční označení poznámkou.
+          const title = o ? esc(dataKey(o.note) ?? '') : c.rule ? esc((LANG === 'en' ? 'Rule: ' : 'Pravidlo: ') + clsRuleText(c.rule)) : '';
           const auto = c.source === 'auto' ? ' (automaticky)' : '';
           const tag = c.kind === 'robot' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">robot${auto}</span>`
             : c.kind === 'tester' ? `<span class="tag ${c.source === 'manual' ? 'manual' : 'auto'}" title="${title}">tester${auto}</span>`
@@ -2869,7 +2906,9 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
             ? `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="">zrušit označení</button>`
             : c.kind === 'real'
               ? `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="tester">tester</button> <button class="ghost sm" data-ov="${esc(i.id)}" data-kind="robot">robot</button>`
-              : `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="real">není ${c.kind === 'robot' ? 'robot' : 'tester'}</button>`;
+              // Zařízení s nákupem z RevenueCatu jde potvrdit ručně (R9): jen ruční označení ten nákup skryje.
+              : (autoBuyIds.has(i.id) ? `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="${c.kind === 'robot' ? 'robot' : 'tester'}" title="Má nákup z RevenueCatu, který se počítá. Ruční označení ho skryje jako testovací.">potvrdit</button> ` : '') +
+                `<button class="ghost sm" data-ov="${esc(i.id)}" data-kind="real">není ${c.kind === 'robot' ? 'robot' : 'tester'}</button>`;
           // Jazyk a země názvem podle přepínače, kód v title (texty-30, D.3); kód zařízení s rozlišujícím koncem (texty-7).
           const langCell = i.locale && i.locale !== 'none' ? L.html(L.lang(i.locale)) : '';
           const devLang = i.deviceLocale && i.deviceLocale !== 'none' && i.deviceLocale !== i.locale ? ' <span style="color:var(--muted)">(' + L.html(L.lang(i.deviceLocale)) + ')</span>' : '';
@@ -3119,6 +3158,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const prow = allP.filter((x) => x.rc && !x.sandbox && x.cls === 'real' && !x.refunded);
       const paid = prow.filter((x) => (Number(x.rc.priceLocal) || 0) > 0);
       const isPlan = (x) => x.key.startsWith('plan_'), isBreed = (x) => x.key.startsWith('breed_');
+      const paidAuto = paid.filter((x) => x.autoTester).length;
       const lastTile = (title, x, emptyText, extra) => {
         if (rcErr) return tile({ title, big: '–', sub: RC_FAIL, desc: 'cena v měně nákupu včetně DPH' });
         if (!x) return tile({ title, big: '–', sub: extra || '', desc: emptyText });
@@ -3147,7 +3187,9 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         title: 'Nákupy celkem',
         big: (grossApprox ? '≈ ' : '') + czkFmt(gross),
         sub: `Placené nákupy: ${nf(paid.length)} (Premium&nbsp;${nf(paid.filter(isPlan).length)} · plemena&nbsp;${nf(paid.filter(isBreed).length)})<br>` +
-          `Výnos po DPH a provizi obchodu: ≈ ${czkFmt(proceeds)}`,
+          `Výnos po DPH a provizi obchodu: ≈ ${czkFmt(proceeds)}` +
+          // R9: nákup z RevenueCatu ze zařízení, které automatika bere jako testovací, se počítá; jen ho přiznáme.
+          (paidAuto ? `<br>Z toho ze zařízení, které vypadá jako testovací:&nbsp;${nf(paidAuto)} (${pl(paidAuto, 'počítá', 'počítají', 'počítá')} se, ověř v Nákupech)` : ''),
         desc: 'všechny placené nákupy od začátku, hrubě včetně DPH; ' + fxNote,
       });
 
@@ -3294,6 +3336,18 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         tPaywall = evFail('Paywall → nákup (30 dní)', 'zařízení, která za 30 dní viděla paywall, a kolik jich nákup dokončilo (analytika aplikace)');
         tCare = evFail('Připomínky péče', 'Otevřeli = klepli na připomínku. Splnili = nakrmili nebo vyvenčili psa do 2 hodin po připomínce.');
         tChallenge = evFail('30denní výzva', 'Kolik zařízení za 30 dní výzvu spustilo a kolik ji dokončilo.');
+      } else if (!DEMO && !dashCovered()) {
+        // Dlaždice z událostí do konce dočítání 30 dní bez čísel z první stránky (rozhodnutí 20. 11., provoz-2), stejně
+        // jako Získávání a Cesta. Chyba dočítání radí Obnovit, zarážka stránek (bez chyby) Načíst starší v Technice.
+        // Dlaždice z evidence, retence ze serveru a z RevenueCatu se nemění.
+        const covMsg = dashCovering ? coverText('running', 30)
+          : dashCoverFailed ? 'Data za 30 dní se nepodařilo načíst celá, zkus Obnovit.'
+          : `Události jsou načtené jen od ${esc(Number.isFinite(oldestEv) ? fmt(oldestEv) : '–')}, čísla za 30 dní by nebyla úplná (Načíst starší v Technice).`;
+        const evWait = (title, desc) => tile({ title, sub: `<div class="t-wait">${covMsg}</div>`, desc });
+        tShare = evWait('Sdílení', 'kolik zařízení otevřelo sdílení');
+        tPaywall = evWait('Paywall → nákup (30 dní)', 'zařízení, která za 30 dní viděla paywall, a kolik jich nákup dokončilo (analytika aplikace)');
+        tCare = evWait('Připomínky péče', 'Otevřeli = klepli na připomínku. Splnili = nakrmili nebo vyvenčili psa do 2 hodin po připomínce.');
+        tChallenge = evWait('30denní výzva', 'Kolik zařízení za 30 dní výzvu spustilo a kolik ji dokončilo.');
       }
       $('dash-tiles').innerHTML = [
         section('Uživatelé', [tInstalls, tActive, tRetention, tCountries]),
@@ -3424,9 +3478,10 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     /** Stav dat záložky: 'ok' | 'running' | 'short' | 'failed' (provoz-4: první načtení analytiky selhalo). */
     const tabCover = () => (dataReady ? coverState(30) : LOAD_FAILED ? 'failed' : 'running');
     /** Během dočítání žádná čísla (neúplná se nesmí tvářit jako hotová). */
-    const waitBox = (st, days) => `<div class="wait">${st === 'failed' ? 'Data se nepodařilo načíst. Zkus Obnovit.'
+    const coverText = (st, days) => (st === 'failed' ? 'Data se nepodařilo načíst. Zkus Obnovit.'
       : st === 'short' ? `Data za posledních ${nf(days)} dní se nepodařilo načíst celá, čísla by nebyla úplná. Zkus Obnovit.`
-      : `Počítám z dat za ${nf(days)} dní…`}</div>`;
+      : `Počítám z dat za ${nf(days)} dní…`);
+    const waitBox = (st, days) => `<div class="wait">${coverText(st, days)}</div>`;
     /** Bez evidence zařízení nejde spočítat nic z Získávání ani Cesty (R1): místo nul hláška (provoz-4). */
     const ledgerFailBox = () => '<div class="wait">Evidenci zařízení se nepodařilo načíst, čísla by nebyla pravdivá. Zkus Obnovit.</div>';
     /** Admin otevřený déle než hodinu: čísla jsou z času načtení (provoz-3), Obnovit je načte znovu. */
@@ -3872,20 +3927,24 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       // B1 Kolik aktivních lidí je v kterém režimu?
       const MD = J.modes, TD = MD.twoDays, RG = TD.ranges || {};
       const modeT = ml('Pes na zkoušku', 'Trial dog', 'trial'), modeO = ml('Pes doma', 'Dog at home', 'owner');
-      const tdT = TD.trial, tdO = TD.owner, wb1 = whenTxt(WC.b1, today);
+      // Srovnání jen u nových za 30 dní (cisla-10); všichni zralí aktivní jen jako doplněk.
+      const TDN = TD.new || {}, TDA = TD.all || {};
+      const tdT = TDN.trial, tdO = TDN.owner, tdTa = TDA.trial, tdOa = TDA.owner, wb1 = whenTxt(WC.b1, today);
+      const fewO = num(tdO && tdO.n) < VERDICT_RULES.SURE_N, fewT = num(tdT && tdT.n) < VERDICT_RULES.SURE_N;
       let b1Why;
-      if (V.b1 === 'Průkazný rozdíl') b1Why = `Pes doma drží lidi průkazně ${num(TD.z) > 0 ? 'hůř' : 'líp'}.`;
-      else if (V.b1 === 'Zatím neprůkazné' && num(tdO.n) >= VERDICT_RULES.SURE_N && num(tdT.n) >= VERDICT_RULES.SURE_N) b1Why = 'Rozdíl je zatím v mezích náhody.';
-      else b1Why = endDot(`${num(tdO.n) < VERDICT_RULES.SURE_N ? 'Majitelů' : 'Lidí se psem na zkoušku'} je zatím málo na jistý závěr${wb1 ? ', ' + wb1 : ''}`);
+      if (V.b1 === 'Průkazný rozdíl') b1Why = `U nových drží Pes doma lidi průkazně ${num(TD.z) > 0 ? 'hůř' : 'líp'}.`;
+      else if (V.b1 === 'Zatím neprůkazné' && !fewO && !fewT) b1Why = 'Rozdíl je zatím v mezích náhody.';
+      else b1Why = endDot(`${fewO && fewT ? 'Nových majitelů i lidí se psem na zkoušku' : fewO ? 'Nových majitelů' : 'Nových lidí se psem na zkoušku'} je zatím málo na jistý závěr${wb1 ? ', ' + wb1 : ''}`);
       const sB1 = `${cap(zePrep(MD.active))} ${nf(MD.active)} aktivních zařízení ${pl(MD.trial, 'bylo', 'byla', 'bylo')} ${nf(MD.trial)} se psem na zkoušku a ${nf(MD.owner)} se psem doma, ${nf(MD.both)} v obou a ${nf(MD.neither)} v žádném.`;
       const twoTxt = (f, r) => `${kzn(f)}${V.b1 !== 'Málo dat' && r ? ` <span class="muted">(${rangeTxt(r)})</span>` : ''}`;
       const b1 = card({
         q: 'Kolik aktivních lidí je v kterém režimu?', verdict: V.b1, sentence: sB1,
         body: `<div class="qnums">${[[MD.trial, modeT], [MD.owner, modeO], [MD.both, 'v obou'], [MD.neither, 'ani v jednom (jen úvod nebo bez psa)']]
           .map(([v, l]) => `<div class="qnum"><b>${nf(v)}</b><span>${l}</span></div>`).join('')}</div>` +
-          '<div class="sub">Používali režim aspoň 2 různé dny</div>' + kvRow(modeT, twoTxt(tdT, RG.trial)) + kvRow(modeO, twoTxt(tdO, RG.owner)) + `<p>${b1Why}</p>`,
-        how: 'Podle toho, co lidé za posledních 30 dní opravdu dělali, ne podle volby v úvodu. Kdo přepnul, je v obou. „Aspoň 2 různé dny“ není retence: říká, jestli se k režimu vracejí, nebo ho zkusili jednou. Počítáme jen ty, kdo ho poprvé otevřeli aspoň před týdnem, ostatní se ještě vrátit nestihli. U Psa na zkoušku jsou i lidé z doby před Psem doma, kteří aplikaci používají déle, proto část rozdílu dělá složení lidí, ne režim.',
-        foot: 'Aktivní za 30 dní · režim podle obrazovek od 23. 10. 2026 (verze 291) · bez testerů a robotů',
+          '<div class="sub">Používali režim aspoň 2 různé dny: noví za 30 dní (srovnání)</div>' + kvRow(modeT, twoTxt(tdT, RG.trial)) + kvRow(modeO, twoTxt(tdO, RG.owner)) + `<p>${b1Why}</p>` +
+          '<div class="sub">Pro představu všichni aktivní (do srovnání nevstupují)</div>' + kvRow(modeT, kzn(tdTa)) + kvRow(modeO, kzn(tdOa)),
+        how: 'Podle toho, co lidé za posledních 30 dní opravdu dělali, ne podle volby v úvodu. Kdo přepnul, je v obou. „Aspoň 2 různé dny“ není retence: říká, jestli se k režimu vracejí, nebo ho zkusili jednou. Počítáme jen ty, kdo ho poprvé otevřeli aspoň před týdnem, ostatní se ještě vrátit nestihli. Režimy srovnáváme jen u lidí, kteří aplikaci poprvé spustili za posledních 30 dní: Pes doma je v aplikaci kratší dobu, takže mezi všemi aktivními jsou u Psa na zkoušku i lidé z doby před Psem doma, kteří aplikaci používají déle a vracejí se častěji. Srovnání všech by ukazovalo hlavně, jak dlouho lidé aplikaci mají, ne režim; čísla za všechny jsou jen pro představu.',
+        foot: 'Aktivní za 30 dní · „aspoň 2 různé dny“ srovnáváme u nových za 30 dní · režim podle obrazovek od 23. 10. 2026 (verze 291) · bez testerů a robotů',
       });
 
       // B2 Co dělají lidé se psem na zkoušku?
@@ -4049,8 +4108,9 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
 
       // C0 Co z toho plyne
       const piC0 = !pi ? '' : pi.state === 'unmeasured' ? ` Akce v plánu ${unmeasuredTxt(pi)} majitelů.` : ` Akce v plánu umí poslat ${num(pi.x) < num(pi.y) ? 'jen ' : ''}${nf(pi.x)} ${zz(pi.y)} majitelů.`;
-      const c03 = `K Psovi doma se jiný den ${pl(tdO.k, 'vrátil', 'vrátili', 'vrátilo')} ${nf(tdO.k)}&nbsp;${zz(tdO.n)} majitelů, kteří ho otevřeli aspoň před týdnem${pctPar(tdO)}; u Psa na zkoušku ${nf(tdT.k)}&nbsp;${zz(tdT.n)}${pctPar(tdT)}. ${b1Why}` +
-        ' U Psa na zkoušku jsou i lidé z doby před Psem doma, kteří aplikaci používají déle.';
+      // C0 bod 3 (cisla-10): srovnání jen nových, všichni v závorce; proč jen noví.
+      const c03 = `Z nových za 30 dní se k Psovi doma jiný den ${pl(tdO.k, 'vrátil', 'vrátili', 'vrátilo')} ${nf(tdO.k)}&nbsp;${zz(tdO.n)} majitelů, kteří ho otevřeli aspoň před týdnem${pctPar(tdO)}; u Psa na zkoušku ${nf(tdT.k)}&nbsp;${zz(tdT.n)}${pctPar(tdT)}. ${b1Why}` +
+        ` Srovnáváme jen nové, protože u Psa na zkoušku jsou mezi všemi aktivními i lidé z doby před Psem doma, kteří aplikaci používají déle (všichni: Pes doma ${nf(tdOa.k)}&nbsp;${zz(tdOa.n)}, Pes na zkoušku ${nf(tdTa.k)}&nbsp;${zz(tdTa.n)}).`;
       const c04 = topPl
         ? `Majitelé nejčastěji otevírají ${esc(L.place(topPl, 'cs').text)} (${nf(OW.opened[topPl].k)} ${zz(OW.opened[topPl].n)}), ` +
           (tdTop && num(tdTop.n) > 0 ? `znovu jiný den ale jen ${nf(tdTop.k)} ${zz(tdTop.n)}.` : 'jestli se vracejí jiný den, zatím nejde říct.') + piC0

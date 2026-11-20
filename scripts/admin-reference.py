@@ -342,6 +342,9 @@ def classify(d, o):
         return 'robot'
     if kind in TESTER_KINDS or re.search(r'simulator', model, re.I):
         return 'tester'
+    # Kontrolní zařízení Applu při schvalování verze (iPhone99,x / iPad99,x se neprodávají; rozhodnutí 20. 11., cisla-9).
+    if model.startswith(('iPhone99,', 'iPad99,')):
+        return 'tester'
     return 'real'
 
 
@@ -1227,12 +1230,21 @@ O = [i for i in A30 if any(owner_sig(e) for e in win(i, 30))]
 Ts, Os = set(T), set(O)
 jr['modes'] = {'active': len(A30), 'trial': len(T), 'owner': len(O), 'both': len(Ts & Os),
                'neither': len([i for i in A30 if i not in Ts and i not in Os])}
-_, tm, tr = feature(T, trial_sig)
-_, om, orp = feature(O, owner_sig)
-two = {'trial': frac(len(tr), len(tm)), 'owner': frac(len(orp), len(om))}
-cmp = compare(two['trial'], two['owner'])
+# „Aspoň 2 různé dny“ (R6). Srovnání režimů, z, verdikt a „kdy bude jasno“ jen u nových za 30 dní
+# (rozhodnutí 20. 11., cisla-10): mezi všemi aktivními jsou u Psa na zkoušku i lidé z doby před Psem doma.
+# Všichni zralí aktivní jsou v `all` jen jako doplněk.
+_new30 = set(N30)
+T_new = [i for i in T if i in _new30]
+O_new = [i for i in O if i in _new30]
+_, tm, tr = feature(T_new, trial_sig)
+_, om, orp = feature(O_new, owner_sig)
+_, tm_all, tr_all = feature(T, trial_sig)
+_, om_all, orp_all = feature(O, owner_sig)
+two = {'new': {'trial': frac(len(tr), len(tm)), 'owner': frac(len(orp), len(om))},
+       'all': {'trial': frac(len(tr_all), len(tm_all)), 'owner': frac(len(orp_all), len(om_all))}}
+cmp = compare(two['new']['trial'], two['new']['owner'])
 two['z'] = cmp['z']
-two['ranges'] = {'trial': pct_range(two['trial']['k'], two['trial']['n']), 'owner': pct_range(two['owner']['k'], two['owner']['n'])}
+two['ranges'] = {side: pct_range(two['new'][side]['k'], two['new'][side]['n']) for side in ('trial', 'owner')}
 JV['b1'] = cmp['verdict']
 
 
@@ -1248,7 +1260,7 @@ def entered_mature7(base, pred):
 
 if JV['b1'] in ('Málo dat', 'Zatím neprůkazné'):
     _b1 = {'since': day_of_iso(MODE_SINCE_DAY), 'lag': MATURE_DAYS}
-    JW['b1'] = later_clear([when_clear(len(tm), entered_mature7(T, trial_sig), **_b1), when_clear(len(om), entered_mature7(O, owner_sig), **_b1)])
+    JW['b1'] = later_clear([when_clear(len(tm), entered_mature7(T_new, trial_sig), **_b1), when_clear(len(om), entered_mature7(O_new, owner_sig), **_b1)])
 else:
     JW['b1'] = None
 jr['modes']['twoDays'] = two
