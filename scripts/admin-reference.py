@@ -133,6 +133,7 @@ CATALOG = {
     'share_completed': ('social', 284, '2026-10-07'),
     'coop_invite_created': ('social', 284, '2026-10-07'),
     'coop_joined': ('social', 284, '2026-10-07'),
+    'badge_opened': ('social', 355, '2026-11-20'),  # detail odznaku (OTA 20. 11.); st live (není za příznakem testera)
     'paywall_viewed': ('money', 40, '2026-06-02'),
     'purchase_started': ('money', 40, '2026-06-02'),
     'purchase_completed': ('money', 40, '2026-06-02'),
@@ -1017,21 +1018,47 @@ def devices_with(ids, pred, days=30):
 
 
 # Rozhodnutí 20. 11. („Admin: odznak zvlášť“): klepnutí na odznak není sdílení. Odznak = `kind` přesně 'badge';
-# chybějící nebo neznámý `kind` je sdílení. Odznaky mají vlastní řádek `badge` (klepnuli / na iPhonu opravdu odeslali).
+# chybějící nebo neznámý `kind` je sdílení. Odznaky mají vlastní řádek `badge`.
+# Detail odznaku (OTA 20. 11., nejspíš build 355): klepnutí na odznak otevře detail (`badge_opened {id}`), sdílí se
+# až tlačítkem „Pochlubit se“ = `share_*` s `kind` 'badge' a `source` přesně 'detail'. To je vědomé sdílení
+# (do sdílení, momentů i iPhonu „sdíleli / odeslali“ vstupuje). Starší verze posílají při klepnutí `share_*`
+# s `kind` 'badge' bez `source` 'detail' = zvědavost, jen klepnutí (rozhodnutí zakladatele 20. 11.).
+# Klepnutí (`badge`) = oba toky i pochlubení z detailu, takže pochlubili se (`shared`) je vždy podmnožina klepnutí.
 def is_badge(e):
     return P(e).get('kind') == 'badge'
 
 
+def from_detail(e):
+    return P(e).get('source') == 'detail'
+
+
+def counts_as_share(e):
+    """`share_*` patří ke sdílení: druh není odznak, nebo je to odznak sdílený tlačítkem v detailu."""
+    return not is_badge(e) or from_detail(e)
+
+
+def legacy_tap(e, name='share_initiated'):
+    """Staré klepnutí na odznak: `share_*` s `kind` 'badge' bez `source` 'detail'."""
+    return e['name'] == name and is_badge(e) and not from_detail(e)
+
+
 def share_ev(e):
-    return e['name'] == 'share_initiated' and not is_badge(e)
+    return e['name'] == 'share_initiated' and counts_as_share(e)
 
 
-def badge_ev(e):
-    return e['name'] == 'share_initiated' and is_badge(e)
+def sent_ev(e):
+    return e['name'] == 'share_completed' and P(e).get('action') == 'shared' and counts_as_share(e)
 
 
-def sent_ev(e, badge):
-    return e['name'] == 'share_completed' and P(e).get('action') == 'shared' and is_badge(e) == badge
+def tap_ev(e):
+    """Klepnutí na odznak: nový tok (`badge_opened`), starý (`share_initiated` odznaku bez `source` 'detail') i pochlubení
+    z detailu (kdo se pochlubil, na odznak klepl, i když se dávka s `badge_opened` ztratila): `bragged` ⊆ `badge`."""
+    return e['name'] == 'badge_opened' or (e['name'] == 'share_initiated' and is_badge(e))
+
+
+def bragged_ev(e):
+    """Pochlubili se tlačítkem v detailu (`badge_opened` se nevyžaduje, dávka se mohla ztratit)."""
+    return e['name'] == 'share_initiated' and is_badge(e) and from_detail(e)
 
 
 share = devices_with(A30, share_ev)
@@ -1039,16 +1066,19 @@ kinds = Counter()
 for i in share:
     for k in {key_of(P(e).get('kind')) for e in win(i, 30) if share_ev(e)}:
         kinds[k] += 1
-# „Opravdu odeslali“ jen z těch, kdo v období sdíleli (resp. klepli na odznak): vždy podmnožina, nikdy „2 z 1“.
+# „Opravdu odeslali“ jen z těch, kdo v období sdíleli (resp. staře klepli na odznak): vždy podmnožina, nikdy „2 z 1“.
 ios_share = [i for i in share if REAL[i]['platform'] == 'ios']
-ios_sent = devices_with(ios_share, lambda e: sent_ev(e, False))
-badge = devices_with(A30, badge_ev)
-ios_badge = [i for i in badge if REAL[i]['platform'] == 'ios']
+ios_sent = devices_with(ios_share, sent_ev)
+badge = devices_with(A30, tap_ev)
+bragged = devices_with(A30, bragged_ev)
+# iPhone u odznaku = jen starý tok (klepnutí rovnou otevřelo nabídku); sdílení z detailu je v `ios` výše.
+ios_tap = devices_with([i for i in A30 if REAL[i]['platform'] == 'ios'], legacy_tap)
+ios_tap_sent = devices_with(ios_tap, lambda e: legacy_tap(e, 'share_completed') and P(e).get('action') == 'shared')
 acq['share'] = {
     'active': len(A30), 'shared': frac(len(share), len(A30)), 'kind': breakdown(kinds),
     'ios': {'shared': len(ios_share), 'sent': len(ios_sent)},
-    'badge': {**frac(len(badge), len(A30)),
-              'ios': {'tapped': len(ios_badge), 'sent': len(devices_with(ios_badge, lambda e: sent_ev(e, True)))}},
+    'badge': {**frac(len(badge), len(A30)), 'shared': len(bragged),
+              'ios': {'tapped': len(ios_tap), 'sent': len(ios_tap_sent)}},
     'coop': {'invited': len(devices_with(A30, lambda e: e['name'] == 'coop_invite_created')),
              'joined': len(devices_with(A30, lambda e: e['name'] == 'coop_joined'))},
     'link': sum(1 for i in A30 if REAL[i].get('srcChannel') == 'trypup_link'),
