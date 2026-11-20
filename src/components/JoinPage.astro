@@ -1,7 +1,8 @@
 ---
 // Cíl magic linku z pozvánky ke spoluvlastnictví: https://trypup.life/[<jazyk>/]join?c=KÓD
 // Statická stránka — kód čte klientský skript z query parametru. Tlačítko
-// „Otevřít v aplikaci" vede na deep link trypup://join/KÓD (zpracuje aplikace).
+// „Otevřít v aplikaci" vede na iPhonu na Universal Link https://go.trypup.life/[jazyk/]join?c=KÓD
+// (od 2.2.3), na go.trypup.life a jinde na deep link trypup://join/KÓD, na Androidu intent://.
 import Base from '../layouts/Base.astro';
 import type { Lang } from '../lib/operator';
 
@@ -265,7 +266,15 @@ const alt = lang === 'en' ? '/join/' : '/en/join/';
     const appUrl = `trypup://join/${raw}`;
     const play = openEl.dataset.play ?? '';
     const intentUrl = `intent://join/${raw}#Intent;scheme=trypup;package=app.trypup.mobile;S.browser_fallback_url=${encodeURIComponent(play)};end`;
-    const targetUrl = isAndroid ? intentUrl : appUrl;
+    // iPhone (od 2.2.3, 20. 11. 2026): Universal Link na JINOU subdoménu. Odkaz na stejnou doménu
+    // iOS aplikací neotevře a vestavěné prohlížeče (Messenger) ho z klepnutí na jinou doménu spíš
+    // pustí. Bez aplikace, se starší verzí bez Universal Links (do 2.2.2) nebo když ho prohlížeč
+    // zablokuje, se otevře stejná stránka na go.trypup.life ve stejném jazyce – tam tlačítko
+    // zůstává trypup://, ať nevznikne smyčka.
+    const onGo = location.hostname === 'go.trypup.life';
+    const langPrefix = location.pathname.match(/^\/[a-z]{2}(?=\/join)/)?.[0] ?? '';
+    const goUrl = `https://go.trypup.life${langPrefix}/join?c=${raw}`;
+    const targetUrl = isAndroid ? intentUrl : isIOS && !onGo ? goUrl : appUrl;
     openEl.href = targetUrl;
     const inAppBox = inApp ? document.getElementById(isIOS ? 'in-app-ios' : isAndroid ? 'in-app-android' : '') : null;
     // Přepnutí jazyka musí kód zachovat, jinak by stránka v jiném jazyce ukázala „neplatný kód".
