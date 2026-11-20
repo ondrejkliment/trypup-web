@@ -897,6 +897,23 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       return b;
     }
     const isName = (name) => (e) => e.name === name;
+    // Sdílení (Z5, Souhrn): klepnutí na získaný odznak v aplikaci rovnou otevře nabídku sdílení (achievements.tsx →
+    // shareMoment), takže share_initiated s kind 'badge' je hlavně zvědavost a počítá se zvlášť (rozhodnutí zakladatele
+    // 20. 11.). Chybějící nebo neznámý kind se počítá jako sdílení. Odesláno = share_completed s action 'shared'
+    // (věrohodné jen na iPhonu, Android hlásí „shared“ vždy).
+    const isShareEv = (e, p) => e.name === 'share_initiated' && p.kind !== 'badge';
+    const isBadgeTap = (e, p) => e.name === 'share_initiated' && p.kind === 'badge';
+    const isShareSent = (e, p) => e.name === 'share_completed' && p.action === 'shared' && p.kind !== 'badge';
+    const isBadgeSent = (e, p) => e.name === 'share_completed' && p.action === 'shared' && p.kind === 'badge';
+    /** Skuteční aktivní za 30 dní (lastMs v okně, základ Z5), kteří mají v (from, teď] záznam akce name splňující
+     *  pred; from ≥ okno 30 dní. Z5 i dlaždice Sdílení v Souhrnu počítají tímtéž, takže se nerozcházejí. */
+    function activeWith(idx, from, name, pred) {
+      const set = idx.byName30.get(name) || CORE_EMPTY_SET;
+      return idx.real.filter((d) => inWin(d.lastMs, idx.w30, idx.now) && set.has(d.id) && scanDev(d, from, idx.now, pred).n > 0);
+    }
+    /** Z devs (kdo v okně sdíleli nebo klepli na odznak) iPhony, které v (from, teď] mají i záznam pred (odeslání):
+     *  „opravdu odeslali“ je tak vždy podmnožina, nikdy „odeslali 2 z 1“ (nabídka otevřená přes hranici okna). */
+    const iosWith = (idx, devs, from, pred) => devs.filter((d) => d.platform === 'ios' && scanDev(d, from, idx.now, pred).n > 0);
     const coreMemo = (idx, key, fn) => { if (!idx.memo.has(key)) idx.memo.set(key, fn()); return idx.memo.get(key); };
     const firstDayOf = (d) => (d.firstMs === null ? null : pragueDay(d.firstMs));
     /** R6: z těch, kdo signál v období poprvé použili aspoň před 7 × 24 h, kolik ho mělo aspoň ve 2 dnech. */
@@ -1185,17 +1202,22 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         if (newest >= 0) z3 = list[newest].group !== null ? 'Nelze oddělit' : list[newest].verdict;
       } else campaigns = { state: 'missing' };
 
-      // Z5 šíření: aktivní za 30 dní.
+      // Z5 šíření: aktivní za 30 dní. Klepnutí na získaný odznak (share_initiated s kind 'badge') rovnou otevře
+      // nabídku sdílení, takže je to hlavně zvědavost: počítá se zvlášť (badge) a do sdílení nevstupuje
+      // (rozhodnutí zakladatele 20. 11.). Chybějící nebo neznámý kind je sdílení.
       const active30 = real.filter((d) => inWin(d.lastMs, w30, now));
       const set30 = (name) => idx.byName30.get(name) || CORE_EMPTY_SET;
-      const sharers = active30.filter((d) => set30('share_initiated').has(d.id));
+      const isIos = (d) => d.platform === 'ios';
+      const sharers = activeWith(idx, w30, 'share_initiated', isShareEv);
+      const badgeTappers = activeWith(idx, w30, 'share_initiated', isBadgeTap);
       const kinds = new Map();
       for (const d of sharers) {
         const seen = new Set();
-        scanDev(d, w30, now, (e, p) => { if (e.name === 'share_initiated') seen.add(valKey(p.kind)); return false; });
+        scanDev(d, w30, now, (e, p) => { if (isShareEv(e, p)) seen.add(valKey(p.kind)); return false; });
         for (const k of seen) addCount(kinds, k);
       }
-      const iosSent = active30.filter((d) => d.platform === 'ios' && scanDev(d, w30, now, (e, p) => e.name === 'share_completed' && p.action === 'shared').n > 0).length;
+      const iosSent = iosWith(idx, sharers, w30, isShareSent).length;
+      const iosBadgeSent = iosWith(idx, badgeTappers, w30, isBadgeSent).length;
 
       // Z6 odkud: noví za 30 dní podle ledgeru; obchody podle země za posledních 30 pražských dnů.
       const geoKey = (v) => (v === null || v === undefined || v === '' || v === 'none' || v === 'unknown' ? '_none' : String(v));
@@ -1240,7 +1262,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         campaigns,
         share: {
           active: active30.length, shared: { k: sharers.length, n: active30.length }, kind: breakdown(kinds),
-          ios: { shared: sharers.filter((d) => d.platform === 'ios').length, sent: iosSent },
+          ios: { shared: sharers.filter(isIos).length, sent: iosSent },
+          badge: { k: badgeTappers.length, n: active30.length, ios: { tapped: badgeTappers.filter(isIos).length, sent: iosBadgeSent } },
           coop: { invited: active30.filter((d) => set30('coop_invite_created').has(d.id)).length, joined: active30.filter((d) => set30('coop_joined').has(d.id)).length },
           link: active30.filter((d) => d.inst.srcChannel === 'trypup_link').length,
           family: { state: 'testers' },
@@ -3304,13 +3327,23 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const ev = RAW.filter((e) => Number.isFinite(e.ts) && !isExcluded(e.installId, e.dev));
       const evIn = (name, d, pred) => ev.filter((e) => e.name === name && (!d || now - e.ts <= d * DAY_MS) && (!pred || pred(e)));
       const devIn = (name, d, pred) => new Set(evIn(name, d, pred).map((e) => e.installId)).size;
-      const sharedIos = (e) => e.props && e.props.action === 'shared' && e.dev && e.dev.platform === 'ios';
-      let tShare = tile({
-        title: 'Sdílení',
-        cells: [[nf(devIn('share_initiated', 7)), 'zařízení · 7 dní'], [nf(devIn('share_initiated', 30)), 'zařízení · 30 dní']],
-        sub: `Opravdu odeslali (jen iPhone, Android to nehlásí): 7 dní ${nf(devIn('share_completed', 7, sharedIos))} · 30 dní ${nf(devIn('share_completed', 30, sharedIos))}`,
-        desc: 'kolik zařízení otevřelo sdílení',
-      });
+      // Sdílení stejným výpočtem jako Získávání → Z5 (activeWith v jádru): skuteční aktivní za 30 dní, bez klepnutí
+      // na odznak (to otevře nabídku sdílení hned, počítá se zvlášť; rozhodnutí 20. 11.). 30 dní = shared.k v Z5.
+      const SHARE_DESC = 'kolik zařízení otevřelo sdílení (bez klepnutí na odznak)';
+      const shareTile = () => {
+        const cx = coreIndex();
+        const sharersIn = (w) => activeWith(cx, w, 'share_initiated', isShareEv);
+        const s7 = sharersIn(cx.w7), s30 = sharersIn(cx.w30), sentN = (devs, w) => iosWith(cx, devs, w, isShareSent).length;
+        // Nezlomitelné mezery mezi popiskem a číslem (G.6, texty3-3): číslo nespadne na další řádek.
+        return tile({
+          title: 'Sdílení',
+          cells: [[nf(s7.length), 'zařízení · 7 dní'], [nf(s30.length), 'zařízení · 30 dní']],
+          sub: `Opravdu odeslali (jen iPhone, Android to nehlásí): 7&nbsp;dní&nbsp;${nf(sentN(s7, cx.w7))}&nbsp;· 30&nbsp;dní&nbsp;${nf(sentN(s30, cx.w30))}` +
+            `<br>Klepnutí na odznak (zvlášť): 30&nbsp;dní&nbsp;${nf(activeWith(cx, cx.w30, 'share_initiated', isBadgeTap).length)}`,
+          desc: SHARE_DESC,
+        });
+      };
+      let tShare = instErr ? null : shareTile();
       // Paywall → nákup za 30 dní (analytika aplikace): obnova se nepočítá, dvojí zobrazení sloučená.
       const mon30 = monetization(ev.filter((e) => now - e.ts <= 30 * DAY_MS));
       const pwInst = new Set(mon30.views.map((v) => v.installId));
@@ -3354,7 +3387,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       // „bez testerů a robotů“ (provoz2-2): dlaždice z událostí jen s hláškou, jako Získávání a Cesta.
       if (instErr) {
         const evFail = (title, desc) => tile({ title, big: '–', sub: LEDGER_FAIL, desc });
-        tShare = evFail('Sdílení', 'kolik zařízení otevřelo sdílení');
+        tShare = evFail('Sdílení', SHARE_DESC);
         tPaywall = evFail('Paywall → nákup (30 dní)', 'zařízení, která za 30 dní viděla paywall, a kolik jich nákup dokončilo (analytika aplikace)');
         tCare = evFail('Připomínky péče', 'Otevřeli = klepli na připomínku. Splnili = nakrmili nebo vyvenčili psa do 2 hodin po připomínce.');
         tChallenge = evFail('30denní výzva', 'Kolik zařízení za 30 dní výzvu spustilo a kolik ji dokončilo.');
@@ -3366,7 +3399,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           : dashCoverFailed ? 'Data za 30 dní se nepodařilo načíst celá, zkus Obnovit.'
           : `Události jsou načtené jen od ${esc(Number.isFinite(oldestEv) ? fmt(oldestEv) : '–')}, čísla za 30 dní by nebyla úplná (Načíst starší v Technice).`;
         const evWait = (title, desc) => tile({ title, sub: `<div class="t-wait">${covMsg}</div>`, desc });
-        tShare = evWait('Sdílení', 'kolik zařízení otevřelo sdílení');
+        tShare = evWait('Sdílení', SHARE_DESC);
         tPaywall = evWait('Paywall → nákup (30 dní)', 'zařízení, která za 30 dní viděla paywall, a kolik jich nákup dokončilo (analytika aplikace)');
         tCare = evWait('Připomínky péče', 'Otevřeli = klepli na připomínku. Splnili = nakrmili nebo vyvenčili psa do 2 hodin po připomínce.');
         tChallenge = evWait('30denní výzva', 'Kolik zařízení za 30 dní výzvu spustilo a kolik ji dokončilo.');
@@ -3781,20 +3814,34 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         });
 
       // Z5 Šíří se aplikace sama? Podmětem je zařízení: tvary slovesa ve středním rodě (texty-11).
-      const S = A.share, kinds = pairsOf(S.kind), tk = kinds[0] || null;
+      // Nejčastější moment ve větě jen se známým popiskem: neznámý druh nebo chybějící kind (počítají se jako sdílení)
+      // by dal „selfie (bez překladu) (2)“ nebo „bez údaje (1)“; v těle karty je seznam momentů celý.
+      const S = A.share, kinds = pairsOf(S.kind), tkL = kinds[0] ? L.value('share_initiated', 'kind', kinds[0][0], 'cs') : null;
+      const tk = tkL && tkL.known ? kinds[0] : null;
       const inv = num(S.coop.invited) ?? 0, joi = num(S.coop.joined) ?? 0;
       const vytvorilo = (n) => pl(n, 'vytvořilo', 'vytvořila', 'vytvořilo'), pripojilo = (n) => pl(n, 'připojilo se', 'připojila se', 'připojilo se');
-      const s5 = `Za 30 dní ${pl(S.shared.k, 'sdílelo', 'sdílela', 'sdílelo')} ${nf(S.shared.k)}&nbsp;${zz(S.shared.n)} aktivních zařízení${pctPar(S.shared)}` +
-        (tk ? `, nejčastěji ${esc(lc1(L.value('share_initiated', 'kind', tk[0], 'cs').text))} (${nf(tk[1])})` : '') +
+      // Sdílení i moment jsou bez klepnutí na odznak (rozhodnutí 20. 11.); když nikdo nesdílel, věta to řekne slovy, ne „0 ze 168“.
+      const shK = num(S.shared.k) ?? 0, shN = num(S.shared.n) ?? 0;
+      const s5 = (shK > 0
+        ? `Za 30 dní ${pl(shK, 'sdílelo', 'sdílela', 'sdílelo')} ${nf(shK)}&nbsp;${zz(shN)} aktivních zařízení${pctPar(S.shared)}` +
+          (tk ? `, nejčastěji ${esc(lc1(tkL.text))} (${nf(tk[1])})` : '')
+        : shN > 0 ? `Za 30 dní nesdílelo žádné ${zz(shN)} aktivních zařízení` : 'Za 30 dní nesdílelo žádné zařízení') +
         `. Pozvánku parťáka za 30 dní ${vytvorilo(inv)} ${nf(inv)} ${pl(inv, 'zařízení', 'zařízení', 'zařízení')}, ${pripojilo(joi)} ${nf(joi)} (pozvánky mohly vzniknout i dřív).`;
-      const z5how = 'Sdíleli = otevřeli nabídku sdílení. Jestli opravdu odeslali, řekne jen iPhone, Android hlásí „odesláno“ i při pouhém otevření. Vytvoření pozvánky a připojení počítáme zvlášť: připojit se šlo i k pozvánce starší než 30 dní nebo z telefonu testera, ten se do počtu pozvánek nepočítá. Pod 10 jen počty; mezi nimi mohou být i telefony zakladatele, které ještě nejsou označené jako tester.';
-      const z5foot = 'Měří se od 7. 10. 2026 (verze 284), sdílení od 2. 7. 2026 · aktivní za 30 dní · bez testerů a robotů';
+      const z5how = 'Sdíleli = otevřeli nabídku sdílení. Klepnutí na získaný odznak v aplikaci otevře nabídku sdílení hned, bez dalšího kroku, takže je to hlavně zvědavost: počítáme ho zvlášť a do sdílení nevstupuje. Jestli opravdu odeslali, řekne jen iPhone, Android hlásí „odesláno“ i při pouhém otevření. Vytvoření pozvánky a připojení počítáme zvlášť: připojit se šlo i k pozvánce starší než 30 dní nebo z telefonu testera, ten se do počtu pozvánek nepočítá. Pod 10 jen počty; mezi nimi mohou být i telefony zakladatele, které ještě nejsou označené jako tester.';
+      const z5foot = 'Měří se od 7. 10. 2026 (verze 284), sdílení od 2. 7. 2026 · aktivní za 30 dní · bez testerů a robotů · sdílení bez klepnutí na odznak';
+      // Klepnutí na odznak zvlášť (rozhodnutí 20. 11.): na iPhonu „k z n“, od 10 klepnutí i procento (R7); nikdy „0 z 0“.
+      const B = S.badge && typeof S.badge === 'object' ? S.badge : {}, bK = num(B.k) ?? 0;
+      const bTap = num(B.ios && B.ios.tapped) ?? 0, bSent = num(B.ios && B.ios.sent) ?? 0;
+      const badgeLine = 'Klepnuli na odznak <span class="muted">(otevře nabídku sdílení hned)</span>: ' + (bK > 0
+        ? `<b>${nf(bK)}</b> zařízení · ` + (bTap > 0 ? `na iPhonu opravdu odeslali&nbsp;<b>${nf(bSent)}</b>&nbsp;${zz(bTap)}${pctPar({ k: bSent, n: bTap })}` : 'na iPhonu zatím nikdo')
+        : 'zatím nikdo');
       const z5 = noEvents
         ? card({ q: 'Šíří se aplikace sama?', verdict: 'Málo dat', sentence: EVENTS_MISSING_TXT, how: z5how, foot: z5foot })
         : card({
           q: 'Šíří se aplikace sama?', verdict: A.verdicts.z5, sentence: s5,
           body: `<p class="ilist">Moment sdílení: ${kinds.slice(0, 5).map(([k, v]) => `${lv('share_initiated', 'kind', k)}&nbsp;<b>${nf(v)}</b>`).join(' · ') || 'zatím nikdo'}</p>` +
             `<p class="ilist">iPhone: sdíleli&nbsp;<b>${nf(S.ios.shared)}</b>, opravdu odeslali&nbsp;<b>${nf(S.ios.sent)}</b></p>` +
+            `<p class="ilist">${badgeLine}</p>` +
             `<p class="ilist">Pozvánka parťáka: ${vytvorilo(inv)}&nbsp;<b>${nf(inv)}</b> · ${pripojilo(joi)}&nbsp;<b>${nf(joi)}</b></p>` +
             `<p class="ilist">Instalace přes náš odkaz:&nbsp;<b>${nf(S.link)}</b> <span class="muted">(měří se jen na Androidu od 18. 11.)</span> · Rodina: zatím jen testeři</p>`,
           how: z5how, foot: z5foot,

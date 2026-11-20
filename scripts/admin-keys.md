@@ -77,9 +77,11 @@ Výpis zařízení (`demo.json`) ani `ref.json` se nikdy necommitují.
 | překryv | dvě kampaně stejné platformy, jejichž rozsahy `from`–`to` (`to: null` = bez konce) mají společný den; skupina = souvislá složka překryvů. | Z3 |
 | `acq.campaigns.joint[]` | pro každou skupinu překryvu: `group`, `ids` (pořadí vstupu), `names` (názvy kampaní ve stejném pořadí), `platform`, `days` = počet dnů sjednocení rozsahů členů [`from`, min(E, J)] (okno kampaně výše), `new`, `baseline` (vůči nejmenšímu `from` skupiny), `above`, `spendEur` = součet (`null`, když některé chybí), `cost` („Společně: {útrata} € / {nad} zařízení = {cena} €“); `countedTo` = ISO den konce sjednocení (`null`, když je prázdné); `spendBound` = oříznutí útratou zkrátilo aspoň jeden neprázdný rozsah člena proti oknu bez útraty, tj. existuje člen s `from` ≤ min(`to` ?? Y, Y) a min(E, J) < min(`to` ?? Y, Y). | Z3 |
 | `acq.share.active` | aktivní za 30 dní (základ Z5). | Z5 |
-| `acq.share.shared` | `{k: aktivní se share_initiated v období, n: active}`. | Z5 |
-| `acq.share.kind` | rozpad sdílejících podle `props.kind` (zařízení; zařízení s víc momenty je v každém); UI ukáže prvních 5. | Z5 |
-| `acq.share.ios.shared`, `acq.share.ios.sent` | sdílející iPhony; aktivní iPhony s `share_completed` a `action: shared` v období. | Z5 |
+| sdílení × klepnutí na odznak | rozhodnuto 20. 11. 2026 („Admin: odznak zvlášť“): klepnutí na získaný odznak v aplikaci rovnou otevře nabídku sdílení, takže `share_initiated` s `props.kind` = `badge` není sdílení. **Sdílení** = `share_initiated` s `kind` ≠ `badge` (chybějící nebo neznámý `kind` je sdílení); **klepnutí na odznak** = `share_initiated` s `kind` = `badge`. Odesláno = `share_completed` s `action` = `shared`, přiřazené podle `kind` stejně (chybějící `kind` = ne-odznak), a počítá se jen mezi těmi, kdo v období sdíleli (resp. klepli na odznak), takže „opravdu odeslali“ je vždy podmnožina („odeslali s z t“ nikdy s > t). Vše jen skuteční aktivní za 30 dní se záznamem v období; jádro i dlaždice Sdílení v Souhrnu počítají funkcí `activeWith` (Souhrn 30 dní = `shared.k`). | Z5, C.4 |
+| `acq.share.shared` | `{k: aktivní s aspoň jedním share_initiated s kind ≠ badge v období, n: active}` (od 20. 11.; dřív každý `share_initiated`). | Z5 |
+| `acq.share.kind` | rozpad sdílejících podle `props.kind`, jen druhy ≠ `badge` (zařízení; zařízení s víc momenty je v každém; chybějící `kind` → `_none`); UI ukáže prvních 5. | Z5 |
+| `acq.share.ios.shared`, `acq.share.ios.sent` | sdílející iPhony (`shared` výše); z nich ty, které mají v období `share_completed`, `action: shared` a `kind` ≠ `badge`. | Z5 |
+| `acq.share.badge` | `{k: aktivní se share_initiated s kind = badge v období, n: active, ios: {tapped: z k iPhony, sent: z tapped ty, které mají v období share_completed, kind = badge a action: shared}}` (nový 20. 11.). | Z5 |
 | `acq.share.coop.invited`, `acq.share.coop.joined` | aktivní s `coop_invite_created` / `coop_joined` v období. | Z5 |
 | `acq.share.link` | aktivní za 30 dní s ledger `srcChannel = trypup_link`. | Z5 |
 | `acq.share.family` | `{"state": "testers"}` („zatím jen testeři“). | Z5 |
@@ -200,7 +202,7 @@ Signály režimů (B1, v období): **Pes doma** = `screen_view` s `mode: owner` 
 | `acq.channel.measured / of`, kanály, `unmeasured`, `ios` | `acq.channel.*`, `acq.channel.byChannel` |
 | `acq.quality.all`, `acq.quality.play_organic` | `acq.quality.all`, `acq.quality.channel.play_organic` (od 20. 11. jen změření od prvního spuštění, viz výše; dnes 1 zařízení) |
 | `acq.campaigns` missing | `acq.campaigns.state = "missing"`, `acq.verdicts.z3 = "Chybí útrata"` |
-| `acq.share …` | `acq.share.shared`, `acq.share.kind`, `acq.share.ios`, `acq.share.coop` |
+| `acq.share …` | `acq.share.shared`, `acq.share.kind`, `acq.share.ios`, `acq.share.coop`; od 20. 11. bez klepnutí na odznak, odznak zvlášť `acq.share.badge` (výpis 19. 11.: sdíleli 12 / 168, odznak 37, iPhone klepnuli 8 / odeslali 1) |
 | `acq.region` | `acq.region` |
 | `jr.cohort` · `onb` · `noOnb` · `fork` | `jr.cohort`, `jr.onb`, `jr.noOnb`, `jr.fork` |
 | `jr.branch.trial` / `jr.branch.owner` | `jr.branch.trial.*`, `jr.branch.owner.*` (uloženo = `saved`, jen událost = `savedEvent`) |

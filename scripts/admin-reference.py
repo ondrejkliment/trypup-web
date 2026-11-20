@@ -1016,17 +1016,39 @@ def devices_with(ids, pred, days=30):
     return [i for i in ids if any(pred(e) for e in win(i, days))]
 
 
-share = devices_with(A30, lambda e: e['name'] == 'share_initiated')
+# Rozhodnutí 20. 11. („Admin: odznak zvlášť“): klepnutí na odznak není sdílení. Odznak = `kind` přesně 'badge';
+# chybějící nebo neznámý `kind` je sdílení. Odznaky mají vlastní řádek `badge` (klepnuli / na iPhonu opravdu odeslali).
+def is_badge(e):
+    return P(e).get('kind') == 'badge'
+
+
+def share_ev(e):
+    return e['name'] == 'share_initiated' and not is_badge(e)
+
+
+def badge_ev(e):
+    return e['name'] == 'share_initiated' and is_badge(e)
+
+
+def sent_ev(e, badge):
+    return e['name'] == 'share_completed' and P(e).get('action') == 'shared' and is_badge(e) == badge
+
+
+share = devices_with(A30, share_ev)
 kinds = Counter()
 for i in share:
-    for k in {key_of(P(e).get('kind')) for e in win(i, 30) if e['name'] == 'share_initiated'}:
+    for k in {key_of(P(e).get('kind')) for e in win(i, 30) if share_ev(e)}:
         kinds[k] += 1
+# „Opravdu odeslali“ jen z těch, kdo v období sdíleli (resp. klepli na odznak): vždy podmnožina, nikdy „2 z 1“.
 ios_share = [i for i in share if REAL[i]['platform'] == 'ios']
-ios_sent = devices_with([i for i in A30 if REAL[i]['platform'] == 'ios'],
-                        lambda e: e['name'] == 'share_completed' and P(e).get('action') == 'shared')
+ios_sent = devices_with(ios_share, lambda e: sent_ev(e, False))
+badge = devices_with(A30, badge_ev)
+ios_badge = [i for i in badge if REAL[i]['platform'] == 'ios']
 acq['share'] = {
     'active': len(A30), 'shared': frac(len(share), len(A30)), 'kind': breakdown(kinds),
     'ios': {'shared': len(ios_share), 'sent': len(ios_sent)},
+    'badge': {**frac(len(badge), len(A30)),
+              'ios': {'tapped': len(ios_badge), 'sent': len(devices_with(ios_badge, lambda e: sent_ev(e, True)))}},
     'coop': {'invited': len(devices_with(A30, lambda e: e['name'] == 'coop_invite_created')),
              'joined': len(devices_with(A30, lambda e: e['name'] == 'coop_joined'))},
     'link': sum(1 for i in A30 if REAL[i].get('srcChannel') == 'trypup_link'),
