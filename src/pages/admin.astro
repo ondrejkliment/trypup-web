@@ -3339,7 +3339,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           title: 'Sdílení',
           cells: [[nf(s7.length), 'zařízení · 7 dní'], [nf(s30.length), 'zařízení · 30 dní']],
           sub: `Opravdu odeslali (jen iPhone, Android to nehlásí): 7&nbsp;dní&nbsp;${nf(sentN(s7, cx.w7))}&nbsp;· 30&nbsp;dní&nbsp;${nf(sentN(s30, cx.w30))}` +
-            `<br>Klepnutí na odznak (zvlášť): 30&nbsp;dní&nbsp;${nf(activeWith(cx, cx.w30, 'share_initiated', isBadgeTap).length)}`,
+            `<br>Klepnuli na odznak (zvlášť): 30&nbsp;dní&nbsp;${nf(activeWith(cx, cx.w30, 'share_initiated', isBadgeTap).length)}`,
           desc: SHARE_DESC,
         });
       };
@@ -3827,7 +3827,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           (tk ? `, nejčastěji ${esc(lc1(tkL.text))} (${nf(tk[1])})` : '')
         : shN > 0 ? `Za 30 dní nesdílelo žádné ${zz(shN)} aktivních zařízení` : 'Za 30 dní nesdílelo žádné zařízení') +
         `. Pozvánku parťáka za 30 dní ${vytvorilo(inv)} ${nf(inv)} ${pl(inv, 'zařízení', 'zařízení', 'zařízení')}, ${pripojilo(joi)} ${nf(joi)} (pozvánky mohly vzniknout i dřív).`;
-      const z5how = 'Sdíleli = otevřeli nabídku sdílení. Klepnutí na získaný odznak v aplikaci otevře nabídku sdílení hned, bez dalšího kroku, takže je to hlavně zvědavost: počítáme ho zvlášť a do sdílení nevstupuje. Jestli opravdu odeslali, řekne jen iPhone, Android hlásí „odesláno“ i při pouhém otevření. Vytvoření pozvánky a připojení počítáme zvlášť: připojit se šlo i k pozvánce starší než 30 dní nebo z telefonu testera, ten se do počtu pozvánek nepočítá. Pod 10 jen počty; mezi nimi mohou být i telefony zakladatele, které ještě nejsou označené jako tester.';
+      const z5how = 'Sdíleli = otevřeli nabídku sdílení u momentu, jako je nový pes, první povel nebo promoce. Klepnutí na získaný odznak v aplikaci otevře nabídku sdílení hned, bez dalšího kroku, takže je to hlavně zvědavost: počítáme ho zvlášť a do sdílení nevstupuje. Jestli opravdu odeslali, řekne jen iPhone, Android hlásí „odesláno“ i při pouhém otevření. Vytvoření pozvánky a připojení počítáme zvlášť: připojit se šlo i k pozvánce starší než 30 dní nebo z telefonu testera, ten se do počtu pozvánek nepočítá. Pod 10 jen počty; mezi nimi mohou být i telefony zakladatele, které ještě nejsou označené jako tester.';
       const z5foot = 'Měří se od 7. 10. 2026 (verze 284), sdílení od 2. 7. 2026 · aktivní za 30 dní · bez testerů a robotů · sdílení bez klepnutí na odznak';
       // Klepnutí na odznak zvlášť (rozhodnutí 20. 11.): na iPhonu „k z n“, od 10 klepnutí i procento (R7); nikdy „0 z 0“.
       const B = S.badge && typeof S.badge === 'object' ? S.badge : {}, bK = num(B.k) ?? 0;
