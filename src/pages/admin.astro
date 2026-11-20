@@ -524,11 +524,15 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const d = new Date(n * CORE_DAY), p = (x) => String(x).padStart(2, '0');
       return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`;
     }
-    /** 'YYYY-MM-DD' → pořadové číslo dne; jinak null. */
+    /** 'YYYY-MM-DD' → pořadové číslo dne; jinak null. Neexistující den (2026-09-31, 2026-02-30) Date.parse
+     *  přetočí do dalšího měsíce, proto zpětná kontrola: den, který neexistuje, je neplatný (jako v referenci). */
     function isoDayNum(s) {
       if (typeof s !== 'string' || !ISO_DAY_RE.test(s)) return null;
       const t = Date.parse(`${s}T00:00:00Z`);
-      return Number.isFinite(t) ? Math.round(t / CORE_DAY) : null;
+      if (!Number.isFinite(t)) return null;
+      const d = new Date(t), y = Number(s.slice(0, 4));
+      if (y < 1 || d.getUTCFullYear() !== y || d.getUTCMonth() + 1 !== Number(s.slice(5, 7)) || d.getUTCDate() !== Number(s.slice(8, 10))) return null;
+      return Math.round(t / CORE_DAY);
     }
 
     // ── Deduplikace (R3): installId + název + ts + vlastnosti se seřazenými klíči. Stejný čas s jinými
@@ -963,12 +967,12 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         if (from === null) return;
         let to = null; // null = běží dál
         if (c.to !== null && c.to !== undefined && c.to !== '') { to = isoDayNum(c.to); if (to === null) return; }
-        const sp = c.spendEur;
+        const sp = c.spendEur, spendDay = isoDayNum(c.spendAt);
         out.push({ i, platform: c.platform, from, to, fromIso: c.from, toIso: to === null ? null : c.to,
           id: typeof c.id === 'string' ? c.id : isNum(c.id) ? String(c.id) : null,
           name: str(c.name), network: str(c.network), country: str(c.country),
           spendEur: isNum(sp) && sp >= 0 && sp <= CAMPAIGN_MAX_SPEND ? sp : null,
-          spendAt: typeof c.spendAt === 'string' && isoDayNum(c.spendAt) !== null ? c.spendAt : null });
+          spendAt: spendDay !== null ? c.spendAt : null, spendDay });
       });
       return out;
     }
@@ -1096,7 +1100,11 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       if (camps) {
         const yesterday = today - 1;
         const newIn = (p, ranges) => { let s = 0; for (const [f, c] of newByDay) if (ranges.some(([a, b]) => f >= a && f <= b)) s += c[p]; return s; };
-        const counted = (c) => [c.from, c.to === null ? yesterday : Math.min(c.to, yesterday)];
+        // Útrata a zařízení za stejné dny (rozhodnuto 20. 11.): počítá se od from do min(to, včera, spendAt).
+        // Bez spendAt se okno nezkracuje. Jinak by zařízení přibývala do včerejška, útrata by stála a cena
+        // za zařízení by vyšla falešně nízko. reach = konec okna bez ohledu na útratu (min(to, včera)).
+        const reach = (c) => (c.to === null ? yesterday : Math.min(c.to, yesterday));
+        const counted = (c) => [c.from, c.spendDay === null ? reach(c) : Math.min(reach(c), c.spendDay)];
         const baselineOf = (p, from) => {
           let days = 0, devices = 0;
           for (let n = from - R.BASELINE_DAYS; n < from; n++) {
@@ -1135,14 +1143,24 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           const tight = (verdict === 'Vyplatí se' || verdict === 'Nevyplatí se') && cost !== null && cost >= R.CAMPAIGN_TIGHT[0] && cost <= R.CAMPAIGN_TIGHT[1];
           return { id: c.id, name: c.name, network: c.network, platform: c.platform, from: c.fromIso, to: c.toIso,
             days, new: nw, baseline: base, above: aboveRaw === null ? null : roundTo(aboveRaw, 2), spendEur: spend, spendAt: c.spendAt,
-            cost, verdict, note, tight, group: groupOf(i) };
+            cost, verdict, note, tight, group: groupOf(i),
+            countedTo: days > 0 ? dayIso(t) : null, spendBound: c.spendDay !== null && c.spendDay < reach(c) };
         });
         const joint = [];
         for (const [r, ids] of members) {
           if (ids.length < 2) continue;
-          const p = camps[r].platform, ranges = ids.map((i) => counted(camps[i])).filter(([a, b]) => b >= a).sort((x, y) => x[0] - y[0]);
-          let days = 0, curA = null, curB = null;
+          // Společný konec J: nejdřívější spendAt členů, které útratu za celou dobu nemají (spendAt < to, běžící vždy),
+          // nejvýš včera. Skončený člen s celou útratou (to ≤ spendAt) J neomezuje. Schválně konzervativní: jeho
+          // útrata se počítá celá, i když běžel i po J, takže cena vyjde spíš vyšší.
+          let J = yesterday;
+          for (const i of ids) { const c = camps[i]; if (c.spendDay !== null && (c.to === null || c.spendDay < c.to) && c.spendDay < J) J = c.spendDay; }
+          const p = camps[r].platform, ranges = ids.map((i) => { const [a, b] = counted(camps[i]); return [a, Math.min(b, J)]; })
+            .filter(([a, b]) => b >= a).sort((x, y) => x[0] - y[0]);
+          // spendBound = útrata zkrátila aspoň jeden neprázdný rozsah člena proti oknu bez útraty [from, min(to, včera)].
+          const spendBound = ids.some((i) => { const c = camps[i], e = reach(c); return c.from <= e && Math.min(counted(c)[1], J) < e; });
+          let days = 0, curA = null, curB = null, end = null;
           for (const [a, b] of ranges) {
+            if (end === null || b > end) end = b;
             if (curB !== null && a <= curB + 1) { if (b > curB) curB = b; continue; }
             if (curB !== null) days += curB - curA + 1;
             curA = a; curB = b;
@@ -1155,13 +1173,16 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           const spend = spends.every(isNum) ? roundTo(spends.reduce((a, v) => a + v, 0), 2) : null;
           joint.push({ group: camps[r].id, ids: ids.map((i) => camps[i].id), names: ids.map((i) => camps[i].name), platform: p, days, new: nw, baseline: base,
             above: aboveRaw === null ? null : roundTo(aboveRaw, 2), spendEur: spend,
-            cost: aboveRaw !== null && aboveRaw > 0 && spend !== null ? roundTo(spend / aboveRaw, 2) : null });
+            cost: aboveRaw !== null && aboveRaw > 0 && spend !== null ? roundTo(spend / aboveRaw, 2) : null,
+            countedTo: end === null ? null : dayIso(end), spendBound });
         }
         campaigns = { state: 'ok', updatedAt: D.adCampaigns.updatedAt ?? null, list, joint,
           upcoming: upcoming.map((c) => ({ id: c.id, name: c.name, network: c.network, platform: c.platform, from: c.fromIso, to: c.toIso, spendEur: c.spendEur })) };
         let newest = -1;
         camps.forEach((c, i) => { if (newest < 0 || c.from >= camps[newest].from) newest = i; });
-        if (newest >= 0) z3 = list[newest].verdict;
+        // Patří-li nejnovější kampaň do skupiny překryvu, karta ukáže větu skupiny, a tedy i její verdikt Nelze oddělit
+        // (i když má kampaň sama Běží krátce nebo Chybí útrata; oprava po revizi 20. 11.).
+        if (newest >= 0) z3 = list[newest].group !== null ? 'Nelze oddělit' : list[newest].verdict;
       } else campaigns = { state: 'missing' };
 
       // Z5 šíření: aktivní za 30 dní.
@@ -3601,35 +3622,73 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       } else {
         const list = Array.isArray(CP.list) ? CP.list : [], joint = Array.isArray(CP.joint) ? CP.joint : [], upcoming = Array.isArray(CP.upcoming) ? CP.upcoming : [];
         const jointOf = new Map(joint.map((j) => [j.group, j]));
-        const cName = (c) => esc(c.name || c.id || 'bez názvu');
+        // Pomlčka z názvu kampaně („Google – Android instalace“) nesmí začínat řádek: nezlomitelná mezera před ní.
+        const nbDash = (h) => h.replace(/ – /g, '&nbsp;– ');
+        const cName = (c) => nbDash(esc(c.name || c.id || 'bez názvu'));
         const dayN = (n) => `${nf(n)} ${pl(n, 'den', 'dny', 'dní')}`;
-        // Zařízení nad běžný stav jsou odhad: celé číslo se slovem „asi“, ne zlomky zařízení (texty-4).
-        const aboutN = (x) => `asi ${nf(Math.round(num(x) ?? 0))}`;
+        const newN = (n) => `${nf(n)} ${pl(num(n) ?? 0, 'nové', 'nová', 'nových')}`;
+        // Zařízení nad běžný stav jsou odhad: celé číslo se slovem „asi“, ne zlomky zařízení (texty-4). Záporná nula jako 0.
+        const aboutN = (x) => { const r = Math.round(num(x) ?? 0); return `asi ${nf(r === 0 ? 0 : r)}`; };
+        // Útrata a zařízení za stejné dny (rozhodnuto 20. 11.): když okno zkrátil den, kam je zapsaná útrata, věty to řeknou.
+        // Bez částky útraty (Chybí útrata) se nepřipojuje, věta by si odporovala („útrata není zapsaná … kam je zapsaná útrata“).
+        const boundTxt = (x) => (x && x.spendBound && isIsoDay(x.countedTo) && num(x.spendEur) !== null ? ` Počítáno do ${esc(dayLabelY(x.countedTo, today))}, kam je zapsaná útrata.` : '');
+        const RV = VERDICT_RULES, limitTxt = (cost) => `${cost <= RV.CAMPAIGN_MAX_EUR ? 'pod' : 'nad'} hranicí 5&nbsp;€` +
+          (cost >= RV.CAMPAIGN_TIGHT[0] && cost <= RV.CAMPAIGN_TIGHT[1] ? ' (těsně)' : '');
         const campSent = (c) => {
           const nm = cName(c);
-          if (c.verdict === 'Běží krátce') return `${nm}: běží teprve ${dayN(c.days)}, na cenu je brzy.`;
-          if (c.verdict === 'Chybí útrata') return `${nm}: útrata není zapsaná, cenu za zařízení spočítat nejde.`;
+          // Shoda slovesa s počtem: 1 den je započítaný, 2–4 dny jsou započítané, 0 a 5+ dní je započítáno.
+          if (c.verdict === 'Běží krátce') return `${nm}: ${c.spendBound ? pl(num(c.days) ?? 0, 'započítaný je zatím', 'započítané jsou zatím', 'započítáno je zatím') : 'běží teprve'} ${dayN(c.days)}, na cenu je brzy.${boundTxt(c)}`;
+          if (c.verdict === 'Chybí útrata') return `${nm}: útrata není zapsaná, cenu za zařízení spočítat nejde.${boundTxt(c)}`;
           if (c.verdict === 'Nelze oddělit') {
             const j = jointOf.get(c.group);
             return `${nm}: běží ve stejné dny jako jiná kampaň ${PLATFORM_LOC.get(c.platform) || ''}, umíme jen společnou cenu` +
-              (j && num(j.cost) !== null ? ` (${eur(j.spendEur)} / ${aboutN(j.above)} zařízení = ${eur(j.cost)}).` : '.');
+              (j && num(j.cost) !== null ? ` (${eur(j.spendEur)} / ${aboutN(j.above)} zařízení = ${eur(j.cost)}).` : '.') + boundTxt(j);
           }
-          if (c.note === 'noBaseline') return `${nm}: nelze určit běžný stav, před začátkem kampaně je málo dnů bez kampaně.`;
-          if (c.note === 'nothingExtra') return `${nm}: nad běžný stav nepřibylo nic (${nf(c.new)} nových za ${dayN(c.days)}, útrata ${eur(c.spendEur)}).`;
-          return `${nm}: ${aboutN(c.above)} zařízení nad běžný stav za ${eur(c.spendEur)} = ${eur(c.cost)} za zařízení${c.tight ? ' (těsně)' : ''}. Hranice je 5&nbsp;€ (aspoň 12 zařízení za 60&nbsp;€).`;
+          if (c.note === 'noBaseline') return `${nm}: nelze určit běžný stav, před začátkem kampaně je málo dnů bez kampaně.${boundTxt(c)}`;
+          if (c.note === 'nothingExtra') return `${nm}: nad běžný stav nepřibylo nic (${newN(c.new)} za ${dayN(c.days)}, útrata ${eur(c.spendEur)}).${boundTxt(c)}`;
+          return `${nm}: ${aboutN(c.above)} zařízení nad běžný stav za ${eur(c.spendEur)} = ${eur(c.cost)} za zařízení${c.tight ? ' (těsně)' : ''}. Hranice je 5&nbsp;€ (aspoň 12 zařízení za 60&nbsp;€).${boundTxt(c)}`;
         };
+        // Skupina překryvu jednou větou za skupinu (ne za každého člena): názvy „A, B a C“, společná útrata a cena.
+        const jNames = (j) => (Array.isArray(j.ids) ? j.ids : []).map((x, i) => nbDash(esc((Array.isArray(j.names) && j.names[i]) || x || 'bez názvu')));
+        const andList = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} a ${xs[xs.length - 1]}`);
+        // Skupina s 1–2 započítanými dny: na cenu je brzy stejně jako u jedné kampaně (CAMPAIGN_MIN_DAYS), bez soudu o hranici.
+        const jointShort = (j) => { const d = num(j.days) ?? 0; return d > 0 && d < RV.CAMPAIGN_MIN_DAYS; };
+        const jointSent = (j) => {
+          let t = `${andList(jNames(j))} se ${PLATFORM_LOC.get(j.platform) || ''} překrývají ve dnech, každou zvlášť spočítat nejde. `;
+          const cost = num(j.cost);
+          if (jointShort(j)) t += `Společně ${pl(num(j.days), 'je zatím započítaný', 'jsou zatím započítané', 'je zatím započítáno')} ${dayN(j.days)}, na cenu je brzy.`;
+          else if (cost !== null) t += `Společně ${eur(j.spendEur)} / ${aboutN(j.above)} zařízení nad běžný stav = ${eur(cost)} za zařízení, ${limitTxt(cost)} (aspoň 12 zařízení za 60&nbsp;€).`;
+          else if (num(j.spendEur) === null) t += 'Společně cenu spočítat nejde (útrata není zapsaná u všech).';
+          else if (!j.baseline || j.baseline.state) t += 'Společně cenu spočítat nejde (nelze určit běžný stav, před začátkem kampaní je málo dnů bez kampaně).';
+          else if (!((num(j.days) ?? 0) > 0)) t += 'Společně cenu spočítat nejde (zatím není započítaný žádný den).';
+          else t += `Společně ${eur(j.spendEur)}, nad běžný stav nepřibylo nic (${newN(j.new)} za ${dayN(j.days)}).`;
+          return t + boundTxt(j);
+        };
+        const groupJoint = (c) => (c && c.group !== null && c.group !== undefined ? jointOf.get(c.group) || null : null);
         let newest = null;
         for (const c of list) if (!newest || String(c.from) >= String(newest.from)) newest = c;
         const emptyTxt = upcoming.length ? 'Zapsané kampaně ještě nezačaly, cenu za zařízení spočítat nejde.' : 'Zápis kampaní je prázdný, cenu za zařízení spočítat nejde.';
-        s3 = newest ? campSent(newest) + (list.length > 1 ? ' Ostatní kampaně jsou v tabulce.' : '') : emptyTxt;
-        for (const c of list) z0Camp.push([c.verdict, campSent(c)]);
+        const newestJ = groupJoint(newest);
+        const others = newestJ ? list.filter((c) => groupJoint(c) !== newestJ).length : list.length - 1;
+        s3 = newest ? (newestJ ? jointSent(newestJ) : campSent(newest)) + (others > 0 ? ' Ostatní kampaně jsou v tabulce.' : '') : emptyTxt;
+        const saidJ = new Set();
+        for (const c of list) {
+          const j = groupJoint(c);
+          if (!j) z0Camp.push([c.verdict, campSent(c)]);
+          else if (!saidJ.has(j)) { saidJ.add(j); z0Camp.push(['Nelze oddělit', jointSent(j)]); }
+        }
         if (!list.length) z0Camp.push(['Chybí útrata', emptyTxt]);
-        const daysTxt = (c) => (isIsoDay(c.to) ? `${esc(dayLabelY(c.from, today))}–${esc(dayLabelY(c.to, today))} <span class="muted">(${dayN(c.days)})</span>`
-          : `od ${esc(dayLabelY(c.from, today))} <span class="muted">(běží, ${dayN(c.days)})</span>`);
+        const countedPar = (c) => `počítáno ${dayN(c.days)} do ${esc(dayLabelY(c.countedTo, today))}${num(c.spendEur) !== null ? ', kam je zapsaná útrata' : ''}`;
+        const daysTxt = (c) => {
+          const cut = c.spendBound && isIsoDay(c.countedTo);
+          return isIsoDay(c.to) ? `${esc(dayLabelY(c.from, today))}–${esc(dayLabelY(c.to, today))} <span class="muted">(${cut ? countedPar(c) : dayN(c.days)})</span>`
+            : `od ${esc(dayLabelY(c.from, today))} <span class="muted">(běží${cut ? '; ' + countedPar(c) : ', ' + dayN(c.days)})</span>`;
+        };
         const nameCell = (c) => `${cName(c)} <span class="muted">${esc(NETWORK_LABEL.get(c.network) || c.network || '')} · ${esc(PLATFORM_LABEL.get(c.platform) || '')}</span>`;
         const rows = list.map((c) => {
-          // Překrývající se kampaně (Nelze oddělit): samostatný nadbytek ani cena nejsou pravdivé, jen společně (texty-4).
-          const sep = c.verdict !== 'Nelze oddělit';
+          // Překrývající se kampaně: samostatný nadbytek ani cena nejsou pravdivé, jen společně (texty-4). Rozhoduje členství
+          // ve skupině, ne verdikt: i člen s Běží krátce nebo Chybí útrata má zařízení společná se skupinou.
+          const sep = c.group === null || c.group === undefined;
           return `<tr><td>${nameCell(c)}</td><td data-label="Dny">${daysTxt(c)}</td>` +
             `<td data-label="Nová" class="n">${nf(c.new)}</td>` +
             `<td data-label="Běžný stav za den" class="n">${c.baseline && !c.baseline.state ? nf(c.baseline.perDay, 1) : 'nelze určit'}</td>` +
@@ -3644,12 +3703,17 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           z3Body = '<table class="qt"><thead><tr><th>Kampaň</th><th>Dny</th><th class="n">Nová</th><th class="n">Běžný stav za den</th><th class="n">Nad běžný stav</th><th class="n">Útrata</th><th class="n">Cena za zařízení</th><th>Verdikt</th></tr></thead><tbody>' +
             rows.join('') + '</tbody></table>' +
             joint.map((j) => {
-              const names = (Array.isArray(j.ids) ? j.ids : []).map((x, i) => esc((Array.isArray(j.names) && j.names[i]) || x || 'bez názvu')).join(' + ');
-              return `<p>Společně ${names}: ${eur(j.spendEur)} / ${num(j.above) === null ? 'nelze určit' : aboutN(j.above)} zařízení nad běžný stav = ${num(j.cost) === null ? 'cenu nelze spočítat' : eur(j.cost) + ' za zařízení'}</p>`;
+              const cost = num(j.cost);
+              return `<p>Společně ${jNames(j).join(' + ')}: ${eur(j.spendEur)} / ${num(j.above) === null ? 'nelze určit' : aboutN(j.above)} zařízení nad běžný stav = ` +
+                `${cost === null ? 'cenu nelze spočítat' : `${eur(cost)} za zařízení${jointShort(j) ? '' : `, ${limitTxt(cost)}`}`}.${boundTxt(j)}</p>`;
             }).join('');
         }
-        const upd = newest && isIsoDay(newest.spendAt) ? newest.spendAt : typeof CP.updatedAt === 'string' ? CP.updatedAt.slice(0, 10) : '';
-        if (isIsoDay(upd)) z3Upd = ` (aktualizováno ${esc(dayLabelY(upd, today))})`;
+        // Patička: nejpozdější den, kam je zapsaná útrata (ze všech kampaní, ne jen z nejnovější); bez spendAt updatedAt.
+        let spendTo = '';
+        for (const c of list) if (isIsoDay(c.spendAt) && c.spendAt > spendTo) spendTo = c.spendAt;
+        const upd = typeof CP.updatedAt === 'string' ? CP.updatedAt.slice(0, 10) : '';
+        if (spendTo) z3Upd = ` (útrata zapsaná do ${esc(dayLabelY(spendTo, today))})`;
+        else if (isIsoDay(upd)) z3Upd = ` (aktualizováno ${esc(dayLabelY(upd, today))})`;
       }
       const z3 = card({
         q: 'Vyplatí se placené kampaně?', verdict: A.verdicts.z3, sentence: s3, body: z3Body,

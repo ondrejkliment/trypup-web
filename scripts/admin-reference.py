@@ -871,10 +871,26 @@ if CAMPAIGNS_DOC is None or not isinstance(CAMPAIGNS_DOC, dict):
     AV['z3'] = 'Chybí útrata'
 else:
     YDAY = TODAY - 1
+    FAR = 10 ** 9   # +∞ ve dnech
+
+    # Útrata a zařízení za stejné dny (pravidlo Z3 z 20. 11.): započtené dny kampaně jsou [from, E],
+    # E = min(to ?? včera, včera, den spendAt ?? +∞). Bez platného spendAt se okno nezkracuje.
+    def spend_day(c):
+        return iso_day(c['spendAt'])   # spendAt je tu už jen platný ISO den nebo None
+
+    def end_of(c):
+        """Konec okna podle from/to (bez útraty): min(to ?? včera, včera)."""
+        return YDAY if c['to'] is None else min(c['to'], YDAY)
+
+    def counted_end(c):
+        s = spend_day(c)
+        return min(end_of(c), FAR if s is None else s)
+
+    def day_range(fr, end):
+        return list(range(fr, end + 1)) if end >= fr else []
 
     def camp_days(c):
-        end = YDAY if c['to'] is None else min(c['to'], YDAY)
-        return list(range(c['from'], end + 1)) if end >= c['from'] else []
+        return day_range(c['from'], counted_end(c))
 
     def new_on(platform, days):
         return sum(new_by_day.get(d, Counter())[platform] for d in days)
@@ -941,9 +957,13 @@ else:
         else:
             v = 'Nevyplatí se'
         tight = v in ('Vyplatí se', 'Nevyplatí se') and cost is not None and CAMPAIGN_TIGHT[0] <= cost <= CAMPAIGN_TIGHT[1]
+        sd = spend_day(c)
         rows.append({'id': c['id'], 'name': c['name'], 'network': c['network'], 'platform': c['platform'],
                      'from': iso(c['from']), 'to': iso(c['to']) if c['to'] is not None else None,
-                     'days': len(days), 'new': newn, 'baseline': base, 'above': above, 'spendEur': spend,
+                     'days': len(days),
+                     'countedTo': iso(days[-1]) if days else None,
+                     'spendBound': sd is not None and sd < end_of(c),
+                     'new': newn, 'baseline': base, 'above': above, 'spendEur': spend,
                      'spendAt': c['spendAt'], 'cost': cost, 'verdict': v,
                      'note': ('nothingExtra' if v == 'Nevyplatí se' and above is not None and above <= 0 else
                               'noBaseline' if v == 'Málo dat' else None),
@@ -951,7 +971,20 @@ else:
     for g, cs in sorted(by_group.items()):
         if len(cs) < 2:
             continue
-        days = sorted({d for c in cs for d in camp_days(c)})
+        # Společný den útraty J = min(včera, spendAt členů, jejichž útrata nepokrývá celou dobu: S < (to ?? +∞)).
+        # Rozsah člena [from, min(E, J)], prázdné se vynechají; spendBound = oříznutí zkrátilo aspoň jeden neprázdný
+        # rozsah člena proti oknu bez útraty [from, min(to ?? včera, včera)] (pravidlo: „tj. J < max min(to ?? Y, Y)“;
+        # min(E, J) = min(end_of, J), protože S, které zkracuje E, je vždy v J).
+        cut = [spend_day(c) for c in cs
+               if spend_day(c) is not None and spend_day(c) < (FAR if c['to'] is None else c['to'])]
+        jday = min([YDAY] + cut)
+        dset, jbound = set(), False
+        for c in cs:
+            e, r = counted_end(c), end_of(c)
+            if r >= c['from'] and min(e, jday) < r:
+                jbound = True
+            dset.update(day_range(c['from'], min(e, jday)))
+        days = sorted(dset)
         spends = [c['spendEur'] for c in cs]
         spend = None if any(s is None for s in spends) else dec(sum(spends), 2)
         start = min(c['from'] for c in cs)
@@ -959,17 +992,22 @@ else:
         base = baseline(cs[0]['platform'], start)
         above, cost = price(newn, len(days), base, spend)
         joint.append({'group': gname[g], 'ids': [c['id'] for c in cs], 'names': [c['name'] for c in cs], 'platform': cs[0]['platform'], 'days': len(days),
+                      'countedTo': iso(days[-1]) if days else None, 'spendBound': jbound,
                       'new': newn, 'baseline': base, 'above': above, 'spendEur': spend, 'cost': cost})
     acq['campaigns'] = {'state': 'ok', 'updatedAt': CAMPAIGNS_DOC.get('updatedAt'), 'list': rows, 'joint': joint,
                         'upcoming': [{'id': c['id'], 'name': c['name'], 'network': c['network'], 'platform': c['platform'],
                                       'from': iso(c['from']), 'to': iso(c['to']) if c['to'] is not None else None,
                                       'spendEur': c['spendEur']} for c in UPCOMING]}
-    # verdikt karty = verdikt nejnovější kampaně (největší `from`, při shodě pozdější ve vstupu)
+    # verdikt karty = verdikt nejnovější kampaně (největší `from`, při shodě pozdější ve vstupu);
+    # patří-li do skupiny překryvu, karta ukazuje větu skupiny a verdikt je `Nelze oddělit` (oprava po revizi 20. 11.)
     newest = None
     for r in rows:
         if newest is None or r['from'] >= newest['from']:
             newest = r
-    AV['z3'] = newest['verdict'] if newest else 'Chybí útrata'
+    if newest is None:
+        AV['z3'] = 'Chybí útrata'
+    else:
+        AV['z3'] = 'Nelze oddělit' if newest['group'] is not None else newest['verdict']
 
 # --- Z5 sdílení ---
 
