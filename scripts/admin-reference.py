@@ -812,12 +812,22 @@ if CAMP:
         # kampaní; žádná kampaň na p už neběží → přibývají jen dny bez kampaně. Druhá skupina má přírůstek 0.
         still_running = any(c['platform'] == p and (c['to'] is None or c['to'] >= TODAY) for c in CAMP)
         frozen = (not still_running, still_running)
+        # Od kdy na p platí dnešní stav (cisla3-1): rostoucí strana se odhaduje až po 7 dnech + zralosti D1
+        # jen z tohoto stavu. Běží: první den souvislé řady dnů kampaní končící dneškem (stačí hledat 9 dní zpět).
+        # Neběží: den po posledním dni kampaně na p.
+        if still_running:
+            regime_since = TODAY
+            while regime_since > TODAY - MATURE_DAYS - 2 and camp_running(p, regime_since - 1):
+                regime_since -= 1
+        else:
+            regime_since = max(c['to'] for c in CAMP if c['platform'] == p) + 1
         q['comparisons'].append({'group': 'campaign:' + p, 'eligible': True,
                                  'a': q['campaign'][p]['in']['d1'], 'b': q['campaign'][p]['out']['d1'],
                                  **compare(q['campaign'][p]['in']['d1'], q['campaign'][p]['out']['d1']),
                                  'aRange': pct_range(q['campaign'][p]['in']['d1']['k'], q['campaign'][p]['in']['d1']['n']),
                                  'bRange': pct_range(q['campaign'][p]['out']['d1']['k'], q['campaign'][p]['out']['d1']['n']),
-                                 '_ids': (inn, outn), '_frozen': frozen})
+                                 '_ids': (inn, outn), '_frozen': frozen,
+                                 '_regime': {'platform': p, 'live': still_running, 'since': regime_since}})
 elig = [c for c in q['comparisons'] if c['eligible']]
 if any(c['verdict'] == 'Průkazný rozdíl' for c in elig):
     AV['z4'] = 'Průkazný rozdíl'
@@ -831,9 +841,17 @@ q['lateMeasured'] = quality(LATE)
 if AV['z4'] == 'Průkazný rozdíl':
     AW['z4'] = None
 elif elig:
-    AW['z4'] = later_clear([when_clear(c[side]['n'], 0 if c.get('_frozen', (False, False))[x] else d1_entered7(c['_ids'][x]),
-                                       **({'since': SRC_SINCE, 'lag': 2} if c['group'].startswith('channel:') else {}))
-                            for c in elig for x, side in ((0, 'a'), (1, 'b'))])
+    def _z4_side(c, x, side):
+        if c['group'].startswith('channel:'):
+            return when_clear(c[side]['n'], d1_entered7(c['_ids'][x]), since=SRC_SINCE, lag=2)
+        if c['_frozen'][x]:
+            return when_clear(c[side]['n'], 0)
+        rg = c['_regime']
+        w = when_clear(c[side]['n'], d1_entered7(c['_ids'][x]), since=rg['since'], lag=2)
+        if w and w.get('state') == 'young':
+            w = {'state': 'young', 'since': w['since'], 'campaign': rg['platform'], 'live': rg['live']}
+        return w
+    AW['z4'] = later_clear([_z4_side(c, x, side) for c in elig for x, side in ((0, 'a'), (1, 'b'))])
 elif top:
     AW['z4'] = when_clear(q['channel'][top[0][0]]['d1']['n'], d1_entered7(CH_IDS[top[0][0]]), since=SRC_SINCE, lag=2)
 else:
@@ -841,6 +859,7 @@ else:
 for c in q['comparisons']:
     del c['_ids']
     c.pop('_frozen', None)
+    c.pop('_regime', None)
 acq['quality'] = q
 
 # --- Z3 kampaně ---
