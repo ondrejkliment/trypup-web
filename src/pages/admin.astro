@@ -310,7 +310,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         </span>
         <input id="f-from" type="date" title="Od (pražský den)" />
         <input id="f-to" type="date" title="Do (pražský den včetně)" />
-        <label class="tgl" title="Testeři (simulátory, vývojové verze, Expo Go, ručně označená zařízení) a roboti (předběžná kontrola Google Play: emulátory, OnePlus 8 Pro s Androidem 11 a krátkou aktivitou)"><input type="checkbox" id="f-testers" /> včetně testerů a robotů</label>
+        <label class="tgl" title="Testeři (simulátory, vývojové verze, Expo Go, kontrolní zařízení Applu iPhone99, ručně označená zařízení) a roboti (předběžná kontrola Google Play: emulátory, OnePlus 8 Pro s Androidem 11 a krátkou aktivitou)"><input type="checkbox" id="f-testers" /> včetně testerů a robotů</label>
         <span class="count" id="count"></span>
       </div>
     </div>
@@ -346,7 +346,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       <p class="note">Pády a chyby aplikace sleduje Sentry, do analytiky se neposílají.</p>
       <div class="grid2" id="t-quality"></div>
       <h2>Evidence zařízení&nbsp;– označení testerů a robotů <span id="i-sub" class="h2-hint"></span></h2>
-      <p class="note"><span class="tag auto">robot (automaticky)</span> = předběžná kontrola Google Play (emulátory Google a OnePlus 8 Pro s Androidem 11 a aktivitou pod hodinu). <span class="tag auto">tester (automaticky)</span> = simulátor, vývojová verze nebo Expo Go. TestFlight a interní testování Google Play vypadají jako obchod, proto je označ ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi testera. „Není robot“ vypne automatiku pro jedno zařízení (skutečný majitel OnePlus 8 Pro). Označení platí hned pro všechny záložky i veřejné statistiky webu.</p>
+      <p class="note"><span class="tag auto">robot (automaticky)</span> = předběžná kontrola Google Play (emulátory Google a OnePlus 8 Pro s Androidem 11 a aktivitou pod hodinu). <span class="tag auto">tester (automaticky)</span> = simulátor, vývojová verze, Expo Go nebo kontrolní zařízení Applu při schvalování verze (iPhone99, iPad99). „Potvrdit“ u automatického testera s nákupem z RevenueCatu ho označí ručně, teprve pak se ten nákup skryje. TestFlight a interní testování Google Play vypadají jako obchod, proto je označ ručně (<span class="tag manual">tester</span>): tvůj iPhone, Xiaomi testera. „Není robot“ vypne automatiku pro jedno zařízení (skutečný majitel OnePlus 8 Pro). Označení platí hned pro všechny záložky i veřejné statistiky webu.</p>
       <div class="panel" style="overflow:auto"><table class="inst" id="inst"></table></div>
       <h2>Poslední záznamy <span class="h2-hint">podle filtrů, nejnovější nahoře</span></h2>
       <div class="panel"><div class="feed" id="feed"></div></div>
@@ -366,7 +366,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       <div class="grid2" id="m-restore"></div>
       <details class="qdet how-calc">
         <summary>Jak se to počítá</summary>
-        <p class="note"><b>Nákupy</b> jsou z RevenueCatu: od 1. 11. 2026 chodí samy, starší jsou doplněné jednorázově. Částka je v měně nákupu včetně DPH, v závorce v USD; výnos = po DPH a provizi obchodu (odhad RevenueCatu). <b>Zařízení a jazyk</b> RevenueCat nezná: přiřazují se z anonymní analytiky aplikace (dokončený nákup se stejným produktem do 10 minut), obnova předplatného přebírá zařízení z prvního nákupu. Řádek „jen z aplikace“ = nákup bez záznamu v RevenueCatu (testovací nákup z TestFlightu nebo interního testování Google Play). Testovací nákupy a testeři se skrývají jako jinde (zaškrtávátko „včetně testerů a robotů“ nahoře).</p>
+        <p class="note"><b>Nákupy</b> jsou z RevenueCatu: od 1. 11. 2026 chodí samy, starší jsou doplněné jednorázově. Částka je v měně nákupu včetně DPH, v závorce v USD; výnos = po DPH a provizi obchodu (odhad RevenueCatu). <b>Zařízení a jazyk</b> RevenueCat nezná: přiřazují se z anonymní analytiky aplikace (dokončený nákup se stejným produktem do 10 minut), obnova předplatného přebírá zařízení z prvního nákupu. Řádek „jen z aplikace“ = nákup bez záznamu v RevenueCatu (testovací nákup z TestFlightu nebo interního testování Google Play). Testovací nákupy (sandbox) a testeři se skrývají jako jinde (zaškrtávátko „včetně testerů a robotů“ nahoře). Výjimka: nákup z RevenueCatu ze zařízení, které za testovací považuje jen automatika (simulátor, vývojová verze, kontrolní zařízení Applu…), se počítá a dostane štítek „zařízení vypadá jako testovací, ověř ho“; skryje ho až ruční označení zařízení v evidenci v Technice.</p>
         <p class="note"><b>Paywall → nákup</b> je z anonymní analytiky aplikace a platí pro něj všechny filtry nahoře (období, platforma, verze…). Počty v tabulkách = různá zařízení, <b>konverze</b> = kolik zařízení, která paywall z daného zdroje viděla, nákup dokončilo. <b>Obnova nákupů</b> se do nákupů ani tržeb nepočítá: od 16. 11. 2026 má vlastní záznamy, starší verze ji posílaly jako nákup s produktem „obnova“&nbsp;– obojí je sloučené v „Obnova nákupů“. Starší verze u zamčeného článku a zdravotního tipu zapisují zobrazení paywallu dvakrát; dvojice téhož zařízení do 60 s se počítá jako jedno zobrazení. Nákupy ze starších verzí zdroj ani režim nenesou: doplní se z posledního zobrazení paywallu na tomtéž zařízení (nejvýš hodinu před); zkušební doba u nich zůstane „neuvedeno“. „Bez určeného zdroje“ = paywall otevřený z místa, které zdroj nepředává (aplikace pak pošle výchozí hodnotu). „Zdroj neznámý“ = zobrazení paywallu ze starších verzí (do 217), které zdroj neposílaly vůbec, a nákupy, před kterými v datech není zobrazení paywallu se zdrojem.</p>
       </details>
     </div>
@@ -2534,7 +2534,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         // ho neskryjí (podvržené dávky by jinak „ukradly“ párování a schovaly skutečné peníze), jen ho označí štítkem.
         // Řádky jen z aplikace (bez RevenueCatu) se klasifikují jako dřív.
         x.cls = x.rc ? (x.app && OVERRIDES.has(x.app.installId) ? classifyInstall({}, OVERRIDES.get(x.app.installId)).kind : 'real') : x.autoCls;
-        x.autoTester = !!(x.rc && x.cls === 'real' && x.autoCls !== 'real');
+        // Sandbox a vrácený nákup se nepočítají, takže „počítá se“ by u nich lhalo (texty4-3).
+        x.autoTester = !!(x.rc && !x.sandbox && !x.refunded && x.cls === 'real' && x.autoCls !== 'real');
       });
       return rows.sort((a, b) => b.ts - a.ts);
     }
