@@ -68,14 +68,15 @@ function loadCore() {
 }
 
 // ── Vstup stejně jako window.__dash.setData: stejná normalizace (plainEvent, plainInstall) jako fetchPage a
-//    loadInstalls v produkci, pak deduplikace (výpis má všechna ts jako čísla).
+//    loadInstalls v produkci, pak deduplikace. Čas události jako fetchPage: jen číslo (JSON nemá Timestamp),
+//    řetězec ani mapa se nepřevádí, jinak by kontrola počítala události, které produkce zahodí (bezpecnost2-4).
 const anyMs = (v) => (typeof v === 'number' ? v : typeof v === 'string' && Number.isFinite(Date.parse(v)) ? Date.parse(v) : null);
 function makeInput(core, adCampaigns) {
   const dedup = core.makeDeduper();
   const raw = [];
   for (const e of Array.isArray(dump.RAW) ? dump.RAW : []) {
     if (!e || typeof e !== 'object') continue;
-    const x = core.plainEvent(e, e.installId, core.plainMap(e.dev), anyMs(e.ts));
+    const x = core.plainEvent(e, e.installId, core.plainMap(e.dev), typeof e.ts === 'number' ? e.ts : null);
     if (dedup.add(x)) raw.push(x);
   }
   const overrides = new Map(dump.OVERRIDES && typeof dump.OVERRIDES === 'object' ? Object.entries(dump.OVERRIDES) : []);
@@ -169,7 +170,8 @@ function run(label, fileTag, refObj, adCampaigns) {
   return out.diffs.length === 0 && !slow;
 }
 
-let ok = run('Výpis bez zápisu kampaní', 'bez-kampani', ref, null);
+// undefined = kampaně z výpisu (AD_CAMPAIGNS), stejně jako admin-reference.py a setData (bezpecnost2-4).
+let ok = run('Výpis bez zápisu kampaní', 'bez-kampani', ref, undefined);
 if (opt.campaigns) {
   const fixture = readJson(opt.campaigns[0], 'zápis kampaní');
   const refC = readJson(opt.campaigns[1], 'referenci s kampaněmi');

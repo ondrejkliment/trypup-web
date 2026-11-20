@@ -366,8 +366,9 @@ for e in DUMP.get('RAW') or []:
     name = e.get('name') if isinstance(e.get('name'), str) else None   # jiný typ = neplatný záznam
     if iid in REAL and ts is not None and W30_FROM < ts <= NOW:
         raw_real_30 += 1
+    # Klíč z už převedeného času (bezpecnost2-4): produkce deduplikuje událost po převodu, neplatný čas = null.
     k = (json.dumps(e.get('installId'), sort_keys=True), json.dumps(e.get('name'), sort_keys=True),
-         json.dumps(e.get('ts'), sort_keys=True), json.dumps(props, sort_keys=True))
+         json.dumps(int(ts) if isinstance(ts, float) and ts.is_integer() else ts), json.dumps(props, sort_keys=True))
     if k in seen:
         dups_all += 1
         dups_real_all += iid in REAL
@@ -807,12 +808,16 @@ if CAMP:
         inn = [i for i in ids if camp_running(p, pday(first_ms(i)))]
         outn = [i for i in ids if not camp_running(p, pday(first_ms(i)))]
         q['campaign'][p] = {'in': quality(inn), 'out': quality(outn)}
+        # Která skupina ještě může růst (cisla2-1): kampaň na p dnes nebo později běží → přibývají jen dny
+        # kampaní; žádná kampaň na p už neběží → přibývají jen dny bez kampaně. Druhá skupina má přírůstek 0.
+        still_running = any(c['platform'] == p and (c['to'] is None or c['to'] >= TODAY) for c in CAMP)
+        frozen = (not still_running, still_running)
         q['comparisons'].append({'group': 'campaign:' + p, 'eligible': True,
                                  'a': q['campaign'][p]['in']['d1'], 'b': q['campaign'][p]['out']['d1'],
                                  **compare(q['campaign'][p]['in']['d1'], q['campaign'][p]['out']['d1']),
                                  'aRange': pct_range(q['campaign'][p]['in']['d1']['k'], q['campaign'][p]['in']['d1']['n']),
                                  'bRange': pct_range(q['campaign'][p]['out']['d1']['k'], q['campaign'][p]['out']['d1']['n']),
-                                 '_ids': (inn, outn)})
+                                 '_ids': (inn, outn), '_frozen': frozen})
 elig = [c for c in q['comparisons'] if c['eligible']]
 if any(c['verdict'] == 'Průkazný rozdíl' for c in elig):
     AV['z4'] = 'Průkazný rozdíl'
@@ -826,7 +831,7 @@ q['lateMeasured'] = quality(LATE)
 if AV['z4'] == 'Průkazný rozdíl':
     AW['z4'] = None
 elif elig:
-    AW['z4'] = later_clear([when_clear(c[side]['n'], d1_entered7(c['_ids'][x]),
+    AW['z4'] = later_clear([when_clear(c[side]['n'], 0 if c.get('_frozen', (False, False))[x] else d1_entered7(c['_ids'][x]),
                                        **({'since': SRC_SINCE, 'lag': 2} if c['group'].startswith('channel:') else {}))
                             for c in elig for x, side in ((0, 'a'), (1, 'b'))])
 elif top:
@@ -835,6 +840,7 @@ else:
     AW['z4'] = when_clear(0, 0, since=SRC_SINCE, lag=2)
 for c in q['comparisons']:
     del c['_ids']
+    c.pop('_frozen', None)
 acq['quality'] = q
 
 # --- Z3 kampaně ---
@@ -1400,20 +1406,22 @@ for i in A30:
             last = key_of(P(e).get('choice'))
     if last is not None:
         dec[last] += 1
-SHELTER_EV = ('shelter_opened', 'graduation_shelter_cta')
+# Proklik na útulek = jen shelter_opened (cisla2-7): klepnutí na promoci (graduation_shelter_cta) v aplikaci
+# jen otevře seznam útulků (graduation.tsx: router.replace('/(main)/adoption')), útulek se pak otevře
+# samostatným shelter_opened. Promoce se proto počítá zvlášť jako zařízení (gradShelter).
+SHELTER_EV = ('shelter_opened',)
 clicks = Counter()
 for i in A30:
     for e in win(i, 30):
         if e['name'] in SHELTER_EV:
-            s = P(e).get('shelter')
-            k = '_graduation' if s in (None, '') else DASH_RE.sub(' – ', key_of(s))
-            clicks[k] += 1
+            clicks[DASH_RE.sub(' – ', key_of(P(e).get('shelter')))] += 1
 jr['mission'] = {
     'started': count_dev('challenge_started'), 'graduation': count_dev('graduation_reached'),
     'completed': count_dev('challenge_completed'), 'decided': sum(dec.values()), 'decision': breakdown(dec),
     'wait': count_dev('graduation_wait_cta'),
     'shelter': {'devices': len(devices_with(A30, lambda e: e['name'] in SHELTER_EV)), 'clicks': sum(clicks.values()),
                 'byShelter': breakdown(clicks)},
+    'gradShelter': count_dev('graduation_shelter_cta'),
 }
 JV['b6'] = 'Jen počty'   # SPEC B6 / C0 bod 5; ve slovníku verdiktů C.0 chybí
 
