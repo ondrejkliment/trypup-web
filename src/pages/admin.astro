@@ -3632,8 +3632,9 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         // Útrata a zařízení za stejné dny (rozhodnuto 20. 11.): když okno zkrátil den, kam je zapsaná útrata, věty to řeknou.
         // Bez částky útraty (Chybí útrata) se nepřipojuje, věta by si odporovala („útrata není zapsaná … kam je zapsaná útrata“).
         const boundTxt = (x) => (x && x.spendBound && isIsoDay(x.countedTo) && num(x.spendEur) !== null ? ` Počítáno do ${esc(dayLabelY(x.countedTo, today))}, kam je zapsaná útrata.` : '');
-        const RV = VERDICT_RULES, limitTxt = (cost) => `${cost <= RV.CAMPAIGN_MAX_EUR ? 'pod' : 'nad'} hranicí 5&nbsp;€` +
-          (cost >= RV.CAMPAIGN_TIGHT[0] && cost <= RV.CAMPAIGN_TIGHT[1] ? ' (těsně)' : '');
+        // Pásmo „těsně“ slovem před hranicí, ne další závorkou (texty T7: „pod hranicí 5 € (těsně) (aspoň …)“).
+        const RV = VERDICT_RULES, limitTxt = (cost) => (cost >= RV.CAMPAIGN_TIGHT[0] && cost <= RV.CAMPAIGN_TIGHT[1] ? 'těsně ' : '') +
+          `${cost <= RV.CAMPAIGN_MAX_EUR ? 'pod' : 'nad'} hranicí 5&nbsp;€`;
         const campSent = (c) => {
           const nm = cName(c);
           // Shoda slovesa s počtem: 1 den je započítaný, 2–4 dny jsou započítané, 0 a 5+ dní je započítáno.
@@ -3717,7 +3718,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       }
       const z3 = card({
         q: 'Vyplatí se placené kampaně?', verdict: A.verdicts.z3, sentence: s3, body: z3Body,
-        how: 'Nepočítáme kliknutí ani „konverze“ reklamních systémů, ty hlásí víc, protože počítají i stažení bez otevření. Od nových zařízení ve dnech kampaně odečteme, kolik jich přichází v běžný den bez kampaně. Když běží dvě kampaně na stejné platformě (Android nebo iPhone) ve stejné dny, umíme jen společnou cenu.',
+        how: 'Nepočítáme kliknutí ani „konverze“ reklamních systémů, ty hlásí víc, protože počítají i stažení bez otevření. Od nových zařízení ve dnech kampaně odečteme, kolik jich přichází v běžný den bez kampaně. Když běží dvě kampaně na stejné platformě (Android nebo iPhone) ve stejné dny, umíme jen společnou cenu. Zařízení počítáme jen za dny, za které je zapsaná útrata, jinak by cena běžící kampaně vyšla nižší, než je.',
         foot: `Útrata ze zápisu kampaní${z3Upd} · nová zařízení z našeho měření · Vyplatí se do 5&nbsp;€ za zařízení nad běžný stav (dohodnuto)`,
       });
 
