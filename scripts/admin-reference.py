@@ -195,26 +195,85 @@ def dec(x, places):
     return int(r) if float(r).is_integer() else r
 
 
+def js_num(x):
+    """String(number) v JS (Number::toString) pro číslo z JSON: celé číslo se jako v JSON.parse převede na double
+    (12345678901234567890 → '12345678901234567000'), 1e21 → '1e+21', 1e-7 → '1e-7', 123.0 → '123', -0 → '0'.
+    Nekonečno, NaN a celé číslo mimo rozsah double → None (jádro je v toPlain převede na null)."""
+    try:
+        x = float(x)
+    except OverflowError:
+        return None
+    if not math.isfinite(x):
+        return None
+    if x == 0:
+        return '0'
+    m, _, e = repr(abs(x)).partition('e')      # repr = nejkratší zápis, který se vrátí na totéž číslo (jako JS)
+    whole, _, frac = m.partition('.')
+    digits = (whole + frac).lstrip('0')
+    exp = (int(e) if e else 0) - len(frac)
+    short = digits.rstrip('0')
+    exp += len(digits) - len(short)
+    k, n = len(short), exp + len(short)        # hodnota = short × 10^(n − k)
+    if k <= n <= 21:
+        s = short + '0' * (n - k)
+    elif 0 < n <= 21:
+        s = short[:n] + '.' + short[n:]
+    elif -6 < n <= 0:
+        s = '0.' + '0' * -n + short
+    else:
+        s = short[0] + ('.' + short[1:] if k > 1 else '') + 'e' + ('+' if n > 0 else '-') + str(abs(n - 1))
+    return ('-' if x < 0 else '') + s
+
+
+_JS_ESC = {'"': '\\"', '\\': '\\\\', '\b': '\\b', '\f': '\\f', '\n': '\\n', '\r': '\\r', '\t': '\\t'}
+
+
+def js_json_str(s):
+    """JSON.stringify(řetězec): řídicí znaky a osamocené náhradní kódy jako \\uXXXX (malá písmena), ostatní beze změny."""
+    return '"' + ''.join(_JS_ESC.get(c) or ('\\u%04x' % ord(c) if ord(c) < 0x20 or 0xD800 <= ord(c) <= 0xDFFF else c)
+                         for c in s) + '"'
+
+
+def u16(s):
+    """Řazení řetězců jako v JS (`<`, Array.sort): podle kódových jednotek UTF-16, ne podle kódových bodů."""
+    return s.encode('utf-16-be', 'surrogatepass') if isinstance(s, str) else s
+
+
+def js_stable_json(v):
+    """stableJson jádra: kompaktní JSON, klíče objektů seřazené jako v JS, čísla jako JSON.stringify (ne-konečné = null)."""
+    if v is None:
+        return 'null'
+    if isinstance(v, bool):
+        return 'true' if v else 'false'
+    if isinstance(v, (int, float)):
+        return js_num(v) or 'null'
+    if isinstance(v, str):
+        return js_json_str(v)
+    if isinstance(v, list):
+        return '[' + ','.join(js_stable_json(x) for x in v) + ']'
+    if isinstance(v, dict):
+        return '{' + ','.join(js_json_str(k) + ':' + js_stable_json(v[k]) for k in sorted(v, key=u16)) + '}'
+    return 'null'
+
+
 def key_of(v):
-    """Klíč rozpadu z hodnoty dat (JS String()); chybějící / null / '' = NONE_KEY."""
+    """Klíč rozpadu z hodnoty dat jako valKey jádra (JS String()); chybějící / null / '' = NONE_KEY.
+    Čísla jako JS (js_num), ne-konečné číslo = null jako v toPlain jádra. Objekt nebo pole (jen podvržené zápisy):
+    stableJson jádra (oponenti wf20 cisla-byid-1: dřív Python json.dumps, „1.0“ a řazení klíčů podle kódových bodů)."""
     if v is None or v == '':
         return NONE_KEY
     if isinstance(v, bool):
         return 'true' if v else 'false'
-    if isinstance(v, float) and v.is_integer():
-        return str(int(v))
     if isinstance(v, (int, float)):
-        return repr(v)
+        return js_num(v) or NONE_KEY
     if isinstance(v, str):
         return v
-    # Objekt nebo pole (jen podvržené zápisy): kompaktní JSON se seřazenými klíči jako v jádru adminu
-    # (oprava v kroku jádra: dřív s mezerami za ':' a ',', jádro by ho nikdy netrefilo).
-    return json.dumps(v, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
+    return js_stable_json(v)
 
 
 def breakdown(counter):
-    """Rozpad = [[klíč, počet], …] sestupně podle počtu, pak vzestupně podle klíče."""
-    return [[k, n] for k, n in sorted(counter.items(), key=lambda x: (-x[1], x[0])) if n > 0]
+    """Rozpad = [[klíč, počet], …] sestupně podle počtu, pak vzestupně podle klíče (pořadí UTF-16 jako cmpStr jádra)."""
+    return [[k, n] for k, n in sorted(counter.items(), key=lambda x: (-x[1], u16(x[0]))) if n > 0]
 
 
 def short_id(i):
@@ -324,8 +383,8 @@ ROBOT_KINDS = {'emulator', 'test_lab'}
 
 
 def js_str(v):
-    """String(v || '')"""
-    if v in (None, '', 0, False):
+    """String(v || '') (ne-konečné číslo je v jádru po toPlain null → '')"""
+    if v in (None, '', 0, False) or (isinstance(v, (int, float)) and not isinstance(v, bool) and js_num(v) is None):
         return ''
     return v if isinstance(v, str) else key_of(v)
 
@@ -1071,13 +1130,20 @@ ios_share = [i for i in share if REAL[i]['platform'] == 'ios']
 ios_sent = devices_with(ios_share, sent_ev)
 badge = devices_with(A30, tap_ev)
 bragged = devices_with(A30, bragged_ev)
+# Rozpad pochlubení podle odznaku (OTA 20. 11., nejspíš build 355: `share_*` odznaku z detailu nesou `id` jako
+# `badge_opened.p.id`). Zařízení z `bragged` s každým `id` svých pochlubení v období jednou; chybějící / prázdné `id`
+# (starší dávka) → `_none`. Součet může být > `badge.shared` (pochlubil se dvěma odznaky).
+brag_ids = Counter()
+for i in bragged:
+    for k in {key_of(P(e).get('id')) for e in win(i, 30) if bragged_ev(e)}:
+        brag_ids[k] += 1
 # iPhone u odznaku = jen starý tok (klepnutí rovnou otevřelo nabídku); sdílení z detailu je v `ios` výše.
 ios_tap = devices_with([i for i in A30 if REAL[i]['platform'] == 'ios'], legacy_tap)
 ios_tap_sent = devices_with(ios_tap, lambda e: legacy_tap(e, 'share_completed') and P(e).get('action') == 'shared')
 acq['share'] = {
     'active': len(A30), 'shared': frac(len(share), len(A30)), 'kind': breakdown(kinds),
     'ios': {'shared': len(ios_share), 'sent': len(ios_sent)},
-    'badge': {**frac(len(badge), len(A30)), 'shared': len(bragged),
+    'badge': {**frac(len(badge), len(A30)), 'shared': len(bragged), 'byId': breakdown(brag_ids),
               'ios': {'tapped': len(ios_tap), 'sent': len(ios_tap_sent)}},
     'coop': {'invited': len(devices_with(A30, lambda e: e['name'] == 'coop_invite_created')),
              'joined': len(devices_with(A30, lambda e: e['name'] == 'coop_joined'))},

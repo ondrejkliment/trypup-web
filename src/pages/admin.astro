@@ -1232,6 +1232,14 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         scanDev(d, w30, now, (e, p) => { if (isShareEv(e, p)) seen.add(valKey(p.kind)); return false; });
         for (const k of seen) addCount(kinds, k);
       }
+      // Kterými odznaky se chlubí (od verze 355 nese pochlubení z detailu id odznaku): každé id u zařízení jednou,
+      // stejný rozpad jako momenty; chybějící id → '_none'. Součet může být vyšší než badge.shared (víc odznaků).
+      const badgeIds = new Map();
+      for (const d of badgeSharers) {
+        const seen = new Set();
+        scanDev(d, w30, now, (e, p) => { if (isBadgeShared(e, p)) seen.add(valKey(p.id)); return false; });
+        for (const k of seen) addCount(badgeIds, k);
+      }
       const iosSent = iosWith(idx, sharers, w30, isShareSent).length;
       const iosBadgeSent = iosWith(idx, oldTapIos, w30, isBadgeOldSent).length;
 
@@ -1279,7 +1287,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         share: {
           active: active30.length, shared: { k: sharers.length, n: active30.length }, kind: breakdown(kinds),
           ios: { shared: sharers.filter(isIos).length, sent: iosSent },
-          badge: { k: badgeTappers.length, n: active30.length, shared: badgeSharers.length, ios: { tapped: oldTapIos.length, sent: iosBadgeSent } },
+          badge: { k: badgeTappers.length, n: active30.length, shared: badgeSharers.length, byId: breakdown(badgeIds), ios: { tapped: oldTapIos.length, sent: iosBadgeSent } },
           coop: { invited: active30.filter((d) => set30('coop_invite_created').has(d.id)).length, joined: active30.filter((d) => set30('coop_joined').has(d.id)).length },
           link: active30.filter((d) => d.inst.srcChannel === 'trypup_link').length,
           family: { state: 'testers' },
@@ -3845,7 +3853,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           (tk ? `, nejčastěji ${esc(lc1(tkL.text))} (${nf(tk[1])})` : '')
         : shN > 0 ? `Za 30 dní nesdílelo žádné ${zz(shN)} aktivních zařízení` : 'Za 30 dní nesdílelo žádné zařízení') +
         `. Pozvánku parťáka za 30 dní ${vytvorilo(inv)} ${nf(inv)} ${pl(inv, 'zařízení', 'zařízení', 'zařízení')}, ${pripojilo(joi)} ${nf(joi)} (pozvánky mohly vzniknout i dřív).`;
-      const z5how = 'Sdíleli = otevřeli nabídku sdílení u momentu, jako je nový pes, první povel, promoce nebo odznak sdílený tlačítkem. Klepnutí na získaný odznak počítáme zvlášť a do sdílení nevstupuje: ve starších verzích aplikace otevírá nabídku sdílení hned, takže jde hlavně o zvědavost; od aktualizace z listopadu 2026 otevře detail odznaku a sdílí se až tlačítkem „Pochlubit&nbsp;se“&nbsp;– takové sdílení počítáme (moment Odznak). Jestli opravdu odeslali, řekne jen iPhone, Android hlásí „odesláno“ i při pouhém otevření. Vytvoření pozvánky a připojení počítáme zvlášť: připojit se šlo i k pozvánce starší než 30 dní nebo z telefonu testera, ten se do počtu pozvánek nepočítá. Pod 10 jen počty; mezi nimi mohou být i telefony zakladatele, které ještě nejsou označené jako tester.';
+      const z5how = 'Sdíleli = otevřeli nabídku sdílení u momentu, jako je nový pes, první povel, promoce nebo odznak sdílený tlačítkem. Klepnutí na získaný odznak počítáme zvlášť a do sdílení nevstupuje: ve starších verzích aplikace otevírá nabídku sdílení hned, takže jde hlavně o zvědavost; od aktualizace z listopadu 2026 otevře detail odznaku a sdílí se až tlačítkem „Pochlubit&nbsp;se“&nbsp;– takové sdílení počítáme (moment Odznak). V závorce za pochlubením je nejvýš pět nejčastějších odznaků a u každého počet zařízení; jedno zařízení se může pochlubit víc odznaky, takže součet v závorce může být vyšší než počet před závorkou. Jestli opravdu odeslali, řekne jen iPhone, Android hlásí „odesláno“ i při pouhém otevření. Vytvoření pozvánky a připojení počítáme zvlášť: připojit se šlo i k pozvánce starší než 30 dní nebo z telefonu testera, ten se do počtu pozvánek nepočítá. Pod 10 jen počty; mezi nimi mohou být i telefony zakladatele, které ještě nejsou označené jako tester.';
       const z5foot = 'Měří se od 7. 10. 2026 (verze 284), sdílení od 2. 7. 2026 · aktivní za 30 dní · bez testerů a robotů · sdílení bez klepnutí na odznak';
       // Klepnutí na odznak zvlášť (rozhodnutí 20. 11.), řádek nesmí lhát v přechodném období ani po něm:
       // „z detailu se pochlubilo“ jen když nový tok běží (aspoň jeden badge_opened skutečného aktivního zařízení v okně,
@@ -3855,8 +3863,18 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       const B = S.badge && typeof S.badge === 'object' ? S.badge : {}, bK = num(B.k) ?? 0, bSh = num(B.shared) ?? 0;
       const bTap = num(B.ios && B.ios.tapped) ?? 0, bSent = num(B.ios && B.ios.sent) ?? 0;
       const bCx = coreIndex(), bOpened = activeWith(bCx, bCx.w30, 'badge_opened', isBadgeOpened).length > 0;
+      // Kterými odznaky se chlubí (byId od verze 355): závorka ve stylu „Moment sdílení“, nejvýš 5 nejčastějších odznaků;
+      // zbytek se jako u ostatních výčtů v řádku (momenty, země v dlaždicích) nevypisuje a Jak číst to říká (oponenti
+      // wf20 T3). Chybějící id („bez údaje“) až za odznaky a mimo pět míst, jako u zemí v Z6 (wf20 T4). Mezera před
+      // číslicí v popisku nezlomitelná, jinak „(Série“ / „7 2“ na dalším řádku čte jako počet (wf20 T1); oddělovač
+      // s nezlomitelnou mezerou před tečkou jako v dlaždici Sdílení, ať závorka nezačíná řádek tečkou. Jedno zařízení
+      // může mít víc odznaků, součet může být > bSh.
+      const bIds = pairsOf(B.byId), bNone = bIds.find(([k]) => k === '_none');
+      const bIdLab = (k) => { const x = L.value('share_initiated', 'id', k); return L.html({ ...x, text: x.text.replace(/ (?=\d)/g, '\u00a0') }); };
+      const bIdsTxt = bIds.length ? ` (${[...bIds.filter(([k]) => k !== '_none').slice(0, 5), ...(bNone ? [bNone] : [])]
+        .map(([k, v]) => `${bIdLab(k)}&nbsp;<b>${nf(v)}</b>`).join('&nbsp;· ')})` : '';
       const badgeParts = [];
-      if (bSh > 0) badgeParts.push(`z detailu se ${pl(bSh, 'pochlubilo', 'pochlubila', 'pochlubilo')}&nbsp;<b>${nf(bSh)}</b>`);
+      if (bSh > 0) badgeParts.push(`z detailu se ${pl(bSh, 'pochlubilo', 'pochlubila', 'pochlubilo')}&nbsp;<b>${nf(bSh)}</b>${bIdsTxt}`);
       else if (bOpened) badgeParts.push('z detailu se zatím nikdo nepochlubil');
       if (bTap > 0) badgeParts.push(`na iPhonu z nabídky hned po klepnutí odeslali&nbsp;<b>${nf(bSent)}</b>&nbsp;${zz(bTap)}${pctPar({ k: bSent, n: bTap })}`);
       const badgeLine = 'Klepnuli na odznak: ' + (bK > 0 || badgeParts.length ? [`<b>${nf(bK)}</b> zařízení`, ...badgeParts].join(' · ') : 'zatím nikdo');
