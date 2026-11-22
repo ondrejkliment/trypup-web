@@ -133,7 +133,7 @@ CATALOG = {
     'share_completed': ('social', 284, '2026-10-07'),
     'coop_invite_created': ('social', 284, '2026-10-07'),
     'coop_joined': ('social', 284, '2026-10-07'),
-    'badge_opened': ('social', 355, '2026-11-20'),  # detail odznaku (OTA 20. 11.); st live (není za příznakem testera)
+    'badge_opened': ('social', 355, '2026-11-22'),  # detail odznaku (OTA 22. 11.); st live (není za příznakem testera)
     'paywall_viewed': ('money', 40, '2026-06-02'),
     'purchase_started': ('money', 40, '2026-06-02'),
     'purchase_completed': ('money', 40, '2026-06-02'),
@@ -1078,7 +1078,7 @@ def devices_with(ids, pred, days=30):
 
 # Rozhodnutí 20. 11. („Admin: odznak zvlášť“): klepnutí na odznak není sdílení. Odznak = `kind` přesně 'badge';
 # chybějící nebo neznámý `kind` je sdílení. Odznaky mají vlastní řádek `badge`.
-# Detail odznaku (OTA 20. 11., nejspíš build 355): klepnutí na odznak otevře detail (`badge_opened {id}`), sdílí se
+# Detail odznaku (OTA 22. 11., build 355): klepnutí na odznak otevře detail (`badge_opened {id}`), sdílí se
 # až tlačítkem „Pochlubit se“ = `share_*` s `kind` 'badge' a `source` přesně 'detail'. To je vědomé sdílení
 # (do sdílení, momentů i iPhonu „sdíleli / odeslali“ vstupuje). Starší verze posílají při klepnutí `share_*`
 # s `kind` 'badge' bez `source` 'detail' = zvědavost, jen klepnutí (rozhodnutí zakladatele 20. 11.).
@@ -1130,7 +1130,7 @@ ios_share = [i for i in share if REAL[i]['platform'] == 'ios']
 ios_sent = devices_with(ios_share, sent_ev)
 badge = devices_with(A30, tap_ev)
 bragged = devices_with(A30, bragged_ev)
-# Rozpad pochlubení podle odznaku (OTA 20. 11., nejspíš build 355: `share_*` odznaku z detailu nesou `id` jako
+# Rozpad pochlubení podle odznaku (OTA 22. 11., build 355: `share_*` odznaku z detailu nesou `id` jako
 # `badge_opened.p.id`). Zařízení z `bragged` s každým `id` svých pochlubení v období jednou; chybějící / prázdné `id`
 # (starší dávka) → `_none`. Součet může být > `badge.shared` (pochlubil se dvěma odznaky).
 brag_ids = Counter()

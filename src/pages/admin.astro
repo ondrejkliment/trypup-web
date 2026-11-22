@@ -899,7 +899,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     const isName = (name) => (e) => e.name === name;
     // Sdílení (Z5, Souhrn), rozhodnutí zakladatele 20. 11.: ve starších verzích klepnutí na získaný odznak rovnou
     // otevře nabídku sdílení (share_initiated s kind 'badge' bez source), takže je to hlavně zvědavost a do sdílení
-    // nevstupuje. Od OTA z 20. 11. (verze 355) klepnutí otevře detail odznaku (badge_opened {id}) a sdílí se až
+    // nevstupuje. Od OTA z 22. 11. (verze 355) klepnutí otevře detail odznaku (badge_opened {id}) a sdílí se až
     // tlačítkem „Pochlubit se“ (share_initiated / share_completed s kind 'badge' a source 'detail'): to je sdílení
     // (moment Odznak). Chybějící nebo neznámý kind se počítá jako sdílení. Odesláno = share_completed s action
     // 'shared' (věrohodné jen na iPhonu, Android hlásí „shared“ vždy).
