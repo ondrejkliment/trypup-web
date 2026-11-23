@@ -149,6 +149,12 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     .tk-row { display:grid; grid-template-columns:minmax(0,11.5em) minmax(0,1fr); gap:6px 14px; align-items:baseline; padding:6px 0; border-top:1px solid #ffffff12; }
     .tk-row:first-of-type { border-top:0; }
     .tk-row p { margin:0; line-height:1.5; font-size:13.5px; overflow-wrap:anywhere; }
+    button.tk-ack { padding:2px 9px; font-size:11.5px; font-weight:600; border-radius:8px; margin-left:6px; vertical-align:1px; white-space:nowrap; }
+    button.tk-ack:disabled { opacity:.5; cursor:default; }
+    .tk-hidden { margin:8px 0 0; padding-top:8px; border-top:1px solid #ffffff12; font-size:12px; color:var(--muted); line-height:1.5; }
+    details.z3hist { margin-top:12px; border-top:1px solid var(--line); padding-top:10px; }
+    details.z3hist > summary { cursor:pointer; font-weight:700; font-size:13.5px; }
+    details.z3hist > summary span { color:var(--muted); font-weight:500; font-size:12.5px; }
     .verdict { display:inline-block; border:1px solid currentColor; border-radius:20px; padding:2px 9px; font-size:10.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; justify-self:start; }
     .v-good { color:#7dd39a; } .v-warn { color:#e8c46a; } .v-up { color:var(--apricot); } .v-info { color:#8cc3d0; } .v-muted { color:var(--muted); }
     .qsec { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin:26px 0 10px; }
@@ -381,7 +387,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     // a admin by ji ukázal jako úplná prázdná data („Historie kompletní“, nuly). getDocsFromServer vyhodí 'unavailable'.
     // disableNetwork + enableNetwork (provoz3-1): po visícím spojení SDK zůstane až 45 s „offline“ a getDocsFromServer
     // hned selže, i když spojení už funguje. Restart sítě před dalším čtením ho vrátí hned.
-    import { getFirestore, collection, query, where, orderBy, limit, startAfter, getDocsFromServer, doc, setDoc, deleteDoc, serverTimestamp, disableNetwork, enableNetwork }
+    import { getFirestore, collection, query, where, orderBy, limit, startAfter, getDocsFromServer, getDocFromServer, doc, setDoc, deleteDoc, serverTimestamp, disableNetwork, enableNetwork }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const ADMIN_EMAIL = 'o.kliment@gmail.com';
@@ -2001,6 +2007,43 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       AD_CAMPAIGNS = acd ? { ...acd, updatedAt: campaignUpdatedAt(acd.updatedAt) } : null;
       DATA_VER++;
     }
+    // Odkřížkované kampaně v „Co z toho plyne“ (zakladatel 23. 11. 2026: „křížkovat, že už jsem to viděl a eviduje“).
+    // Jeden dokument admin_state/campaign_review {acks: {klíč: {fp, at}}, updatedAt}; čte i píše jen admin (firestore.rules),
+    // takže platí na Macu i na telefonu. fp = verdikt (u skupiny i pásmo ceny): když se změní, položka se vrátí.
+    // Selhané čtení (např. pravidlo ještě není nasazené) = přehled bez křížkování, nic se neskrývá.
+    let CAMP_REVIEW = { state: 'missing', acks: {} };
+    function cleanAcks(a) {
+      const out = {};
+      if (!a || typeof a !== 'object') return out;
+      for (const [k, v] of Object.entries(a)) {
+        if (k === '__proto__' || k.length > 300 || !v || typeof v !== 'object' || typeof v.fp !== 'string') continue;
+        out[k] = { fp: v.fp.slice(0, 120), at: typeof v.at === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v.at) ? v.at.slice(0, 30) : null };
+      }
+      return out;
+    }
+    async function loadCampaignReview() {
+      try {
+        const s = await getDocFromServer(doc(db, 'admin_state', 'campaign_review'));
+        CAMP_REVIEW = { state: 'ok', acks: cleanAcks(s.exists() ? (s.data() || {}).acks : null) };
+      } catch (e) {
+        if (errCode(e) === 'unavailable') NET_RESET = true;
+        console.warn('odkřížkované kampaně nenačteny', e);
+        CAMP_REVIEW = { state: 'error', acks: {} };
+      }
+    }
+    /** a = {key, fp, name} z řádku „Co z toho plyne“; odkřížkováno platí jen pro stejný verdikt. */
+    const isAcked = (a) => !!a && CAMP_REVIEW.state === 'ok' && Object.hasOwn(CAMP_REVIEW.acks, a.key) && CAMP_REVIEW.acks[a.key].fp === a.fp;
+    const ackOf = (key) => (CAMP_REVIEW.state === 'ok' && Object.hasOwn(CAMP_REVIEW.acks, key) ? CAMP_REVIEW.acks[key] : null);
+    /** fp = null: vrátit do přehledu. V demu jen v paměti (bez Firestore). */
+    async function setCampaignAck(key, fp) {
+      if (typeof key !== 'string' || key === '__proto__') return;
+      const next = { ...CAMP_REVIEW.acks };
+      if (fp === null) delete next[key]; else next[key] = { fp: String(fp), at: new Date(nowMs()).toISOString() };
+      if (!DEMO) await setDoc(doc(db, 'admin_state', 'campaign_review'), { acks: next, updatedAt: serverTimestamp() });
+      CAMP_REVIEW = { state: 'ok', acks: next };
+      render();
+    }
+    const ackFailed = (e) => { console.warn('odkřížkování se nepodařilo uložit', e); alert('Nepodařilo se uložit: ' + errText(e, 'zápis') + '.'); };
     /** Čas zápisu kampaní (provoz-8): jen časové razítko nebo platné ISO datum od roku 2026, jinak null. */
     function campaignUpdatedAt(v) {
       const t = v && typeof v.toMillis === 'function' ? tsMs(v) : typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v) ? Date.parse(v) : null;
@@ -2058,6 +2101,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         // v provoz2-1): jinak Nákupy skrývají testery podle staré evidence a hláška říká, že to nejde.
         await loadInstalls().catch((e) => { console.warn('ledger instalací nenačten', e); LOAD_ERR.add('installs'); INSTALLS = []; OVERRIDES = new Map(); reclassify(); DATA_VER++; OVERRIDES_VER++; });
         await loadStoreStats().catch((e) => { console.warn('store_stats nenačteny', e); LOAD_ERR.add('store'); RATINGS = { state: 'error', data: null }; RETENTION = { state: 'error', data: null }; AD_CAMPAIGNS = null; });
+        await loadCampaignReview();
         // Selhané rc_events nesmí nechat nákupy z minulého načtení bez upozornění (provoz2-1).
         await loadRcEvents().catch((e) => { console.warn('rc_events nenačteny', e); LOAD_ERR.add('rc'); RC_EVENTS = []; DATA_VER++; });
         await withLoadLock(() => fetchPage());
@@ -3477,7 +3521,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
     // Slovník verdiktů (C.0): barva jen doplňuje slovo, žádná červená.
     const VERDICT_CLASS = new Map([['Vyplatí se', 'v-good'], ['Nad trhem', 'v-good'], ['Nevyplatí se', 'v-warn'], ['Pod trhem', 'v-warn'], ['Roste', 'v-up'],
       ['Zjištění', 'v-info'], ['Průkazný rozdíl', 'v-info'], ['Na úrovni trhu', 'v-info'], ['Drží', 'v-info'], ['Jen počty', 'v-info'],
-      ['V pořádku', 'v-good'], ['Pozor', 'v-warn'], ['Řešit tarif', 'v-warn']]);
+      ['V pořádku', 'v-good'], ['Pozor', 'v-warn'], ['Řešit tarif', 'v-warn'], ['Zopakovat', 'v-good']]);
     const PLATFORM_LABEL = new Map([['android', 'Android'], ['ios', 'iPhone']]);
     const NETWORK_LABEL = new Map([['tiktok', 'TikTok'], ['google', 'Google Ads'], ['apple', 'Apple Ads'], ['meta', 'Meta']]);
     const OPEN_DETAILS = new Set(); // rozbalené <details> přežijí překreslení (C.5)
@@ -3548,7 +3592,19 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         (sentence ? `<p class="q-sent">${sentence}</p>` : '') + (body ? `<div class="q-body">${body}</div>` : '') +
         (how ? `<p class="q-how"><b>Jak číst:</b> ${how}</p>` : '') + (foot ? `<p class="q-foot">${foot}</p>` : '') + '</section>';
     }
-    const takeaways = (rows) => `<div class="takeaways"><h3>Co z toho plyne</h3>${rows.map(([v, s]) => `<div class="tk-row">${verdictPill(v)}<p>${s}</p></div>`).join('')}</div>`;
+    /**
+     * „Co z toho plyne“: řádky [verdikt, věta HTML, ack?]. ack = {key, fp, name} = řádek jde odkřížkovat (kampaně);
+     * odkřížkovaný se stejným fp se neukáže, jen se jmenuje v řádku pod ním. Bez načteného stavu tlačítka nejsou.
+     */
+    const takeaways = (rows) => {
+      const shown = rows.filter((r) => !isAcked(r[2])), hidden = rows.filter((r) => isAcked(r[2]));
+      const btn = (a) => (a && CAMP_REVIEW.state === 'ok'
+        ? ` <button class="ghost tk-ack" type="button" data-ack="${esc(a.key)}" data-fp="${esc(a.fp)}" title="Skrýt z přehledu, dokud se verdikt nezmění">✓ Viděl jsem</button>` : '');
+      return `<div class="takeaways"><h3>Co z toho plyne</h3>${shown.map(([v, s, a]) => `<div class="tk-row">${verdictPill(v)}<p>${s}${btn(a)}</p></div>`).join('')}` +
+        (hidden.length ? `<p class="tk-hidden">Odkřížkováno ${nf(hidden.length)}: ${hidden.map((r) => nbDashTxt(esc(r[2].name))).join(', ')}. Vrátit jde v kartě „Vyplatí se placené kampaně?“ níž.</p>` : '') + '</div>';
+    };
+    /** Pomlčka z názvu („TikTok – říjnový test“) nesmí začínat řádek: nezlomitelná mezera před ní. */
+    const nbDashTxt = (h) => String(h).replace(/ – /g, '&nbsp;– ');
     function tabHead(title, meta) {
       return `<div class="tab-head"><div><h2>${title}</h2><div class="tab-meta">${meta}</div></div>` +
         // Během dočítání Souhrnu by klik nic neudělal (provoz-6): tlačítko je neaktivní, render() ve finally ho povolí.
@@ -3572,6 +3628,9 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       root.querySelectorAll('details[data-open]').forEach((d) => d.addEventListener('toggle', () => {
         if (d.open) OPEN_DETAILS.add(d.dataset.open); else OPEN_DETAILS.delete(d.dataset.open);
       }));
+      // Odkřížkování kampaní (admin_state/campaign_review): ✓ Viděl jsem / vrátit do přehledu.
+      root.querySelectorAll('button[data-ack]').forEach((b) => { b.onclick = () => { b.disabled = true; setCampaignAck(b.dataset.ack, b.dataset.fp).catch((e) => { b.disabled = false; ackFailed(e); }); }; });
+      root.querySelectorAll('button[data-unack]').forEach((b) => { b.onclick = () => { b.disabled = true; setCampaignAck(b.dataset.unack, null).catch((e) => { b.disabled = false; ackFailed(e); }); }; });
     }
     const openAttr = (key) => (OPEN_DETAILS.has(key) ? ' open' : '');
     /** Pruhy: [[popisek HTML, číslo, text místo čísla, bez pruhu]]. Šířka jen z Number() (R12), maximum smyčkou. */
@@ -3730,13 +3789,51 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
         const newestJ = groupJoint(newest);
         const others = newestJ ? list.filter((c) => groupJoint(c) !== newestJ).length : list.length - 1;
         s3 = newest ? (newestJ ? jointSent(newestJ) : campSent(newest)) + (others > 0 ? ' Ostatní kampaně jsou v tabulce.' : '') : emptyTxt;
+        // Odkřížkování, historie a doporučení zopakovat (zakladatel 23. 11. 2026). Jen vykreslení: čísla a verdikty
+        // jsou z jádra beze změny. Skončená = to před dneškem; skupina překryvu je skončená, až skončí všichni členové.
+        const byId = new Map(list.map((c) => [c.id, c]));
+        const ended = (c) => isIsoDay(c.to) && c.to < today;
+        const jointIds = (j) => (Array.isArray(j.ids) ? j.ids.map((x) => String(x)) : []);
+        const jointEnded = (j) => { const ids = Array.isArray(j.ids) ? j.ids : []; return ids.length > 0 && ids.every((id) => byId.has(id) && ended(byId.get(id))); };
+        const isPast = (c) => { const j = groupJoint(c); return j ? jointEnded(j) : ended(c); };
+        const band = (cost) => (num(cost) === null ? 'bez ceny' : num(cost) <= RV.CAMPAIGN_MAX_EUR ? 'pod hranicí' : 'nad hranicí');
+        const campKey = (c, i) => 'camp:' + (c.id !== null && c.id !== undefined ? String(c.id) : `${i}@${c.from}`);
+        const jointKey = (j) => 'joint:' + [...jointIds(j)].sort().join(',');
+        const jointPlain = (j) => jointIds(j).map((x, i) => String((Array.isArray(j.names) && j.names[i]) || x || 'bez názvu')).join(' + ');
+        // Zopakovat: skončená kampaň pod hranicí 5 €, u skupiny celá sestava (každou zvlášť spočítat nejde).
+        const repeatOne = (c) => isPast(c) && !groupJoint(c) && c.verdict === 'Vyplatí se' && num(c.cost) !== null;
+        const repeatJoint = (j) => { const cost = num(j.cost); return jointEnded(j) && !jointShort(j) && cost !== null && cost > 0 && cost <= RV.CAMPAIGN_MAX_EUR; };
+        const rawById = new Map((campaignsOf(AD_CAMPAIGNS) || []).map((r) => [r.id, r]));
+        const setupTxt = (c) => { const r = rawById.get(c.id); return r ? [NETWORK_LABEL.get(r.network) || r.network, PLATFORM_LABEL.get(r.platform) || r.platform, r.country].filter(Boolean).map((x) => esc(x)).join(' · ') : ''; };
+        const per60 = (cost) => nf(Math.round(60 / cost));
+        const repeatSent = (c) => `${cName(c)}: vyplatila se, ${aboutN(c.above)} zařízení nad běžný stav za ${eur(c.spendEur)} = ${eur(c.cost)} za zařízení` +
+          ` (${[setupTxt(c), dayN(c.days)].filter(Boolean).join(', ')}). Stojí za zopakování se stejným nastavením: za 60&nbsp;€ by to při stejné ceně bylo asi ${per60(num(c.cost))} zařízení navíc (hranice je 12). Cena se příště může lišit, po spuštění ji karta spočítá znovu.`;
+        const repeatJointSent = (j) => `${andList(jNames(j))}: společně se vyplatily, ${eur(j.spendEur)} / ${aboutN(j.above)} zařízení nad běžný stav = ${eur(j.cost)} za zařízení. ` +
+          'Každou zvlášť spočítat nejde, takže zopakovat má smysl celou sestavu; jednu kampaň samotnou jen jako nový test.';
+        const ACK_ROWS = new Map(); // klíč → {key, fp, name} řádku v „Co z toho plyne“ (pro „viděl jsi“ v tabulce)
+        const pushCamp = (v, s, a) => { ACK_ROWS.set(a.key, a); z0Camp.push([v, s, a]); };
         const saidJ = new Set();
-        for (const c of list) {
+        list.forEach((c, i) => {
           const j = groupJoint(c);
-          if (!j) z0Camp.push([c.verdict, campSent(c)]);
-          else if (!saidJ.has(j)) { saidJ.add(j); z0Camp.push(['Nelze oddělit', jointSent(j)]); }
-        }
+          if (!j) {
+            const a = { key: campKey(c, i), fp: String(c.verdict), name: String(c.name || c.id || 'bez názvu') };
+            if (repeatOne(c)) pushCamp('Zopakovat', repeatSent(c), { ...a, fp: 'Zopakovat' });
+            else pushCamp(c.verdict, campSent(c), a);
+          } else if (!saidJ.has(j)) {
+            saidJ.add(j);
+            const a = { key: jointKey(j), fp: 'Nelze oddělit · ' + (jointShort(j) ? 'brzy' : band(j.cost)), name: jointPlain(j) };
+            if (repeatJoint(j)) pushCamp('Zopakovat', repeatJointSent(j), { ...a, fp: 'Zopakovat' });
+            else pushCamp('Nelze oddělit', jointSent(j), a);
+          }
+        });
         if (!list.length) z0Camp.push(['Chybí útrata', emptyTxt]);
+        /** „viděl jsi 23. 11. · vrátit“ u odkřížkované položky (jen při stejném verdiktu jako v přehledu). */
+        const ackHtml = (key) => {
+          const a = ACK_ROWS.get(key);
+          if (!isAcked(a)) return '';
+          const t = Date.parse((ackOf(key) || {}).at || ''), d = Number.isFinite(t) ? dayIso(pragueDay(t)) : null;
+          return ` <span class="muted">viděl jsi${d ? ' ' + esc(dayLabelY(d, today)) : ''}</span> <button class="ghost tk-ack" type="button" data-unack="${esc(key)}" title="Vrátit do přehledu Co z toho plyne">vrátit</button>`;
+        };
         const countedPar = (c) => `počítáno ${dayN(c.days)} do ${esc(dayLabelY(c.countedTo, today))}${num(c.spendEur) !== null ? ', kam je zapsaná útrata' : ''}`;
         const daysTxt = (c) => {
           const cut = c.spendBound && isIsoDay(c.countedTo);
@@ -3744,7 +3841,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
             : `od ${esc(dayLabelY(c.from, today))} <span class="muted">(běží${cut ? '; ' + countedPar(c) : ', ' + dayN(c.days)})</span>`;
         };
         const nameCell = (c) => `${cName(c)} <span class="muted">${esc(NETWORK_LABEL.get(c.network) || c.network || '')} · ${esc(PLATFORM_LABEL.get(c.platform) || '')}</span>`;
-        const rows = list.map((c) => {
+        const rowOf = (c, i) => {
           // Překrývající se kampaně: samostatný nadbytek ani cena nejsou pravdivé, jen společně (texty-4). Rozhoduje členství
           // ve skupině, ne verdikt: i člen s Běží krátce nebo Chybí útrata má zařízení společná se skupinou.
           const sep = c.group === null || c.group === undefined;
@@ -3754,18 +3851,28 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
             `<td data-label="Nad běžný stav" class="n">${!sep ? 'jen společně' : num(c.above) === null ? 'nelze určit' : aboutN(c.above)}</td>` +
             `<td data-label="Útrata" class="n">${eur(c.spendEur)}</td>` +
             `<td data-label="Cena za zařízení" class="n">${!sep ? 'jen společně' : num(c.cost) === null ? 'nelze spočítat' : eur(c.cost)}</td>` +
-            `<td data-label="Verdikt">${verdictPill(c.verdict)}${c.tight ? ' <span class="muted">těsně</span>' : ''}${c.note === 'nothingExtra' ? ' <span class="muted">nic navíc</span>' : ''}</td></tr>`;
-        });
+            `<td data-label="Verdikt">${verdictPill(c.verdict)}${c.tight ? ' <span class="muted">těsně</span>' : ''}${c.note === 'nothingExtra' ? ' <span class="muted">nic navíc</span>' : ''}` +
+            `${repeatOne(c) ? ' <span class="muted">stojí za zopakování</span>' : ''}${sep ? ackHtml(campKey(c, i)) : ''}</td></tr>`;
+        };
+        const jointP = (j) => {
+          const cost = num(j.cost);
+          return `<p>Společně ${jNames(j).join(' + ')}: ${eur(j.spendEur)} / ${num(j.above) === null ? 'nelze určit' : aboutN(j.above)} zařízení nad běžný stav = ` +
+            `${cost === null ? 'cenu nelze spočítat' : `${eur(cost)} za zařízení${jointShort(j) ? '' : `, ${limitTxt(cost)}`}`}.${boundTxt(j)}` +
+            `${repeatJoint(j) ? ' <span class="muted">Stojí za zopakování celé sestavy.</span>' : ''}${ackHtml(jointKey(j))}</p>`;
+        };
+        // Běžící a nové nahoře, skončené v Historii kampaní (nejnovější konec první).
+        const cur = [], past = [];
+        list.forEach((c, i) => (isPast(c) ? past : cur).push([c, i]));
+        past.sort((x, y) => String(y[0].to).localeCompare(String(x[0].to)) || String(y[0].from).localeCompare(String(x[0].from)));
+        const curRows = cur.map(([c, i]) => rowOf(c, i));
         // Kampaň, která ještě nezačala: bez verdiktu, jen kdy začne (provoz-8).
-        for (const c of upcoming) rows.push(`<tr><td>${nameCell(c)}</td><td data-label="Dny">začne ${esc(fullDate(c.from))}</td><td data-label="Stav" colspan="6" class="muted">Ještě nezačala, cenu spočítáme po spuštění.</td></tr>`);
-        if (rows.length) {
-          z3Body = '<table class="qt"><thead><tr><th>Kampaň</th><th>Dny</th><th class="n">Nová</th><th class="n">Běžný stav za den</th><th class="n">Nad běžný stav</th><th class="n">Útrata</th><th class="n">Cena za zařízení</th><th>Verdikt</th></tr></thead><tbody>' +
-            rows.join('') + '</tbody></table>' +
-            joint.map((j) => {
-              const cost = num(j.cost);
-              return `<p>Společně ${jNames(j).join(' + ')}: ${eur(j.spendEur)} / ${num(j.above) === null ? 'nelze určit' : aboutN(j.above)} zařízení nad běžný stav = ` +
-                `${cost === null ? 'cenu nelze spočítat' : `${eur(cost)} za zařízení${jointShort(j) ? '' : `, ${limitTxt(cost)}`}`}.${boundTxt(j)}</p>`;
-            }).join('');
+        for (const c of upcoming) curRows.push(`<tr><td>${nameCell(c)}</td><td data-label="Dny">začne ${esc(fullDate(c.from))}</td><td data-label="Stav" colspan="6" class="muted">Ještě nezačala, cenu spočítáme po spuštění.</td></tr>`);
+        const tHead = '<table class="qt"><thead><tr><th>Kampaň</th><th>Dny</th><th class="n">Nová</th><th class="n">Běžný stav za den</th><th class="n">Nad běžný stav</th><th class="n">Útrata</th><th class="n">Cena za zařízení</th><th>Verdikt</th></tr></thead><tbody>';
+        if (curRows.length || past.length) {
+          z3Body = (curRows.length ? tHead + curRows.join('') + '</tbody></table>' : '<p class="muted">Teď neběží žádná kampaň.</p>') +
+            joint.filter((j) => !jointEnded(j)).map(jointP).join('') +
+            (past.length ? `<details class="z3hist" data-open="z3-history"${openAttr('z3-history')}><summary>Historie kampaní <span>· ${nf(past.length)} ${pl(past.length, 'skončená', 'skončené', 'skončených')}</span></summary>` +
+              tHead + past.map(([c, i]) => rowOf(c, i)).join('') + '</tbody></table>' + joint.filter(jointEnded).map(jointP).join('') + '</details>' : '');
         }
         // Patička: nejpozdější den, kam je zapsaná útrata (ze všech kampaní, ne jen z nejnovější); bez spendAt updatedAt.
         let spendTo = '';
@@ -3776,7 +3883,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       }
       const z3 = card({
         q: 'Vyplatí se placené kampaně?', verdict: A.verdicts.z3, sentence: s3, body: z3Body,
-        how: 'Nepočítáme kliknutí ani „konverze“ reklamních systémů, ty hlásí víc, protože počítají i stažení bez otevření. Od nových zařízení ve dnech kampaně odečteme, kolik jich přichází v běžný den bez kampaně. Když běží dvě kampaně na stejné platformě (Android nebo iPhone) ve stejné dny, umíme jen společnou cenu. Zařízení počítáme jen za dny, za které je zapsaná útrata, jinak by cena běžící kampaně vyšla nižší, než je.',
+        how: 'Nepočítáme kliknutí ani „konverze“ reklamních systémů, ty hlásí víc, protože počítají i stažení bez otevření. Od nových zařízení ve dnech kampaně odečteme, kolik jich přichází v běžný den bez kampaně. Když běží dvě kampaně na stejné platformě (Android nebo iPhone) ve stejné dny, umíme jen společnou cenu. Zařízení počítáme jen za dny, za které je zapsaná útrata, jinak by cena běžící kampaně vyšla nižší, než je. Kampaň v „Co z toho plyne“ jde odkřížkovat (✓ Viděl jsem): zmizí z přehledu na Macu i na telefonu a vrátí se sama, až se změní její verdikt; vrátit ji jde i tady v tabulce. Skončené kampaně jsou v Historii kampaní; skončená kampaň pod hranicí 5&nbsp;€ dostane v přehledu doporučení Zopakovat.',
         foot: `Útrata ze zápisu kampaní${z3Upd} · nová zařízení z našeho měření · Vyplatí se do 5&nbsp;€ za zařízení nad běžný stav (dohodnuto)`,
       });
 
@@ -4331,6 +4438,8 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
           if ('RATINGS' in d) RATINGS = d.RATINGS ? { state: 'ok', data: d.RATINGS } : { state: 'missing', data: null };
           if ('RETENTION' in d) RETENTION = d.RETENTION ? { state: 'ok', data: d.RETENTION } : { state: 'missing', data: null };
           if ('AD_CAMPAIGNS' in d) AD_CAMPAIGNS = d.AD_CAMPAIGNS && typeof d.AD_CAMPAIGNS === 'object' ? { ...d.AD_CAMPAIGNS, updatedAt: campaignUpdatedAt(d.AD_CAMPAIGNS.updatedAt) } : null;
+          // Odkřížkované kampaně: {acks:{…}} nebo null (= bez stavu, tlačítka se neukážou); v demu se zápis drží jen v paměti.
+          if ('CAMPAIGN_REVIEW' in d) CAMP_REVIEW = d.CAMPAIGN_REVIEW && typeof d.CAMPAIGN_REVIEW === 'object' ? { state: 'ok', acks: cleanAcks(d.CAMPAIGN_REVIEW.acks) } : { state: 'missing', acks: {} };
           const nowIn = 'NOW' in d ? d.NOW : d.meta && typeof d.meta === 'object' ? d.meta.dumpedAt : undefined;
           if (nowIn !== undefined) { const t = anyMs(nowIn); NOW_FIXED = Number.isFinite(t) ? t : null; }
           exhausted = true; dataReady = true; dashCoverage = true; purchaseCoverage = true; LOADED_AT = nowMs();
@@ -4348,6 +4457,7 @@ const labelsJson = JSON.stringify(labels).replace(/</g, '\\u003c');
       $('dash').classList.remove('hidden');
       $('who').textContent = '· demo (localhost, bez Firestore)';
       $('status').classList.add('hidden');
+      CAMP_REVIEW = { state: 'ok', acks: {} }; // odkřížkování v demu jen v paměti
       exhausted = true; dataReady = true; LOADED_AT = Date.now();
     }
 
